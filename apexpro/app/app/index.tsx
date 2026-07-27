@@ -1,8 +1,8 @@
 import { Redirect } from 'expo-router';
 
-// Temporarily redirect to onboarding for UI testing.
-// Replace with auth-gate logic once authentication is wired up.
+// Redirect to the new auth welcome screen
+// Replace with proper auth-gate logic later
 export default function Index() {
-  return <Redirect href="/onboarding" />;
+  return <Redirect href="/screens/auth/welcome" />;
 }
 

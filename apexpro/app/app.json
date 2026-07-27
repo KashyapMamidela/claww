@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "ApexPro",
-    "slug": "apexpro",
+    "name": "CLAWW",
+    "slug": "claww",
     "version": "1.0.0",
-    "scheme": "apexpro",
+    "scheme": "claww",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -15,14 +15,14 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.apexpro.app"
+      "bundleIdentifier": "com.claww.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.apexpro.app",
+      "package": "com.claww.app",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
@@ -32,7 +32,8 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-dev-client"
     ]
   }
 }

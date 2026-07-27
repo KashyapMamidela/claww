@@ -40,7 +40,7 @@ export async function signInWithGoogle(): Promise<AuthResult> {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'apexpro://auth/callback',
+      redirectTo: 'claww://auth/callback',
     },
   });
 
