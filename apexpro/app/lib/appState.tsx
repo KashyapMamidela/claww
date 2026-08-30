@@ -1,70 +1,149 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { supabase } from './supabase';
+import {
+  getProfile,
+  getRecoveryScore,
+  getTodaysMealLogs,
+  insertSleepLog,
+  logMeal,
+  logMealFromPhoto,
+  type MealLogRow,
+  type MealType,
+  type PortionSize,
+  type RecoveryResult,
+} from './data';
 
-// Session-level demo state mirroring the design kit's App state
-// (ui_kits/claww/index.html). Not persisted; Supabase writes happen
-// where they already exist (onboarding reveal).
+export type { MealLogRow, MealType, RecoveryResult } from './data';
+export { MEAL_ORDER } from './data';
 
-export type MealType = 'Breakfast' | 'Lunch' | 'Snack' | 'Dinner';
-
-export interface MealEntry {
-  type: MealType;
-  time: string;
-  loggedText: string;
-  kcal: number;
-  protein: number;
-  carbs: number;
-  fats: number;
-}
-
-export const MEAL_MACROS: Record<MealType, { kcal: number; protein: number; carbs: number; fats: number }> = {
-  Breakfast: { kcal: 455, protein: 32, carbs: 48, fats: 14 },
-  Lunch: { kcal: 605, protein: 46, carbs: 58, fats: 18 },
-  Snack: { kcal: 305, protein: 18, carbs: 38, fats: 9 },
-  Dinner: { kcal: 420, protein: 38, carbs: 32, fats: 11 },
-};
-
-export const MEAL_ORDER: MealType[] = ['Breakfast', 'Lunch', 'Snack', 'Dinner'];
+// App-wide state backed by real Supabase data, refreshed whenever a session
+// appears (sign-in, app resume, token refresh). `isNewUser` stays a local,
+// session-only UI toggle rather than a real "has a plan" check against
+// getLatestWorkout — flipped once by generatePlan() after the first
+// successful generation.
 
 interface AppState {
+  userId: string | null;
   userName: string;
   setUserName: (name: string) => void;
   isNewUser: boolean;
   generatePlan: () => void;
   sleepLogged: boolean;
-  logSleep: () => void;
-  workoutsCompleted: number;
-  completeWorkout: () => void;
-  meals: MealEntry[];
-  addMeal: (type: MealType, loggedText: string) => void;
+  recovery: RecoveryResult | null;
+  logSleep: (hours: number, bedtime: Date, wakeTime: Date) => Promise<void>;
+  meals: MealLogRow[];
+  addMeal: (type: MealType, text: string, portion?: PortionSize) => Promise<boolean>;
+  addMealFromPhoto: (type: MealType, imageDataUri: string, portion?: PortionSize) => Promise<{ ok: boolean; reason?: string }>;
 }
 
 const AppStateContext = createContext<AppState | null>(null);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
+  const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
   const [isNewUser, setIsNewUser] = useState(true);
   const [sleepLogged, setSleepLogged] = useState(false);
-  const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
-  const [meals, setMeals] = useState<MealEntry[]>([]);
+  const [recovery, setRecovery] = useState<RecoveryResult | null>(null);
+  const [meals, setMeals] = useState<MealLogRow[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadForUser(uid: string) {
+      const [profile, rec, todaysMeals] = await Promise.all([
+        getProfile(uid),
+        getRecoveryScore(uid),
+        getTodaysMealLogs(uid),
+      ]);
+      if (cancelled) return;
+      if (profile?.name) setUserName(profile.name);
+      setRecovery(rec);
+      setSleepLogged(!!rec);
+      setMeals(todaysMeals);
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user.id ?? null;
+      setUserId(uid);
+      if (uid) loadForUser(uid);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      const uid = session?.user.id ?? null;
+      setUserId(uid);
+      if (uid) {
+        loadForUser(uid);
+      } else {
+        // Signed out — reset to a clean slate for the next session.
+        setUserName('');
+        setIsNewUser(true);
+        setRecovery(null);
+        setSleepLogged(false);
+        setMeals([]);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const logSleep = useCallback(
+    async (hours: number, bedtime: Date, wakeTime: Date) => {
+      if (!userId) return;
+      const ok = await insertSleepLog(userId, hours, bedtime, wakeTime);
+      if (ok) {
+        setSleepLogged(true);
+        setRecovery(await getRecoveryScore(userId));
+      }
+    },
+    [userId]
+  );
+
+  const addMeal = useCallback(
+    async (type: MealType, text: string, portion: PortionSize = 'regular') => {
+      if (!userId) return false;
+      const inserted = await logMeal(userId, type, text, portion);
+      if (inserted) {
+        setMeals((m) => [...m, inserted]);
+        return true;
+      }
+      return false;
+    },
+    [userId]
+  );
+
+  const addMealFromPhoto = useCallback(
+    async (type: MealType, imageDataUri: string, portion: PortionSize = 'regular') => {
+      if (!userId) return { ok: false, reason: 'Not signed in.' };
+      const result = await logMealFromPhoto(userId, type, imageDataUri, portion);
+      if (result.ok && result.meal) {
+        setMeals((m) => [...m, result.meal!]);
+        return { ok: true };
+      }
+      return { ok: false, reason: result.reason };
+    },
+    [userId]
+  );
 
   const value = useMemo<AppState>(
     () => ({
+      userId,
       userName,
       setUserName,
       isNewUser,
       generatePlan: () => setIsNewUser(false),
       sleepLogged,
-      logSleep: () => setSleepLogged(true),
-      workoutsCompleted,
-      completeWorkout: () => setWorkoutsCompleted((n) => n + 1),
+      recovery,
+      logSleep,
       meals,
-      addMeal: (type, loggedText) => {
-        const macros = MEAL_MACROS[type];
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        setMeals((m) => [...m, { type, time, loggedText, ...macros }]);
-      },
+      addMeal,
+      addMealFromPhoto,
     }),
-    [userName, isNewUser, sleepLogged, workoutsCompleted, meals]
+    [userId, userName, isNewUser, sleepLogged, recovery, meals, logSleep, addMeal, addMealFromPhoto]
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

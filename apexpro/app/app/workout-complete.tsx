@@ -5,23 +5,24 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
+import { useWorkoutSession } from '../lib/workoutSession';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
 
 const A = COLORS.blue;
 const A3 = COLORS.blueDeep;
 
-const STATS = [
-  { icon: 'clock', label: 'TIME TRAINED', value: '48:32' },
-  { icon: 'flame', label: 'CALORIES BURNED*', value: '420', sub: 'kcal' },
-  { icon: 'check-circle-2', label: 'SETS COMPLETED', value: '17', sub: '/ 17' },
-  { icon: 'repeat', label: 'REPS COMPLETED', value: '172' },
-];
+function formatClock(totalSeconds: number): string {
+  const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+  const ss = String(totalSeconds % 60).padStart(2, '0');
+  return `${mm}:${ss}`;
+}
 
 export default function WorkoutCompleteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userName, completeWorkout } = useAppState();
+  const { userName } = useAppState();
+  const { lastSummary } = useWorkoutSession();
 
   const tileScale = useRef(new Animated.Value(0.5)).current;
   const tileOpacity = useRef(new Animated.Value(0)).current;
@@ -33,8 +34,21 @@ export default function WorkoutCompleteScreen() {
     ]).start();
   }, []);
 
+  const summary = lastSummary;
+  const STATS = [
+    { icon: 'clock', label: 'TIME TRAINED', value: summary ? formatClock(summary.elapsedSeconds) : '—' },
+    { icon: 'dumbbell', label: 'EXERCISES', value: summary ? String(summary.exercisesCompleted) : '—', sub: summary ? `/ ${summary.totalExercises}` : undefined },
+    {
+      icon: 'check-circle-2',
+      label: 'SETS COMPLETED',
+      value: summary ? String(summary.setsCompleted) : '—',
+      sub: summary ? `/ ${summary.totalSetsPlanned}` : undefined,
+    },
+    { icon: 'repeat', label: 'REPS COMPLETED', value: summary ? String(summary.repsCompleted) : '—' },
+  ];
+  const setsPct = summary && summary.totalSetsPlanned > 0 ? Math.round((summary.setsCompleted / summary.totalSetsPlanned) * 100) : null;
+
   const handleDone = () => {
-    completeWorkout();
     router.dismissTo('/(tabs)');
   };
 
@@ -96,12 +110,23 @@ export default function WorkoutCompleteScreen() {
           }}
         >
           <Text style={{ fontSize: 13 }}>✦</Text>
-          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>+120 CLAWW earned</Text>
+          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>
+            +{summary?.xpEarned ?? 0} CLAWW earned
+          </Text>
         </View>
 
         <Text style={{ color: '#A1A1AA', fontSize: 13.5, lineHeight: 21, textAlign: 'center', maxWidth: 300, marginBottom: 26, fontFamily: FONT }}>
-          Great session — you burned an <Text style={{ color: '#fff', fontWeight: '700' }}>estimated 420 kcal</Text> and hit{' '}
-          <Text style={{ color: A, fontWeight: '700' }}>100% of planned volume</Text>.
+          {setsPct !== null ? (
+            <>
+              Great session — you completed{' '}
+              <Text style={{ color: '#fff', fontWeight: '700' }}>
+                {summary!.setsCompleted}/{summary!.totalSetsPlanned} sets
+              </Text>{' '}
+              (<Text style={{ color: A, fontWeight: '700' }}>{setsPct}%</Text> of planned volume).
+            </>
+          ) : (
+            'Great session.'
+          )}
         </Text>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, width: '100%' }}>
@@ -144,13 +169,6 @@ export default function WorkoutCompleteScreen() {
               </Text>
             </View>
           ))}
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6, marginTop: 14, paddingHorizontal: 6 }}>
-          <Icon name="info" size={11} color="#52525B" />
-          <Text style={{ flex: 1, color: '#52525B', fontSize: 10.5, lineHeight: 15, fontFamily: FONT }}>
-            *Calorie and fat-burn figures are estimates based on your profile and session data, not direct measurement.
-          </Text>
         </View>
       </ScrollView>
 

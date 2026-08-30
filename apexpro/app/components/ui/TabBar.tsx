@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { BlurView } from 'expo-blur';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONT, TAB_ACCENTS } from '../../lib/theme';
@@ -35,9 +36,12 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   const activeAccent = TAB_ACCENTS[activeRoute]?.accent ?? '#FFFFFF';
 
   return (
-    <View
+    <View style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10 }}>
+    <BlurView
+      intensity={70}
+      tint="dark"
       style={{
-        backgroundColor: '#0F0F10',
+        backgroundColor: 'rgba(9,9,10,0.55)',
         borderTopWidth: 1,
         borderTopColor: 'rgba(255,255,255,0.08)',
         paddingTop: 6,
@@ -97,6 +101,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           );
         })}
       </View>
+    </BlurView>
     </View>
   );
 }

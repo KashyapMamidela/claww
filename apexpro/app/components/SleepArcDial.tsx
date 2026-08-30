@@ -14,6 +14,7 @@ export function SleepArcDial() {
   const { logSleep } = useAppState();
   const [hours, setHours] = useState(7.5);
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const pct = Math.min(hours / 10, 1) * 100;
   const quality = hours < 5 ? 'Poor' : hours < 6.5 ? 'Fair' : hours < 7.5 ? 'Good' : hours <= 9 ? 'Optimal' : 'Excess';
@@ -137,9 +138,16 @@ export function SleepArcDial() {
 
       <TouchableOpacity
         activeOpacity={0.85}
-        onPress={() => {
+        disabled={saving}
+        onPress={async () => {
+          setSaving(true);
+          // No dedicated bedtime/wake-time picker yet — approximate from
+          // "now" as wake-up and hours-back as bedtime.
+          const wakeTime = new Date();
+          const bedtime = new Date(wakeTime.getTime() - hours * 60 * 60 * 1000);
+          await logSleep(hours, bedtime, wakeTime);
+          setSaving(false);
           setSubmitted(true);
-          logSleep();
         }}
         style={{ marginTop: 14 }}
       >

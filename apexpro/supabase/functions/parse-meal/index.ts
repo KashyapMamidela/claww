@@ -5,7 +5,14 @@ import { UnauthorizedError, requireUser, userClientFromRequest } from '../_share
 
 const RequestSchema = z.object({
   text: z.string().min(1, 'text is required'),
+  mealType: z.enum(['Breakfast', 'Lunch', 'Snack', 'Dinner']).optional(),
+  portion: z.enum(['small', 'regular', 'large']).optional().default('regular'),
 });
+
+// A "regular" portion is the AI's base estimate; small/large scale it by a
+// fixed ratio rather than asking the AI to guess proportionally, which kept
+// answers inconsistent across repeated identical requests.
+const PORTION_MULTIPLIERS: Record<string, number> = { small: 0.7, regular: 1, large: 1.4 };
 
 const ParsedMealSchema = z.object({
   description: z.string(),
@@ -45,17 +52,19 @@ Deno.serve(async (req: Request) => {
     }
 
     const meal = parseResult.data;
+    const multiplier = PORTION_MULTIPLIERS[body.portion];
 
     const { data: inserted, error: insertError } = await supabase
       .from('meal_logs')
       .insert({
         user_id: user.id,
         description: meal.description,
-        calories: meal.calories,
-        protein_g: meal.protein_g,
-        carbs_g: meal.carbs_g,
-        fats_g: meal.fats_g,
+        calories: Math.round(meal.calories * multiplier),
+        protein_g: Math.round(meal.protein_g * multiplier),
+        carbs_g: Math.round(meal.carbs_g * multiplier),
+        fats_g: Math.round(meal.fats_g * multiplier),
         estimated: true,
+        meal_type: body.mealType ?? null,
       })
       .select()
       .single();

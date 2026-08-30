@@ -18,10 +18,7 @@ export function SectionLabel({ children, color = '#22C55E', dot = true }: Sectio
             height: 6,
             borderRadius: 3,
             backgroundColor: color,
-            shadowColor: color,
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.9,
-            shadowRadius: 4,
+            boxShadow: `0 0 4px ${color}E6`,
           }}
         />
       )}

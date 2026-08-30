@@ -1,8 +1,6 @@
-import { Redirect } from 'expo-router';
-
-// Redirect to the new auth welcome screen
-// Replace with proper auth-gate logic later
+// No content of its own — the root layout's auth-state effect (see
+// _layout.tsx) always replaces this route with welcome/onboarding/(tabs)
+// once the session check resolves, so this never stays on screen.
 export default function Index() {
-  return <Redirect href="/screens/auth/welcome" />;
+  return null;
 }
-

@@ -1,0 +1,802 @@
+import { supabase } from './supabase';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Profile
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type Goal = 'muscle_gain' | 'fat_loss' | 'endurance' | 'maintenance' | 'flexibility';
+export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
+export type Equipment = 'gym' | 'home' | 'none';
+export type Modality = 'strength' | 'cardio' | 'mobility' | 'yoga';
+export type ActivityLevel = 'sedentary' | 'moderate' | 'active';
+
+export interface WorkoutDefaults {
+  modalities: Modality[];
+  activityLevel: ActivityLevel;
+  /** Free-text injuries/limitations (e.g. "bad knees, avoid heavy squats") — feeds the exercise-exclusion filter in generate-plan. */
+  injuries?: string;
+}
+
+export interface NutritionDefaults {
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fats_g: number;
+}
+
+export type DietaryRestriction =
+  | 'vegetarian'
+  | 'vegan'
+  | 'gluten_free'
+  | 'dairy_free'
+  | 'nut_allergy'
+  | 'shellfish_allergy'
+  | 'halal'
+  | 'kosher';
+
+export interface PersonalizationProfile {
+  name?: string;
+  age?: number | null;
+  gender?: string | null;
+  workoutDefaults?: WorkoutDefaults | null;
+  nutritionDefaults?: NutritionDefaults | null;
+  dietaryRestrictions?: DietaryRestriction[];
+}
+
+export interface Profile {
+  id: string;
+  name: string | null;
+  email: string;
+  age: number | null;
+  gender: string | null;
+  height: number | null;
+  weight: number | null;
+  goal: Goal | null;
+  experience_level: ExperienceLevel | null;
+  equipment: Equipment | null;
+  personalization_profile: PersonalizationProfile | null;
+}
+
+const PROFILE_COLUMNS = 'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile';
+
+export async function getProfile(userId: string): Promise<Profile | null> {
+  const { data, error } = await supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', userId).maybeSingle();
+  if (error) {
+    console.warn('[Claww] Failed to load profile:', error.message);
+    return null;
+  }
+  return data;
+}
+
+export interface WorkoutIntakeInput {
+  height: number;
+  weight: number;
+  goal: Goal;
+  experienceLevel: ExperienceLevel;
+  equipment: Equipment;
+  modalities: Modality[];
+  activityLevel: ActivityLevel;
+  injuries?: string;
+}
+
+/**
+ * Saves the workout-setup intake: flat columns for the fields the schema
+ * already had (height/weight/goal/experience_level/equipment), plus a
+ * merge into personalization_profile.workoutDefaults for the fields
+ * generate-plan reads (modalities, activityLevel) — read-modify-write since
+ * personalization_profile also holds name/gender/nutritionDefaults we must
+ * not clobber.
+ */
+export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInput): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const nextPersonalization: PersonalizationProfile = {
+    ...(profile?.personalization_profile ?? {}),
+    workoutDefaults: { modalities: input.modalities, activityLevel: input.activityLevel, injuries: input.injuries?.trim() || undefined },
+  };
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      height: input.height,
+      weight: input.weight,
+      goal: input.goal,
+      experience_level: input.experienceLevel,
+      equipment: input.equipment,
+      personalization_profile: nextPersonalization,
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.warn('[Claww] Failed to save workout intake:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Mifflin-St Jeor BMR -> TDEE -> goal-adjusted calories -> macro split.
+ * Deterministic and instant — no LLM involved, this is a solved formula,
+ * not a generation problem. Produces the "sample plan" nutrition-setup
+ * shows before the user customizes it.
+ */
+export function computeNutritionSample(input: {
+  height: number;
+  weight: number;
+  age: number;
+  gender: string | null;
+  goal: Goal | null;
+  activityLevel: ActivityLevel;
+}): NutritionDefaults {
+  const bmrMale = 10 * input.weight + 6.25 * input.height - 5 * input.age + 5;
+  const bmrFemale = 10 * input.weight + 6.25 * input.height - 5 * input.age - 161;
+  const bmr = input.gender === 'male' ? bmrMale : input.gender === 'female' ? bmrFemale : (bmrMale + bmrFemale) / 2;
+
+  const activityMultiplier: Record<ActivityLevel, number> = { sedentary: 1.2, moderate: 1.45, active: 1.7 };
+  const tdee = bmr * activityMultiplier[input.activityLevel];
+
+  const goalAdjustment = input.goal === 'fat_loss' ? -500 : input.goal === 'muscle_gain' ? 300 : 0;
+  const calories = Math.round(Math.max(1200, tdee + goalAdjustment));
+
+  // Protein floor scales with goal, like a coach would set it — a cutting
+  // client needs more protein per kg to preserve lean mass in a deficit
+  // than someone just maintaining.
+  const PROTEIN_G_PER_KG: Record<Goal, number> = {
+    fat_loss: 2.2,
+    muscle_gain: 2.0,
+    maintenance: 1.6,
+    endurance: 1.4,
+    flexibility: 1.2,
+  };
+  const proteinPerKg = input.goal ? PROTEIN_G_PER_KG[input.goal] : 1.6;
+  const protein_g = Math.round(input.weight * proteinPerKg);
+  const fats_g = Math.round((calories * 0.25) / 9);
+  const carbs_g = Math.round(Math.max(0, calories - protein_g * 4 - fats_g * 9) / 4);
+
+  return { calories, protein_g, carbs_g, fats_g };
+}
+
+export async function saveNutritionTargets(
+  userId: string,
+  targets: NutritionDefaults,
+  dietaryRestrictions?: DietaryRestriction[]
+): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const nextPersonalization: PersonalizationProfile = {
+    ...(profile?.personalization_profile ?? {}),
+    nutritionDefaults: targets,
+    dietaryRestrictions: dietaryRestrictions ?? profile?.personalization_profile?.dietaryRestrictions,
+  };
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ personalization_profile: nextPersonalization })
+    .eq('id', userId);
+
+  if (error) {
+    console.warn('[Claww] Failed to save nutrition targets:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Sleep
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface SleepLogRow {
+  hours: number;
+  bedtime: string | null;
+  wake_time: string | null;
+  logged_at: string;
+}
+
+export async function getLatestSleepLog(userId: string): Promise<SleepLogRow | null> {
+  const { data, error } = await supabase
+    .from('sleep_logs')
+    .select('hours, bedtime, wake_time, logged_at')
+    .eq('user_id', userId)
+    .order('logged_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    console.warn('[Claww] Failed to load sleep log:', error.message);
+    return null;
+  }
+  return data;
+}
+
+export async function insertSleepLog(userId: string, hours: number, bedtime: Date, wakeTime: Date): Promise<boolean> {
+  const { error } = await supabase.from('sleep_logs').insert({
+    user_id: userId,
+    hours,
+    bedtime: bedtime.toISOString(),
+    wake_time: wakeTime.toISOString(),
+  });
+  if (error) {
+    console.warn('[Claww] Failed to save sleep log:', error.message);
+    return false;
+  }
+  await awardXp(userId, 10, 'sleep_logged');
+  return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Recovery score
+//
+// Client-side port of supabase/functions/_shared/recovery.ts's formula, so
+// Home can show a real score today without depending on that Edge Function
+// being deployed yet. Once it is deployed, generate-plan will use the
+// server-side version for plan generation; this stays as Home's quick read.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface RecoveryResult {
+  score: number;
+  band: 'Low' | 'Moderate' | 'High';
+}
+
+function estimateSessionIntensity(workoutLog: { sets: number | null; reps: number | null } | null): number {
+  if (!workoutLog) return 0;
+  const volume = (workoutLog.sets ?? 0) * (workoutLog.reps ?? 0);
+  return Math.max(0, Math.min(10, volume / 10));
+}
+
+export function computeRecoveryScore(
+  sleepLog: { hours: number | null } | null,
+  workoutLog: { sets: number | null; reps: number | null; completed_at: string } | null
+): RecoveryResult {
+  const sleepHours = sleepLog?.hours ?? 0;
+  const sleepScore = Math.min(sleepHours / 8, 1) * 40;
+
+  let recoveryGap = 30; // no prior session on record -> full recovery credit
+  if (workoutLog?.completed_at) {
+    const hoursSinceLastSession = (Date.now() - new Date(workoutLog.completed_at).getTime()) / (1000 * 60 * 60);
+    recoveryGap = Math.min(Math.max(hoursSinceLastSession, 0) / 24, 1) * 30;
+  }
+
+  const fatiguePenalty = estimateSessionIntensity(workoutLog) * 3;
+  const score = Math.max(0, Math.min(100, sleepScore + recoveryGap - fatiguePenalty + 30));
+  const band: RecoveryResult['band'] = score < 40 ? 'Low' : score <= 70 ? 'Moderate' : 'High';
+  return { score: Math.round(score), band };
+}
+
+/** Returns null when there's no sleep log yet — nothing to compute a score from. */
+export async function getRecoveryScore(userId: string): Promise<RecoveryResult | null> {
+  const [sleepLog, workoutLogResult] = await Promise.all([
+    getLatestSleepLog(userId),
+    supabase
+      .from('workout_logs')
+      .select('sets, reps, completed_at')
+      .eq('user_id', userId)
+      .order('completed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ]);
+  if (!sleepLog) return null;
+  return computeRecoveryScore(sleepLog, workoutLogResult.data);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Meals
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type MealType = 'Breakfast' | 'Lunch' | 'Snack' | 'Dinner';
+export const MEAL_ORDER: MealType[] = ['Breakfast', 'Lunch', 'Snack', 'Dinner'];
+
+export interface MealLogRow {
+  id: string;
+  description: string;
+  calories: number | null;
+  protein_g: number | null;
+  carbs_g: number | null;
+  fats_g: number | null;
+  estimated: boolean;
+  meal_type: MealType | null;
+  logged_at: string;
+}
+
+export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('meal_logs')
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at')
+    .eq('user_id', userId)
+    .gte('logged_at', startOfDay.toISOString())
+    .order('logged_at', { ascending: true });
+  if (error) {
+    console.warn('[Claww] Failed to load meal logs:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+const FALLBACK_MEAL_MACROS: Record<MealType, { calories: number; protein_g: number; carbs_g: number; fats_g: number }> = {
+  Breakfast: { calories: 455, protein_g: 32, carbs_g: 48, fats_g: 14 },
+  Lunch: { calories: 605, protein_g: 46, carbs_g: 58, fats_g: 18 },
+  Snack: { calories: 305, protein_g: 18, carbs_g: 38, fats_g: 9 },
+  Dinner: { calories: 420, protein_g: 38, carbs_g: 32, fats_g: 11 },
+};
+
+export type PortionSize = 'small' | 'regular' | 'large';
+
+// "regular" is the base estimate; small/large scale it by a fixed ratio.
+// Mirrors the same map used server-side in parse-meal and parse-meal-photo
+// (this copy only fires when the Edge Function is unreachable and we fall
+// back to the flat per-meal-type estimate below).
+const PORTION_MULTIPLIERS: Record<PortionSize, number> = { small: 0.7, regular: 1, large: 1.4 };
+
+/**
+ * Tries the parse-meal Edge Function for an AI macro estimate first; if it's
+ * not deployed yet (or errors for any reason), falls back to a rough
+ * per-meal-type estimate inserted directly, so the log still saves for real
+ * either way instead of failing outright.
+ */
+export async function logMeal(
+  userId: string,
+  mealType: MealType,
+  text: string,
+  portion: PortionSize = 'regular'
+): Promise<MealLogRow | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke('parse-meal', { body: { text, mealType, portion } });
+    if (!error && data && typeof data.calories === 'number') {
+      await awardXp(userId, 10, 'meal_logged');
+      return data as MealLogRow;
+    }
+  } catch {
+    // Edge Function not deployed / unreachable — fall through to the local estimate.
+  }
+
+  const fallback = FALLBACK_MEAL_MACROS[mealType];
+  const multiplier = PORTION_MULTIPLIERS[portion];
+  const { data, error } = await supabase
+    .from('meal_logs')
+    .insert({
+      user_id: userId,
+      description: text,
+      calories: Math.round(fallback.calories * multiplier),
+      protein_g: Math.round(fallback.protein_g * multiplier),
+      carbs_g: Math.round(fallback.carbs_g * multiplier),
+      fats_g: Math.round(fallback.fats_g * multiplier),
+      estimated: true,
+      meal_type: mealType,
+    })
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at')
+    .single();
+
+  if (error) {
+    console.warn('[Claww] Failed to save meal log:', error.message);
+    return null;
+  }
+  await awardXp(userId, 10, 'meal_logged');
+  return data;
+}
+
+export interface PhotoMealResult {
+  ok: boolean;
+  meal?: MealLogRow;
+  reason?: string;
+}
+
+/**
+ * Estimates + logs a meal from a photo via the parse-meal-photo Edge
+ * Function, which also moderates the image (flags non-food or
+ * inappropriate photos before ever estimating or saving anything). No
+ * local fallback here — unlike text, there's no sane offline guess for
+ * "what's in this photo," so a failure surfaces to the caller instead of
+ * silently inventing numbers.
+ */
+export async function logMealFromPhoto(
+  userId: string,
+  mealType: MealType,
+  imageDataUri: string,
+  portion: PortionSize = 'regular'
+): Promise<PhotoMealResult> {
+  const { data, error } = await supabase.functions.invoke('parse-meal-photo', {
+    body: { image: imageDataUri, mealType, portion },
+  });
+  if (error) {
+    console.warn('[Claww] Failed to estimate meal from photo:', error.message);
+    return { ok: false, reason: "Couldn't estimate that photo — check your connection and try again." };
+  }
+  if (data?.blocked) {
+    return { ok: false, reason: data.reason ?? "That photo couldn't be processed." };
+  }
+  if (!data || typeof data.calories !== 'number') {
+    return { ok: false, reason: "Couldn't estimate that photo — try a clearer shot, or describe the meal in words instead." };
+  }
+  await awardXp(userId, 10, 'meal_logged');
+  return { ok: true, meal: data as MealLogRow };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Workouts
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface WorkoutSetInput {
+  exerciseName: string;
+  exerciseId?: string | null;
+  setNumber: number;
+  reps: number;
+  weight: number;
+}
+
+/** Logs one completed set (see WorkoutSessionProvider). Awards a small, real XP amount per set. */
+export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promise<boolean> {
+  const { error } = await supabase.from('workout_logs').insert({
+    user_id: userId,
+    exercise_id: log.exerciseId ?? null,
+    exercise_name: log.exerciseName,
+    sets: log.setNumber,
+    reps: log.reps,
+    weight: log.weight,
+  });
+  if (error) {
+    console.warn('[Claww] Failed to log workout set:', error.message);
+    return false;
+  }
+  await awardXp(userId, 5, 'set_completed');
+  return true;
+}
+
+/** Count of completed sets logged (one workout_logs row per set — see logWorkoutSet). */
+export async function getWorkoutLogCount(userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from('workout_logs')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to count workout logs:', error.message);
+    return 0;
+  }
+  return count ?? 0;
+}
+
+/**
+ * "Workouts completed" = distinct calendar days with at least one logged
+ * set — there's no session-id on workout_logs, so a day with any training
+ * activity counts as one workout, same convention as the activity streak.
+ */
+export async function getCompletedWorkoutDays(userId: string): Promise<number> {
+  const { data, error } = await supabase.from('workout_logs').select('completed_at').eq('user_id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to count completed workouts:', error.message);
+    return 0;
+  }
+  const days = new Set((data ?? []).map((row) => new Date(row.completed_at).toDateString()));
+  return days.size;
+}
+
+/** Distinct training days so far this calendar month — same convention as getCompletedWorkoutDays. */
+export async function getWorkoutsThisMonth(userId: string): Promise<number> {
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('completed_at')
+    .eq('user_id', userId)
+    .gte('completed_at', startOfMonth.toISOString());
+  if (error) {
+    console.warn('[Claww] Failed to count monthly workout logs:', error.message);
+    return 0;
+  }
+  const days = new Set((data ?? []).map((row) => new Date(row.completed_at).toDateString()));
+  return days.size;
+}
+
+/** Total sets x reps x weight lifted, all-time. */
+export async function getTotalVolume(userId: string): Promise<number> {
+  const { data, error } = await supabase.from('workout_logs').select('sets, reps, weight').eq('user_id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to load workout volume:', error.message);
+    return 0;
+  }
+  return (data ?? []).reduce((sum, row) => sum + (row.sets ?? 0) * (row.reps ?? 0) * (row.weight ?? 0), 0);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Generated workout plans
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PlanExercise {
+  exerciseId?: string;
+  name: string;
+  sets: number;
+  reps: number;
+}
+
+export interface PlanDay {
+  day: string;
+  focus: string;
+  exercises: PlanExercise[];
+}
+
+export interface WorkoutPlan {
+  days: PlanDay[];
+  notes?: string;
+}
+
+export interface WorkoutRow {
+  id: string;
+  plan: WorkoutPlan;
+  created_at: string;
+}
+
+export async function getLatestWorkout(userId: string): Promise<WorkoutRow | null> {
+  const { data, error } = await supabase
+    .from('workouts')
+    .select('id, plan, created_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    console.warn('[Claww] Failed to load latest workout:', error.message);
+    return null;
+  }
+  return data;
+}
+
+/** Calls the generate-plan Edge Function (personalized plan, grounded in the real exercises catalog). */
+export async function generateWorkoutPlan(userId: string): Promise<WorkoutRow | null> {
+  const { data, error } = await supabase.functions.invoke('generate-plan', { body: {} });
+  if (error) {
+    console.warn('[Claww] Failed to generate workout plan:', error.message);
+    return null;
+  }
+  await awardXp(userId, 50, 'plan_generated');
+  return data?.workout ?? null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Workout day scheduling — tracks which plan day was completed/skipped and
+// when, so the Workouts tab can recommend "today" instead of always
+// defaulting to days[0], and render a real completed/skipped calendar.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type WorkoutDayStatus = 'completed' | 'skipped';
+
+export interface WorkoutDayEvent {
+  id: string;
+  workoutId: string | null;
+  dayLabel: string;
+  dayFocus: string | null;
+  status: WorkoutDayStatus;
+  eventDate: string; // YYYY-MM-DD
+}
+
+function mapDayEventRow(row: {
+  id: string;
+  workout_id: string | null;
+  day_label: string;
+  day_focus: string | null;
+  status: WorkoutDayStatus;
+  event_date: string;
+}): WorkoutDayEvent {
+  return {
+    id: row.id,
+    workoutId: row.workout_id,
+    dayLabel: row.day_label,
+    dayFocus: row.day_focus,
+    status: row.status,
+    eventDate: row.event_date,
+  };
+}
+
+export async function logWorkoutDayEvent(
+  userId: string,
+  workoutId: string,
+  dayLabel: string,
+  dayFocus: string,
+  status: WorkoutDayStatus
+): Promise<boolean> {
+  const { error } = await supabase.from('workout_day_events').insert({
+    user_id: userId,
+    workout_id: workoutId,
+    day_label: dayLabel,
+    day_focus: dayFocus,
+    status,
+  });
+  if (error) {
+    console.warn('[Claww] Failed to log workout day event:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/** Events for a specific workout plan, most recent first — used to compute the next suggested day. */
+export async function getWorkoutDayEvents(userId: string, workoutId: string): Promise<WorkoutDayEvent[]> {
+  const { data, error } = await supabase
+    .from('workout_day_events')
+    .select('id, workout_id, day_label, day_focus, status, event_date')
+    .eq('user_id', userId)
+    .eq('workout_id', workoutId)
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.warn('[Claww] Failed to load workout day events:', error.message);
+    return [];
+  }
+  return (data ?? []).map(mapDayEventRow);
+}
+
+/** All events in an inclusive date range (across any plan) — feeds the completed/skipped calendar. */
+export async function getWorkoutDayEventsInRange(userId: string, startDate: string, endDate: string): Promise<WorkoutDayEvent[]> {
+  const { data, error } = await supabase
+    .from('workout_day_events')
+    .select('id, workout_id, day_label, day_focus, status, event_date')
+    .eq('user_id', userId)
+    .gte('event_date', startDate)
+    .lte('event_date', endDate)
+    .order('event_date', { ascending: true });
+  if (error) {
+    console.warn('[Claww] Failed to load workout calendar:', error.message);
+    return [];
+  }
+  return (data ?? []).map(mapDayEventRow);
+}
+
+/**
+ * Suggests which plan day to do next: the day after whichever was most
+ * recently completed or skipped, cycling back to the start once the plan's
+ * days are exhausted (a split repeats indefinitely, it doesn't "run out").
+ * No events yet for this plan -> suggest day 0.
+ */
+export function getSuggestedDayIndex(plan: WorkoutPlan, recentEventsDesc: WorkoutDayEvent[]): number {
+  if (recentEventsDesc.length === 0 || plan.days.length === 0) return 0;
+  const mostRecent = recentEventsDesc[0];
+  const lastIndex = plan.days.findIndex((d) => d.day === mostRecent.dayLabel);
+  if (lastIndex === -1) return 0;
+  return (lastIndex + 1) % plan.days.length;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// XP — append-only ledger (xp_events), summed by the user_xp view. Awarding
+// XP is fire-and-forget: it should never block or fail the action that
+// earned it (logging sleep/a meal/generating a plan all still succeed even
+// if this insert fails).
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function awardXp(userId: string, amount: number, reason: string): Promise<void> {
+  const { error } = await supabase.from('xp_events').insert({ user_id: userId, amount, reason });
+  if (error) {
+    console.warn('[Claww] Failed to award XP:', error.message);
+  }
+}
+
+/** Sums xp_events via the user_xp view. The view has no row at all for a user with zero events. */
+export async function getUserXp(userId: string): Promise<number> {
+  const { data, error } = await supabase.from('user_xp').select('xp').eq('user_id', userId).maybeSingle();
+  if (error) {
+    console.warn('[Claww] Failed to load XP:', error.message);
+    return 0;
+  }
+  return data?.xp ?? 0;
+}
+
+const XP_PER_LEVEL = 100;
+
+export interface LevelInfo {
+  level: number;
+  xpIntoLevel: number;
+  xpForNextLevel: number;
+}
+
+export function getLevelInfo(xp: number): LevelInfo {
+  const level = Math.floor(xp / XP_PER_LEVEL) + 1;
+  return { level, xpIntoLevel: xp % XP_PER_LEVEL, xpForNextLevel: XP_PER_LEVEL };
+}
+
+const TIER_NAMES = ['Getting Started', 'Building Momentum', 'Committed', 'Dedicated', 'Elite'];
+
+export function getTierName(level: number): string {
+  const idx = Math.min(TIER_NAMES.length - 1, Math.floor((level - 1) / 5));
+  return TIER_NAMES[idx];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Activity streak — consecutive calendar days (ending today or yesterday,
+// so it doesn't reset to 0 at midnight before today's first log) with at
+// least one sleep or meal log. The only two consistently-logged real
+// signals available without a workout-tracking UI.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function getActivityStreak(userId: string): Promise<number> {
+  const [sleepRes, mealRes] = await Promise.all([
+    supabase.from('sleep_logs').select('logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(120),
+    supabase.from('meal_logs').select('logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(120),
+  ]);
+
+  const days = new Set<string>();
+  for (const row of [...(sleepRes.data ?? []), ...(mealRes.data ?? [])]) {
+    days.add(new Date(row.logged_at).toDateString());
+  }
+  if (days.size === 0) return 0;
+
+  const cursor = new Date();
+  // If nothing logged today yet, start counting from yesterday so an
+  // active streak doesn't read as broken before the day is even over.
+  if (!days.has(cursor.toDateString())) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  let streak = 0;
+  while (days.has(cursor.toDateString())) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Water intake
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function getTodaysWaterMl(userId: string): Promise<number> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('water_logs')
+    .select('ml')
+    .eq('user_id', userId)
+    .gte('logged_at', startOfDay.toISOString());
+  if (error) {
+    console.warn('[Claww] Failed to load water logs:', error.message);
+    return 0;
+  }
+  return (data ?? []).reduce((sum, row) => sum + row.ml, 0);
+}
+
+export async function logWater(userId: string, ml: number): Promise<boolean> {
+  const { error } = await supabase.from('water_logs').insert({ user_id: userId, ml });
+  if (error) {
+    console.warn('[Claww] Failed to save water log:', error.message);
+    return false;
+  }
+  return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Achievements — every badge below is computed from a real signal already
+// in the database. None are permanently-fake placeholders; a badge with no
+// real signal yet simply isn't included rather than being shown as "locked
+// forever."
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Achievement {
+  id: string;
+  icon: string;
+  label: string;
+  color: string;
+  earned: boolean;
+}
+
+export async function getAchievements(userId: string): Promise<Achievement[]> {
+  const [sleepCountRes, mealCountRes, workoutCountRes, lateSleepRes, streak, xp] = await Promise.all([
+    supabase.from('sleep_logs').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('meal_logs').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('workouts').select('*', { count: 'exact', head: true }).eq('user_id', userId),
+    supabase.from('sleep_logs').select('bedtime').eq('user_id', userId),
+    getActivityStreak(userId),
+    getUserXp(userId),
+  ]);
+
+  const sleepCount = sleepCountRes.count ?? 0;
+  const mealCount = mealCountRes.count ?? 0;
+  const workoutCount = workoutCountRes.count ?? 0;
+  const hasNightOwlSleep = (lateSleepRes.data ?? []).some((row) => {
+    if (!row.bedtime) return false;
+    const hour = new Date(row.bedtime).getHours();
+    return hour >= 23 || hour < 4;
+  });
+
+  return [
+    { id: 'first_steps', icon: '🎯', label: 'First Steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0 },
+    { id: 'week_warrior', icon: '🔥', label: 'Week Warrior', color: '#FF4500', earned: streak >= 7 },
+    { id: 'planner', icon: '💪', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1 },
+    { id: 'nourished', icon: '🥗', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10 },
+    { id: 'night_owl', icon: '🌙', label: 'Night Owl', color: '#6366F1', earned: hasNightOwlSleep },
+    { id: 'consistent', icon: '⚡', label: 'Consistent', color: '#A855F7', earned: sleepCount >= 5 },
+    { id: 'legend', icon: '🚀', label: 'CLAWW Legend', color: '#EC4899', earned: xp >= 500 },
+  ];
+}

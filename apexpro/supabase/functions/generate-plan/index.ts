@@ -6,6 +6,118 @@ import { UnauthorizedError, requireUser, userClientFromRequest } from '../_share
 
 const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
 
+// Equipment tiers: higher access implies the lower tiers too (a gym-goer
+// can still do bodyweight moves; a bodyweight-only user can't do gym ones).
+const EQUIPMENT_TIERS: Record<string, string[]> = {
+  none: ['none'],
+  home: ['none', 'home'],
+  gym: ['none', 'home', 'gym'],
+};
+
+function deriveAllowedEquipment(equipment: string | null | undefined): string[] {
+  return EQUIPMENT_TIERS[equipment ?? ''] ?? EQUIPMENT_TIERS.gym;
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Deterministic trainer thresholds. These are hard numeric constraints
+// computed server-side from real exercise-science conventions (rep ranges
+// per training goal, volume caps per experience level, age-adjusted
+// intensity) — the model is told the exact numbers to stay within, and its
+// output is clamped into range afterward regardless of what it returns.
+// This is the same "don't trust the model, ground it" philosophy as the
+// equipment/catalog filtering above, just applied to volume and frequency
+// instead of exercise names.
+// ─────────────────────────────────────────────────────────────────────────
+
+interface RepRange {
+  minSets: number;
+  maxSets: number;
+  minReps: number;
+  maxReps: number;
+}
+
+// Standard hypertrophy/strength/endurance rep-range conventions per goal.
+const GOAL_REP_RANGES: Record<string, RepRange> = {
+  muscle_gain: { minSets: 3, maxSets: 5, minReps: 6, maxReps: 12 },
+  fat_loss: { minSets: 2, maxSets: 4, minReps: 12, maxReps: 20 },
+  endurance: { minSets: 2, maxSets: 3, minReps: 15, maxReps: 25 },
+  maintenance: { minSets: 2, maxSets: 4, minReps: 8, maxReps: 15 },
+  flexibility: { minSets: 1, maxSets: 3, minReps: 20, maxReps: 60 },
+};
+
+// A beginner shouldn't be programmed the same volume as an advanced lifter
+// even for the same goal — this caps sets regardless of what the goal range allows.
+const EXPERIENCE_MAX_SETS: Record<string, number> = { beginner: 3, intermediate: 4, advanced: 5 };
+
+// experience x activity -> base training days/week. Matches how a trainer
+// would scope a starting frequency before knowing anything else about the client.
+const FREQUENCY_TABLE: Record<string, Record<string, number>> = {
+  beginner: { sedentary: 2, moderate: 3, active: 3 },
+  intermediate: { sedentary: 3, moderate: 4, active: 4 },
+  advanced: { sedentary: 3, moderate: 4, active: 5 },
+};
+
+function computeRepRange(goal: string | null, experienceLevel: string | null, age: number | null): RepRange {
+  const base = GOAL_REP_RANGES[goal ?? ''] ?? GOAL_REP_RANGES.maintenance;
+  const experienceCap = EXPERIENCE_MAX_SETS[experienceLevel ?? ''] ?? EXPERIENCE_MAX_SETS.intermediate;
+  let maxSets = Math.min(base.maxSets, experienceCap);
+  let minReps = base.minReps;
+
+  // Older adults: bias away from heavy near-maximal low-rep work and cap
+  // volume further, even if their goal/experience would otherwise allow more.
+  if (age !== null) {
+    if (age >= 65) {
+      maxSets = Math.min(maxSets, 3);
+      minReps = Math.max(minReps, 10);
+    } else if (age >= 50) {
+      maxSets = Math.min(maxSets, 4);
+      minReps = Math.max(minReps, 8);
+    }
+  }
+
+  return { minSets: Math.min(base.minSets, maxSets), maxSets, minReps, maxReps: Math.max(base.maxReps, minReps) };
+}
+
+function computeTrainingDays(experienceLevel: string | null, activityLevel: string | null, age: number | null): number {
+  const row = FREQUENCY_TABLE[experienceLevel ?? ''] ?? FREQUENCY_TABLE.intermediate;
+  let days = row[activityLevel ?? ''] ?? row.moderate;
+  if (age !== null && age >= 55) days = Math.min(days, 4);
+  return days;
+}
+
+// Keyword -> exercise-name pattern exclusions. A deliberately simple,
+// best-effort heuristic (not a physiotherapy-grade contraindication
+// database) — flagged to the user in the intake copy as such.
+const INJURY_EXCLUSIONS: { keywords: string[]; pattern: RegExp }[] = [
+  { keywords: ['knee'], pattern: /squat|lunge|jump/i },
+  { keywords: ['back', 'spine', 'spinal'], pattern: /deadlift|squat|row|good morning/i },
+  { keywords: ['shoulder'], pattern: /overhead press|bench press|push-?up/i },
+  { keywords: ['wrist'], pattern: /push-?up|plank/i },
+  { keywords: ['ankle', 'foot'], pattern: /jump|lunge|run|jog/i },
+  { keywords: ['hip'], pattern: /squat|lunge|deadlift/i },
+];
+
+function excludeInjuredExercises<T extends { name: string }>(exercises: T[], injuriesText: string | null | undefined): T[] {
+  if (!injuriesText?.trim()) return exercises;
+  const lowered = injuriesText.toLowerCase();
+  const activePatterns = INJURY_EXCLUSIONS.filter((rule) => rule.keywords.some((kw) => lowered.includes(kw))).map((r) => r.pattern);
+  if (activePatterns.length === 0) return exercises;
+  return exercises.filter((ex) => !activePatterns.some((pattern) => pattern.test(ex.name)));
+}
+
+/** Hard-enforces the computed rep range and day count on the model's output, regardless of what it returned. */
+function clampPlanToThresholds(plan: Plan, range: RepRange, maxDays: number): Plan {
+  const days = plan.days.slice(0, maxDays).map((day) => ({
+    ...day,
+    exercises: day.exercises.map((ex) => ({
+      ...ex,
+      sets: Math.min(Math.max(ex.sets, range.minSets), range.maxSets),
+      reps: Math.min(Math.max(ex.reps, range.minReps), range.maxReps),
+    })),
+  }));
+  return { ...plan, days };
+}
+
 const PlanExerciseSchema = z.object({
   exerciseId: z.string().optional(),
   name: z.string(),
@@ -69,12 +181,55 @@ function derivePreferredModalities(personalizationProfile: Record<string, unknow
   return [...MODALITIES];
 }
 
-const SYSTEM_PROMPT = `You are a fitness coach generating a workout plan. You will be given the user's
+const GENERATION_COOLDOWN_MS = 30_000;
+
+interface CatalogExercise {
+  id?: string;
+  name: string;
+}
+
+/**
+ * Grounds the model's output in the exercise list we actually sent it —
+ * Zod only checks shape/types, not that the names are real. Anything not
+ * matching (case-insensitively) an offered exercise is dropped; days left
+ * with nothing valid are dropped too; an empty result falls back further.
+ * Surviving exercises get their exerciseId rewritten to the catalog row's
+ * real id (the model's own id, if any, isn't trusted) so workout_logs can
+ * link back to the catalog when one exists.
+ */
+function groundPlanInCatalog(plan: Plan, availableExercises: CatalogExercise[]): Plan {
+  const byName = new Map(availableExercises.map((e) => [e.name.trim().toLowerCase(), e]));
+  const days = plan.days
+    .map((day) => ({
+      ...day,
+      exercises: day.exercises
+        .filter((ex) => byName.has(ex.name.trim().toLowerCase()))
+        .map((ex) => ({ ...ex, exerciseId: byName.get(ex.name.trim().toLowerCase())?.id })),
+    }))
+    .filter((day) => day.exercises.length > 0);
+  return { ...plan, days };
+}
+
+function buildSystemPrompt(range: RepRange, dayCount: number, injuriesText: string | null | undefined): string {
+  const injuriesLine = injuriesText?.trim()
+    ? `The user reported these injuries/limitations: "${injuriesText.trim()}". The available-exercises list has already been filtered to exclude movements that commonly stress those areas — do not work around the filter or suggest anything outside the provided list.`
+    : 'The user reported no injuries or limitations.';
+
+  return `You are a certified personal trainer generating a workout plan. You will be given the user's
 recovery score/band, their personalization profile, recent workout history, and a filtered list of
 available exercises. Build a plan using ONLY exercises from the provided list. Respond with ONLY a JSON
 object matching this exact shape:
 {"days": [{"day": string, "focus": string, "exercises": [{"exerciseId": string, "name": string, "sets": number, "reps": number}]}], "notes": string}
-Adjust volume down when recovery is Low, and up when recovery is High.`;
+
+Hard constraints, already computed for this specific user — follow them exactly:
+- Generate EXACTLY ${dayCount} training day(s).
+- Every exercise must use ${range.minSets}-${range.maxSets} sets and ${range.minReps}-${range.maxReps} reps.
+- ${injuriesLine}
+
+Within those constraints, use your judgment like a trainer would: pick a sensible day split and exercise
+selection for the user's goal and equipment, and adjust where in each range you land based on recovery
+(lower in the range when recovery is Low, higher when High).`;
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -85,9 +240,9 @@ Deno.serve(async (req: Request) => {
     const supabase = userClientFromRequest(req);
     const user = await requireUser(supabase);
 
-    const [{ data: profile }, { data: sleepLog }, { data: lastWorkout }, { data: recentWorkouts }] =
+    const [{ data: profile }, { data: sleepLog }, { data: lastWorkout }, { data: recentWorkouts }, { data: latestWorkout }] =
       await Promise.all([
-        supabase.from('profiles').select('personalization_profile').eq('id', user.id).maybeSingle(),
+        supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
         supabase
           .from('sleep_logs')
           .select('hours, bedtime, wake_time, logged_at')
@@ -108,42 +263,78 @@ Deno.serve(async (req: Request) => {
           .eq('user_id', user.id)
           .order('completed_at', { ascending: false })
           .limit(10),
+        supabase
+          .from('workouts')
+          .select('id, user_id, plan, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ]);
 
     const recovery = computeRecoveryScore(sleepLog, lastWorkout);
+
+    // Cooldown: a double-tap or accidental repeat shouldn't burn another
+    // Groq call — just hand back the plan that was just generated.
+    if (latestWorkout && Date.now() - new Date(latestWorkout.created_at).getTime() < GENERATION_COOLDOWN_MS) {
+      return new Response(JSON.stringify({ recovery, workout: latestWorkout, cached: true }), { headers: jsonHeaders });
+    }
+
     const personalizationProfile = (profile?.personalization_profile ?? null) as Record<string, unknown> | null;
     const preferredModalities = derivePreferredModalities(personalizationProfile);
+    const allowedEquipment = deriveAllowedEquipment(profile?.equipment);
+    const workoutDefaults = (personalizationProfile as { workoutDefaults?: { injuries?: string; activityLevel?: string } } | null)
+      ?.workoutDefaults;
+    const injuriesText = workoutDefaults?.injuries;
 
-    const { data: exercises, error: exercisesError } = await supabase
+    const { data: rawExercises, error: exercisesError } = await supabase
       .from('exercises')
       .select('id, name, modality, muscle_group, equipment, met_value')
-      .in('modality', preferredModalities);
+      .in('modality', preferredModalities)
+      .in('equipment', allowedEquipment);
 
     if (exercisesError) {
       throw new Error(`Failed to load exercises: ${exercisesError.message}`);
     }
 
+    const exercises = excludeInjuredExercises(rawExercises ?? [], injuriesText);
+    const repRange = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
+    const dayCount = computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
+    const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText);
+
     let plan: Plan;
 
     try {
       const raw = await callGroqJSON([
-        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'system', content: systemPrompt },
         {
           role: 'user',
           content: JSON.stringify({
             recovery,
             personalizationProfile,
             recentWorkouts: recentWorkouts ?? [],
-            availableExercises: exercises ?? [],
+            availableExercises: exercises,
           }),
         },
       ]);
 
       const parseResult = PlanSchema.safeParse(JSON.parse(raw));
-      plan = parseResult.success ? parseResult.data : DEFAULT_PLAN;
-    } catch (_groqError) {
+      if (!parseResult.success) {
+        console.error('[generate-plan] Groq response failed schema validation:', JSON.stringify(parseResult.error.flatten()));
+      }
+      plan = parseResult.success ? groundPlanInCatalog(parseResult.data, exercises) : DEFAULT_PLAN;
+      if (plan.days.length === 0) {
+        console.error('[generate-plan] Grounding filtered every exercise out of the plan; falling back to default.');
+        plan = DEFAULT_PLAN;
+      }
+    } catch (groqError) {
+      console.error('[generate-plan] Groq call failed:', (groqError as Error).message);
       plan = DEFAULT_PLAN;
     }
+
+    // Hard-enforce the computed thresholds regardless of what the model
+    // returned (or whether we fell back to DEFAULT_PLAN).
+    plan = clampPlanToThresholds(plan, repRange, dayCount);
 
     const { data: savedWorkout, error: insertError } = await supabase
       .from('workouts')

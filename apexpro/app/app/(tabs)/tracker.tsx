@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { FONT } from '../../lib/theme';
+import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
+import { getActivityStreak, getCompletedWorkoutDays, getTotalVolume, getUserXp, getWorkoutsThisMonth } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
+import { Display } from '../../components/ui/Typography';
 
 // Tracker is strictly black & white — no accent hues on this screen.
 const W = '#FFFFFF';
@@ -48,6 +52,7 @@ function KpiTile({ label, value, sub, note, delta }: { label: string; value: str
 }
 
 function TrackerLocked({ workoutsCompleted }: { workoutsCompleted: number }) {
+  const insets = useSafeAreaInsets();
   const remaining = UNLOCK_AT - workoutsCompleted;
   const KPI_LOCKED = [
     { label: 'CLAWW SCORE', value: '—', note: 'Complete 3 workouts to unlock your CLAWW Score.' },
@@ -62,13 +67,20 @@ function TrackerLocked({ workoutsCompleted }: { workoutsCompleted: number }) {
   ];
 
   return (
-    <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, gap: 14 }}>
+    <View
+      style={{
+        paddingHorizontal: 16,
+        paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+        gap: 14,
+      }}
+    >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <View>
           <Text style={{ color: GD, fontSize: 9.5, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>
-            APR 2026 · BUILDING YOUR BASELINE
+            {new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toUpperCase()} · BUILDING YOUR BASELINE
           </Text>
-          <Text style={{ color: W, fontSize: 28, fontWeight: '900', letterSpacing: -0.7, marginTop: 6, fontFamily: FONT }}>CLAWW Tracker</Text>
+          <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
           <Text style={{ color: GD, fontSize: 11.5, marginTop: 5, fontFamily: FONT }}>
             {workoutsCompleted} of {UNLOCK_AT} workouts logged
           </Text>
@@ -138,37 +150,64 @@ function TrackerLocked({ workoutsCompleted }: { workoutsCompleted: number }) {
   );
 }
 
-function TrackerUnlocked() {
+// Monthly targets — design thresholds (like UNLOCK_AT), not fabricated
+// user data. No per-user goal-setting exists yet, so these are sane
+// generic defaults the progress bars are honestly measured against.
+const MONTHLY_WORKOUT_TARGET = 12;
+const MONTHLY_VOLUME_TARGET = 50_000; // lbs
+const STREAK_TARGET = 30; // days
+
+interface TrackerUnlockedProps {
+  workoutsCompleted: number;
+  workoutsThisMonth: number;
+  streak: number;
+  volume: number;
+  xp: number;
+}
+
+function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume, xp }: TrackerUnlockedProps) {
+  const insets = useSafeAreaInsets();
+  // CLAWW Score: real XP directly, capped at 1000 — not a separate fabricated metric.
+  const clawwScore = Math.min(1000, xp);
+  const scorePct = (clawwScore / 1000) * 100;
+
   const KPI = [
-    { label: 'CLAWW SCORE', value: '847', sub: '/ 1000', delta: '+42' },
-    { label: 'STREAK', value: '14', sub: 'days', delta: '+3' },
-    { label: 'WORKOUTS', value: '52', sub: 'sessions', delta: '+8' },
-    { label: 'VOLUME', value: '142.8K', sub: 'lbs', delta: '+11.2%' },
+    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
+    { label: 'STREAK', value: String(streak), sub: 'days' },
+    { label: 'WORKOUTS', value: String(workoutsCompleted), sub: 'sessions' },
+    { label: 'VOLUME', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), sub: 'lbs' },
   ];
   const GOALS = [
-    { label: 'Monthly Workouts', pct: 90 },
-    { label: 'Volume Target', pct: 89 },
-    { label: 'Active Streak', pct: 47 },
-    { label: 'Body Weight Goal', pct: 75 },
+    { label: 'Monthly Workouts', pct: Math.min(100, Math.round((workoutsThisMonth / MONTHLY_WORKOUT_TARGET) * 100)) },
+    { label: 'Volume Target', pct: Math.min(100, Math.round((volume / MONTHLY_VOLUME_TARGET) * 100)) },
+    { label: 'Active Streak', pct: Math.min(100, Math.round((streak / STREAK_TARGET) * 100)) },
   ];
+  const goalsCompleted = GOALS.filter((g) => g.pct >= 100).length;
 
   return (
-    <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, gap: 14 }}>
+    <View
+      style={{
+        paddingHorizontal: 16,
+        paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+        gap: 14,
+      }}
+    >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <View>
-          <Text style={{ color: GD, fontSize: 9.5, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>APR 2026 · PERFORMANCE</Text>
-          <Text style={{ color: W, fontSize: 28, fontWeight: '900', letterSpacing: -0.7, marginTop: 6, fontFamily: FONT }}>CLAWW Tracker</Text>
+          <Text style={{ color: GD, fontSize: 9.5, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>PERFORMANCE</Text>
+          <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
           <Text style={{ color: GD, fontSize: 11.5, marginTop: 5, fontFamily: FONT }}>Precision data · no noise</Text>
         </View>
-        <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: 84.7 }]} trackColor="rgba(255,255,255,0.07)">
-          <Text style={{ color: W, fontSize: 16, fontWeight: '900', fontFamily: FONT }}>847</Text>
+        <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: scorePct }]} trackColor="rgba(255,255,255,0.07)">
+          <Text style={{ color: W, fontSize: 16, fontWeight: '900', fontFamily: FONT }}>{clawwScore}</Text>
           <Text style={{ color: GD, fontSize: 7.5, fontFamily: FONT }}>/1000</Text>
         </ProgressRing>
       </View>
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         {KPI.map((k) => (
-          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} delta={k.delta} />
+          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} />
         ))}
       </View>
 
@@ -185,7 +224,7 @@ function TrackerUnlocked() {
           }}
         >
           <Text style={{ color: W, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Goals</Text>
-          <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>2/5 completed</Text>
+          <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>{goalsCompleted}/{GOALS.length} completed</Text>
         </View>
         {GOALS.map((g, i) => (
           <View
@@ -221,16 +260,18 @@ function TrackerUnlocked() {
           paddingVertical: 12,
         }}
       >
-        <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>CLAWW AI · VOLUME ANALYSIS</Text>
-        <Text style={{ color: W, fontSize: 34, fontWeight: '900', letterSpacing: -1.5, marginVertical: 6, fontFamily: FONT }}>+11.2%</Text>
-        <Text style={{ color: WD, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Volume trending above baseline</Text>
+        <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>VOLUME</Text>
+        <Text style={{ color: W, fontSize: 34, fontWeight: '900', letterSpacing: -1.5, marginVertical: 6, fontFamily: FONT }}>
+          {Math.round(volume).toLocaleString()} lbs
+        </Text>
+        <Text style={{ color: WD, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Total logged this all-time</Text>
       </View>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Button variant="inverted" icon={<Icon name="download" size={16} color="#000" />} style={{ flex: 2 }}>
+        <Button variant="inverted" disabled icon={<Icon name="download" size={16} color="#000" />} style={{ flex: 2 }}>
           Export Report
         </Button>
-        <Button variant="ghost" style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={GR} />}>
+        <Button variant="ghost" disabled style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={GR} />}>
           Share
         </Button>
       </View>
@@ -239,11 +280,53 @@ function TrackerUnlocked() {
 }
 
 export default function TrackerTab() {
-  const { workoutsCompleted } = useAppState();
+  const { userId } = useAppState();
+  const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
+  const [workoutsThisMonth, setWorkoutsThisMonth] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [volume, setVolume] = useState(0);
+  const [xp, setXp] = useState(0);
+
+  // Real counts from workout_logs/xp_events, refreshed each time this tab
+  // gains focus.
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      let cancelled = false;
+      Promise.all([
+        getCompletedWorkoutDays(userId),
+        getWorkoutsThisMonth(userId),
+        getActivityStreak(userId),
+        getTotalVolume(userId),
+        getUserXp(userId),
+      ]).then(([count, monthCount, s, v, x]) => {
+        if (cancelled) return;
+        setWorkoutsCompleted(count);
+        setWorkoutsThisMonth(monthCount);
+        setStreak(s);
+        setVolume(v);
+        setXp(x);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [userId])
+  );
+
   const locked = workoutsCompleted < UNLOCK_AT;
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
-      {locked ? <TrackerLocked workoutsCompleted={workoutsCompleted} /> : <TrackerUnlocked />}
+      {locked ? (
+        <TrackerLocked workoutsCompleted={workoutsCompleted} />
+      ) : (
+        <TrackerUnlocked
+          workoutsCompleted={workoutsCompleted}
+          workoutsThisMonth={workoutsThisMonth}
+          streak={streak}
+          volume={volume}
+          xp={xp}
+        />
+      )}
     </ScrollView>
   );
 }

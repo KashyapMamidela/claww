@@ -1,0 +1,3 @@
+# Supabase CLI local cache/session state — machine-specific, never commit.
+supabase/.temp/
+**/supabase/.temp/

@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FONT } from '../../lib/theme';
+import { PressScale } from './PressScale';
 
 export interface ChipProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
 
   if (active) {
     return (
-      <TouchableOpacity activeOpacity={0.85} onPress={onPress}>
+      <PressScale onPress={onPress} scaleTo={0.95}>
         <LinearGradient
           colors={[deep, accent]}
           start={{ x: 0, y: 0 }}
@@ -36,23 +37,19 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
             borderRadius: 20,
             borderWidth: 1,
             borderColor: `${accent}78`,
-            shadowColor: accent,
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.25,
-            shadowRadius: 6,
-            elevation: 4,
+            boxShadow: `0px 2px 6px ${accent}40`,
           }}
         >
           {label}
         </LinearGradient>
-      </TouchableOpacity>
+      </PressScale>
     );
   }
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
+    <PressScale
       onPress={onPress}
+      scaleTo={0.95}
       style={{
         paddingHorizontal: 16,
         paddingVertical: 7,
@@ -63,6 +60,6 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
       }}
     >
       {label}
-    </TouchableOpacity>
+    </PressScale>
   );
 }

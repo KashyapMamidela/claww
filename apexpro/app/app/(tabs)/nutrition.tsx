@@ -1,28 +1,56 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../lib/theme';
+import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { MEAL_ORDER, useAppState } from '../../lib/appState';
+import { getProfile, type NutritionDefaults } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { SectionLabel } from '../../components/ui/SectionLabel';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
+import { WaterWidget } from '../../components/WaterWidget';
+import { Display } from '../../components/ui/Typography';
 
 const G = { deep: COLORS.greenDeep, bright: COLORS.green, border: COLORS.greenBorder };
 const MEAL_ICON: Record<string, string> = { Breakfast: '🥣', Lunch: '🥗', Snack: '🍎', Dinner: '🍽️' };
-const GOALS = { kcal: 2400, protein: 165, carbs: 240, fats: 70 };
+const DEFAULT_GOALS: NutritionDefaults = { calories: 2000, protein_g: 140, carbs_g: 220, fats_g: 65 };
 
 export default function NutritionTab() {
-  const { meals } = useAppState();
+  const { userId, meals } = useAppState();
   const router = useRouter();
-  const [glasses, setGlasses] = useState(0);
+  const insets = useSafeAreaInsets();
+  const [nutritionDefaults, setNutritionDefaults] = useState<NutritionDefaults | null>(null);
+  const [hasCustomTargets, setHasCustomTargets] = useState(false);
 
-  const consumed = meals.reduce((s, m) => s + m.kcal, 0);
-  const protein = meals.reduce((s, m) => s + m.protein, 0);
-  const carbs = meals.reduce((s, m) => s + m.carbs, 0);
-  const fats = meals.reduce((s, m) => s + m.fats, 0);
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      let cancelled = false;
+      getProfile(userId).then((profile) => {
+        if (cancelled) return;
+        const targets = profile?.personalization_profile?.nutritionDefaults ?? null;
+        setNutritionDefaults(targets);
+        setHasCustomTargets(!!targets);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [userId])
+  );
+
+  const GOALS = nutritionDefaults
+    ? { kcal: nutritionDefaults.calories, protein: nutritionDefaults.protein_g, carbs: nutritionDefaults.carbs_g, fats: nutritionDefaults.fats_g }
+    : { kcal: DEFAULT_GOALS.calories, protein: DEFAULT_GOALS.protein_g, carbs: DEFAULT_GOALS.carbs_g, fats: DEFAULT_GOALS.fats_g };
+
+  const consumed = Math.round(meals.reduce((s, m) => s + (m.calories ?? 0), 0));
+  const protein = Math.round(meals.reduce((s, m) => s + (m.protein_g ?? 0), 0));
+  const carbs = Math.round(meals.reduce((s, m) => s + (m.carbs_g ?? 0), 0));
+  const fats = Math.round(meals.reduce((s, m) => s + (m.fats_g ?? 0), 0));
   const empty = meals.length === 0;
   const nextMeal = MEAL_ORDER[meals.length];
 
@@ -37,11 +65,56 @@ export default function NutritionTab() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
-      <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 28, gap: 14 }}>
+      <View
+        style={{
+          paddingHorizontal: 16,
+          paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+          paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 28,
+          gap: 14,
+        }}
+      >
         <View>
-          <SectionLabel color={G.bright}>MONDAY · APR 14, 2026</SectionLabel>
-          <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, marginTop: 4, fontFamily: FONT }}>Nutrition</Text>
+          <SectionLabel color={G.bright}>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase()}</SectionLabel>
+          <Display style={{ marginTop: 4 }}>Nutrition</Display>
         </View>
+
+        {!hasCustomTargets && (
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={() => router.push('/nutrition-setup')}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              backgroundColor: '#151517',
+              borderWidth: 1,
+              borderColor: G.border,
+              borderRadius: 16,
+              paddingHorizontal: 16,
+              paddingVertical: 14,
+            }}
+          >
+            <View
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                backgroundColor: 'rgba(34,197,94,0.14)',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Icon name="sparkles" size={16} color={G.bright} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Set up your nutrition targets</Text>
+              <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>
+                We'll calculate a sample plan for you to customize — showing generic defaults for now.
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={16} color="#71717A" />
+          </TouchableOpacity>
+        )}
 
         <View
           style={{
@@ -134,33 +207,7 @@ export default function NutritionTab() {
           </View>
         </View>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', borderRadius: 20, padding: 16 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Water Intake</Text>
-            <Badge color={glasses > 0 ? G.bright : '#71717A'}>{(glasses * 0.25).toFixed(2)}L / 2L</Badge>
-          </View>
-          <View style={{ flexDirection: 'row', gap: 6 }}>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <TouchableOpacity
-                key={i}
-                activeOpacity={0.8}
-                onPress={() => setGlasses(i + 1)}
-                style={{
-                  flex: 1,
-                  aspectRatio: 1,
-                  borderRadius: 10,
-                  backgroundColor: i < glasses ? G.border : 'rgba(255,255,255,0.035)',
-                  borderWidth: 1,
-                  borderColor: i < glasses ? 'rgba(34,197,94,0.38)' : 'rgba(255,255,255,0.08)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Icon name="droplets" size={16} color={i < glasses ? G.bright : '#71717A'} />
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
+        <WaterWidget />
 
         <View>
           <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', marginBottom: 10, fontFamily: FONT }}>Meal Timeline</Text>
@@ -197,9 +244,10 @@ export default function NutritionTab() {
             </View>
           ) : (
             <View style={{ gap: 8 }}>
-              {meals.map((m) => (
-                <View
-                  key={m.type}
+              {meals.map((m, i) => (
+                <Animated.View
+                  key={m.id}
+                  entering={FadeInDown.delay(i * 60).springify().damping(18)}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -226,14 +274,16 @@ export default function NutritionTab() {
                       justifyContent: 'center',
                     }}
                   >
-                    <Text style={{ fontSize: 16 }}>{MEAL_ICON[m.type]}</Text>
+                    <Text style={{ fontSize: 16 }}>{MEAL_ICON[m.meal_type ?? ''] ?? '🍽️'}</Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{m.type}</Text>
-                    <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>{m.time}</Text>
+                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{m.meal_type ?? 'Meal'}</Text>
+                    <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>
+                      {new Date(m.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
                   </View>
-                  <Text style={{ color: G.bright, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{m.kcal}</Text>
-                </View>
+                  <Text style={{ color: G.bright, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{Math.round(m.calories ?? 0)}</Text>
+                </Animated.View>
               ))}
             </View>
           )}

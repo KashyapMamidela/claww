@@ -1,7 +1,8 @@
 import React from 'react';
-import { Text, TouchableOpacity, View, ViewStyle, StyleSheet } from 'react-native';
+import { Text, View, ViewStyle, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FONT } from '../../lib/theme';
+import { PressScale } from './PressScale';
 
 const SIZES = {
   sm: { height: 38, fontSize: 12.5, paddingH: 14, radius: 10, gap: 6 },
@@ -62,25 +63,16 @@ export function Button({
 
   if (variant === 'primary') {
     return (
-      <TouchableOpacity activeOpacity={0.85} disabled={disabled} onPress={onPress} style={[fullWidth && { alignSelf: 'stretch' }, style]}>
+      <PressScale disabled={disabled} onPress={onPress} style={fullWidth ? { alignSelf: 'stretch' } : undefined}>
         <LinearGradient
           colors={[deep, accent]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[
-            base,
-            !disabled && {
-              shadowColor: accent,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.25,
-              shadowRadius: 10,
-              elevation: 6,
-            },
-          ]}
+          style={[base, !disabled && ({ boxShadow: `0px 4px 10px ${accent}40` } as ViewStyle), style]}
         >
           {inner('#fff')}
         </LinearGradient>
-      </TouchableOpacity>
+      </PressScale>
     );
   }
 
@@ -94,14 +86,13 @@ export function Button({
   const textColor = variant === 'inverted' ? '#000000' : variant === 'secondary' ? accent : '#A1A1AA';
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.85}
+    <PressScale
       disabled={disabled}
       onPress={onPress}
       style={[base, variantStyle, fullWidth && { alignSelf: 'stretch' }, style]}
     >
       {inner(textColor)}
-    </TouchableOpacity>
+    </PressScale>
   );
 }
 

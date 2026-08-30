@@ -15,7 +15,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.claww.app"
+      "bundleIdentifier": "com.claww.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "CLAWW uses your camera to estimate a meal's nutrition from a photo.",
+        "NSPhotoLibraryUsageDescription": "CLAWW uses your photo library to estimate a meal's nutrition from a picture you already have."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -33,7 +37,15 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-dev-client"
+      "expo-dev-client",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "CLAWW uses your photo library to estimate a meal's nutrition from a picture you already have.",
+          "cameraPermission": "CLAWW uses your camera to estimate a meal's nutrition from a photo."
+        }
+      ]
     ]
   }
 }

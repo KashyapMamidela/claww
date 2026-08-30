@@ -1,427 +1,241 @@
 import React, { useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  SafeAreaView,
-  Animated,
-  Easing,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, TouchableOpacity, SafeAreaView, Animated, Easing, StyleSheet, ScrollView, Image } from 'react-native';
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import { useRouter } from 'expo-router';
+import { COLORS, FONT } from '../../../lib/theme';
+import { Button } from '../../../components/ui/Button';
+import { SectionLabel } from '../../../components/ui/SectionLabel';
+import { Icon } from '../../../components/ui/Icon';
 
-// ULTIMATE NEXT-GEN Welcome Screen
+const ACCENT = COLORS.blue;
+const ACCENT_DEEP = COLORS.blueDeep;
+
+const TRUST_SIGNALS = ['100% Personalized', 'Privacy-First', 'Science-Backed'];
+
 export default function WelcomeScreen() {
   const router = useRouter();
 
-  // ─── Animation Values ────────────────────────────────────────────────────────
-  const glowPulse = useRef(new Animated.Value(0.06)).current;
+  const glowPulse = useRef(new Animated.Value(0.7)).current;
   const logoScale = useRef(new Animated.Value(0.8)).current;
 
   const headlineOpacity = useRef(new Animated.Value(0)).current;
-  const headlineTranslateY = useRef(new Animated.Value(40)).current;
+  const headlineTranslateY = useRef(new Animated.Value(30)).current;
 
   const subOpacity = useRef(new Animated.Value(0)).current;
-  const subTranslateY = useRef(new Animated.Value(40)).current;
+  const subTranslateY = useRef(new Animated.Value(30)).current;
 
   const bodyOpacity = useRef(new Animated.Value(0)).current;
-  const bodyTranslateY = useRef(new Animated.Value(40)).current;
+  const bodyTranslateY = useRef(new Animated.Value(30)).current;
 
   const trustOpacity = useRef(new Animated.Value(0)).current;
   const trustTranslateY = useRef(new Animated.Value(20)).current;
 
   const btnOpacity = useRef(new Animated.Value(0)).current;
-  const btnTranslateY = useRef(new Animated.Value(40)).current;
-  const btnScale = useRef(new Animated.Value(1)).current;
+  const btnTranslateY = useRef(new Animated.Value(30)).current;
 
-  // ─── Mount Animations ────────────────────────────────────────────────────────
   useEffect(() => {
-    // 1. Background Glow pulsing loop
     Animated.loop(
       Animated.sequence([
-        Animated.timing(glowPulse, {
-          toValue: 0.15,
-          duration: 3500,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(glowPulse, {
-          toValue: 0.06,
-          duration: 3500,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
+        Animated.timing(glowPulse, { toValue: 1, duration: 3500, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(glowPulse, { toValue: 0.7, duration: 3500, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
       ])
     ).start();
 
-    // 2. Logo scale (Spring)
-    Animated.spring(logoScale, {
-      toValue: 1,
-      tension: 50,
-      friction: 7,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(logoScale, { toValue: 1, tension: 50, friction: 7, useNativeDriver: true }).start();
 
-    // 3. Staggered fade + slide up
     Animated.stagger(80, [
       Animated.parallel([
-        Animated.timing(headlineOpacity, { toValue: 1, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-        Animated.timing(headlineTranslateY, { toValue: 0, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(headlineOpacity, { toValue: 1, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(headlineTranslateY, { toValue: 0, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(subOpacity, { toValue: 1, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-        Animated.timing(subTranslateY, { toValue: 0, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(subOpacity, { toValue: 1, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(subTranslateY, { toValue: 0, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(bodyOpacity, { toValue: 1, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-        Animated.timing(bodyTranslateY, { toValue: 0, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(bodyOpacity, { toValue: 1, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(bodyTranslateY, { toValue: 0, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(trustOpacity, { toValue: 1, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-        Animated.timing(trustTranslateY, { toValue: 0, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(trustOpacity, { toValue: 1, duration: 350, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(trustTranslateY, { toValue: 0, duration: 350, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(btnOpacity, { toValue: 1, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-        Animated.timing(btnTranslateY, { toValue: 0, duration: 500, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(btnOpacity, { toValue: 1, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+        Animated.timing(btnTranslateY, { toValue: 0, duration: 400, delay: 100, easing: Easing.out(Easing.ease), useNativeDriver: true }),
       ]),
     ]).start();
   }, []);
 
-  // ─── Interaction Handlers ────────────────────────────────────────────────────
-  const handlePressIn = () => {
-    Animated.spring(btnScale, {
-      toValue: 0.95,
-      useNativeDriver: true,
-      speed: 60,
-      bounciness: 0,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(btnScale, {
-      toValue: 1,
-      useNativeDriver: true,
-      speed: 40,
-      bounciness: 6,
-    }).start();
-  };
-
-  const handlePress = () => {
-    router.push('/screens/onboarding/name');
-  };
+  const handleGetStarted = () => router.push('/screens/auth/sign-up');
+  const handleLogIn = () => router.push('/screens/auth/sign-in');
 
   return (
-    <LinearGradient
-      colors={['#0A0B1A', '#050609']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={styles.root}
-    >
-      {/* Dynamic Glow Orbs for Ultra-Premium Depth */}
-      <Animated.View style={[styles.glowOrbTop, { opacity: glowPulse }]} />
-      <Animated.View style={[styles.glowOrbBottom, { opacity: glowPulse }]} />
+    <View style={styles.root}>
+      <Animated.View style={[styles.glowWrap, { opacity: glowPulse }]} pointerEvents="none">
+        <Svg width={480} height={480} viewBox="0 0 480 480">
+          <Defs>
+            <RadialGradient id="heroGlow" cx="50%" cy="50%" r="50%">
+              <Stop offset="0%" stopColor={ACCENT} stopOpacity="0.5" />
+              <Stop offset="55%" stopColor={ACCENT} stopOpacity="0.14" />
+              <Stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx={240} cy={240} r={240} fill="url(#heroGlow)" />
+        </Svg>
+      </Animated.View>
 
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
-          
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
-            bounces={false}
-          >
-            {/* LOGO HERO SECTION */}
-            <View style={styles.logoSection}>
-              <Animated.View
-                style={[styles.logoContainer, { transform: [{ scale: logoScale }] }]}
-              >
-                <LinearGradient
-                  colors={['#A855F7', '#EC4899']} // Premium luxury gradient
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={styles.logoGradient}
-                >
-                  <View style={styles.logoInnerGlow}>
-                    <Text style={styles.logoEmoji}>🚀</Text>
-                  </View>
-                </LinearGradient>
-              </Animated.View>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false} bounces={false}>
+          <View style={styles.logoSection}>
+            <Animated.View style={[styles.logoContainer, { transform: [{ scale: logoScale }] }]}>
+              <Image source={require('../../../assets/logo-mark.png')} style={styles.logoMark} resizeMode="contain" />
+            </Animated.View>
+          </View>
+
+          <Animated.View style={{ alignItems: 'center', opacity: headlineOpacity, transform: [{ translateY: headlineTranslateY }] }}>
+            <SectionLabel color={ACCENT}>WELCOME TO</SectionLabel>
+            <Text style={styles.wordmark}>
+              CLAW<Text style={{ color: ACCENT }}>W</Text>
+            </Text>
+          </Animated.View>
+
+          <Animated.View style={{ opacity: subOpacity, transform: [{ translateY: subTranslateY }] }}>
+            <Text style={styles.subheading}>Your AI-Powered Fitness Coach</Text>
+          </Animated.View>
+
+          <Animated.View style={{ opacity: bodyOpacity, transform: [{ translateY: bodyTranslateY }] }}>
+            <Text style={styles.bodyText}>Personalized workouts, nutrition, and AI coaching tailored to YOUR goals.</Text>
+          </Animated.View>
+
+          <Animated.View style={[styles.trustSignalsRow, { opacity: trustOpacity, transform: [{ translateY: trustTranslateY }] }]}>
+            {TRUST_SIGNALS.map((t) => (
+              <View key={t} style={styles.trustBadge}>
+                <Icon name="check" size={11} color={COLORS.green} strokeWidth={3} />
+                <Text style={styles.trustText}>{t}</Text>
+              </View>
+            ))}
+          </Animated.View>
+
+          <View style={styles.spacer} />
+
+          <Animated.View style={[styles.bottomSection, { opacity: btnOpacity, transform: [{ translateY: btnTranslateY }] }]}>
+            <Button variant="primary" accent={ACCENT} accentDeep={ACCENT_DEEP} size="lg" fullWidth onPress={handleGetStarted}>
+              Get Started
+            </Button>
+
+            <Button variant="ghost" size="lg" fullWidth onPress={handleLogIn} style={styles.logInButton}>
+              Log in instead
+            </Button>
+
+            <View style={styles.bottomTrustContainer}>
+              <Icon name="lock" size={11} color={COLORS.fgGrayDim} />
+              <Text style={styles.bottomTrustText}>Privacy-Protected — Your data stays private</Text>
             </View>
-
-            {/* TEXT HEADINGS */}
-            <Animated.View style={{ opacity: headlineOpacity, transform: [{ translateY: headlineTranslateY }] }}>
-              <Text style={styles.headline}>WELCOME TO{'\n'}CLAWW</Text>
-            </Animated.View>
-
-            <Animated.View style={{ opacity: subOpacity, transform: [{ translateY: subTranslateY }] }}>
-              <Text style={styles.subheading}>Your AI-Powered Fitness Coach</Text>
-            </Animated.View>
-
-            <Animated.View style={{ opacity: bodyOpacity, transform: [{ translateY: bodyTranslateY }] }}>
-              <Text style={styles.bodyText}>
-                Personalized workouts, nutrition, and AI coaching tailored to YOUR goals.
-              </Text>
-            </Animated.View>
-
-            {/* TRUST SIGNALS */}
-            <Animated.View style={[styles.trustSignalsRow, { opacity: trustOpacity, transform: [{ translateY: trustTranslateY }] }]}>
-              <View style={styles.trustBadge}>
-                <Text style={styles.trustCheck}>✓</Text>
-                <Text style={styles.trustText}>100% Personalized</Text>
-              </View>
-              <View style={styles.trustBadge}>
-                <Text style={styles.trustCheck}>✓</Text>
-                <Text style={styles.trustText}>Privacy-First</Text>
-              </View>
-              <View style={styles.trustBadge}>
-                <Text style={styles.trustCheck}>✓</Text>
-                <Text style={styles.trustText}>Science-Backed</Text>
-              </View>
-            </Animated.View>
-            
-            <View style={styles.spacer} />
-
-            {/* BOTTOM SECTION CTA */}
-            <Animated.View
-              style={[
-                styles.bottomSection,
-                { opacity: btnOpacity, transform: [{ translateY: btnTranslateY }] },
-              ]}
-            >
-              <Animated.View style={[styles.buttonWrapper, { transform: [{ scale: btnScale }] }]}>
-                <TouchableOpacity
-                  activeOpacity={1}
-                  onPressIn={handlePressIn}
-                  onPressOut={handlePressOut}
-                  onPress={handlePress}
-                  style={styles.buttonShadow}
-                >
-                  <LinearGradient
-                    colors={['#A855F7', '#EC4899']} // Premium
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    style={styles.buttonGradient}
-                  >
-                    <Text style={styles.buttonText}>✨ Get Started</Text>
-                  </LinearGradient>
-                </TouchableOpacity>
-              </Animated.View>
-
-              {/* SECONDARY CTA */}
-              <TouchableOpacity activeOpacity={0.6} style={styles.secondaryCtaContainer}>
-                <Text style={styles.secondaryCtaText}>Log in instead</Text>
-              </TouchableOpacity>
-
-              {/* BOTTOM PRIVACY BADGE */}
-              <View style={styles.bottomTrustContainer}>
-                <Text style={styles.lockIcon}>🔒</Text>
-                <Text style={styles.bottomTrustText}>Privacy-Protected — Your data stays private</Text>
-              </View>
-            </Animated.View>
-          </ScrollView>
-
-        </View>
+          </Animated.View>
+        </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
-
-const { width, height } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0B1A',
+    backgroundColor: COLORS.bg,
+    overflow: 'hidden',
   },
-  glowOrbTop: {
+  glowWrap: {
     position: 'absolute',
-    width: width * 1.5,
-    height: width * 1.5,
-    borderRadius: 999,
-    backgroundColor: '#A855F7',
-    top: '-30%',
-    left: '-40%',
+    top: -60,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
-  glowOrbBottom: {
-    position: 'absolute',
-    width: width * 1.2,
-    height: width * 1.2,
-    borderRadius: 999,
-    backgroundColor: '#EC4899',
-    bottom: '-20%',
-    right: '-40%',
-  },
-  safeArea: {
-    flex: 1,
-  },
-  container: {
-    flex: 1,
-  },
+  safeArea: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 32,
+    paddingHorizontal: 24,
+    paddingTop: 48,
     paddingBottom: 32,
   },
-  
-  // HERO LOGO
+
   logoSection: {
-    height: height * 0.25,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 24,
   },
   logoContainer: {
-    width: 140,
-    height: 140,
-    borderRadius: 40,
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.15)',
-    shadowColor: '#A855F7',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.35,
-    shadowRadius: 20,
-    elevation: 12,
-    overflow: 'hidden',
-  },
-  logoGradient: {
-    flex: 1,
-  },
-  logoInnerGlow: {
-    flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    justifyContent: 'center',
+    width: 84,
+    height: 84,
+    borderRadius: 22,
+    backgroundColor: ACCENT,
     alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.15)',
+    shadowColor: ACCENT,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35,
+    shadowRadius: 17,
+    elevation: 10,
   },
-  logoEmoji: {
-    fontSize: 60,
-  },
+  logoMark: { width: 46, height: 46 },
 
-  // TEXT TYPOGRAPHY
-  headline: {
-    fontFamily: 'Inter',
-    fontSize: 44, // Adjusted slightly to fit naturally 
+  wordmark: {
+    fontFamily: FONT,
+    fontSize: 48,
     fontWeight: '900',
-    color: '#FFFFFF',
+    color: COLORS.fg,
     textAlign: 'center',
-    letterSpacing: -0.5,
-    lineHeight: 52,
-    marginTop: 20, // Reduced from 40 for optimal balance
+    letterSpacing: -1.6,
+    marginTop: 6,
   },
   subheading: {
-    fontFamily: 'Inter',
-    fontSize: 24,
+    fontFamily: FONT,
+    fontSize: 17,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: COLORS.fg,
     textAlign: 'center',
     letterSpacing: -0.2,
-    lineHeight: 32,
-    marginTop: 16,
+    marginTop: 14,
   },
   bodyText: {
-    fontFamily: 'Inter',
-    fontSize: 16,
+    fontFamily: FONT,
+    fontSize: 13,
     fontWeight: '400',
-    color: '#E5E7EB',
+    color: COLORS.fgGrayDim,
     textAlign: 'center',
-    lineHeight: 25.6,
-    maxWidth: 320,
-    marginTop: 24,
+    lineHeight: 20,
+    maxWidth: 300,
+    marginTop: 10,
   },
 
-  // TRUST SIGNALS
   trustSignalsRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     flexWrap: 'wrap',
-    gap: 12,
+    gap: 8,
     marginTop: 24,
   },
   trustBadge: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.045)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.09)',
+    borderRadius: 100,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
-  trustCheck: {
-    fontSize: 12,
-    color: '#10B981', // Growth Green
-    fontWeight: '900',
-    marginRight: 4,
-  },
-  trustText: {
-    fontFamily: 'Inter',
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#818CF8', // Accent
-  },
-  
-  spacer: {
-    flex: 1,
-    minHeight: 48,
-  },
+  trustText: { fontFamily: FONT, fontSize: 11, fontWeight: '600', color: COLORS.fgGray },
 
-  // BOTTOM SECTION (CTA)
-  bottomSection: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  buttonWrapper: {
-    width: '100%',
-  },
-  buttonShadow: {
-    shadowColor: '#A855F7',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 8,
-    width: '100%',
-  },
-  buttonGradient: {
-    width: '100%',
-    height: 60,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  buttonText: {
-    fontFamily: 'Inter',
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  
-  // SECONDARY CTA
-  secondaryCtaContainer: {
-    marginTop: 16,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  secondaryCtaText: {
-    fontFamily: 'Inter',
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#818CF8',
-    textDecorationLine: 'underline',
-  },
+  spacer: { flex: 1, minHeight: 40 },
 
-  // BOTTOM TRUST MARK
-  bottomTrustContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 24,
-    opacity: 0.8,
-  },
-  lockIcon: {
-    fontSize: 12,
-    marginRight: 6,
-  },
-  bottomTrustText: {
-    fontFamily: 'Inter',
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#9CA3AF',
-  },
+  bottomSection: { width: '100%', alignItems: 'center' },
+  logInButton: { marginTop: 10 },
+
+  bottomTrustContainer: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 20, opacity: 0.8 },
+  bottomTrustText: { fontFamily: FONT, fontSize: 10.5, fontWeight: '600', color: COLORS.fgGrayDim },
 });

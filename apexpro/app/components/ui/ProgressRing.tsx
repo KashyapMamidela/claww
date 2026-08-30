@@ -1,12 +1,51 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
+import Animated, { useAnimatedProps, useSharedValue, withSpring } from 'react-native-reanimated';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export interface RingSpec {
   r: number;
   strokeWidth: number;
   color: string;
   pct: number;
+}
+
+interface RingArcProps {
+  cx: number;
+  cy: number;
+  r: number;
+  strokeWidth: number;
+  color: string;
+  pct: number;
+  trackFraction: number;
+}
+
+/** The colored (filled) arc of one ring — springs its length to a new pct instead of jump-cutting. */
+function RingArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcProps) {
+  const circ = 2 * Math.PI * r;
+  const target = Math.max(0, Math.min(1, pct / 100)) * circ * trackFraction;
+  const arcLen = useSharedValue(0);
+  useEffect(() => {
+    arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
+  }, [target]);
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDasharray: `${arcLen.value} ${Math.max(0, circ - arcLen.value)}`,
+  }));
+
+  return (
+    <AnimatedCircle
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill="none"
+      stroke={color}
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      animatedProps={animatedProps}
+    />
+  );
 }
 
 export interface ProgressRingProps {
@@ -41,7 +80,6 @@ export function ProgressRing({
       <Svg width={size} height={size} style={{ transform: [{ rotate: `${rotation}deg` }] }}>
         {rings.map((ring, i) => {
           const circ = 2 * Math.PI * ring.r;
-          const arcLen = Math.max(0, Math.min(1, ring.pct / 100)) * circ * trackFraction;
           return (
             <React.Fragment key={i}>
               <Circle
@@ -58,18 +96,7 @@ export function ProgressRing({
                   ? { strokeDasharray: trackDash }
                   : {})}
               />
-              {ring.pct > 0 && (
-                <Circle
-                  cx={c}
-                  cy={c}
-                  r={ring.r}
-                  fill="none"
-                  stroke={ring.color}
-                  strokeWidth={ring.strokeWidth}
-                  strokeLinecap="round"
-                  strokeDasharray={`${arcLen} ${circ - arcLen}`}
-                />
-              )}
+              <RingArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
             </React.Fragment>
           );
         })}

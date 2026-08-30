@@ -1,45 +1,97 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
+import { useAppState } from '../lib/appState';
+import { signOut } from '../lib/auth';
+import {
+  getAchievements,
+  getActivityStreak,
+  getCompletedWorkoutDays,
+  getLevelInfo,
+  getProfile,
+  getTierName,
+  getTotalVolume,
+  getUserXp,
+  type Achievement,
+  type Profile,
+} from '../lib/data';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 
 const P = COLORS.amber;
 
-const BADGES = [
-  { icon: '🔥', label: '30-Day Streak', color: '#FF4500', earned: true },
-  { icon: '💪', label: 'Iron 100', color: '#3B82F6', earned: true },
-  { icon: '⚡', label: 'Volume King', color: '#A855F7', earned: true },
-  { icon: '🎯', label: 'Goal Crusher', color: '#00D68F', earned: true },
-  { icon: '🥊', label: 'Elite Tier', color: P, earned: false },
-  { icon: '🌙', label: 'Night Owl', color: '#6366F1', earned: false },
-  { icon: '🚀', label: 'CLAWW Legend', color: '#EC4899', earned: false },
+const GOAL_LABELS: Record<string, string> = {
+  muscle_gain: 'Build Muscle',
+  fat_loss: 'Lose Fat',
+  endurance: 'Endurance',
+  maintenance: 'Maintain',
+  flexibility: 'Flexibility',
+};
+
+const menuItems = [
+  { icon: 'bell', label: 'Notifications' },
+  { icon: 'shield', label: 'Privacy & Data' },
+  { icon: 'help-circle', label: 'Help & Support' },
 ];
 
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const xp = 4280;
-  const xpNext = 5000;
+  const { userId, userName } = useAppState();
+
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [xp, setXp] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [workoutCount, setWorkoutCount] = useState(0);
+  const [volume, setVolume] = useState(0);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!userId) return;
+      let cancelled = false;
+      Promise.all([
+        getProfile(userId),
+        getUserXp(userId),
+        getActivityStreak(userId),
+        getCompletedWorkoutDays(userId),
+        getTotalVolume(userId),
+        getAchievements(userId),
+      ]).then(([p, x, s, wc, v, a]) => {
+        if (cancelled) return;
+        setProfile(p);
+        setXp(x);
+        setStreak(s);
+        setWorkoutCount(wc);
+        setVolume(v);
+        setAchievements(a);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [userId])
+  );
+
+  const { level, xpIntoLevel, xpForNextLevel } = getLevelInfo(xp);
+  const tier = getTierName(level);
+  const earnedCount = achievements.filter((a) => a.earned).length;
+  const displayName = profile?.name || userName || 'Member';
+  const goalLabel = profile?.goal ? GOAL_LABELS[profile.goal] ?? profile.goal : '—';
 
   const stats = [
-    { label: 'Workouts', value: '247', icon: 'flame', color: '#FF4500' },
-    { label: 'Total Vol', value: '1.2M', icon: 'zap', color: '#A855F7' },
-    { label: 'PRs Set', value: '38', icon: 'trophy', color: P },
-    { label: 'Streak', value: '18d', icon: 'star', color: '#00D68F' },
+    { label: 'Workouts', value: String(workoutCount), icon: 'flame', color: '#FF4500' },
+    { label: 'Total Vol', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), icon: 'zap', color: '#A855F7' },
+    { label: 'XP', value: xp.toLocaleString(), icon: 'trophy', color: P },
+    { label: 'Streak', value: `${streak}d`, icon: 'star', color: '#00D68F' },
   ];
   const bodyStats = [
-    { l: 'Weight', v: '182 lb', d: '–3 lb', c: '#00D68F' },
-    { l: 'Body Fat (est.)', v: '12.4%', d: '–1.2%', c: '#00D68F' },
-    { l: 'Muscle (est.)', v: '38.6%', d: '+0.8%', c: P },
-  ];
-  const menuItems = [
-    { icon: 'bell', label: 'Notifications' },
-    { icon: 'shield', label: 'Privacy & Data' },
-    { icon: 'help-circle', label: 'Help & Support' },
+    { l: 'Weight', v: profile?.weight ? `${profile.weight} kg` : '—' },
+    { l: 'Height', v: profile?.height ? `${profile.height} cm` : '—' },
+    { l: 'Goal', v: goalLabel },
   ];
 
   return (
@@ -73,22 +125,24 @@ export default function ProfileScreen() {
               end={{ x: 1, y: 1 }}
               style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#fff', fontFamily: FONT }}>M</Text>
+              <Text style={{ fontSize: 22, fontWeight: '900', color: '#fff', fontFamily: FONT }}>
+                {displayName.charAt(0).toUpperCase()}
+              </Text>
             </LinearGradient>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>Marcus Reid</Text>
-              <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>@marcus_claww · Elite Tier</Text>
+              <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>{displayName}</Text>
+              <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>{profile?.email ?? ''} · {tier}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
-                <Badge color={P}>LVL 34</Badge>
-                <Badge color="#00D68F">18-DAY STREAK</Badge>
+                <Badge color={P}>LVL {level}</Badge>
+                <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
               </View>
             </View>
           </View>
           <View style={{ marginTop: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>XP Progress — Level 34</Text>
+              <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>XP Progress — Level {level}</Text>
               <Text style={{ color: P, fontSize: 10, fontWeight: '600', fontFamily: FONT }}>
-                {xp.toLocaleString()} / {xpNext.toLocaleString()}
+                {xpIntoLevel} / {xpForNextLevel}
               </Text>
             </View>
             <View style={{ height: 5, backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: 100, overflow: 'hidden' }}>
@@ -96,7 +150,7 @@ export default function ProfileScreen() {
                 colors={['#FF4500', P]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
-                style={{ height: '100%', width: `${(xp / xpNext) * 100}%`, borderRadius: 100 }}
+                style={{ height: '100%', width: `${(xpIntoLevel / xpForNextLevel) * 100}%`, borderRadius: 100 }}
               />
             </View>
           </View>
@@ -128,10 +182,10 @@ export default function ProfileScreen() {
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
-            <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>4/7 earned</Text>
+            <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            {BADGES.map((b) => (
+            {achievements.map((b) => (
               <View key={b.label} style={{ width: '22.5%', alignItems: 'center', gap: 5, opacity: b.earned ? 1 : 0.3 }}>
                 <View
                   style={{
@@ -156,7 +210,6 @@ export default function ProfileScreen() {
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Body Stats</Text>
-            <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>Updated Apr 14</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {bodyStats.map((bs) => (
@@ -173,13 +226,9 @@ export default function ProfileScreen() {
               >
                 <Text style={{ color: '#71717A', fontSize: 9.5, fontFamily: FONT }}>{bs.l}</Text>
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', marginTop: 3, fontFamily: FONT }}>{bs.v}</Text>
-                <Text style={{ color: bs.c, fontSize: 9.5, marginTop: 2, fontFamily: FONT }}>{bs.d}</Text>
               </View>
             ))}
           </View>
-          <Text style={{ color: '#52525B', fontSize: 9.5, marginTop: 10, lineHeight: 13, fontFamily: FONT }}>
-            Body fat and muscle % are self-reported estimates, not clinical measurements.
-          </Text>
         </View>
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
@@ -206,6 +255,7 @@ export default function ProfileScreen() {
           ))}
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={signOut}
             style={{
               flexDirection: 'row',
               alignItems: 'center',

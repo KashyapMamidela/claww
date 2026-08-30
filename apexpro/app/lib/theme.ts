@@ -76,6 +76,13 @@ export const COLORS = {
 
 export const FONT = 'Inter';
 
+// AppHeader/TabBar float over scrollable content now (real translucent
+// material needs something behind it to blur) — these are their own
+// content heights, excluding safe-area insets, which each screen adds
+// back via useSafeAreaInsets() so content clears them.
+export const HEADER_CONTENT_HEIGHT = 46;
+export const TAB_BAR_CONTENT_HEIGHT = 52;
+
 // Per-tab accents (bottom nav + header wordmark buckets)
 export const TAB_ACCENTS: Record<string, { accent: string; wordmark: string }> = {
   index: { accent: '#FFFFFF', wordmark: '#A1A1AA' },

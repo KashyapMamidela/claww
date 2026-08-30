@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { PressScale } from './PressScale';
 
 export interface IconButtonProps {
   icon: React.ReactNode;
@@ -9,9 +9,9 @@ export interface IconButtonProps {
 
 export function IconButton({ icon, onPress, size = 34 }: IconButtonProps) {
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
+    <PressScale
       onPress={onPress}
+      scaleTo={0.92}
       style={{
         width: size,
         height: size,
@@ -24,6 +24,6 @@ export function IconButton({ icon, onPress, size = 34 }: IconButtonProps) {
       }}
     >
       {icon}
-    </TouchableOpacity>
+    </PressScale>
   );
 }

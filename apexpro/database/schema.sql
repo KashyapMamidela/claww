@@ -31,6 +31,44 @@ CREATE TABLE IF NOT EXISTS profiles (
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS gender TEXT CHECK (gender IN ('male', 'female', 'other'));
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS personalization_profile JSONB;
 
+-- profiles.id should always match a real auth.users.id (1:1 with Supabase
+-- Auth), so tie it down with a proper FK instead of a bare UUID PK.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'profiles_id_fkey' AND table_name = 'profiles'
+  ) THEN
+    ALTER TABLE profiles
+      ADD CONSTRAINT profiles_id_fkey FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
+-- ============================================================
+-- Auto-create a profiles row whenever a new auth.users row appears, so
+-- the app always has somewhere to write onboarding answers to. The app
+-- also does a defensive upsert on sign-up/sign-in (lib/auth.ts
+-- ensureProfileRow) in case this trigger isn't installed yet — either
+-- path is safe to run since profiles.id is the primary key.
+-- ============================================================
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email)
+  VALUES (NEW.id, NEW.email)
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- ============================================================
 -- TABLE: user_stats
 -- Tracks streaks, levels, and workout counts.
@@ -109,14 +147,42 @@ CREATE TABLE IF NOT EXISTS sleep_logs (
 -- TABLE: workout_logs
 -- Completed sets against the exercises catalog
 -- ============================================================
+-- One row per completed SET (not per exercise) — `sets` holds the set
+-- number within that exercise (1, 2, 3...). exercise_id is nullable because
+-- AI-generated/fallback plans aren't always grounded to a real catalog row;
+-- exercise_name is always populated so a log never depends on the catalog.
 CREATE TABLE IF NOT EXISTS workout_logs (
-  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id       UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  exercise_id   UUID NOT NULL REFERENCES exercises(id) ON DELETE CASCADE,
-  sets          INT,
-  reps          INT,
-  weight        FLOAT,
-  completed_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id        UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  exercise_id    UUID REFERENCES exercises(id) ON DELETE SET NULL,
+  exercise_name  TEXT NOT NULL DEFAULT '',
+  sets           INT,
+  reps           INT,
+  weight         FLOAT,
+  completed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Migration for an already-created table from before this column existed.
+ALTER TABLE workout_logs ALTER COLUMN exercise_id DROP NOT NULL;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS exercise_name TEXT NOT NULL DEFAULT '';
+
+-- ============================================================
+-- TABLE: workout_day_events
+-- One row per plan-day the user completed or explicitly skipped —
+-- powers the "what should I do today" recommendation and the
+-- completed/skipped calendar. Distinct from workout_logs (which is
+-- per-set): this is per-day, and skips never touch workout_logs since
+-- nothing was actually performed.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS workout_day_events (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  workout_id  UUID REFERENCES workouts(id) ON DELETE SET NULL,
+  day_label   TEXT NOT NULL,
+  day_focus   TEXT,
+  status      TEXT NOT NULL CHECK (status IN ('completed', 'skipped')),
+  event_date  DATE NOT NULL DEFAULT CURRENT_DATE,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================
@@ -132,6 +198,23 @@ CREATE TABLE IF NOT EXISTS meal_logs (
   fats_g       FLOAT,
   estimated    BOOLEAN NOT NULL DEFAULT TRUE,
   logged_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Which meal of the day this was (drives the Nutrition tab's timeline icon
+-- and "next meal to log" prompt) — added after the initial table, so it's
+-- an ALTER rather than part of the CREATE TABLE above.
+ALTER TABLE meal_logs ADD COLUMN IF NOT EXISTS meal_type TEXT CHECK (meal_type IN ('Breakfast', 'Lunch', 'Snack', 'Dinner'));
+
+-- ============================================================
+-- TABLE: water_logs
+-- Each tap of a water glass on the Nutrition tab is one row —
+-- replaces what used to be a session-only local counter.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS water_logs (
+  id         UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id    UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  ml         INT NOT NULL,
+  logged_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================
@@ -169,7 +252,9 @@ ALTER TABLE nutrition_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE exercises     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE sleep_logs    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workout_logs  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE workout_day_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meal_logs     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE water_logs    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE xp_events     ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: users can only read/update their own row
@@ -215,9 +300,21 @@ CREATE POLICY "workout_logs_own" ON workout_logs
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+-- Workout day events: own rows only
+DROP POLICY IF EXISTS "workout_day_events_own" ON workout_day_events;
+CREATE POLICY "workout_day_events_own" ON workout_day_events
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
 -- Meal logs: own rows only
 DROP POLICY IF EXISTS "meal_logs_own" ON meal_logs;
 CREATE POLICY "meal_logs_own" ON meal_logs
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Water logs: own rows only
+DROP POLICY IF EXISTS "water_logs_own" ON water_logs;
+CREATE POLICY "water_logs_own" ON water_logs
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 

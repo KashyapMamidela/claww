@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, Image, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, FONT } from '../../../lib/theme';
@@ -90,7 +90,7 @@ export default function OnboardingReveal() {
             elevation: 10,
           }}
         >
-          <Text style={{ fontSize: 42 }}>🦅</Text>
+          <Image source={require('../../../assets/logo-mark.png')} style={{ width: 46, height: 46 }} resizeMode="contain" />
         </Animated.View>
 
         <Text style={{ color: accent, fontSize: 10.5, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8, fontFamily: FONT }}>
