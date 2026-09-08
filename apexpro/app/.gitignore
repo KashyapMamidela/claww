@@ -30,7 +30,10 @@ yarn-error.*
 .DS_Store
 *.pem
 
-# local env files
+# local env files — the anon key here is meant to be public (RLS-protected,
+# same key that ships inside the compiled app binary), but keep it out of
+# git anyway; already-committed history isn't rewritten by this change.
+.env
 .env*.local
 
 # typescript

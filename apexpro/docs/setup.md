@@ -5,11 +5,14 @@
 ```
 apexpromobile/
 └── apexpro/
-    ├── app/        ← Expo React Native frontend
-    ├── backend/    ← Next.js API backend
-    ├── database/   ← Supabase SQL schema
-    └── docs/       ← Documentation (this directory)
+    ├── app/                  ← Expo React Native frontend (the real client)
+    ├── supabase/functions/   ← the real backend: Deno Edge Functions
+    ├── database/             ← Supabase SQL schema
+    ├── backend/               ← DEAD CODE — Next.js scaffold, never used. Don't build on it.
+    └── docs/                 ← Documentation (this directory)
 ```
+
+`backend/` is a leftover Next.js scaffold from an earlier direction. Its API routes (`generate-workout`, `generate-nutrition`) are untouched 501 stubs and are never called by the app. All real generation logic lives in `supabase/functions/`.
 
 ---
 
@@ -17,8 +20,10 @@ apexpromobile/
 
 - Node.js v18+
 - npm v9+
-- [Expo Go](https://expo.dev/go) app on your phone (for testing on device)
+- [Expo Go](https://expo.dev/go) app on your phone (for testing on device), or an EAS dev-client build if native modules require it
 - A [Supabase](https://supabase.com) project with URL and anon key
+- [Supabase CLI](https://supabase.com/docs/guides/cli) (`npx supabase`) for deploying Edge Functions and running SQL against the linked project
+- A [Groq](https://console.groq.com) API key, with the model in `supabase/functions/_shared/groq.ts` (`GROQ_MODEL`) enabled for your org at console.groq.com/settings/limits — Groq blocks unapproved models per-org with a `403 model_permission_blocked_org`, regardless of key validity
 
 ---
 
@@ -26,18 +31,24 @@ apexpromobile/
 
 ### Frontend (`apexpro/app/.env`)
 
+Copy `apexpro/app/.env.example` to `apexpro/app/.env` and fill in:
+
 | Variable | Description |
 |---|---|
 | `EXPO_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase project anon/public key |
 
-### Backend (`apexpro/backend/.env.local`)
+The anon key is meant to be public — it's protected by Row Level Security policies and ships inside the compiled app binary regardless. Never put the service role key here.
 
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase project anon/public key |
-| `GROQ_API_KEY` | GROQ API key for AI workout/nutrition generation |
+### Backend (Supabase Edge Functions)
+
+Edge Functions read secrets from the Supabase project itself, not a local `.env` file:
+
+```bash
+npx supabase secrets set GROQ_API_KEY=your-key-here --project-ref <your-project-ref>
+```
+
+Check what's currently set (values are masked) with `npx supabase secrets list --project-ref <your-project-ref>`.
 
 ---
 
@@ -45,7 +56,6 @@ apexpromobile/
 
 ```bash
 cd apexpro/app
-# Start the Expo dev server
 npm start
 ```
 
@@ -56,22 +66,27 @@ npm start
 
 ---
 
-## Running the Backend (Next.js)
+## Deploying the Backend (Supabase Edge Functions)
 
 ```bash
-cd apexpro/backend
-# Start the Next.js development server
-npm run dev
+cd apexpro
+npx supabase link --project-ref <your-project-ref>
+npx supabase functions deploy generate-plan
+npx supabase functions deploy parse-meal
+npx supabase functions deploy parse-meal-photo
+npx supabase functions deploy compute-recovery
 ```
 
-The backend will be available at **http://localhost:3000**.
+Or deploy all at once: `npx supabase functions deploy`.
 
-### Test the health endpoint
+### Real generation endpoints
 
-```bash
-curl http://localhost:3000/api/health
-# Expected: { "status": "ok" }
-```
+| Function | Description |
+|---|---|
+| `generate-plan` | Builds a personalized workout plan — deterministic thresholds (rep ranges, volume, frequency) computed server-side, Groq only selects/names exercises within those constraints, output is Zod-validated and clamped, with a hard fallback (`DEFAULT_PLAN`) on validation or Groq failure |
+| `parse-meal` | Estimates macros from a text meal description |
+| `parse-meal-photo` | Estimates macros from a meal photo, with moderation |
+| `compute-recovery` | Computes a recovery score from sleep + last workout intensity |
 
 ---
 
@@ -79,20 +94,10 @@ curl http://localhost:3000/api/health
 
 1. Create a new project on [supabase.com](https://supabase.com).
 2. Navigate to **SQL Editor** in the Supabase dashboard.
-3. Open `apexpro/database/schema.sql`.
-4. Paste the entire contents and click **Run**.
+3. Open `apexpro/database/schema.sql`, paste, and run — it's idempotent (`IF NOT EXISTS` throughout), safe to re-run.
+4. Run `apexpro/database/seed_exercises.sql` — `generate-plan` can't produce a real personalized plan without rows in the `exercises` catalog; it filters this table and hands the result to Groq as the only exercises it's allowed to choose from.
 
-This will create all required tables with Row Level Security policies applied.
-
----
-
-## API Routes
-
-| Route | Method | Status | Description |
-|---|---|---|---|
-| `/api/health` | GET | ✅ Live | Health check |
-| `/api/generate-workout` | POST | 🔜 Stub | AI workout generation |
-| `/api/generate-nutrition` | POST | 🔜 Stub | AI nutrition generation |
+This creates all required tables with Row Level Security policies applied.
 
 ---
 
@@ -100,12 +105,11 @@ This will create all required tables with Row Level Security policies applied.
 
 The frontend uses Supabase Auth with:
 - **Email/password** sign up and sign in
-- **Google OAuth** (configure Google provider in Supabase dashboard)
-- **Expo SecureStore** for secure session token persistence on device
+- **Expo SecureStore** for secure session token persistence on device (falls back to `localStorage` on web)
 
 Helper functions are available in `apexpro/app/lib/auth.ts`:
 - `signUp(email, password)`
 - `signIn(email, password)`
-- `signInWithGoogle()`
-- `getCurrentUser()`
+- `ensureProfileRow(user)`
+- `isOnboardingComplete(userId)`
 - `signOut()`

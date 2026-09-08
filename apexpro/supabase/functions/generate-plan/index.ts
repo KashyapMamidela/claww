@@ -1,6 +1,6 @@
 import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
-import { callGroqJSON } from '../_shared/groq.ts';
+import { callGroqJSON, GroqPermissionError } from '../_shared/groq.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 
@@ -303,6 +303,10 @@ Deno.serve(async (req: Request) => {
     const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText);
 
     let plan: Plan;
+    // Distinguishes a real Groq-generated plan from any fallback path, in
+    // both the log line below and the response body — so "is generation
+    // actually working" is a direct read, not an inference from plan shape.
+    let generated = false;
 
     try {
       const raw = await callGroqJSON([
@@ -320,16 +324,31 @@ Deno.serve(async (req: Request) => {
 
       const parseResult = PlanSchema.safeParse(JSON.parse(raw));
       if (!parseResult.success) {
-        console.error('[generate-plan] Groq response failed schema validation:', JSON.stringify(parseResult.error.flatten()));
+        console.error('[generate-plan] FELL BACK: Groq response failed schema validation:', JSON.stringify(parseResult.error.flatten()));
       }
       plan = parseResult.success ? groundPlanInCatalog(parseResult.data, exercises) : DEFAULT_PLAN;
       if (plan.days.length === 0) {
-        console.error('[generate-plan] Grounding filtered every exercise out of the plan; falling back to default.');
+        console.error('[generate-plan] FELL BACK: grounding filtered every exercise out of the plan.');
         plan = DEFAULT_PLAN;
       }
+      generated = parseResult.success && plan.days.length > 0;
     } catch (groqError) {
-      console.error('[generate-plan] Groq call failed:', (groqError as Error).message);
+      if (groqError instanceof GroqPermissionError) {
+        // Not a normal fallback — this means EVERY generation request is
+        // broken until someone enables the model at console.groq.com, not
+        // just this one user's request. Log loudly and distinctly.
+        console.error(
+          `[generate-plan] 🚨 FELL BACK — GROQ MODEL BLOCKED for this org (status ${groqError.status}). ` +
+            `Enable the model at console.groq.com/settings/limits. This will keep happening for every user until fixed. ${groqError.message}`
+        );
+      } else {
+        console.error('[generate-plan] FELL BACK: Groq call failed:', (groqError as Error).message);
+      }
       plan = DEFAULT_PLAN;
+    }
+
+    if (generated) {
+      console.log(`[generate-plan] GENERATED a real plan for user ${user.id} (${plan.days.length} days).`);
     }
 
     // Hard-enforce the computed thresholds regardless of what the model
@@ -346,7 +365,7 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Failed to save workout plan: ${insertError.message}`);
     }
 
-    return new Response(JSON.stringify({ recovery, workout: savedWorkout }), { headers: jsonHeaders });
+    return new Response(JSON.stringify({ recovery, workout: savedWorkout, generated }), { headers: jsonHeaders });
   } catch (error) {
     const status = error instanceof UnauthorizedError ? 401 : 500;
     return new Response(JSON.stringify({ error: (error as Error).message }), {

@@ -1,3 +1,5 @@
+> **DEAD CODE — do not build on this.** The real backend is `supabase/functions/` (Deno Edge Functions: `generate-plan`, `parse-meal`, `parse-meal-photo`, `compute-recovery`). This Next.js app's API routes (`generate-workout`, `generate-nutrition`) are untouched 501 stubs left over from an earlier direction and are never called by the mobile app. See `docs/setup.md` for the actual architecture. If you're here to add a feature, it almost certainly belongs in `supabase/functions/` instead.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

@@ -1,6 +1,6 @@
 import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
-import { callGroqJSON } from '../_shared/groq.ts';
+import { callGroqJSON, GroqPermissionError } from '../_shared/groq.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 
 const RequestSchema = z.object({
@@ -80,6 +80,15 @@ Deno.serve(async (req: Request) => {
         status: 400,
         headers: jsonHeaders,
       });
+    }
+    if (error instanceof GroqPermissionError) {
+      // Not a normal failure — every request is broken until the model is
+      // enabled at console.groq.com/settings/limits, not just this one.
+      console.error(`[parse-meal] 🚨 GROQ MODEL BLOCKED for this org (status ${error.status}). ${error.message}`);
+      return new Response(
+        JSON.stringify({ error: 'Meal estimation is temporarily unavailable — try again shortly.' }),
+        { status: 503, headers: jsonHeaders }
+      );
     }
     const status = error instanceof UnauthorizedError ? 401 : 500;
     return new Response(JSON.stringify({ error: (error as Error).message }), {

@@ -16,6 +16,23 @@ export interface GroqMessage {
 }
 
 /**
+ * Thrown specifically for a 401/403 from Groq — almost always means the
+ * model isn't enabled for this org at console.groq.com/settings/limits,
+ * not a transient failure. Callers must log this distinctly from a normal
+ * Groq-call failure or JSON-validation fallback: those are expected to
+ * happen occasionally per-request, this means EVERY request is broken
+ * until someone fixes the account setting.
+ */
+export class GroqPermissionError extends Error {
+  status: number;
+  constructor(status: number, body: string) {
+    super(`Groq permission error (${status}): ${body}`);
+    this.name = 'GroqPermissionError';
+    this.status = status;
+  }
+}
+
+/**
  * Calls Groq's chat-completions API and returns the raw JSON string content
  * of the assistant's reply. Callers are responsible for parsing/validating it.
  */
@@ -41,6 +58,9 @@ export async function callGroqJSON(messages: GroqMessage[], temperature = 0.4): 
 
   if (!response.ok) {
     const text = await response.text();
+    if (response.status === 401 || response.status === 403) {
+      throw new GroqPermissionError(response.status, text);
+    }
     throw new Error(`Groq API error (${response.status}): ${text}`);
   }
 
@@ -88,6 +108,9 @@ export async function callGroqVisionJSON(systemPrompt: string, userText: string,
 
   if (!response.ok) {
     const text = await response.text();
+    if (response.status === 401 || response.status === 403) {
+      throw new GroqPermissionError(response.status, text);
+    }
     throw new Error(`Groq vision API error (${response.status}): ${text}`);
   }
 
