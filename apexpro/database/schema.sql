@@ -151,20 +151,47 @@ CREATE TABLE IF NOT EXISTS sleep_logs (
 -- number within that exercise (1, 2, 3...). exercise_id is nullable because
 -- AI-generated/fallback plans aren't always grounded to a real catalog row;
 -- exercise_name is always populated so a log never depends on the catalog.
+-- reps/weight are split prescribed vs achieved: the plan says what to do,
+-- *_achieved is what the user actually confirmed in the live player —
+-- without this split there's no real signal to adapt the next plan from.
 CREATE TABLE IF NOT EXISTS workout_logs (
-  id             UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id        UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  exercise_id    UUID REFERENCES exercises(id) ON DELETE SET NULL,
-  exercise_name  TEXT NOT NULL DEFAULT '',
-  sets           INT,
-  reps           INT,
-  weight         FLOAT,
-  completed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id                 UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id            UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  exercise_id        UUID REFERENCES exercises(id) ON DELETE SET NULL,
+  exercise_name      TEXT NOT NULL DEFAULT '',
+  sets               INT,
+  reps_prescribed    INT,
+  reps_achieved      INT,
+  weight_prescribed  FLOAT,
+  weight_achieved    FLOAT,
+  completed_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Migration for an already-created table from before this column existed.
 ALTER TABLE workout_logs ALTER COLUMN exercise_id DROP NOT NULL;
 ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS exercise_name TEXT NOT NULL DEFAULT '';
+
+-- Migration: split prescribed vs achieved performance (was: reps/weight held
+-- only the prescribed number, actual performance was never captured).
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'workout_logs' AND column_name = 'reps'
+  ) THEN
+    ALTER TABLE workout_logs RENAME COLUMN reps TO reps_prescribed;
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'workout_logs' AND column_name = 'weight'
+  ) THEN
+    ALTER TABLE workout_logs RENAME COLUMN weight TO weight_prescribed;
+  END IF;
+END $$;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS reps_prescribed INT;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS reps_achieved INT;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS weight_prescribed FLOAT;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS weight_achieved FLOAT;
 
 -- ============================================================
 -- TABLE: workout_day_events

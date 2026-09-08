@@ -8,10 +8,12 @@ import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../
 import { useAppState } from '../../lib/appState';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import {
+  generateWorkoutPlan,
   getLatestWorkout,
   getSuggestedDayIndex,
   getWorkoutDayEvents,
   logWorkoutDayEvent,
+  type RegenerationReason,
   type WorkoutDayEvent,
   type WorkoutRow,
 } from '../../lib/data';
@@ -106,6 +108,8 @@ export default function WorkoutsTab() {
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [skipping, setSkipping] = useState(false);
+  const [showRegenCard, setShowRegenCard] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -164,6 +168,20 @@ export default function WorkoutsTab() {
     setSkipping(false);
   };
 
+  const handleRegenerate = async (reason: RegenerationReason) => {
+    if (!userId || regenerating) return;
+    setRegenerating(true);
+    const newWorkout = await generateWorkoutPlan(userId, reason);
+    if (newWorkout) {
+      setWorkout(newWorkout);
+      const dayEvents = await getWorkoutDayEvents(userId, newWorkout.id);
+      setEvents(dayEvents);
+      setSelectedDay(getSuggestedDayIndex(newWorkout.plan, dayEvents));
+    }
+    setRegenerating(false);
+    setShowRegenCard(false);
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -175,13 +193,97 @@ export default function WorkoutsTab() {
             gap: 16,
           }}
         >
-          <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-              <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-              <Text style={{ color: A, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR PLAN</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <View>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
+                <Text style={{ color: A, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR PLAN</Text>
+              </View>
+              <Display>Workouts</Display>
             </View>
-            <Display>Workouts</Display>
+            {sessionStatus === 'idle' && !showRegenCard && !regenerating ? (
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => setShowRegenCard(true)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 5,
+                  paddingHorizontal: 11,
+                  paddingVertical: 7,
+                  borderRadius: 100,
+                  backgroundColor: '#151517',
+                  borderWidth: 1,
+                  borderColor: 'rgba(255,255,255,0.12)',
+                  marginTop: 4,
+                }}
+              >
+                <Icon name="repeat" size={12} color="#A1A1AA" />
+                <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontWeight: '700', fontFamily: FONT }}>Regenerate</Text>
+              </TouchableOpacity>
+            ) : null}
           </View>
+
+          {regenerating ? (
+            <View
+              style={{
+                backgroundColor: '#151517',
+                borderWidth: 1,
+                borderColor: 'rgba(59,130,246,0.30)',
+                borderRadius: 16,
+                paddingHorizontal: 18,
+                paddingVertical: 20,
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <Icon name="wand-2" size={22} color={A} />
+              <Text style={{ color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
+              <Text style={{ color: '#71717A', fontSize: 11.5, fontFamily: FONT }}>Usually takes a few seconds</Text>
+            </View>
+          ) : showRegenCard ? (
+            <View
+              style={{
+                backgroundColor: '#151517',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.12)',
+                borderRadius: 16,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                gap: 10,
+              }}
+            >
+              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>What should change?</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {(
+                  [
+                    ['too_hard', 'Too hard'],
+                    ['too_easy', 'Too easy'],
+                    ['wrong_focus', 'Wrong focus'],
+                  ] as [RegenerationReason, string][]
+                ).map(([value, label]) => (
+                  <TouchableOpacity
+                    key={value}
+                    activeOpacity={0.8}
+                    onPress={() => handleRegenerate(value)}
+                    style={{
+                      paddingHorizontal: 14,
+                      paddingVertical: 9,
+                      borderRadius: 100,
+                      backgroundColor: 'rgba(59,130,246,0.12)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(59,130,246,0.35)',
+                    }}
+                  >
+                    <Text style={{ color: A, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TouchableOpacity activeOpacity={0.8} onPress={() => setShowRegenCard(false)} style={{ alignSelf: 'flex-start' }}>
+                <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
 
           <View>
             <Text style={{ color: '#71717A', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.7, marginBottom: 8, fontFamily: FONT }}>

@@ -21,7 +21,7 @@ Deno.serve(async (req: Request) => {
         .maybeSingle(),
       supabase
         .from('workout_logs')
-        .select('sets, reps, weight, completed_at')
+        .select('sets, reps_achieved, reps_prescribed, completed_at')
         .eq('user_id', user.id)
         .order('completed_at', { ascending: false })
         .limit(1)

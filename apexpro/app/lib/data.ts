@@ -234,15 +234,16 @@ export interface RecoveryResult {
   band: 'Low' | 'Moderate' | 'High';
 }
 
-function estimateSessionIntensity(workoutLog: { sets: number | null; reps: number | null } | null): number {
+function estimateSessionIntensity(workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null } | null): number {
   if (!workoutLog) return 0;
-  const volume = (workoutLog.sets ?? 0) * (workoutLog.reps ?? 0);
+  const reps = workoutLog.reps_achieved ?? workoutLog.reps_prescribed ?? 0;
+  const volume = (workoutLog.sets ?? 0) * reps;
   return Math.max(0, Math.min(10, volume / 10));
 }
 
 export function computeRecoveryScore(
   sleepLog: { hours: number | null } | null,
-  workoutLog: { sets: number | null; reps: number | null; completed_at: string } | null
+  workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null; completed_at: string } | null
 ): RecoveryResult {
   const sleepHours = sleepLog?.hours ?? 0;
   const sleepScore = Math.min(sleepHours / 8, 1) * 40;
@@ -265,7 +266,7 @@ export async function getRecoveryScore(userId: string): Promise<RecoveryResult |
     getLatestSleepLog(userId),
     supabase
       .from('workout_logs')
-      .select('sets, reps, completed_at')
+      .select('sets, reps_achieved, reps_prescribed, completed_at')
       .eq('user_id', userId)
       .order('completed_at', { ascending: false })
       .limit(1)
@@ -417,8 +418,10 @@ export interface WorkoutSetInput {
   exerciseName: string;
   exerciseId?: string | null;
   setNumber: number;
-  reps: number;
-  weight: number;
+  repsPrescribed: number;
+  repsAchieved: number;
+  weightPrescribed: number;
+  weightAchieved: number;
 }
 
 /** Logs one completed set (see WorkoutSessionProvider). Awards a small, real XP amount per set. */
@@ -428,8 +431,10 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
     exercise_id: log.exerciseId ?? null,
     exercise_name: log.exerciseName,
     sets: log.setNumber,
-    reps: log.reps,
-    weight: log.weight,
+    reps_prescribed: log.repsPrescribed,
+    reps_achieved: log.repsAchieved,
+    weight_prescribed: log.weightPrescribed,
+    weight_achieved: log.weightAchieved,
   });
   if (error) {
     console.warn('[Claww] Failed to log workout set:', error.message);
@@ -485,14 +490,21 @@ export async function getWorkoutsThisMonth(userId: string): Promise<number> {
   return days.size;
 }
 
-/** Total sets x reps x weight lifted, all-time. */
+/** Total sets x reps x weight lifted, all-time — achieved where logged, prescribed otherwise (pre-migration rows have no achieved value yet). */
 export async function getTotalVolume(userId: string): Promise<number> {
-  const { data, error } = await supabase.from('workout_logs').select('sets, reps, weight').eq('user_id', userId);
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed')
+    .eq('user_id', userId);
   if (error) {
     console.warn('[Claww] Failed to load workout volume:', error.message);
     return 0;
   }
-  return (data ?? []).reduce((sum, row) => sum + (row.sets ?? 0) * (row.reps ?? 0) * (row.weight ?? 0), 0);
+  return (data ?? []).reduce((sum, row) => {
+    const reps = row.reps_achieved ?? row.reps_prescribed ?? 0;
+    const weight = row.weight_achieved ?? row.weight_prescribed ?? 0;
+    return sum + (row.sets ?? 0) * reps * weight;
+  }, 0);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -539,8 +551,10 @@ export async function getLatestWorkout(userId: string): Promise<WorkoutRow | nul
 }
 
 /** Calls the generate-plan Edge Function (personalized plan, grounded in the real exercises catalog). */
-export async function generateWorkoutPlan(userId: string): Promise<WorkoutRow | null> {
-  const { data, error } = await supabase.functions.invoke('generate-plan', { body: {} });
+export type RegenerationReason = 'too_hard' | 'too_easy' | 'wrong_focus';
+
+export async function generateWorkoutPlan(userId: string, reason?: RegenerationReason): Promise<WorkoutRow | null> {
+  const { data, error } = await supabase.functions.invoke('generate-plan', { body: reason ? { reason } : {} });
   if (error) {
     console.warn('[Claww] Failed to generate workout plan:', error.message);
     return null;

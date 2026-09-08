@@ -85,6 +85,52 @@ function computeTrainingDays(experienceLevel: string | null, activityLevel: stri
   return days;
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// Feed real history into the next plan — still entirely deterministic math,
+// same "don't trust the model, ground it" philosophy as everything above.
+// The model's job never widens: it still only picks exercise names within
+// whatever range comes out of this.
+// ─────────────────────────────────────────────────────────────────────────
+
+type AdjustDirection = 'down' | 'up' | 'hold';
+
+interface RecentSetLog {
+  reps_achieved: number | null;
+  reps_prescribed: number | null;
+}
+
+/**
+ * Whether the next plan's rep prescriptions should shift down, up, or hold.
+ * An explicit regeneration reason always wins — it's direct user feedback,
+ * more trustworthy than an inferred trend. Otherwise it reads the trend
+ * across recent logged sets: consistently achieving well under prescribed
+ * reps means the target was too high, consistently meeting or beating it
+ * means there's room to push.
+ */
+function deriveAdjustDirection(reason: string | null, recentLogs: RecentSetLog[]): AdjustDirection {
+  if (reason === 'too_hard') return 'down';
+  if (reason === 'too_easy') return 'up';
+  // 'wrong_focus' (or no reason given) says nothing about intensity — read it from performance instead.
+  const comparable = recentLogs.filter(
+    (l) => l.reps_achieved !== null && l.reps_prescribed !== null && (l.reps_prescribed as number) > 0
+  );
+  if (comparable.length < 3) return 'hold'; // not enough real signal yet — first few sessions stay at the computed baseline
+  const avgRatio =
+    comparable.reduce((sum, l) => sum + (l.reps_achieved as number) / (l.reps_prescribed as number), 0) / comparable.length;
+  if (avgRatio < 0.85) return 'down';
+  if (avgRatio >= 1.05) return 'up';
+  return 'hold';
+}
+
+/** Nudges the rep window by a small, bounded amount — a trend or one explicit reason moves it a couple of reps, never a jump. */
+function applyAdjustDirection(range: RepRange, direction: AdjustDirection, explicit: boolean): RepRange {
+  if (direction === 'hold') return range;
+  const delta = (explicit ? 3 : 2) * (direction === 'down' ? -1 : 1);
+  const minReps = Math.max(1, range.minReps + delta);
+  const maxReps = Math.max(minReps, range.maxReps + delta);
+  return { ...range, minReps, maxReps };
+}
+
 // Keyword -> exercise-name pattern exclusions. A deliberately simple,
 // best-effort heuristic (not a physiotherapy-grade contraindication
 // database) — flagged to the user in the intake copy as such.
@@ -210,10 +256,19 @@ function groundPlanInCatalog(plan: Plan, availableExercises: CatalogExercise[]):
   return { ...plan, days };
 }
 
-function buildSystemPrompt(range: RepRange, dayCount: number, injuriesText: string | null | undefined): string {
+function buildSystemPrompt(range: RepRange, dayCount: number, injuriesText: string | null | undefined, regenerationReason: string | null): string {
   const injuriesLine = injuriesText?.trim()
     ? `The user reported these injuries/limitations: "${injuriesText.trim()}". The available-exercises list has already been filtered to exclude movements that commonly stress those areas — do not work around the filter or suggest anything outside the provided list.`
     : 'The user reported no injuries or limitations.';
+
+  // 'wrong_focus' is a selection concern (which days/exercises to pick), not
+  // a numeric one — sets/reps stay entirely in the deterministic range
+  // above regardless of reason. 'too_hard'/'too_easy' already moved that
+  // range before this prompt was built, so they don't need a note here.
+  const regenerationLine =
+    regenerationReason === 'wrong_focus'
+      ? 'The user regenerated because the previous plan\'s day split / focus areas were wrong for them — choose a meaningfully different day split and exercise selection this time, not a near-copy of a typical plan for their goal.'
+      : '';
 
   return `You are a certified personal trainer generating a workout plan. You will be given the user's
 recovery score/band, their personalization profile, recent workout history, and a filtered list of
@@ -225,7 +280,7 @@ Hard constraints, already computed for this specific user — follow them exactl
 - Generate EXACTLY ${dayCount} training day(s).
 - Every exercise must use ${range.minSets}-${range.maxSets} sets and ${range.minReps}-${range.maxReps} reps.
 - ${injuriesLine}
-
+${regenerationLine ? `- ${regenerationLine}\n` : ''}
 Within those constraints, use your judgment like a trainer would: pick a sensible day split and exercise
 selection for the user's goal and equipment, and adjust where in each range you land based on recovery
 (lower in the range when recovery is Low, higher when High).`;
@@ -240,6 +295,9 @@ Deno.serve(async (req: Request) => {
     const supabase = userClientFromRequest(req);
     const user = await requireUser(supabase);
 
+    const body = await req.json().catch(() => ({}));
+    const reason = typeof body?.reason === 'string' ? body.reason : null;
+
     const [{ data: profile }, { data: sleepLog }, { data: lastWorkout }, { data: recentWorkouts }, { data: latestWorkout }] =
       await Promise.all([
         supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
@@ -252,14 +310,14 @@ Deno.serve(async (req: Request) => {
           .maybeSingle(),
         supabase
           .from('workout_logs')
-          .select('sets, reps, weight, completed_at')
+          .select('sets, reps_achieved, reps_prescribed, completed_at')
           .eq('user_id', user.id)
           .order('completed_at', { ascending: false })
           .limit(1)
           .maybeSingle(),
         supabase
           .from('workout_logs')
-          .select('exercise_id, sets, reps, weight, completed_at')
+          .select('exercise_id, exercise_name, sets, reps_prescribed, reps_achieved, weight_prescribed, weight_achieved, completed_at')
           .eq('user_id', user.id)
           .order('completed_at', { ascending: false })
           .limit(10),
@@ -275,8 +333,11 @@ Deno.serve(async (req: Request) => {
     const recovery = computeRecoveryScore(sleepLog, lastWorkout);
 
     // Cooldown: a double-tap or accidental repeat shouldn't burn another
-    // Groq call — just hand back the plan that was just generated.
-    if (latestWorkout && Date.now() - new Date(latestWorkout.created_at).getTime() < GENERATION_COOLDOWN_MS) {
+    // Groq call — just hand back the plan that was just generated. Does NOT
+    // apply when a regeneration reason was given: that's an explicit,
+    // intentional request, and silently returning the plan the user is
+    // complaining about would ignore their feedback outright.
+    if (!reason && latestWorkout && Date.now() - new Date(latestWorkout.created_at).getTime() < GENERATION_COOLDOWN_MS) {
       return new Response(JSON.stringify({ recovery, workout: latestWorkout, cached: true }), { headers: jsonHeaders });
     }
 
@@ -298,9 +359,17 @@ Deno.serve(async (req: Request) => {
     }
 
     const exercises = excludeInjuredExercises(rawExercises ?? [], injuriesText);
-    const repRange = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
+    const baseRepRange = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
+    const adjustDirection = deriveAdjustDirection(reason, recentWorkouts ?? []);
+    const repRange = applyAdjustDirection(baseRepRange, adjustDirection, reason !== null);
+    if (adjustDirection !== 'hold') {
+      console.log(
+        `[generate-plan] Adjusting rep range ${adjustDirection} for user ${user.id} ` +
+          `(reason: ${reason ?? 'performance trend'}) — ${baseRepRange.minReps}-${baseRepRange.maxReps} -> ${repRange.minReps}-${repRange.maxReps}`
+      );
+    }
     const dayCount = computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
-    const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText);
+    const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText, reason);
 
     let plan: Plan;
     // Distinguishes a real Groq-generated plan from any fallback path, in

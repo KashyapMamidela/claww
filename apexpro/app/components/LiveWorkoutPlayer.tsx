@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
+import * as Haptics from 'expo-haptics';
 import { usePathname } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -73,6 +74,12 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
 
   const [expanded, setExpanded] = useState(false);
   const [minimized, setMinimized] = useState(false);
+  // Confirm-before-log step: "Finish Set" opens this instead of logging
+  // straight away, so reps/weight can be corrected to what actually
+  // happened — defaults to the prescribed reps, so the common case (nothing
+  // to adjust) is a single tap.
+  const [confirming, setConfirming] = useState(false);
+  const [pendingReps, setPendingReps] = useState(0);
   // -1 = minimized to a corner pill, 0 = collapsed bar, 1 = expanded with exercise list.
   const progress = useSharedValue(0);
   const contentHeight = useSharedValue(0);
@@ -190,6 +197,16 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
   );
 
   const progressPct = ((exercises.slice(0, exerciseIndex).reduce((s, e) => s + e.sets, 0) + (setNumber - 1)) / exercises.reduce((s, e) => s + e.sets, 0)) * 100;
+
+  const startConfirm = () => {
+    setPendingReps(current.reps);
+    setConfirming(true);
+  };
+  const confirmSet = () => {
+    finishSet(pendingReps, weight);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    setConfirming(false);
+  };
 
   return (
     <>
@@ -321,6 +338,44 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
                   <Icon name="skip-forward" size={14} color={COLORS.amber} />
                   <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>Skip Rest</Text>
                 </TouchableOpacity>
+              ) : confirming ? (
+                <View style={{ flex: 1, gap: 8 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                      <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9, fontWeight: '700', fontFamily: FONT }}>REPS</Text>
+                      {ctl('chevron-left', 11, 24, () => setPendingReps((r) => Math.max(0, r - 1)))}
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', width: 24, textAlign: 'center', fontFamily: FONT }}>
+                        {pendingReps}
+                      </Text>
+                      {ctl('chevron-right', 11, 24, () => setPendingReps((r) => r + 1))}
+                    </View>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                      <Text style={{ color: 'rgba(255,255,255,0.5)', fontSize: 9, fontWeight: '700', fontFamily: FONT }}>KG</Text>
+                      {ctl('chevron-left', 11, 24, () => setWeight(weight - 2.5))}
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', width: 34, textAlign: 'center', fontFamily: FONT }}>
+                        {weight}
+                      </Text>
+                      {ctl('chevron-right', 11, 24, () => setWeight(weight + 2.5))}
+                    </View>
+                  </View>
+                  <View style={{ flexDirection: 'row', gap: 8 }}>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      onPress={() => setConfirming(false)}
+                      style={{ width: 40, height: 40, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}
+                    >
+                      <Icon name="x" size={15} color="rgba(255,255,255,0.7)" />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      activeOpacity={0.85}
+                      onPress={confirmSet}
+                      style={{ flex: 1, height: 40, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
+                    >
+                      <Icon name="check" size={15} color={COLORS.blueDeep} strokeWidth={3} />
+                      <Text style={{ color: COLORS.blueDeep, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>Confirm Set</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               ) : (
                 <>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -332,7 +387,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
                   </View>
                   <TouchableOpacity
                     activeOpacity={0.85}
-                    onPress={finishSet}
+                    onPress={startConfirm}
                     style={{ flex: 1, height: 40, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}
                   >
                     <Icon name="check" size={15} color={COLORS.blueDeep} strokeWidth={3} />

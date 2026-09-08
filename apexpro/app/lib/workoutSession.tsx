@@ -30,7 +30,8 @@ interface WorkoutSessionState {
   startSession: (workout: WorkoutRow, dayIndex?: number) => void;
   togglePause: () => void;
   setWeight: (w: number) => void;
-  finishSet: () => void;
+  /** Logs the set with what the user actually confirmed — see LiveWorkoutPlayer's confirm step. */
+  finishSet: (repsAchieved: number, weightAchieved: number) => void;
   skipExercise: () => void;
   skipRest: () => void;
   endSession: () => void;
@@ -104,21 +105,23 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     [userId, workout, today]
   );
 
-  const finishSet = useCallback(() => {
+  const finishSet = useCallback((repsAchieved: number, weightAchieved: number) => {
     if (!userId || !workout || !today) return;
     const exercise = exercises[exerciseIndex];
     if (!exercise) return;
 
     totals.current.setsCompleted += 1;
-    totals.current.repsCompleted += exercise.reps;
+    totals.current.repsCompleted += repsAchieved;
     totals.current.xpEarned += 5;
 
     logWorkoutSet(userId, {
       exerciseName: exercise.name,
       exerciseId: exercise.exerciseId,
       setNumber,
-      reps: exercise.reps,
-      weight,
+      repsPrescribed: exercise.reps,
+      repsAchieved,
+      weightPrescribed: weight,
+      weightAchieved,
     });
 
     const isLastSetOfExercise = setNumber >= exercise.sets;
@@ -147,6 +150,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       setWeightState(0);
     } else {
       setSetNumber((n) => n + 1);
+      setWeightState(weightAchieved); // next set starts from what was actually lifted, not the un-adjusted prior value
     }
     setRestRemaining(REST_SECONDS);
     setStatus('resting');

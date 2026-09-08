@@ -26,12 +26,13 @@ Don't confuse "phase 2" between these three without checking which one is meant.
 
 ## Current phase (claww-phased-prompts.md)
 
-- [ ] Phase 1 — Close the adaptive loop
-  - [ ] 1.1 Reps-achieved logging (schema)
-  - [ ] 1.2 Reps-achieved logging (data layer)
-  - [ ] 1.3 Reps-achieved logging (UI)
-  - [ ] 1.4 Regeneration trigger
-  - [ ] 1.5 Feed real history into generation
+- [~] Phase 1 — Close the adaptive loop (code done, **not yet deployed** — the linked Supabase project is paused, see below)
+  - [x] 1.1 Reps-achieved logging (schema) — `database/schema.sql`, idempotent rename+add migration written, not yet run against the live DB
+  - [x] 1.2 Reps-achieved logging (data layer) — `app/lib/data.ts`, `app/lib/workoutSession.tsx`
+  - [x] 1.3 Reps-achieved logging (UI) — `app/components/LiveWorkoutPlayer.tsx`, confirm-before-log step + haptics
+  - [x] 1.4 Regeneration trigger — `app/app/(tabs)/workouts.tsx`, "Too hard / Too easy / Wrong focus"
+  - [x] 1.5 Feed real history into generation — `supabase/functions/generate-plan/index.ts`, still not yet deployed
+  - **Blocker:** Supabase project `vaweeztulqvkciuqytyi` is paused (dashboard → Restore project). Until restored: the schema migration hasn't been run live, and `generate-plan` / `compute-recovery` haven't been redeployed with the new column names — so right now those two Edge Functions would error in production if invoked, since the columns they used to query no longer exist once the migration runs, and until it runs old and new code both remain out of sync with the intended end state. Next session: restore the project, run `database/schema.sql`, deploy `generate-plan` + `compute-recovery`, then verify end-to-end.
 - [ ] Phase 2 — Make the plans worth generating
 - [ ] Phase 3 — Protect what's load-bearing
 - [ ] Phase 4 — Cleanup and cost control

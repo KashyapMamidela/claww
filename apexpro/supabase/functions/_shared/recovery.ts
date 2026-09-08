@@ -4,7 +4,8 @@ export interface SleepLogRow {
 
 export interface WorkoutLogRow {
   sets: number | null;
-  reps: number | null;
+  reps_achieved: number | null;
+  reps_prescribed: number | null;
   completed_at: string;
 }
 
@@ -24,7 +25,8 @@ function clamp(value: number, min: number, max: number): number {
  */
 function estimateSessionIntensity(workoutLog: WorkoutLogRow | null): number {
   if (!workoutLog) return 0;
-  const volume = (workoutLog.sets ?? 0) * (workoutLog.reps ?? 0);
+  const reps = workoutLog.reps_achieved ?? workoutLog.reps_prescribed ?? 0;
+  const volume = (workoutLog.sets ?? 0) * reps;
   return clamp(volume / 10, 0, 10);
 }
 
