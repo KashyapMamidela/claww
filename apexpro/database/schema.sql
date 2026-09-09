@@ -131,6 +131,11 @@ CREATE TABLE IF NOT EXISTS exercises (
   met_value    FLOAT
 );
 
+-- Lets seed_exercises.sql use real per-row `ON CONFLICT (name) DO NOTHING`
+-- instead of only guarding against a fully-empty table, so re-running it
+-- after adding new rows to the seed file actually inserts the new ones.
+CREATE UNIQUE INDEX IF NOT EXISTS exercises_name_unique_idx ON exercises (name);
+
 -- ============================================================
 -- TABLE: sleep_logs
 -- ============================================================

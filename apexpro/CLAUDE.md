@@ -33,7 +33,9 @@ Don't confuse "phase 2" between these three without checking which one is meant.
   - [x] 1.4 Regeneration trigger — `app/app/(tabs)/workouts.tsx`, code-reviewed + typechecked, not independently live-clicked
   - [x] 1.5 Feed real history into generation — deployed; live-tested plan generation is real Groq output, not `DEFAULT_PLAN` fallback
   - All 4 Edge Functions redeployed (generate-plan, compute-recovery, parse-meal, parse-meal-photo — all share the changed `_shared/` files)
-- [ ] Phase 2 — Make the plans worth generating
+- [x] Phase 2 — Make the plans worth generating (deployed and verified)
+  - [x] 2.1 Seed the exercise catalog — `database/seed_exercises.sql` expanded from 25 to 183 rows (42+ per modality), weighted toward `equipment='none'`; added a unique index on `exercises.name` in `schema.sql` so the seed file uses real `ON CONFLICT (name) DO NOTHING` instead of only guarding an empty table
+  - [x] 2.2 Verify the equipment filter at scale — `database/verify_equipment_filter.sql`, a no-framework SQL check (Phase 3.2 will fold it into a real test): zero mistagged rows in either direction. A bodyweight-only user now sees 119 exercises across all 4 modalities (was ~14)
 - [ ] Phase 3 — Protect what's load-bearing
 - [ ] Phase 4 — Cleanup and cost control
 - [ ] Phase 5 — Polish before testers see it
