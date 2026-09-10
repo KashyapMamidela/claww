@@ -2,21 +2,10 @@ import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON, GroqPermissionError } from '../_shared/groq.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
+import { deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 
 const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
-
-// Equipment tiers: higher access implies the lower tiers too (a gym-goer
-// can still do bodyweight moves; a bodyweight-only user can't do gym ones).
-const EQUIPMENT_TIERS: Record<string, string[]> = {
-  none: ['none'],
-  home: ['none', 'home'],
-  gym: ['none', 'home', 'gym'],
-};
-
-function deriveAllowedEquipment(equipment: string | null | undefined): string[] {
-  return EQUIPMENT_TIERS[equipment ?? ''] ?? EQUIPMENT_TIERS.gym;
-}
 
 // ─────────────────────────────────────────────────────────────────────────
 // Deterministic trainer thresholds. These are hard numeric constraints
@@ -228,33 +217,6 @@ function derivePreferredModalities(personalizationProfile: Record<string, unknow
 }
 
 const GENERATION_COOLDOWN_MS = 30_000;
-
-interface CatalogExercise {
-  id?: string;
-  name: string;
-}
-
-/**
- * Grounds the model's output in the exercise list we actually sent it —
- * Zod only checks shape/types, not that the names are real. Anything not
- * matching (case-insensitively) an offered exercise is dropped; days left
- * with nothing valid are dropped too; an empty result falls back further.
- * Surviving exercises get their exerciseId rewritten to the catalog row's
- * real id (the model's own id, if any, isn't trusted) so workout_logs can
- * link back to the catalog when one exists.
- */
-function groundPlanInCatalog(plan: Plan, availableExercises: CatalogExercise[]): Plan {
-  const byName = new Map(availableExercises.map((e) => [e.name.trim().toLowerCase(), e]));
-  const days = plan.days
-    .map((day) => ({
-      ...day,
-      exercises: day.exercises
-        .filter((ex) => byName.has(ex.name.trim().toLowerCase()))
-        .map((ex) => ({ ...ex, exerciseId: byName.get(ex.name.trim().toLowerCase())?.id })),
-    }))
-    .filter((day) => day.exercises.length > 0);
-  return { ...plan, days };
-}
 
 function buildSystemPrompt(range: RepRange, dayCount: number, injuriesText: string | null | undefined, regenerationReason: string | null): string {
   const injuriesLine = injuriesText?.trim()

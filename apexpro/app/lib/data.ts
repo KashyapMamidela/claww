@@ -1,27 +1,21 @@
 import { supabase } from './supabase';
+import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
+
+export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Profile
 // ─────────────────────────────────────────────────────────────────────────────
 
-export type Goal = 'muscle_gain' | 'fat_loss' | 'endurance' | 'maintenance' | 'flexibility';
 export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 export type Equipment = 'gym' | 'home' | 'none';
 export type Modality = 'strength' | 'cardio' | 'mobility' | 'yoga';
-export type ActivityLevel = 'sedentary' | 'moderate' | 'active';
 
 export interface WorkoutDefaults {
   modalities: Modality[];
   activityLevel: ActivityLevel;
   /** Free-text injuries/limitations (e.g. "bad knees, avoid heavy squats") — feeds the exercise-exclusion filter in generate-plan. */
   injuries?: string;
-}
-
-export interface NutritionDefaults {
-  calories: number;
-  protein_g: number;
-  carbs_g: number;
-  fats_g: number;
 }
 
 export type DietaryRestriction =
@@ -111,48 +105,6 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
     return false;
   }
   return true;
-}
-
-/**
- * Mifflin-St Jeor BMR -> TDEE -> goal-adjusted calories -> macro split.
- * Deterministic and instant — no LLM involved, this is a solved formula,
- * not a generation problem. Produces the "sample plan" nutrition-setup
- * shows before the user customizes it.
- */
-export function computeNutritionSample(input: {
-  height: number;
-  weight: number;
-  age: number;
-  gender: string | null;
-  goal: Goal | null;
-  activityLevel: ActivityLevel;
-}): NutritionDefaults {
-  const bmrMale = 10 * input.weight + 6.25 * input.height - 5 * input.age + 5;
-  const bmrFemale = 10 * input.weight + 6.25 * input.height - 5 * input.age - 161;
-  const bmr = input.gender === 'male' ? bmrMale : input.gender === 'female' ? bmrFemale : (bmrMale + bmrFemale) / 2;
-
-  const activityMultiplier: Record<ActivityLevel, number> = { sedentary: 1.2, moderate: 1.45, active: 1.7 };
-  const tdee = bmr * activityMultiplier[input.activityLevel];
-
-  const goalAdjustment = input.goal === 'fat_loss' ? -500 : input.goal === 'muscle_gain' ? 300 : 0;
-  const calories = Math.round(Math.max(1200, tdee + goalAdjustment));
-
-  // Protein floor scales with goal, like a coach would set it — a cutting
-  // client needs more protein per kg to preserve lean mass in a deficit
-  // than someone just maintaining.
-  const PROTEIN_G_PER_KG: Record<Goal, number> = {
-    fat_loss: 2.2,
-    muscle_gain: 2.0,
-    maintenance: 1.6,
-    endurance: 1.4,
-    flexibility: 1.2,
-  };
-  const proteinPerKg = input.goal ? PROTEIN_G_PER_KG[input.goal] : 1.6;
-  const protein_g = Math.round(input.weight * proteinPerKg);
-  const fats_g = Math.round((calories * 0.25) / 9);
-  const carbs_g = Math.round(Math.max(0, calories - protein_g * 4 - fats_g * 9) / 4);
-
-  return { calories, protein_g, carbs_g, fats_g };
 }
 
 export async function saveNutritionTargets(
