@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
-import { getActivityStreak, getCompletedWorkoutDays, getTotalVolume, getUserXp, getWorkoutsThisMonth } from '../../lib/data';
+import { getCompletedWorkoutDays, getTotalVolume, getWorkoutsThisMonth } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { ProgressBar } from '../../components/ui/ProgressBar';
@@ -311,35 +311,27 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
 }
 
 export default function TrackerTab() {
-  const { userId } = useAppState();
+  const { userId, xp, streak } = useAppState();
   const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [workoutsThisMonth, setWorkoutsThisMonth] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [volume, setVolume] = useState(0);
-  const [xp, setXp] = useState(0);
 
-  // Real counts from workout_logs/xp_events, refreshed each time this tab
-  // gains focus.
+  // xp/streak come from AppState (live — see appState.tsx); the rest are
+  // tracker-specific counts refreshed each time this tab gains focus.
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([
-        getCompletedWorkoutDays(userId),
-        getWorkoutsThisMonth(userId),
-        getActivityStreak(userId),
-        getTotalVolume(userId),
-        getUserXp(userId),
-      ]).then(([count, monthCount, s, v, x]) => {
-        if (cancelled) return;
-        setWorkoutsCompleted(count);
-        setWorkoutsThisMonth(monthCount);
-        setStreak(s);
-        setVolume(v);
-        setXp(x);
-        setLoaded(true);
-      });
+      Promise.all([getCompletedWorkoutDays(userId), getWorkoutsThisMonth(userId), getTotalVolume(userId)]).then(
+        ([count, monthCount, v]) => {
+          if (cancelled) return;
+          setWorkoutsCompleted(count);
+          setWorkoutsThisMonth(monthCount);
+          setVolume(v);
+          setLoaded(true);
+        }
+      );
       return () => {
         cancelled = true;
       };

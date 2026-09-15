@@ -102,7 +102,7 @@ function WorkoutsEmptyState() {
 }
 
 export default function WorkoutsTab() {
-  const { userId } = useAppState();
+  const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
   const { status: sessionStatus, startSession } = useWorkoutSession();
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
@@ -209,6 +209,7 @@ export default function WorkoutsTab() {
       setEvents(dayEvents);
       setSelectedDay(getSuggestedDayIndex(newWorkout.plan, dayEvents));
       setShowRegenCard(false);
+      bumpXp(50); // matches awardXp(userId, 50, 'plan_generated') in generateWorkoutPlan
     } else {
       setRegenError(error ?? 'Could not rebuild your plan — try again shortly.');
     }

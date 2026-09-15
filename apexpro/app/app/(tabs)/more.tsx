@@ -8,15 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { signOut } from '../../lib/auth';
-import {
-  getAchievements,
-  getActivityStreak,
-  getLevelInfo,
-  getProfile,
-  getTierName,
-  getUserXp,
-  type Achievement,
-} from '../../lib/data';
+import { getAchievements, getLevelInfo, getProfile, getTierName, type Achievement } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Badge } from '../../components/ui/Badge';
 import { Display } from '../../components/ui/Typography';
@@ -24,27 +16,22 @@ import { Display } from '../../components/ui/Typography';
 export default function MoreTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userId, userName } = useAppState();
+  const { userId, userName, xp, streak } = useAppState();
   const openProfile = () => router.push('/profile');
 
   const [displayName, setDisplayName] = useState('');
-  const [xp, setXp] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
+  // xp/streak come from AppState (live — see appState.tsx).
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getProfile(userId), getUserXp(userId), getActivityStreak(userId), getAchievements(userId)]).then(
-        ([profile, x, s, a]) => {
-          if (cancelled) return;
-          setDisplayName(profile?.name || userName || 'Member');
-          setXp(x);
-          setStreak(s);
-          setAchievements(a);
-        }
-      );
+      Promise.all([getProfile(userId), getAchievements(userId)]).then(([profile, a]) => {
+        if (cancelled) return;
+        setDisplayName(profile?.name || userName || 'Member');
+        setAchievements(a);
+      });
       return () => {
         cancelled = true;
       };

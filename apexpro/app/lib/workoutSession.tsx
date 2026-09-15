@@ -40,7 +40,7 @@ interface WorkoutSessionState {
 const WorkoutSessionContext = createContext<WorkoutSessionState | null>(null);
 
 export function WorkoutSessionProvider({ children }: { children: React.ReactNode }) {
-  const { userId } = useAppState();
+  const { userId, bumpXp } = useAppState();
   const [status, setStatus] = useState<SessionStatus>('idle');
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
@@ -113,6 +113,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     totals.current.setsCompleted += 1;
     totals.current.repsCompleted += repsAchieved;
     totals.current.xpEarned += 5;
+    bumpXp(5); // matches awardXp(userId, 5, 'set_completed') in logWorkoutSet — live, not just on the session summary
 
     logWorkoutSet(userId, {
       exerciseName: exercise.name,
@@ -154,7 +155,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     }
     setRestRemaining(REST_SECONDS);
     setStatus('resting');
-  }, [userId, workout, today, exercises, exerciseIndex, setNumber, weight, elapsedSeconds, totalSetsPlanned, finish]);
+  }, [userId, workout, today, exercises, exerciseIndex, setNumber, weight, elapsedSeconds, totalSetsPlanned, finish, bumpXp]);
 
   const skipExercise = useCallback(() => {
     if (!today) return;

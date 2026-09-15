@@ -15,7 +15,7 @@ const TOTAL_STEPS = 7;
 
 export default function WorkoutSetupReview() {
   const router = useRouter();
-  const { userId, generatePlan } = useAppState();
+  const { userId, generatePlan, bumpXp } = useAppState();
   const { height, weight, equipment, modalities, goal, experienceLevel, activityLevel } = useLocalSearchParams<{
     height: string;
     weight: string;
@@ -61,6 +61,7 @@ export default function WorkoutSetupReview() {
     }
 
     generatePlan();
+    bumpXp(50); // matches awardXp(userId, 50, 'plan_generated') in generateWorkoutPlan
     router.dismissTo('/(tabs)/workouts');
   };
 

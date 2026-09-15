@@ -9,13 +9,11 @@ import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
 import {
   getAchievements,
-  getActivityStreak,
   getCompletedWorkoutDays,
   getLevelInfo,
   getProfile,
   getTierName,
   getTotalVolume,
-  getUserXp,
   type Achievement,
   type Profile,
 } from '../lib/data';
@@ -41,35 +39,27 @@ const menuItems = [
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userId, userName } = useAppState();
+  const { userId, userName, xp, streak } = useAppState();
 
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [xp, setXp] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [workoutCount, setWorkoutCount] = useState(0);
   const [volume, setVolume] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
 
+  // xp/streak come from AppState (live — see appState.tsx).
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([
-        getProfile(userId),
-        getUserXp(userId),
-        getActivityStreak(userId),
-        getCompletedWorkoutDays(userId),
-        getTotalVolume(userId),
-        getAchievements(userId),
-      ]).then(([p, x, s, wc, v, a]) => {
-        if (cancelled) return;
-        setProfile(p);
-        setXp(x);
-        setStreak(s);
-        setWorkoutCount(wc);
-        setVolume(v);
-        setAchievements(a);
-      });
+      Promise.all([getProfile(userId), getCompletedWorkoutDays(userId), getTotalVolume(userId), getAchievements(userId)]).then(
+        ([p, wc, v, a]) => {
+          if (cancelled) return;
+          setProfile(p);
+          setWorkoutCount(wc);
+          setVolume(v);
+          setAchievements(a);
+        }
+      );
       return () => {
         cancelled = true;
       };

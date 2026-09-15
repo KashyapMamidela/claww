@@ -6,7 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
-import { getActivityStreak, getLatestWorkout, getProfile, getUserXp, type WorkoutRow } from '../../lib/data';
+import { getLatestWorkout, getProfile, type WorkoutRow } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
@@ -80,23 +80,9 @@ function HomeLoadingSkeleton() {
 }
 
 function HomeEmptyState() {
-  const { userId, userName, sleepLogged, logSleep } = useAppState();
+  const { userName, sleepLogged, logSleep, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [streak, setStreak] = useState(0);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!userId) return;
-      let cancelled = false;
-      getActivityStreak(userId).then((s) => {
-        if (!cancelled) setStreak(s);
-      });
-      return () => {
-        cancelled = true;
-      };
-    }, [userId])
-  );
 
   return (
     <View
@@ -251,30 +237,27 @@ function HomeEmptyState() {
 }
 
 function HomePopulated() {
-  const { userId, userName, recovery, meals } = useAppState();
+  const { userId, userName, recovery, meals, xp, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const recoveryColor = recovery?.band === 'Low' ? COLORS.danger : recovery?.band === 'High' ? COLORS.green : COLORS.amber;
 
-  const [streak, setStreak] = useState(0);
-  const [xp, setXp] = useState(0);
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
 
+  // xp/streak come from AppState directly — they update live as XP events
+  // fire (set completed, meal logged, sleep logged, plan generated) instead
+  // of only refreshing whenever this screen happens to regain focus.
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getActivityStreak(userId), getUserXp(userId), getLatestWorkout(userId), getProfile(userId)]).then(
-        ([s, x, w, profile]) => {
-          if (cancelled) return;
-          setStreak(s);
-          setXp(x);
-          setLatestWorkout(w);
-          const targets = profile?.personalization_profile?.nutritionDefaults;
-          if (targets) setTargetKcal(targets.calories);
-        }
-      );
+      Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(([w, profile]) => {
+        if (cancelled) return;
+        setLatestWorkout(w);
+        const targets = profile?.personalization_profile?.nutritionDefaults;
+        if (targets) setTargetKcal(targets.calories);
+      });
       return () => {
         cancelled = true;
       };
