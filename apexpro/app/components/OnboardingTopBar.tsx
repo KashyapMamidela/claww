@@ -4,14 +4,16 @@ import { useRouter } from 'expo-router';
 import { Icon } from './ui/Icon';
 
 export interface OnboardingTopBarProps {
-  /** 0-based step index (0=name, 1=age, 2=gender, 3=reveal) */
+  /** 0-based step index (0=name, 1=age, 2=gender, 3=reveal by default) */
   step: number;
   accent: string;
   showBack?: boolean;
+  /** Number of progress segments — defaults to 3 (the onboarding flow's own count). Any multi-step intake flow can pass its own. */
+  totalSteps?: number;
 }
 
-/** Design onboarding top bar: back chip + 3 progress segments. */
-export function OnboardingTopBar({ step, accent, showBack = false }: OnboardingTopBarProps) {
+/** Reusable multi-step top bar: back chip + N progress segments. Originally built for onboarding, also used by the workout/nutrition setup flows. */
+export function OnboardingTopBar({ step, accent, showBack = false, totalSteps = 3 }: OnboardingTopBarProps) {
   const router = useRouter();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 22, paddingTop: 26 }}>
@@ -36,7 +38,7 @@ export function OnboardingTopBar({ step, accent, showBack = false }: OnboardingT
         <View style={{ width: 30 }} />
       )}
       <View style={{ flex: 1, flexDirection: 'row', gap: 6 }}>
-        {[0, 1, 2].map((i) => (
+        {Array.from({ length: totalSteps }, (_, i) => i).map((i) => (
           <View
             key={i}
             style={{
@@ -44,7 +46,7 @@ export function OnboardingTopBar({ step, accent, showBack = false }: OnboardingT
               height: 4,
               borderRadius: 100,
               backgroundColor:
-                i < step || step === 3 ? accent : i === step ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.10)',
+                i < step || step === totalSteps ? accent : i === step ? 'rgba(255,255,255,0.30)' : 'rgba(255,255,255,0.10)',
             }}
           />
         ))}
