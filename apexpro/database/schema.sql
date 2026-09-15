@@ -274,6 +274,53 @@ CREATE OR REPLACE VIEW user_xp WITH (security_invoker = true) AS
   GROUP BY user_id;
 
 -- ============================================================
+-- TABLE: generation_usage
+-- Per-user, per-day counters for AI-calling Edge Functions
+-- (generate-plan, parse-meal, parse-meal-photo). The existing
+-- 30s cooldown in generate-plan only catches a double-tap, not
+-- a retry loop or a compromised client hammering a paid API —
+-- this is the real daily ceiling. `kind` groups generate-plan
+-- under 'plan' and both meal-parsing functions under 'meal'
+-- since they're the same cost category.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS generation_usage (
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  usage_date  DATE NOT NULL DEFAULT CURRENT_DATE,
+  kind        TEXT NOT NULL CHECK (kind IN ('plan', 'meal')),
+  count       INT NOT NULL DEFAULT 0,
+  PRIMARY KEY (user_id, usage_date, kind)
+);
+
+-- Atomically checks today's count against the cap and increments it in the
+-- same statement, so concurrent or rapid-fire requests can't race past the
+-- limit (a plain select-then-insert from the Edge Function would allow
+-- exactly that). Returns the new count on success, or -1 if the cap was
+-- already reached. SECURITY DEFINER because RLS alone can't express
+-- "insert-or-conditionally-update"; safe because it only ever operates on
+-- auth.uid() itself — there's no caller-supplied user id to spoof.
+CREATE OR REPLACE FUNCTION public.check_and_increment_generation_usage(p_kind TEXT, p_cap INT)
+RETURNS INT
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
+DECLARE
+  new_count INT;
+BEGIN
+  INSERT INTO generation_usage (user_id, usage_date, kind, count)
+  VALUES (auth.uid(), CURRENT_DATE, p_kind, 1)
+  ON CONFLICT (user_id, usage_date, kind)
+  DO UPDATE SET count = generation_usage.count + 1
+  WHERE generation_usage.count < p_cap
+  RETURNING count INTO new_count;
+
+  RETURN COALESCE(new_count, -1);
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) TO authenticated;
+
+-- ============================================================
 -- ROW LEVEL SECURITY (RLS) — Enable per-user access control
 -- ============================================================
 
@@ -288,6 +335,7 @@ ALTER TABLE workout_day_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meal_logs     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE water_logs    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE xp_events     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE generation_usage ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: users can only read/update their own row
 DROP POLICY IF EXISTS "profiles_own" ON profiles;
@@ -354,5 +402,13 @@ CREATE POLICY "water_logs_own" ON water_logs
 -- writes from Edge Functions bypass RLS entirely)
 DROP POLICY IF EXISTS "xp_events_own" ON xp_events;
 CREATE POLICY "xp_events_own" ON xp_events
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Generation usage: own rows only. Writes normally go through
+-- check_and_increment_generation_usage (SECURITY DEFINER) rather than a
+-- direct insert/update, but this policy still gates any direct read.
+DROP POLICY IF EXISTS "generation_usage_own" ON generation_usage;
+CREATE POLICY "generation_usage_own" ON generation_usage
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);

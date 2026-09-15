@@ -2,6 +2,7 @@ import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON, GroqPermissionError } from '../_shared/groq.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
+import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 
 const RequestSchema = z.object({
   text: z.string().min(1, 'text is required'),
@@ -37,6 +38,8 @@ Deno.serve(async (req: Request) => {
     const user = await requireUser(supabase);
 
     const body = RequestSchema.parse(await req.json());
+
+    await enforceGenerationCap(supabase, 'meal');
 
     const raw = await callGroqJSON([
       { role: 'system', content: SYSTEM_PROMPT },
@@ -88,6 +91,12 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ error: 'Meal estimation is temporarily unavailable — try again shortly.' }),
         { status: 503, headers: jsonHeaders }
+      );
+    }
+    if (error instanceof GenerationCapExceededError) {
+      return new Response(
+        JSON.stringify({ error: "You've hit today's meal-logging limit — try again tomorrow." }),
+        { status: 429, headers: jsonHeaders }
       );
     }
     const status = error instanceof UnauthorizedError ? 401 : 500;

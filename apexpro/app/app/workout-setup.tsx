@@ -135,11 +135,11 @@ export default function WorkoutSetupScreen() {
       return;
     }
 
-    const workout = await generateWorkoutPlan(userId);
+    const { workout, error: genError } = await generateWorkoutPlan(userId);
     setSubmitting(false);
 
     if (!workout) {
-      setError('Saved your details, but plan generation is unavailable right now — try again from the Workouts tab shortly.');
+      setError(genError ?? 'Saved your details, but plan generation is unavailable right now — try again from the Workouts tab shortly.');
       return;
     }
 

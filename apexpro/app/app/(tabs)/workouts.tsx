@@ -110,6 +110,7 @@ export default function WorkoutsTab() {
   const [skipping, setSkipping] = useState(false);
   const [showRegenCard, setShowRegenCard] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -171,15 +172,18 @@ export default function WorkoutsTab() {
   const handleRegenerate = async (reason: RegenerationReason) => {
     if (!userId || regenerating) return;
     setRegenerating(true);
-    const newWorkout = await generateWorkoutPlan(userId, reason);
+    setRegenError(null);
+    const { workout: newWorkout, error } = await generateWorkoutPlan(userId, reason);
     if (newWorkout) {
       setWorkout(newWorkout);
       const dayEvents = await getWorkoutDayEvents(userId, newWorkout.id);
       setEvents(dayEvents);
       setSelectedDay(getSuggestedDayIndex(newWorkout.plan, dayEvents));
+      setShowRegenCard(false);
+    } else {
+      setRegenError(error ?? 'Could not rebuild your plan — try again shortly.');
     }
     setRegenerating(false);
-    setShowRegenCard(false);
   };
 
   return (
@@ -204,7 +208,10 @@ export default function WorkoutsTab() {
             {sessionStatus === 'idle' && !showRegenCard && !regenerating ? (
               <TouchableOpacity
                 activeOpacity={0.8}
-                onPress={() => setShowRegenCard(true)}
+                onPress={() => {
+                  setRegenError(null);
+                  setShowRegenCard(true);
+                }}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
@@ -254,6 +261,9 @@ export default function WorkoutsTab() {
               }}
             >
               <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>What should change?</Text>
+              {regenError ? (
+                <Text style={{ color: '#F87171', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>{regenError}</Text>
+              ) : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {(
                   [
@@ -279,7 +289,14 @@ export default function WorkoutsTab() {
                   </TouchableOpacity>
                 ))}
               </View>
-              <TouchableOpacity activeOpacity={0.8} onPress={() => setShowRegenCard(false)} style={{ alignSelf: 'flex-start' }}>
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => {
+                  setRegenError(null);
+                  setShowRegenCard(false);
+                }}
+                style={{ alignSelf: 'flex-start' }}
+              >
                 <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
               </TouchableOpacity>
             </View>

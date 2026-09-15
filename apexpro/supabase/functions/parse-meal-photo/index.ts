@@ -2,6 +2,7 @@ import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqVisionJSON, GroqPermissionError } from '../_shared/groq.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
+import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 
 const RequestSchema = z.object({
   image: z.string().startsWith('data:image/', 'image must be a data URI'),
@@ -49,6 +50,8 @@ Deno.serve(async (req: Request) => {
     const user = await requireUser(supabase);
 
     const body = RequestSchema.parse(await req.json());
+
+    await enforceGenerationCap(supabase, 'meal');
 
     const raw = await callGroqVisionJSON(SYSTEM_PROMPT, 'Estimate the nutrition for the meal in this photo.', body.image);
 
@@ -111,6 +114,12 @@ Deno.serve(async (req: Request) => {
       return new Response(
         JSON.stringify({ error: 'Photo estimation is temporarily unavailable — try again shortly, or describe the meal in words instead.' }),
         { status: 503, headers: jsonHeaders }
+      );
+    }
+    if (error instanceof GenerationCapExceededError) {
+      return new Response(
+        JSON.stringify({ error: "You've hit today's meal-logging limit — try again tomorrow." }),
+        { status: 429, headers: jsonHeaders }
       );
     }
     const status = error instanceof UnauthorizedError ? 401 : 500;

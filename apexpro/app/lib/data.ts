@@ -349,8 +349,9 @@ export async function logMealFromPhoto(
     body: { image: imageDataUri, mealType, portion },
   });
   if (error) {
-    console.warn('[Claww] Failed to estimate meal from photo:', error.message);
-    return { ok: false, reason: "Couldn't estimate that photo — check your connection and try again." };
+    const message = await extractInvokeErrorMessage(error);
+    console.warn('[Claww] Failed to estimate meal from photo:', message ?? error.message);
+    return { ok: false, reason: message ?? "Couldn't estimate that photo — check your connection and try again." };
   }
   if (data?.blocked) {
     return { ok: false, reason: data.reason ?? "That photo couldn't be processed." };
@@ -502,17 +503,44 @@ export async function getLatestWorkout(userId: string): Promise<WorkoutRow | nul
   return data;
 }
 
+/**
+ * Edge Functions return a JSON body like `{ error: "..." }` on failure (a
+ * validation error, the Groq model being blocked, or the daily generation
+ * cap being hit) — but supabase-js only puts a generic "non-2xx status
+ * code" message on `error.message`, with the actual response body sitting
+ * unread on `error.context` (a Response). This reads that body so callers
+ * can show the real reason instead of a generic one.
+ */
+async function extractInvokeErrorMessage(error: { context?: unknown; message?: string } | null): Promise<string | null> {
+  const context = error?.context;
+  if (context && typeof (context as Response).json === 'function') {
+    try {
+      const body = await (context as Response).json();
+      if (typeof body?.error === 'string') return body.error;
+    } catch {
+      // Body wasn't JSON (e.g. a network-level failure) — fall through.
+    }
+  }
+  return null;
+}
+
 /** Calls the generate-plan Edge Function (personalized plan, grounded in the real exercises catalog). */
 export type RegenerationReason = 'too_hard' | 'too_easy' | 'wrong_focus';
 
-export async function generateWorkoutPlan(userId: string, reason?: RegenerationReason): Promise<WorkoutRow | null> {
+export interface GeneratePlanResult {
+  workout: WorkoutRow | null;
+  error?: string;
+}
+
+export async function generateWorkoutPlan(userId: string, reason?: RegenerationReason): Promise<GeneratePlanResult> {
   const { data, error } = await supabase.functions.invoke('generate-plan', { body: reason ? { reason } : {} });
   if (error) {
-    console.warn('[Claww] Failed to generate workout plan:', error.message);
-    return null;
+    const message = await extractInvokeErrorMessage(error);
+    console.warn('[Claww] Failed to generate workout plan:', message ?? error.message);
+    return { workout: null, error: message ?? undefined };
   }
   await awardXp(userId, 50, 'plan_generated');
-  return data?.workout ?? null;
+  return { workout: data?.workout ?? null };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -4,6 +4,7 @@ import { callGroqJSON, GroqPermissionError } from '../_shared/groq.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
 import { deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
+import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 
 const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
 
@@ -333,6 +334,12 @@ Deno.serve(async (req: Request) => {
     const dayCount = computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
     const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText, reason);
 
+    // Checked right before the real Groq call, after the cache/cooldown
+    // short-circuit above — a cached response must never burn a cap slot.
+    // Thrown outside the fallback try/catch below on purpose: hitting the
+    // cap should surface as a 429, not silently degrade to DEFAULT_PLAN.
+    await enforceGenerationCap(supabase, 'plan');
+
     let plan: Plan;
     // Distinguishes a real Groq-generated plan from any fallback path, in
     // both the log line below and the response body — so "is generation
@@ -398,6 +405,12 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ recovery, workout: savedWorkout, generated }), { headers: jsonHeaders });
   } catch (error) {
+    if (error instanceof GenerationCapExceededError) {
+      return new Response(
+        JSON.stringify({ error: "You've hit today's plan generation limit — try again tomorrow." }),
+        { status: 429, headers: jsonHeaders }
+      );
+    }
     const status = error instanceof UnauthorizedError ? 401 : 500;
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status,
