@@ -9,6 +9,7 @@ import { useAppState, type MealType } from '../lib/appState';
 import { getProfile, type DietaryRestriction, type PortionSize } from '../lib/data';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
+import { ErrorCard } from '../components/ui/ErrorCard';
 
 const G = { deep: COLORS.greenDeep, bright: COLORS.green, border: COLORS.greenBorder };
 
@@ -285,7 +286,11 @@ export default function MealLogScreen() {
           This scales the estimate up or down — pick what matches your plate.
         </Text>
 
-        {error ? <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 16, fontFamily: FONT }}>{error}</Text> : null}
+        {error ? (
+          <View style={{ marginTop: 16 }}>
+            <ErrorCard message={error} onRetry={canSubmit ? handleSubmit : undefined} retrying={saving} />
+          </View>
+        ) : null}
 
         <View style={{ marginTop: 22 }}>
           <Button

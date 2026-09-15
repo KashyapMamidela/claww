@@ -7,6 +7,7 @@ import { useAppState } from '../../../lib/appState';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
+import { ErrorCard } from '../../../components/ui/ErrorCard';
 import { saveWorkoutIntake, generateWorkoutPlan, type ActivityLevel, type Equipment, type ExperienceLevel, type Goal, type Modality } from '../../../lib/data';
 
 const A = COLORS.blue;
@@ -106,7 +107,11 @@ export default function WorkoutSetupReview() {
 
           <View style={{ flex: 1 }} />
 
-          {error ? <Text style={{ color: COLORS.danger, fontSize: 12.5, marginBottom: 12, fontFamily: FONT }}>{error}</Text> : null}
+          {error ? (
+            <View style={{ marginBottom: 12 }}>
+              <ErrorCard message={error} onRetry={handleSubmit} retrying={submitting} />
+            </View>
+          ) : null}
 
           <Button
             variant="primary"

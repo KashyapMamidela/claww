@@ -16,6 +16,7 @@ import { ProgressRing } from '../../components/ui/ProgressRing';
 import { SleepArcDial } from '../../components/SleepArcDial';
 import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 function AiCard({ children }: { children: React.ReactNode }) {
   return (
@@ -47,6 +48,33 @@ function AiCard({ children }: { children: React.ReactNode }) {
         <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW AI</Text>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 12.5, lineHeight: 19, fontFamily: FONT }}>{children}</Text>
+    </View>
+  );
+}
+
+function HomeLoadingSkeleton() {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={{
+        paddingHorizontal: 16,
+        paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 28,
+        gap: 14,
+      }}
+    >
+      <View style={{ gap: 8 }}>
+        <Skeleton width={70} height={11} borderRadius={4} />
+        <Skeleton width={200} height={30} borderRadius={8} />
+      </View>
+      <Skeleton height={220} borderRadius={20} />
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <Skeleton height={78} borderRadius={16} style={{ flex: 1 }} />
+        <Skeleton height={78} borderRadius={16} style={{ flex: 1 }} />
+        <Skeleton height={78} borderRadius={16} style={{ flex: 1 }} />
+      </View>
+      <Skeleton height={64} borderRadius={20} />
+      <Skeleton height={90} borderRadius={20} />
     </View>
   );
 }
@@ -413,10 +441,10 @@ function HomePopulated() {
 }
 
 export default function HomeTab() {
-  const { isNewUser } = useAppState();
+  const { loading, hasPlan } = useAppState();
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
-      {isNewUser ? <HomeEmptyState /> : <HomePopulated />}
+      {loading ? <HomeLoadingSkeleton /> : hasPlan ? <HomePopulated /> : <HomeEmptyState />}
     </ScrollView>
   );
 }

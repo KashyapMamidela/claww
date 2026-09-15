@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabase';
 import {
+  getLatestWorkout,
   getProfile,
   getRecoveryScore,
   getTodaysMealLogs,
@@ -17,16 +18,19 @@ export type { MealLogRow, MealType, RecoveryResult } from './data';
 export { MEAL_ORDER } from './data';
 
 // App-wide state backed by real Supabase data, refreshed whenever a session
-// appears (sign-in, app resume, token refresh). `isNewUser` stays a local,
-// session-only UI toggle rather than a real "has a plan" check against
-// getLatestWorkout — flipped once by generatePlan() after the first
-// successful generation.
+// appears (sign-in, app resume, token refresh). `hasPlan` is derived from a
+// real getLatestWorkout check on every load — it used to be a session-only
+// flag that only ever flipped true, so a returning user with an existing
+// plan saw the "generate your first plan" empty state again on every app
+// reopen until they regenerated. `loading` is true until that initial check
+// resolves, so Home can show a skeleton instead of flashing the wrong state.
 
 interface AppState {
   userId: string | null;
   userName: string;
   setUserName: (name: string) => void;
-  isNewUser: boolean;
+  loading: boolean;
+  hasPlan: boolean;
   generatePlan: () => void;
   sleepLogged: boolean;
   recovery: RecoveryResult | null;
@@ -41,7 +45,8 @@ const AppStateContext = createContext<AppState | null>(null);
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
-  const [isNewUser, setIsNewUser] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [hasPlan, setHasPlan] = useState(false);
   const [sleepLogged, setSleepLogged] = useState(false);
   const [recovery, setRecovery] = useState<RecoveryResult | null>(null);
   const [meals, setMeals] = useState<MealLogRow[]>([]);
@@ -50,22 +55,29 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function loadForUser(uid: string) {
-      const [profile, rec, todaysMeals] = await Promise.all([
+      const [profile, rec, todaysMeals, latestWorkout] = await Promise.all([
         getProfile(uid),
         getRecoveryScore(uid),
         getTodaysMealLogs(uid),
+        getLatestWorkout(uid),
       ]);
       if (cancelled) return;
       if (profile?.name) setUserName(profile.name);
       setRecovery(rec);
       setSleepLogged(!!rec);
       setMeals(todaysMeals);
+      setHasPlan(!!latestWorkout);
+      setLoading(false);
     }
 
     supabase.auth.getSession().then(({ data }) => {
       const uid = data.session?.user.id ?? null;
       setUserId(uid);
-      if (uid) loadForUser(uid);
+      if (uid) {
+        loadForUser(uid);
+      } else {
+        setLoading(false);
+      }
     });
 
     const {
@@ -78,10 +90,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Signed out — reset to a clean slate for the next session.
         setUserName('');
-        setIsNewUser(true);
+        setHasPlan(false);
         setRecovery(null);
         setSleepLogged(false);
         setMeals([]);
+        setLoading(false);
       }
     });
 
@@ -134,8 +147,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       userId,
       userName,
       setUserName,
-      isNewUser,
-      generatePlan: () => setIsNewUser(false),
+      loading,
+      hasPlan,
+      generatePlan: () => setHasPlan(true),
       sleepLogged,
       recovery,
       logSleep,
@@ -143,7 +157,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       addMeal,
       addMealFromPhoto,
     }),
-    [userId, userName, isNewUser, sleepLogged, recovery, meals, logSleep, addMeal, addMealFromPhoto]
+    [userId, userName, loading, hasPlan, sleepLogged, recovery, meals, logSleep, addMeal, addMealFromPhoto]
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

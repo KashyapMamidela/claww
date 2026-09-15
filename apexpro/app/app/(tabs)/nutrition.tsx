@@ -15,6 +15,7 @@ import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 const G = { deep: COLORS.greenDeep, bright: COLORS.green, border: COLORS.greenBorder };
 const MEAL_ICON: Record<string, string> = { Breakfast: '🥣', Lunch: '🥗', Snack: '🍎', Dinner: '🍽️' };
@@ -26,6 +27,7 @@ export default function NutritionTab() {
   const insets = useSafeAreaInsets();
   const [nutritionDefaults, setNutritionDefaults] = useState<NutritionDefaults | null>(null);
   const [hasCustomTargets, setHasCustomTargets] = useState(false);
+  const [targetsLoaded, setTargetsLoaded] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -36,6 +38,7 @@ export default function NutritionTab() {
         const targets = profile?.personalization_profile?.nutritionDefaults ?? null;
         setNutritionDefaults(targets);
         setHasCustomTargets(!!targets);
+        setTargetsLoaded(true);
       });
       return () => {
         cancelled = true;
@@ -78,7 +81,7 @@ export default function NutritionTab() {
           <Display style={{ marginTop: 4 }}>Nutrition</Display>
         </View>
 
-        {!hasCustomTargets && (
+        {targetsLoaded && !hasCustomTargets && (
           <TouchableOpacity
             activeOpacity={0.85}
             onPress={() => router.push('/nutrition-setup')}
@@ -116,66 +119,70 @@ export default function NutritionTab() {
           </TouchableOpacity>
         )}
 
-        <View
-          style={{
-            backgroundColor: '#151517',
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.14)',
-            borderRadius: 20,
-            paddingHorizontal: 16,
-            paddingTop: 18,
-            paddingBottom: 16,
-          }}
-        >
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
-            <View>
-              <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>DAILY TARGET</Text>
-              <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>
-                {GOALS.kcal.toLocaleString()} <Text style={{ color: '#71717A', fontSize: 13, fontWeight: '400' }}>kcal</Text>
-              </Text>
+        {!targetsLoaded ? (
+          <Skeleton height={224} borderRadius={20} />
+        ) : (
+          <View
+            style={{
+              backgroundColor: '#151517',
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.14)',
+              borderRadius: 20,
+              paddingHorizontal: 16,
+              paddingTop: 18,
+              paddingBottom: 16,
+            }}
+          >
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
+              <View>
+                <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>DAILY TARGET</Text>
+                <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>
+                  {GOALS.kcal.toLocaleString()} <Text style={{ color: '#71717A', fontSize: 13, fontWeight: '400' }}>kcal</Text>
+                </Text>
+              </View>
+              <Badge color={empty ? '#71717A' : G.bright}>
+                {empty ? 'Nothing logged yet' : `${(GOALS.kcal - consumed).toLocaleString()} kcal left`}
+              </Badge>
             </View>
-            <Badge color={empty ? '#71717A' : G.bright}>
-              {empty ? 'Nothing logged yet' : `${(GOALS.kcal - consumed).toLocaleString()} kcal left`}
-            </Badge>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
-            <ProgressRing
-              size={size}
-              rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G.bright, pct: empty ? 0 : Math.min((consumed / GOALS.kcal) * 100, 100) }]}
-              trackColor="rgba(255,255,255,0.055)"
-              trackDash={empty ? '3 8' : undefined}
-            >
-              <Text style={{ color: empty ? '#52525B' : '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
-                {consumed.toLocaleString()}
-              </Text>
-              <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>kcal eaten</Text>
-            </ProgressRing>
-            <View style={{ flex: 1, gap: 10 }}>
-              {[
-                { l: 'Consumed', v: consumed, c: empty ? '#71717A' : G.bright },
-                { l: 'Burned', v: 0, c: empty ? '#71717A' : COLORS.burgundyText },
-                { l: 'Net', v: consumed, c: empty ? '#71717A' : '#fff' },
-              ].map((s) => (
-                <View
-                  key={s.l}
-                  style={{
-                    backgroundColor: 'rgba(255,255,255,0.035)',
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.08)',
-                    borderRadius: 10,
-                    paddingHorizontal: 11,
-                    paddingVertical: 8,
-                  }}
-                >
-                  <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>{s.l}</Text>
-                  <Text style={{ color: s.c, fontSize: 18, fontWeight: '800', fontFamily: FONT }}>
-                    {s.v.toLocaleString()} <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '400' }}>kcal</Text>
-                  </Text>
-                </View>
-              ))}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
+              <ProgressRing
+                size={size}
+                rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G.bright, pct: empty ? 0 : Math.min((consumed / GOALS.kcal) * 100, 100) }]}
+                trackColor="rgba(255,255,255,0.055)"
+                trackDash={empty ? '3 8' : undefined}
+              >
+                <Text style={{ color: empty ? '#52525B' : '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
+                  {consumed.toLocaleString()}
+                </Text>
+                <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>kcal eaten</Text>
+              </ProgressRing>
+              <View style={{ flex: 1, gap: 10 }}>
+                {[
+                  { l: 'Consumed', v: consumed, c: empty ? '#71717A' : G.bright },
+                  { l: 'Burned', v: 0, c: empty ? '#71717A' : COLORS.burgundyText },
+                  { l: 'Net', v: consumed, c: empty ? '#71717A' : '#fff' },
+                ].map((s) => (
+                  <View
+                    key={s.l}
+                    style={{
+                      backgroundColor: 'rgba(255,255,255,0.035)',
+                      borderWidth: 1,
+                      borderColor: 'rgba(255,255,255,0.08)',
+                      borderRadius: 10,
+                      paddingHorizontal: 11,
+                      paddingVertical: 8,
+                    }}
+                  >
+                    <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>{s.l}</Text>
+                    <Text style={{ color: s.c, fontSize: 18, fontWeight: '800', fontFamily: FONT }}>
+                      {s.v.toLocaleString()} <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '400' }}>kcal</Text>
+                    </Text>
+                  </View>
+                ))}
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         <Button
           variant="primary"

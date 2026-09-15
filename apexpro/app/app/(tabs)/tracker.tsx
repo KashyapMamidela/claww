@@ -10,6 +10,7 @@ import { Button } from '../../components/ui/Button';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Display } from '../../components/ui/Typography';
+import { Skeleton } from '../../components/ui/Skeleton';
 
 // Tracker is strictly black & white — no accent hues on this screen.
 const W = '#FFFFFF';
@@ -47,6 +48,36 @@ function KpiTile({ label, value, sub, note, delta }: { label: string; value: str
           <Text style={{ color: GD, fontSize: 10, fontFamily: FONT }}>vs last month</Text>
         </View>
       ) : null}
+    </View>
+  );
+}
+
+function TrackerLoadingSkeleton() {
+  const insets = useSafeAreaInsets();
+  return (
+    <View
+      style={{
+        paddingHorizontal: 16,
+        paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+        gap: 14,
+      }}
+    >
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <View style={{ gap: 8 }}>
+          <Skeleton width={90} height={10} borderRadius={4} />
+          <Skeleton width={170} height={26} borderRadius={6} />
+        </View>
+        <Skeleton width={68} height={68} borderRadius={34} />
+      </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
+        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
+        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
+        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
+      </View>
+      <Skeleton height={140} borderRadius={16} />
+      <Skeleton height={80} borderRadius={12} />
     </View>
   );
 }
@@ -281,6 +312,7 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
 
 export default function TrackerTab() {
   const { userId } = useAppState();
+  const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [workoutsThisMonth, setWorkoutsThisMonth] = useState(0);
   const [streak, setStreak] = useState(0);
@@ -306,12 +338,21 @@ export default function TrackerTab() {
         setStreak(s);
         setVolume(v);
         setXp(x);
+        setLoaded(true);
       });
       return () => {
         cancelled = true;
       };
     }, [userId])
   );
+
+  if (!loaded) {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+        <TrackerLoadingSkeleton />
+      </ScrollView>
+    );
+  }
 
   const locked = workoutsCompleted < UNLOCK_AT;
   return (

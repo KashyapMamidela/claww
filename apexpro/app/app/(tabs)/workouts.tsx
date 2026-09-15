@@ -20,6 +20,8 @@ import {
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { ErrorCard } from '../../components/ui/ErrorCard';
+import { Skeleton } from '../../components/ui/Skeleton';
 import { WorkoutCalendar } from '../../components/WorkoutCalendar';
 import { Display } from '../../components/ui/Typography';
 
@@ -111,6 +113,7 @@ export default function WorkoutsTab() {
   const [showRegenCard, setShowRegenCard] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const [regenError, setRegenError] = useState<string | null>(null);
+  const [lastReason, setLastReason] = useState<RegenerationReason | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -144,7 +147,32 @@ export default function WorkoutsTab() {
   }, [sessionStatus, userId, workout]);
 
   if (!loaded) {
-    return <View style={{ flex: 1, backgroundColor: '#050505' }} />;
+    return (
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: '#050505',
+          paddingHorizontal: 16,
+          paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+          gap: 16,
+        }}
+      >
+        <Skeleton width={90} height={12} borderRadius={4} />
+        <Skeleton width={160} height={30} borderRadius={8} />
+        <View style={{ flexDirection: 'row', gap: 7 }}>
+          <Skeleton width={70} height={34} borderRadius={100} />
+          <Skeleton width={70} height={34} borderRadius={100} />
+          <Skeleton width={70} height={34} borderRadius={100} />
+        </View>
+        <Skeleton height={116} borderRadius={20} />
+        <View style={{ gap: 8 }}>
+          <Skeleton height={56} borderRadius={14} />
+          <Skeleton height={56} borderRadius={14} />
+          <Skeleton height={56} borderRadius={14} />
+        </View>
+        <Skeleton height={54} borderRadius={16} />
+      </View>
+    );
   }
 
   if (!workout) {
@@ -173,6 +201,7 @@ export default function WorkoutsTab() {
     if (!userId || regenerating) return;
     setRegenerating(true);
     setRegenError(null);
+    setLastReason(reason);
     const { workout: newWorkout, error } = await generateWorkoutPlan(userId, reason);
     if (newWorkout) {
       setWorkout(newWorkout);
@@ -262,7 +291,7 @@ export default function WorkoutsTab() {
             >
               <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>What should change?</Text>
               {regenError ? (
-                <Text style={{ color: '#F87171', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>{regenError}</Text>
+                <ErrorCard message={regenError} onRetry={lastReason ? () => handleRegenerate(lastReason) : undefined} retrying={regenerating} />
               ) : null}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {(

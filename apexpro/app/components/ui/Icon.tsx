@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Activity,
+  AlertTriangle,
   Apple,
   ArrowUpRight,
   Bell,
@@ -49,6 +50,7 @@ import {
 // the lucide-react-native components.
 const ICONS: Record<string, LucideIcon> = {
   activity: Activity,
+  'alert-triangle': AlertTriangle,
   apple: Apple,
   'arrow-up-right': ArrowUpRight,
   bell: Bell,
