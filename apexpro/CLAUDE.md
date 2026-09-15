@@ -3,8 +3,7 @@
 CLAWW is an AI-adaptive fitness app. Stack:
 
 - **`app/`** — Expo React Native frontend (expo-router, TypeScript, Supabase JS client)
-- **`backend/`** — Next.js app. **Dead/legacy.** Its API routes (`generate-workout`, `generate-nutrition`) are untouched 501 stubs. Never build on it; if touched at all, it should be to delete it or clearly mark it dead.
-- **`supabase/functions/`** — the real backend, as Deno Edge Functions: `generate-plan`, `parse-meal` / `parse-meal-photo`, `compute-recovery`, plus `_shared/groq.ts`, `_shared/recovery.ts`, `_shared/supabaseClient.ts`, `_shared/cors.ts`
+- **`supabase/functions/`** — the real backend, as Deno Edge Functions: `generate-plan`, `parse-meal` / `parse-meal-photo`, `compute-recovery`, plus `_shared/groq.ts`, `_shared/recovery.ts`, `_shared/planning.ts`, `_shared/supabaseClient.ts`, `_shared/cors.ts`
 - **`database/schema.sql`** — Postgres schema, RLS on every table, written to be re-runnable (`IF NOT EXISTS` / `ADD COLUMN IF NOT EXISTS` throughout). **Every schema change in every phase must follow this exact idempotent style.**
 
 Full setup instructions: `docs/setup.md`.

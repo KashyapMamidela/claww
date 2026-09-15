@@ -8,11 +8,10 @@ apexpromobile/
     ├── app/                  ← Expo React Native frontend (the real client)
     ├── supabase/functions/   ← the real backend: Deno Edge Functions
     ├── database/             ← Supabase SQL schema
-    ├── backend/               ← DEAD CODE — Next.js scaffold, never used. Don't build on it.
     └── docs/                 ← Documentation (this directory)
 ```
 
-`backend/` is a leftover Next.js scaffold from an earlier direction. Its API routes (`generate-workout`, `generate-nutrition`) are untouched 501 stubs and are never called by the app. All real generation logic lives in `supabase/functions/`.
+All real generation logic lives in `supabase/functions/`. (An earlier Next.js scaffold at `backend/` was removed in Phase 4 — it was never called by the app.)
 
 ---
 
