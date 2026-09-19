@@ -17,13 +17,14 @@ Full setup instructions: `docs/setup.md`.
 
 ## Roadmaps
 
-- `claww-full-roadmap.md` — the long-range **Engine Phase** roadmap (adaptive generation, multi-modality, trust layer, wearables, creator layer). Phases labeled **Engine Phase N**.
-- `claww-phased-prompts.md` — the near-term, prompt-by-prompt execution plan actually being worked right now. Phases labeled **PHASE N** (no "Engine"/"UI" prefix — this is the active one). Standing rules for running it are at the bottom of that file.
+- `claww-ship-roadmap.md` — **the active roadmap.** Everything between the current repo state and a published Play Store app: unblocking generation, legal/policy compliance, finishing the unfinished UI, observability, safety hardening, differentiation, and the closed-testing run. Phases labeled **SHIP PHASE N**. Standing rules are near the top of that file.
+- `claww-phased-prompts.md` — the previous execution plan, **Phases 1–5 complete**. Its thin three-prompt `PHASE 6 — Ship to testers` is superseded by `claww-ship-roadmap.md`, which absorbs it as SHIP PHASE 9 and 12. Phases labeled **PHASE N**.
+- `claww-full-roadmap.md` — the long-range **Engine Phase** roadmap (adaptive generation, multi-modality, trust layer, wearables, creator layer). Phases labeled **Engine Phase N**. Deferred until after launch.
 - The UI/UX polish audit is a separate published Artifact, not a repo file. Phases labeled **UI Phase N**.
 
-Don't confuse "phase 2" between these three without checking which one is meant.
+Don't confuse "phase 2" between these four without checking which one is meant.
 
-## Current phase (claww-phased-prompts.md)
+## Completed phases (claww-phased-prompts.md)
 
 - [x] Phase 1 — Close the adaptive loop (deployed and live-verified)
   - [x] 1.1 Reps-achieved logging (schema) — migration run against the live DB, confirmed via `information_schema`
@@ -49,4 +50,52 @@ Don't confuse "phase 2" between these three without checking which one is meant.
   - [x] 5.2 Same for nutrition-setup — `nutrition-setup.tsx` is now a loader that fetches the existing profile once (this flow prefills/edits, unlike workout-setup's blank slate) then hands off to `screens/nutrition-setup/*`, a 5-step flow (details → goal → activity → dietary → review/calculate+save). Dietary restrictions kept as one multi-select step, as specified. Both flows live-tested end-to-end in the browser with a real throwaway test account (`claww.phase5.test@example.com`, dev Supabase project only): workout-setup produced a real Groq-generated plan correctly grounded to bodyweight-only exercises; nutrition-setup correctly prefilled height/weight/age/goal/activity from the profile the workout flow had just saved, computed the exact same 2827/150/379/79 the Phase 3 unit test asserts, and the saved targets showed up live on the Nutrition tab
   - [x] 5.3 Empty, loading, and error states — two new primitives in `app/components/ui/`: `Skeleton` (pulsing placeholder block, not a spinner) and `ErrorCard` (message + optional retry action), both used throughout instead of ad hoc one-off styling. **Found and fixed a real bug along the way**: `appState.tsx`'s `isNewUser` was a session-only flag that only ever flipped true via `generatePlan()` — it was never re-derived from real data, so a returning user with an existing plan saw Home's "generate your first plan" empty state again on every app reopen until they regenerated. Replaced with `hasPlan` (derived from a real `getLatestWorkout` check) plus a genuine `loading` flag, so Home now shows a skeleton while that resolves instead of flashing the wrong state. Added matching loading skeletons to Workouts (was a blank screen) and Tracker (was flashing "0 of 3, locked" before real counts loaded), and gated Nutrition's "set up your targets" nudge + daily-target card behind its own load so it can't flash defaults over real saved targets. Consolidated 4 separate ad hoc red-text error renderings (`workouts.tsx` regenerate, `workout-setup/review.tsx`, `nutrition-setup/review.tsx`, `meal-log.tsx`) into `ErrorCard`, each wired with a real retry action that re-runs the failed call. Home/Workouts/Nutrition already had real first-run empty states from earlier phases (`HomeEmptyState`, `WorkoutsEmptyState`, the meal-timeline empty card) — audited and left alone, no changes needed there. Typecheck and all 20 tests still pass; live click-through of the loading-skeleton fix was blocked by the same intermittent "Browser pane hidden" limitation seen in earlier phases (stopped after 2 retries per the established pattern) — relying on the clean typecheck plus the fact that `getLatestWorkout` is the identical query already proven live during the Phase 5.1 test run
   - [x] 5.4 Live XP updates — `xp` and `streak` moved into `appState.tsx` as shared reactive state instead of each of 5 screens (Home, Workouts via the session, Tracker, More, Profile) independently fetching their own stale copy via `getUserXp`/`getActivityStreak` on focus. `bumpXp(amount)` optimistically increments the shared value the instant an XP-awarding action succeeds — wired at every call site that awards XP (matches `awardXp`'s amount in `data.ts` exactly, commented at each site): `logSleep`/`addMeal`/`addMealFromPhoto` in `appState.tsx` itself (+10 each), `workoutSession.tsx`'s `finishSet` (+5 per set — the actual "architecture notes" complaint this prompt names), and the two `generateWorkoutPlan` call sites in `workout-setup/review.tsx` and `workouts.tsx`'s regenerate (+50). `streak` is never fabricated client-side — its formula only depends on same-day `sleep_logs`/`meal_logs` rows, so `logSleep`/`addMeal`/`addMealFromPhoto` just re-run the real `getActivityStreak` query immediately after logging instead of leaving it stale until next focus. Live-verified in the browser: completing a set on the Workouts tab pushed Home's `✦ 50 CLAWW` badge to `✦ 55 CLAWW` instantly, with no navigation, reload, or tab switch — read directly via `get_page_text` right after tapping Confirm Set. The same sign-in also re-confirmed 5.3's `hasPlan` fix from a genuinely cold session (fresh login showed the populated Home immediately, not the empty state)
-- [ ] Phase 6 — Ship to testers
+- [x] Phase 6 — Ship to testers — **superseded by `claww-ship-roadmap.md`** (absorbed as SHIP PHASE 9 and 12; the original three prompts named the right things but were not the whole list)
+
+## Current phase (claww-ship-roadmap.md)
+
+Full-repo review at `c6bfeca` scored the app **5/10 production-ready, 4/10 market**. Typecheck
+clean and 20/20 tests passing; the schema, RLS and deterministic-generation architecture are
+sound. The gaps are Play Store blockers, unfinished UI, and missing differentiation — all
+enumerated in `claww-ship-roadmap.md`. Target on completion: 9/10 production-ready.
+
+- [ ] SHIP PHASE 6 — Prove the engine is alive. **Gates everything else.** `_shared/groq.ts` documents its own model returning `403 model_permission_blocked_org`; if that is still true in production, every user is silently served the static `DEFAULT_PLAN` and the app's value proposition is fictional. Verify, add a health endpoint, record every fallback, add a model fallback chain
+  - [ ] 6.1 Confirm generation works end-to-end in production (read real Edge Function logs; verify both `GROQ_MODEL` and the never-confirmed `GROQ_VISION_MODEL` exist and are enabled)
+  - [ ] 6.2 `health-check` Edge Function reporting per-model status, secret-guarded, no cap burn
+  - [ ] 6.3 `generation_failures` table written on every fallback path across all three AI functions
+  - [ ] 6.4 Ordered model fallback chain in `callGroqJSON`, `DEFAULT_PLAN` as final backstop
+- [ ] SHIP PHASE 7 — Legal and policy compliance (hard Play blockers; longest external dependencies, so start early)
+  - [ ] 7.1 In-app account deletion + web deletion URL (service-role Edge Function, JWT-scoped to `user.id` only)
+  - [ ] 7.2 Privacy policy and terms hosted at a real URL, naming Supabase and Groq as subprocessors
+  - [ ] 7.3 `docs/legal/data-safety.md` — field-by-field Play Data Safety answers (Health and fitness + Photos categories both apply)
+  - [ ] 7.4 Medical disclaimer + audit of "Science-Backed" / "100% Personalized" claims against what the code does
+  - [ ] 7.5 Data export ("Download my data"), RLS-scoped
+- [ ] SHIP PHASE 8 — Finish the unfinished UI (cheapest phase; do before any external tester)
+  - [ ] 8.1 Resolve all 10 dead menu rows in `(tabs)/more.tsx` and `profile.tsx`; type the row shape so a handler-less row fails typecheck
+  - [ ] 8.2 Real Settings screen (units, caps, notification prefs, sign-out)
+  - [ ] 8.3 Notifications via `expo-notifications`, contextual permission request
+  - [ ] 8.4 Password reset; finish or remove the non-functional `signInWithGoogle`
+  - [ ] 8.5 Version string from `expo-constants` (currently hardcoded `3.4.1` vs `app.json`'s `1.0.0`)
+- [ ] SHIP PHASE 9 — Observability, CI, release engineering
+  - [ ] 9.1 Sentry (app + Edge Functions), PII scrubbed, release-tagged
+  - [ ] 9.2 PostHog on the core loop, including real-vs-fallback generation (joins with 6.3)
+  - [ ] 9.3 GitHub Actions CI — `tsc --noEmit` + `npm test` (no `.github/` exists today)
+  - [ ] 9.4 `production` EAS profile → AAB, plus store-asset audit. **Unblocks the 12.2 clock**
+  - [ ] 9.5 Git-history secret scan + rotate; work down 36 `npm audit` findings (all transitive dev tooling)
+- [ ] SHIP PHASE 10 — Safety and correctness hardening (where the 9/10 is earned)
+  - [ ] 10.1 Replace the six-regex injury filter with structured `movement_pattern` contraindications + regression tests
+  - [ ] 10.2 Photo size ceiling + per-minute rate limit alongside the daily cap
+  - [ ] 10.3 Offline resilience — queue set logs, flush on reconnect
+  - [ ] 10.4 React Native Testing Library on data layer, auth transitions, delete/export flows
+  - [ ] 10.5 Accessibility pass — labels, contrast, font scaling
+- [ ] SHIP PHASE 11 — Differentiation (moves the market score)
+  - [ ] 11.1 Health Connect / Apple Health sync — highest-leverage single addition
+  - [ ] 11.2 Per-exercise form guidance, authored not generated
+  - [ ] 11.3 Progress and insights screen from data already collected
+  - [ ] 11.4 Onboarding conversion — instrument drop-off, defer nutrition setup
+  - [ ] 11.5 Monetization via RevenueCat, gated on depth not access (`GENERATION_CAPS` is the natural seam)
+- [ ] SHIP PHASE 12 — Beta, closed testing, launch
+  - [ ] 12.1 Device QA matrix → `docs/qa-matrix.md`
+  - [ ] 12.2 Closed test, 12 testers × 14 consecutive days. **Calendar-bound — start the moment 9.4 produces a build, run it in parallel with Phases 10 and 11**
+  - [ ] 12.3 Store listing (avoid "AI-powered"; lead with bounded programming and real adaptation)
+  - [ ] 12.4 Launch checklist + staged rollout
