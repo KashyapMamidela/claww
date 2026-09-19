@@ -1,27 +1,35 @@
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-// llama-3.3-70b-versatile was deprecated and removed by Groq (June 2026).
-// openai/gpt-oss-120b is Groq's own recommended replacement — best fit for
-// this app's structured-JSON generation (large context, reasoning,
-// structured_outputs support). As of writing this returns
-// 403 model_permission_blocked_org until the model is enabled at
-// console.groq.com/settings/limits for this org — every model on this
-// account's key does, regardless of size, so that's an account-settings
-// step, not a model-choice problem.
-const GROQ_MODEL = 'openai/gpt-oss-120b';
-const GROQ_VISION_MODEL = 'qwen/qwen3.6-27b';
+
+// Ordered fallback chains, not a single hardcoded model. llama-3.3-70b-versatile
+// was deprecated and removed by Groq (June 2026); openai/gpt-oss-120b was its
+// replacement but has previously returned 403 model_permission_blocked_org for
+// this org until enabled at console.groq.com/settings/limits. A single-model
+// setup meant that block took down 100% of generation with no recourse — this
+// chain exists so a blocked/decommissioned/rate-limited primary degrades to a
+// working model instead of straight to DEFAULT_PLAN.
+//
+// SHIP PHASE 6.1: verify every model below is (a) still in Groq's catalog and
+// (b) enabled for this org before trusting this list — don't assume it from
+// this comment. `npx supabase functions deploy health-check` + a call to it
+// checks all of them in one shot (see the health-check function).
+const GROQ_TEXT_MODELS = ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] as const;
+const GROQ_VISION_MODELS = ['qwen/qwen3.6-27b', 'llama-3.2-90b-vision-preview'] as const;
 
 export interface GroqMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
+export interface GroqResult {
+  content: string;
+  /** Which model in the chain actually served this response — never assume it was the first. */
+  model: string;
+}
+
 /**
- * Thrown specifically for a 401/403 from Groq — almost always means the
- * model isn't enabled for this org at console.groq.com/settings/limits,
- * not a transient failure. Callers must log this distinctly from a normal
- * Groq-call failure or JSON-validation fallback: those are expected to
- * happen occasionally per-request, this means EVERY request is broken
- * until someone fixes the account setting.
+ * Thrown for a 401/403 from Groq — almost always means the model isn't
+ * enabled for this org at console.groq.com/settings/limits, not a transient
+ * failure. Retryable against the next model in the chain.
  */
 export class GroqPermissionError extends Error {
   status: number;
@@ -32,11 +40,52 @@ export class GroqPermissionError extends Error {
   }
 }
 
-/**
- * Calls Groq's chat-completions API and returns the raw JSON string content
- * of the assistant's reply. Callers are responsible for parsing/validating it.
- */
-export async function callGroqJSON(messages: GroqMessage[], temperature = 0.4): Promise<string> {
+/** Thrown for a 404 — the model id doesn't exist in Groq's catalog (deprecated/removed/typo'd). Retryable against the next model. */
+export class GroqModelNotFoundError extends Error {
+  constructor(model: string, body: string) {
+    super(`Groq model not found (${model}): ${body}`);
+    this.name = 'GroqModelNotFoundError';
+  }
+}
+
+/** Thrown for a 429 — retryable against the next model, since a different model has a separate rate-limit bucket. */
+export class GroqRateLimitError extends Error {
+  constructor(model: string, body: string) {
+    super(`Groq rate limited (${model}): ${body}`);
+    this.name = 'GroqRateLimitError';
+  }
+}
+
+/** Everything else non-2xx: retryable against the next model (covers Groq-side 5xx), but distinct from the typed errors above for logging. */
+export class GroqRequestError extends Error {
+  status: number;
+  constructor(model: string, status: number, body: string) {
+    super(`Groq API error (${status}) for model ${model}: ${body}`);
+    this.name = 'GroqRequestError';
+    this.status = status;
+  }
+}
+
+function classifyGroqError(model: string, status: number, body: string): Error {
+  if (status === 401 || status === 403) return new GroqPermissionError(status, body);
+  if (status === 404) return new GroqModelNotFoundError(model, body);
+  if (status === 429) return new GroqRateLimitError(model, body);
+  return new GroqRequestError(model, status, body);
+}
+
+// A 4xx other than 401/403/404/429 (e.g. 400 malformed request) means the
+// request itself is bad — every model in the chain will reject it the same
+// way, so retrying is pure wasted latency. Only retry the classes above.
+function isRetryable(error: unknown): boolean {
+  return (
+    error instanceof GroqPermissionError ||
+    error instanceof GroqModelNotFoundError ||
+    error instanceof GroqRateLimitError ||
+    (error instanceof GroqRequestError && error.status >= 500)
+  );
+}
+
+async function requestGroqChatCompletion(model: string, body: Record<string, unknown>): Promise<string> {
   const apiKey = Deno.env.get('GROQ_API_KEY');
   if (!apiKey) {
     throw new Error('GROQ_API_KEY is not set');
@@ -48,76 +97,109 @@ export async function callGroqJSON(messages: GroqMessage[], temperature = 0.4): 
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages,
-      temperature,
-      response_format: { type: 'json_object' },
-    }),
+    body: JSON.stringify({ model, ...body }),
   });
 
   if (!response.ok) {
     const text = await response.text();
-    if (response.status === 401 || response.status === 403) {
-      throw new GroqPermissionError(response.status, text);
-    }
-    throw new Error(`Groq API error (${response.status}): ${text}`);
+    throw classifyGroqError(model, response.status, text);
   }
 
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
   if (typeof content !== 'string') {
-    throw new Error('Groq response missing message content');
+    throw new Error(`Groq response missing message content (model ${model})`);
   }
   return content;
 }
 
 /**
- * Same contract as callGroqJSON, but sends one image alongside the text
- * prompt to Groq's vision model. imageDataUri must be a full data URI
- * (e.g. "data:image/jpeg;base64,...").
+ * Tries each model in `chain` in order, moving to the next only on a
+ * retryable failure (blocked, not-found, rate-limited, or Groq-side 5xx).
+ * A non-retryable failure (e.g. malformed request) aborts immediately since
+ * every model would reject it identically. Throws the *last* error if every
+ * candidate fails, so callers see the most relevant failure, not the first.
  */
-export async function callGroqVisionJSON(systemPrompt: string, userText: string, imageDataUri: string): Promise<string> {
-  const apiKey = Deno.env.get('GROQ_API_KEY');
-  if (!apiKey) {
-    throw new Error('GROQ_API_KEY is not set');
-  }
-
-  const response = await fetch(GROQ_API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_VISION_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        {
-          role: 'user',
-          content: [
-            { type: 'text', text: userText },
-            { type: 'image_url', image_url: { url: imageDataUri } },
-          ],
-        },
-      ],
-      temperature: 0.4,
-      response_format: { type: 'json_object' },
-    }),
-  });
-
-  if (!response.ok) {
-    const text = await response.text();
-    if (response.status === 401 || response.status === 403) {
-      throw new GroqPermissionError(response.status, text);
+async function callWithFallback(chain: readonly string[], body: Record<string, unknown>): Promise<GroqResult> {
+  let lastError: unknown;
+  for (const model of chain) {
+    try {
+      const content = await requestGroqChatCompletion(model, body);
+      return { content, model };
+    } catch (error) {
+      lastError = error;
+      if (!isRetryable(error)) throw error;
+      console.error(`[groq] ${model} failed (${(error as Error).name}), trying next candidate: ${(error as Error).message}`);
     }
-    throw new Error(`Groq vision API error (${response.status}): ${text}`);
   }
+  throw lastError;
+}
 
-  const data = await response.json();
-  const content = data?.choices?.[0]?.message?.content;
-  if (typeof content !== 'string') {
-    throw new Error('Groq vision response missing message content');
+/**
+ * Calls Groq's chat-completions API across the text fallback chain and
+ * returns the raw JSON string content plus which model actually served it.
+ * Callers are responsible for parsing/validating the content.
+ */
+export async function callGroqJSON(messages: GroqMessage[], temperature = 0.4): Promise<GroqResult> {
+  return callWithFallback(GROQ_TEXT_MODELS, {
+    messages,
+    temperature,
+    response_format: { type: 'json_object' },
+  });
+}
+
+/**
+ * Same contract as callGroqJSON, but sends one image alongside the text
+ * prompt across the vision fallback chain. imageDataUri must be a full data
+ * URI (e.g. "data:image/jpeg;base64,...").
+ */
+export async function callGroqVisionJSON(systemPrompt: string, userText: string, imageDataUri: string): Promise<GroqResult> {
+  return callWithFallback(GROQ_VISION_MODELS, {
+    messages: [
+      { role: 'system', content: systemPrompt },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: userText },
+          { type: 'image_url', image_url: { url: imageDataUri } },
+        ],
+      },
+    ],
+    temperature: 0.4,
+    response_format: { type: 'json_object' },
+  });
+}
+
+/** Exposed for the health-check function so it can probe the exact chain in use without duplicating the model lists. */
+export const GROQ_MODEL_CHAINS = { text: GROQ_TEXT_MODELS, vision: GROQ_VISION_MODELS } as const;
+
+export interface GroqProbeResult {
+  model: string;
+  status: 'ok' | 'permission_blocked' | 'not_found' | 'rate_limited' | 'error';
+  detail?: string;
+}
+
+/**
+ * Makes one minimal real call to a single named model and reports its exact
+ * status — never throws. This deliberately bypasses callWithFallback: the
+ * whole point of the health check is knowing which *specific* models in the
+ * chain are blocked, not getting a response from whichever one happens to
+ * work. Used by the health-check Edge Function (SHIP PHASE 6.2), never by
+ * user-facing generation.
+ */
+export async function probeGroqModel(model: string): Promise<GroqProbeResult> {
+  try {
+    await requestGroqChatCompletion(model, {
+      messages: [{ role: 'user', content: 'Reply with exactly: OK' }],
+      max_completion_tokens: 5,
+    });
+    return { model, status: 'ok' };
+  } catch (error) {
+    const name = (error as { name?: string })?.name;
+    const detail = (error as Error)?.message ?? String(error);
+    if (name === 'GroqPermissionError') return { model, status: 'permission_blocked', detail };
+    if (name === 'GroqModelNotFoundError') return { model, status: 'not_found', detail };
+    if (name === 'GroqRateLimitError') return { model, status: 'rate_limited', detail };
+    return { model, status: 'error', detail };
   }
-  return content;
 }

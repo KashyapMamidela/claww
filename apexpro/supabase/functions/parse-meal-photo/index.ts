@@ -1,6 +1,7 @@
 import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
-import { callGroqVisionJSON, GroqPermissionError } from '../_shared/groq.ts';
+import { callGroqVisionJSON } from '../_shared/groq.ts';
+import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 
@@ -45,18 +46,26 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Hoisted so the catch block below can still log a failure against the
+  // right user/client even though the throw happened inside the try scope.
+  let supabase: ReturnType<typeof userClientFromRequest> | null = null;
+  let userId: string | null = null;
+
   try {
-    const supabase = userClientFromRequest(req);
+    supabase = userClientFromRequest(req);
     const user = await requireUser(supabase);
+    userId = user.id;
 
     const body = RequestSchema.parse(await req.json());
 
     await enforceGenerationCap(supabase, 'meal');
 
-    const raw = await callGroqVisionJSON(SYSTEM_PROMPT, 'Estimate the nutrition for the meal in this photo.', body.image);
+    const { content: raw } = await callGroqVisionJSON(SYSTEM_PROMPT, 'Estimate the nutrition for the meal in this photo.', body.image);
 
     const parseResult = ParsedMealSchema.safeParse(JSON.parse(raw));
     if (!parseResult.success) {
+      const detail = JSON.stringify(parseResult.error.flatten());
+      await logGenerationFailure(supabase, userId, 'parse-meal-photo', 'validation_failed', detail);
       return new Response(
         JSON.stringify({ error: 'Groq response failed validation', details: parseResult.error.flatten() }),
         { status: 422, headers: jsonHeaders }
@@ -107,19 +116,27 @@ Deno.serve(async (req: Request) => {
         headers: jsonHeaders,
       });
     }
-    if (error instanceof GroqPermissionError) {
-      // Not a normal failure — every request is broken until the model is
-      // enabled at console.groq.com/settings/limits, not just this one.
-      console.error(`[parse-meal-photo] 🚨 GROQ MODEL BLOCKED for this org (status ${error.status}). ${error.message}`);
-      return new Response(
-        JSON.stringify({ error: 'Photo estimation is temporarily unavailable — try again shortly, or describe the meal in words instead.' }),
-        { status: 503, headers: jsonHeaders }
-      );
-    }
     if (error instanceof GenerationCapExceededError) {
       return new Response(
         JSON.stringify({ error: "You've hit today's meal-logging limit — try again tomorrow." }),
         { status: 429, headers: jsonHeaders }
+      );
+    }
+    // Every candidate in the fallback chain already failed by this point
+    // (see _shared/groq.ts's callWithFallback) — every Groq error class name
+    // starts with "Groq", so this is a single check for "the chain gave up",
+    // whatever the specific last failure was.
+    if ((error as { name?: string })?.name?.startsWith('Groq')) {
+      const { kind, detail } = classifyGroqFailure(error);
+      if (kind === 'permission_blocked') {
+        console.error(`[parse-meal-photo] 🚨 ALL GROQ MODELS BLOCKED for this org. ${detail}`);
+      } else {
+        console.error(`[parse-meal-photo] Groq call failed: ${detail}`);
+      }
+      if (supabase && userId) await logGenerationFailure(supabase, userId, 'parse-meal-photo', kind, detail);
+      return new Response(
+        JSON.stringify({ error: 'Photo estimation is temporarily unavailable — try again shortly, or describe the meal in words instead.' }),
+        { status: 503, headers: jsonHeaders }
       );
     }
     const status = error instanceof UnauthorizedError ? 401 : 500;

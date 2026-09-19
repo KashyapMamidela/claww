@@ -1,6 +1,7 @@
 import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
-import { callGroqJSON, GroqPermissionError } from '../_shared/groq.ts';
+import { callGroqJSON } from '../_shared/groq.ts';
+import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
 import { deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
@@ -345,9 +346,13 @@ Deno.serve(async (req: Request) => {
     // both the log line below and the response body — so "is generation
     // actually working" is a direct read, not an inference from plan shape.
     let generated = false;
+    // Which model in the fallback chain actually served this response, when
+    // generation succeeded — logged alongside GENERATED so a "generated" plan
+    // that quietly slid to the 3rd fallback model is still visible.
+    let servedByModel: string | null = null;
 
     try {
-      const raw = await callGroqJSON([
+      const { content: raw, model } = await callGroqJSON([
         { role: 'system', content: systemPrompt },
         {
           role: 'user',
@@ -362,31 +367,45 @@ Deno.serve(async (req: Request) => {
 
       const parseResult = PlanSchema.safeParse(JSON.parse(raw));
       if (!parseResult.success) {
-        console.error('[generate-plan] FELL BACK: Groq response failed schema validation:', JSON.stringify(parseResult.error.flatten()));
+        const detail = JSON.stringify(parseResult.error.flatten());
+        console.error('[generate-plan] FELL BACK: Groq response failed schema validation:', detail);
+        await logGenerationFailure(supabase, user.id, 'generate-plan', 'validation_failed', detail);
       }
       plan = parseResult.success ? groundPlanInCatalog(parseResult.data, exercises) : DEFAULT_PLAN;
       if (plan.days.length === 0) {
         console.error('[generate-plan] FELL BACK: grounding filtered every exercise out of the plan.');
+        await logGenerationFailure(
+          supabase,
+          user.id,
+          'generate-plan',
+          'grounding_emptied',
+          `Groq returned ${parseResult.success ? parseResult.data.days.length : 0} day(s), grounding filtered all exercises out.`
+        );
         plan = DEFAULT_PLAN;
       }
       generated = parseResult.success && plan.days.length > 0;
+      if (generated) servedByModel = model;
     } catch (groqError) {
-      if (groqError instanceof GroqPermissionError) {
-        // Not a normal fallback — this means EVERY generation request is
-        // broken until someone enables the model at console.groq.com, not
-        // just this one user's request. Log loudly and distinctly.
+      // Every candidate in the fallback chain already failed by this point
+      // (see _shared/groq.ts's callWithFallback) — this is the chain's last
+      // error, not necessarily the primary model's.
+      const { kind, detail } = classifyGroqFailure(groqError);
+      if (kind === 'permission_blocked') {
+        // Worth a distinct loud log even with a fallback chain: it means
+        // EVERY model in the chain is blocked for this org, not just one.
         console.error(
-          `[generate-plan] 🚨 FELL BACK — GROQ MODEL BLOCKED for this org (status ${groqError.status}). ` +
-            `Enable the model at console.groq.com/settings/limits. This will keep happening for every user until fixed. ${groqError.message}`
+          `[generate-plan] 🚨 FELL BACK — ALL GROQ MODELS BLOCKED for this org. ` +
+            `Enable models at console.groq.com/settings/limits. This will keep happening for every user until fixed. ${detail}`
         );
       } else {
-        console.error('[generate-plan] FELL BACK: Groq call failed:', (groqError as Error).message);
+        console.error('[generate-plan] FELL BACK: Groq call failed:', detail);
       }
+      await logGenerationFailure(supabase, user.id, 'generate-plan', kind, detail);
       plan = DEFAULT_PLAN;
     }
 
     if (generated) {
-      console.log(`[generate-plan] GENERATED a real plan for user ${user.id} (${plan.days.length} days).`);
+      console.log(`[generate-plan] GENERATED a real plan for user ${user.id} (${plan.days.length} days, model ${servedByModel}).`);
     }
 
     // Hard-enforce the computed thresholds regardless of what the model

@@ -321,6 +321,31 @@ REVOKE ALL ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) FR
 GRANT EXECUTE ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) TO authenticated;
 
 -- ============================================================
+-- TABLE: generation_failures
+-- SHIP PHASE 6.3 — operator-facing record of every time an
+-- AI-calling Edge Function (generate-plan, parse-meal,
+-- parse-meal-photo) degraded to a fallback instead of serving a
+-- real Groq response: permission-blocked model, model not found,
+-- rate limited, a request error, schema-validation failure, or
+-- grounding filtering every exercise out of a plan. Written from
+-- the calling user's own JWT-scoped client (RLS covers it like
+-- any other own-rows table) but read by operators via the
+-- service role to answer "is generation actually working" as a
+-- query instead of a guess. Never surfaced in the app UI.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS generation_failures (
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id       UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  function_name TEXT NOT NULL,
+  failure_kind  TEXT NOT NULL CHECK (failure_kind IN (
+    'permission_blocked', 'model_not_found', 'rate_limited',
+    'request_error', 'validation_failed', 'grounding_emptied', 'unknown'
+  )),
+  detail        TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- ============================================================
 -- ROW LEVEL SECURITY (RLS) — Enable per-user access control
 -- ============================================================
 
@@ -333,6 +358,7 @@ ALTER TABLE sleep_logs    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workout_logs  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE workout_day_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE meal_logs     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE generation_failures ENABLE ROW LEVEL SECURITY;
 ALTER TABLE water_logs    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE xp_events     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE generation_usage ENABLE ROW LEVEL SECURITY;
@@ -410,5 +436,13 @@ CREATE POLICY "xp_events_own" ON xp_events
 -- direct insert/update, but this policy still gates any direct read.
 DROP POLICY IF EXISTS "generation_usage_own" ON generation_usage;
 CREATE POLICY "generation_usage_own" ON generation_usage
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Generation failures: a user can insert/read their own rows (same shape as
+-- every other own-rows table); the service role used for operator monitoring
+-- bypasses RLS entirely, same as every other table in this schema.
+DROP POLICY IF EXISTS "generation_failures_own" ON generation_failures;
+CREATE POLICY "generation_failures_own" ON generation_failures
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
