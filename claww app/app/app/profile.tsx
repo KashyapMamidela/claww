@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, ScrollView, Share, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
 import {
+  exportUserData,
   getAchievements,
   getCompletedWorkoutDays,
   getLevelInfo,
@@ -19,6 +20,7 @@ import {
 } from '../lib/data';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
+import { ErrorCard } from '../components/ui/ErrorCard';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
 
@@ -49,6 +51,40 @@ export default function ProfileScreen() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [disclaimerModalVisible, setDisclaimerModalVisible] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  // SHIP PHASE 7.5 — reuses the caller's own JWT-scoped queries in
+  // exportUserData (RLS does the scoping, no service role). Web triggers a
+  // real file download; native has no extra file-system dependency in this
+  // codebase yet, so it hands the JSON to the OS share sheet instead, which
+  // needs nothing beyond react-native's built-in Share API.
+  const handleExportData = useCallback(async () => {
+    if (!userId || exporting) return;
+    setExporting(true);
+    setExportError(null);
+    try {
+      const data = await exportUserData(userId);
+      const json = JSON.stringify(data, null, 2);
+      if (Platform.OS === 'web') {
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `claww-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        await Share.share({ message: json, title: 'CLAWW data export' });
+      }
+    } catch (e) {
+      setExportError(e instanceof Error ? e.message : 'Failed to export your data.');
+    } finally {
+      setExporting(false);
+    }
+  }, [userId, exporting]);
 
   // xp/streak come from AppState (live — see appState.tsx).
   useFocusEffect(
@@ -268,6 +304,29 @@ export default function ProfileScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={handleExportData}
+            disabled={exporting}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 16,
+              paddingVertical: 13,
+              gap: 12,
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(255,255,255,0.08)',
+              opacity: exporting ? 0.6 : 1,
+            }}
+          >
+            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="download" size={16} color="#A1A1AA" />
+            </View>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>
+              {exporting ? 'Preparing export…' : 'Download My Data'}
+            </Text>
+            <Icon name="chevron-right" size={15} color="#71717A" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
             onPress={signOut}
             style={{
               flexDirection: 'row',
@@ -303,6 +362,8 @@ export default function ProfileScreen() {
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete Account</Text>
           </TouchableOpacity>
         </View>
+
+        {exportError ? <ErrorCard message={exportError} onRetry={handleExportData} retrying={exporting} /> : null}
       </View>
       <DeleteAccountModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)} />
       <MedicalDisclaimerModal visible={disclaimerModalVisible} onClose={() => setDisclaimerModalVisible(false)} />

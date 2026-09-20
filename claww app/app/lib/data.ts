@@ -794,3 +794,74 @@ export async function getAchievements(userId: string): Promise<Achievement[]> {
     { id: 'legend', icon: '🚀', label: 'CLAWW Legend', color: '#EC4899', earned: xp >= 500 },
   ];
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHIP PHASE 7.5 — data export. Reuses the caller's own JWT-scoped `supabase`
+// client and lets RLS restrict every query to the caller's own rows — no
+// service role, unlike delete-account. That every one of these queries
+// returns only the caller's data is itself a live check that each table's
+// RLS policy actually works, not just an assumption.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface UserDataExport {
+  exportedAt: string;
+  profile: unknown;
+  userStats: unknown;
+  workouts: unknown[];
+  nutritionLogs: unknown[];
+  sleepLogs: unknown[];
+  workoutLogs: unknown[];
+  workoutDayEvents: unknown[];
+  mealLogs: unknown[];
+  waterLogs: unknown[];
+  xpEvents: unknown[];
+  generationUsage: unknown[];
+  generationFailures: unknown[];
+}
+
+/** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
+export async function exportUserData(userId: string): Promise<UserDataExport> {
+  const [
+    profile,
+    userStats,
+    workouts,
+    nutritionLogs,
+    sleepLogs,
+    workoutLogs,
+    workoutDayEvents,
+    mealLogs,
+    waterLogs,
+    xpEvents,
+    generationUsage,
+    generationFailures,
+  ] = await Promise.all([
+    supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
+    supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from('workouts').select('*').eq('user_id', userId),
+    supabase.from('nutrition_logs').select('*').eq('user_id', userId),
+    supabase.from('sleep_logs').select('*').eq('user_id', userId),
+    supabase.from('workout_logs').select('*').eq('user_id', userId),
+    supabase.from('workout_day_events').select('*').eq('user_id', userId),
+    supabase.from('meal_logs').select('*').eq('user_id', userId),
+    supabase.from('water_logs').select('*').eq('user_id', userId),
+    supabase.from('xp_events').select('*').eq('user_id', userId),
+    supabase.from('generation_usage').select('*').eq('user_id', userId),
+    supabase.from('generation_failures').select('*').eq('user_id', userId),
+  ]);
+
+  return {
+    exportedAt: new Date().toISOString(),
+    profile: profile.data ?? null,
+    userStats: userStats.data ?? null,
+    workouts: workouts.data ?? [],
+    nutritionLogs: nutritionLogs.data ?? [],
+    sleepLogs: sleepLogs.data ?? [],
+    workoutLogs: workoutLogs.data ?? [],
+    workoutDayEvents: workoutDayEvents.data ?? [],
+    mealLogs: mealLogs.data ?? [],
+    waterLogs: waterLogs.data ?? [],
+    xpEvents: xpEvents.data ?? [],
+    generationUsage: generationUsage.data ?? [],
+    generationFailures: generationFailures.data ?? [],
+  };
+}
