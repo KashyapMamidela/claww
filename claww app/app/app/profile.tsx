@@ -19,6 +19,7 @@ import {
 } from '../lib/data';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
+import { DeleteAccountModal } from '../components/DeleteAccountModal';
 
 const P = COLORS.amber;
 
@@ -45,6 +46,7 @@ export default function ProfileScreen() {
   const [workoutCount, setWorkoutCount] = useState(0);
   const [volume, setVolume] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   // xp/streak come from AppState (live — see appState.tsx).
   useFocusEffect(
@@ -261,8 +263,27 @@ export default function ProfileScreen() {
             </View>
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign Out</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setDeleteModalVisible(true)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 16,
+              paddingVertical: 13,
+              gap: 12,
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(255,255,255,0.08)',
+            }}
+          >
+            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="trash-2" size={16} color="#EF4444" />
+            </View>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete Account</Text>
+          </TouchableOpacity>
         </View>
       </View>
+      <DeleteAccountModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)} />
     </ScrollView>
   );
 }

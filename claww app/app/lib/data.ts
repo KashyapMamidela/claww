@@ -511,7 +511,7 @@ export async function getLatestWorkout(userId: string): Promise<WorkoutRow | nul
  * unread on `error.context` (a Response). This reads that body so callers
  * can show the real reason instead of a generic one.
  */
-async function extractInvokeErrorMessage(error: { context?: unknown; message?: string } | null): Promise<string | null> {
+export async function extractInvokeErrorMessage(error: { context?: unknown; message?: string } | null): Promise<string | null> {
   const context = error?.context;
   if (context && typeof (context as Response).json === 'function') {
     try {

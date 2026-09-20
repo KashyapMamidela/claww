@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import type { AuthError, Session, User } from '@supabase/supabase-js';
+import { extractInvokeErrorMessage } from './data';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -69,6 +70,27 @@ export async function getCurrentUser(): Promise<User | null> {
 export async function signOut(): Promise<{ error: AuthError | null }> {
   const { error } = await supabase.auth.signOut();
   return { error };
+}
+
+/**
+ * Permanently deletes the current user's account via the delete-account Edge
+ * Function (service role, JWT-scoped to the caller's own id — see
+ * supabase/functions/delete-account). Every user_id-scoped row cascades from
+ * auth.users(id) ON DELETE CASCADE, so this one call is the whole deletion.
+ * The UI-level confirmation (type-to-confirm) must happen before this is
+ * called; the Edge Function also requires body.confirm === 'DELETE' as an
+ * independent second guard against an accidental/automated call.
+ * Signs the local session out on success, since the account it belongs to no
+ * longer exists.
+ */
+export async function deleteAccount(): Promise<{ error: string | null }> {
+  const { error } = await supabase.functions.invoke('delete-account', { body: { confirm: 'DELETE' } });
+  if (error) {
+    const message = await extractInvokeErrorMessage(error);
+    return { error: message ?? error.message ?? 'Failed to delete account.' };
+  }
+  await supabase.auth.signOut();
+  return { error: null };
 }
 
 /**
