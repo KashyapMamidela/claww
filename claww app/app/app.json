@@ -18,7 +18,8 @@
       "bundleIdentifier": "com.claww.app",
       "infoPlist": {
         "NSCameraUsageDescription": "CLAWW uses your camera to estimate a meal's nutrition from a photo.",
-        "NSPhotoLibraryUsageDescription": "CLAWW uses your photo library to estimate a meal's nutrition from a picture you already have."
+        "NSPhotoLibraryUsageDescription": "CLAWW uses your photo library to estimate a meal's nutrition from a picture you already have.",
+        "NSMotionUsageDescription": "CLAWW reads your step count from the Health/Motion sensor to show daily activity on Home."
       }
     },
     "android": {
@@ -47,7 +48,8 @@
         }
       ],
       "expo-web-browser",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-sensors"
     ]
   }
 }

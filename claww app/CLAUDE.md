@@ -124,6 +124,32 @@ each against the real code before touching anything:
 
 Items 1–3 remain open; sequencing them is the user's call.
 
+## Recovery-copy honesty pass + real step counter (2026-09-20)
+
+Reviewed the engine's mechanics against industry benchmarks (Whoop/Oura for recovery, Fitbod/RP
+for progression, MacroFactor for nutrition) at the user's request. Two follow-ups from that review:
+
+- [x] Recovery-related UI copy no longer borrows Whoop/Oura-grade vocabulary ("personalised
+  readiness read", "puts you in low/moderate/high **readiness**") for a signal that's actually
+  sleep-hours + time-since-last-session + last-session-volume, not HRV/RHR. `(tabs)/index.tsx`:
+  softened to "a sleep-and-rest-based estimate to guide today's training" and "puts you in
+  [band] **recovery** today" — same underlying score and bands, honest framing. Same category of
+  fix as the SHIP PHASE 7.4 claims audit, applied here rather than deferred.
+- [x] Real step counter — new feature, not on the roadmap before this. `lib/steps.ts` reads the
+  phone's own motion coprocessor via `expo-sensors`' `Pedometer` (iOS Core Motion / Android step
+  sensor) — this is what Home's pre-existing "Steps · needs phone sensors" placeholder was always
+  built for, just never wired up. Distinct from SHIP PHASE 11.1 (Health Connect/Apple Health,
+  still deferred) — that's syncing a wearable's own data store, this reads the phone's built-in
+  sensor directly, no wearable required. `app.json`: added `NSMotionUsageDescription` (iOS) and
+  the `expo-sensors` config plugin (handles Android's `ACTIVITY_RECOGNITION` runtime permission).
+  Also wired the adjacent "Burned" stat, previously dead too, from a weight-based
+  calories-per-step estimate (`estimateCaloriesFromSteps`, same "deterministic math, not AI"
+  posture as the nutrition formulas) — fixing Steps alone would've left it sitting next to a
+  still-fake sibling stat. Typecheck clean, all 27 tests pass, clean web build with the new
+  native module. **Not device-verified** — Pedometer can't be meaningfully exercised in a web
+  preview (it correctly reports unavailable there); needs a real iOS/Android build to confirm
+  live step counts.
+
 - [ ] SHIP PHASE 9 — Observability, CI, release engineering
   - [ ] 9.1 Sentry (app + Edge Functions), PII scrubbed, release-tagged
   - [ ] 9.2 PostHog on the core loop, including real-vs-fallback generation (joins with 6.3)

@@ -17,6 +17,28 @@ import { SleepArcDial } from '../../components/SleepArcDial';
 import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { estimateCaloriesFromSteps, getTodaySteps, type StepsResult } from '../../lib/steps';
+
+// New feature — real step count from the phone's own motion sensor
+// (expo-sensors' Pedometer), not a wearable. Refreshes whenever Home
+// regains focus, same pattern as every other on-focus data fetch on this
+// screen. Shared between HomeEmptyState and HomePopulated since both show
+// the same Steps stat card.
+function useTodaySteps(): StepsResult {
+  const [steps, setSteps] = useState<StepsResult>({ steps: 0, available: false });
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getTodaySteps().then((result) => {
+        if (!cancelled) setSteps(result);
+      });
+      return () => {
+        cancelled = true;
+      };
+    }, [])
+  );
+  return steps;
+}
 
 function AiCard({ children }: { children: React.ReactNode }) {
   return (
@@ -83,6 +105,7 @@ function HomeEmptyState() {
   const { userName, sleepLogged, logSleep, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const steps = useTodaySteps();
 
   return (
     <View
@@ -153,7 +176,13 @@ function HomeEmptyState() {
       </View>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <StatCard label="Steps" value="—" sub="no data yet" color="#A1A1AA" icon={<Icon name="footprints" size={16} color="#A1A1AA" />} />
+        <StatCard
+          label="Steps"
+          value={steps.available ? steps.steps.toLocaleString() : '—'}
+          sub={steps.available ? 'today' : 'no data yet'}
+          color="#A1A1AA"
+          icon={<Icon name="footprints" size={16} color="#A1A1AA" />}
+        />
         <StatCard label="Burned" value="—" sub="no data yet" color="#71717A" icon={<Icon name="flame" size={16} color="#71717A" />} />
         <StatCard label="Streak" value={String(streak)} sub="days" color="#71717A" icon={<Icon name="trending-up" size={16} color="#71717A" />} />
       </View>
@@ -194,7 +223,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
-              : 'Unlocks your Recovery Score and a personalised readiness read each morning.'}
+              : "Unlocks your Recovery Score — a sleep-and-rest-based estimate to guide today's training."}
           </Text>
         </View>
         {!sleepLogged ? (
@@ -244,6 +273,8 @@ function HomePopulated() {
 
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
+  const [weightKg, setWeightKg] = useState<number | null>(null);
+  const steps = useTodaySteps();
 
   // xp/streak come from AppState directly — they update live as XP events
   // fire (set completed, meal logged, sleep logged, plan generated) instead
@@ -257,6 +288,7 @@ function HomePopulated() {
         setLatestWorkout(w);
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
+        setWeightKg(profile?.weight ?? null);
       });
       return () => {
         cancelled = true;
@@ -364,8 +396,20 @@ function HomePopulated() {
       </View>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <StatCard label="Steps" value="—" sub="needs phone sensors" color="#71717A" icon={<Icon name="footprints" size={16} color="#71717A" />} />
-        <StatCard label="Burned" value="—" sub="not tracked yet" color="#71717A" icon={<Icon name="flame" size={16} color="#71717A" />} />
+        <StatCard
+          label="Steps"
+          value={steps.available ? steps.steps.toLocaleString() : '—'}
+          sub={steps.available ? 'today' : 'needs phone sensors'}
+          color="#71717A"
+          icon={<Icon name="footprints" size={16} color="#71717A" />}
+        />
+        <StatCard
+          label="Burned"
+          value={steps.available ? estimateCaloriesFromSteps(steps.steps, weightKg).toLocaleString() : '—'}
+          sub={steps.available ? 'from steps (est.)' : 'not tracked yet'}
+          color="#71717A"
+          icon={<Icon name="flame" size={16} color="#71717A" />}
+        />
         <StatCard label="Streak" value={String(streak)} sub="days" pct={Math.min(streak * 14, 100)} color={COLORS.green} icon={<Icon name="trending-up" size={16} color={COLORS.green} />} />
       </View>
 
@@ -404,7 +448,7 @@ function HomePopulated() {
         {recovery ? (
           <>
             Your <Text style={{ color: '#fff', fontWeight: '700' }}>recovery score of {recovery.score}</Text> puts you in{' '}
-            <Text style={{ color: recoveryColor, fontWeight: '700' }}>{recovery.band.toLowerCase()}</Text> readiness today
+            <Text style={{ color: recoveryColor, fontWeight: '700' }}>{recovery.band.toLowerCase()}</Text> recovery today
             {streak > 0 ? (
               <>
                 , and you're on a <Text style={{ color: COLORS.purple, fontWeight: '700' }}>{streak}-day streak</Text>
