@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLAWW Privacy Policy</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    background: #050505;
+    color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+    line-height: 1.65;
+  }
+  h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+  .sub { color: #A1A1AA; font-size: 13px; margin-bottom: 8px; }
+  h2 { font-size: 17px; font-weight: 700; margin-top: 36px; margin-bottom: 8px; }
+  h3 { font-size: 14px; font-weight: 700; margin-top: 20px; margin-bottom: 6px; color: #F59E0B; }
+  p, li { color: #D4D4D8; font-size: 14.5px; }
+  ul { padding-left: 20px; }
+  a { color: #F59E0B; }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 10px 12px; border: 1px solid rgba(255,255,255,0.1); vertical-align: top; }
+  th { color: #A1A1AA; font-weight: 600; }
+  .draft-banner {
+    background: rgba(239,68,68,0.10);
+    border: 1px solid rgba(239,68,68,0.20);
+    border-radius: 14px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    font-size: 13.5px;
+    color: #FCA5A5;
+  }
+  .fill { color: #F59E0B; font-weight: 600; }
+  code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="draft-banner">
+    <strong>DRAFT — not yet reviewed by a human, not yet legally binding.</strong>
+    This page must be reviewed in full and every <span class="fill">[FILL IN]</span> item resolved before publishing.
+  </div>
+
+  <h1>CLAWW Privacy Policy</h1>
+  <p class="sub">Last updated: <span class="fill">[FILL IN]</span> &middot; Effective: <span class="fill">[FILL IN]</span></p>
+
+  <p>This policy describes what CLAWW ("the app", "we", "us") collects, why, and what you can do about it. It's written against what the app actually does, not a generic template.</p>
+
+  <h2>Who this covers</h2>
+  <p>Anyone who creates a CLAWW account or uses the app.</p>
+  <p>Legal entity: <span class="fill">[FILL IN]</span><br>
+  Contact: <a href="mailto:privacy@claww.app">privacy@claww.app</a> <span class="fill">[FILL IN — real inbox]</span></p>
+
+  <h2>What we collect</h2>
+
+  <h3>Account information</h3>
+  <p>Email address and password, handled by Supabase Auth. We never see or store your raw password.</p>
+
+  <h3>Profile information</h3>
+  <p>Name, age, height, weight, gender, fitness goal, experience level, and available equipment.</p>
+
+  <h3>Health and fitness data</h3>
+  <p>A sensitive data category under Google Play's policies:</p>
+  <ul>
+    <li>Body metrics: height, weight, age</li>
+    <li>Free-text injury or limitation descriptions, used to filter exercises</li>
+    <li>Sleep logs: hours, bedtime, wake time</li>
+    <li>Workout logs: exercises, sets, prescribed vs. achieved reps/weight</li>
+    <li>Meal and nutrition logs, including estimated calories and macros</li>
+    <li>Water intake logs</li>
+  </ul>
+
+  <h3>Photos</h3>
+  <p>Meal photos you submit are sent for nutritional analysis; the resulting estimate (not the photo) is stored in your meal log.</p>
+
+  <h3>Usage and gamification data</h3>
+  <p>XP events, achievements, streaks, and daily AI-generation request counts (for fair-use limits).</p>
+
+  <h3>What we don't collect</h3>
+  <p>Precise location, contacts, or payment information — CLAWW doesn't currently process payments.</p>
+
+  <h2>How we use it</h2>
+  <ul>
+    <li><strong>Personalizing your plan.</strong> Rep ranges, training frequency, and injury filtering are computed deterministically — never by an AI model. An AI model only selects/names exercises within limits we've already computed, and estimates nutrition from text or photos. Every AI result is validated before being shown to you.</li>
+    <li><strong>Tracking progress.</strong> Your logs power recovery scores, streaks, and the Tracker tab.</li>
+    <li><strong>Fair use enforcement.</strong> We track daily generation requests to keep the service usable for everyone.</li>
+    <li><strong>Operating the service.</strong> We log when and why an AI request failed (never your personal data) to help us fix reliability issues — this log is never shown to you in the app.</li>
+  </ul>
+
+  <h2>Third parties (subprocessors)</h2>
+  <table>
+    <tr><th>Subprocessor</th><th>What it receives</th><th>Why</th></tr>
+    <tr>
+      <td>Supabase</td>
+      <td>Everything in this policy</td>
+      <td>Database, authentication, and backend hosting</td>
+    </tr>
+    <tr>
+      <td>Groq</td>
+      <td>Injury description, workout history, and relevant profile fields; meal text or photos when you log a meal</td>
+      <td>Runs the AI model for exercise selection and nutrition estimation. A third-party, US-based inference provider.</td>
+    </tr>
+  </table>
+  <p>Both subprocessors have their own privacy policies: <span class="fill">[FILL IN links]</span>. We do not sell your data or share it with anyone else.</p>
+
+  <h2>Data retention</h2>
+  <p>Retained while your account exists. Deleting your account removes every row belonging to you immediately from our live database. Backups are rotated out within <span class="fill">[FILL IN]</span> of deletion.</p>
+
+  <h2>Your rights</h2>
+  <ul>
+    <li><strong>Delete your account</strong> — in-app (Profile &rarr; Delete Account) or via our <a href="./delete-account.html">account deletion page</a>.</li>
+    <li><strong>Export your data</strong> — <span class="fill">[FILL IN once in-app export ships]</span>; until then, email us and we'll send a copy.</li>
+    <li><strong>Correct your data</strong> — most profile fields are editable in-app.</li>
+  </ul>
+
+  <h2>Children</h2>
+  <p>CLAWW is not directed at children under <span class="fill">[FILL IN]</span>, and we do not knowingly collect their data.</p>
+
+  <h2>Security</h2>
+  <ul>
+    <li>Row-level security on every table — you can only access your own data, enforced at the database level.</li>
+    <li>Session tokens stored in your device's secure keychain.</li>
+    <li>All traffic encrypted (HTTPS).</li>
+  </ul>
+
+  <h2>Changes to this policy</h2>
+  <p>Material changes will be reflected here and announced in-app.</p>
+
+  <h2>Contact</h2>
+  <p><a href="mailto:privacy@claww.app">privacy@claww.app</a> <span class="fill">[FILL IN]</span></p>
+</body>
+</html>
