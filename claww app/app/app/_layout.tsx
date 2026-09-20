@@ -1,4 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
+import * as Sentry from '@sentry/react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -14,6 +15,11 @@ import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
 import { notificationsSupported, type ReminderType } from '../lib/notifications';
 import { SplashIntro } from '../components/SplashIntro';
+import { initSentry } from '../lib/sentry';
+import { initAnalytics, identify, resetAnalytics } from '../lib/analytics';
+
+initSentry();
+initAnalytics();
 
 // SHIP PHASE 8.3 — where a tapped reminder actually takes the user. Kept
 // next to the notification scheduling itself only because both files agree
@@ -33,7 +39,9 @@ WebBrowser.maybeCompleteAuthSession();
 
 type AuthState = 'loading' | 'auth' | 'onboarding' | 'app';
 
-export default function RootLayout() {
+export default Sentry.wrap(RootLayout);
+
+function RootLayout() {
   const router = useRouter();
   const [fontsLoaded] = useFonts({
     Inter: require('../assets/fonts/Inter-Variable.ttf'),
@@ -43,9 +51,11 @@ export default function RootLayout() {
 
   const resolveSession = useCallback(async (session: Session | null) => {
     if (!session) {
+      resetAnalytics();
       setAuthState('auth');
       return;
     }
+    identify(session.user.id);
     // A trigger normally creates this row on sign-up (see schema.sql); this
     // is a defensive no-op fallback in case that trigger isn't installed yet.
     await ensureProfileRow(session.user);

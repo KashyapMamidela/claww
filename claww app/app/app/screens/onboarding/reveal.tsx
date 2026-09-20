@@ -9,6 +9,7 @@ import { Icon } from '../../../components/ui/Icon';
 import { supabase } from '../../../lib/supabase';
 import { useAppState } from '../../../lib/appState';
 import { MEDICAL_DISCLAIMER_ACK_LABEL, MEDICAL_DISCLAIMER_BODY } from '../../../lib/medicalDisclaimer';
+import { track, AnalyticsEvent } from '../../../lib/analytics';
 
 const GENDER_ACCENTS: Record<string, string> = {
   male: '#3B82F6',
@@ -68,6 +69,7 @@ export default function OnboardingReveal() {
       console.warn('[Claww] Profile save error:', e);
     }
 
+    track(AnalyticsEvent.OnboardingCompleted);
     router.replace('/(tabs)');
   };
 

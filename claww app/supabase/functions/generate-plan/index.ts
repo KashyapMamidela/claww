@@ -6,6 +6,7 @@ import { computeRecoveryScore } from '../_shared/recovery.ts';
 import { deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
+import { reportEdgeError } from '../_shared/sentry.ts';
 
 const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
 
@@ -424,6 +425,9 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ recovery, workout: savedWorkout, generated }), { headers: jsonHeaders });
   } catch (error) {
+    if (!(error instanceof GenerationCapExceededError) && !(error instanceof UnauthorizedError)) {
+      await reportEdgeError('generate-plan', error);
+    }
     if (error instanceof GenerationCapExceededError) {
       return new Response(
         JSON.stringify({ error: "You've hit today's plan generation limit — try again tomorrow." }),

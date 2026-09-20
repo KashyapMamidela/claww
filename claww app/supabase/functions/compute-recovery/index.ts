@@ -1,6 +1,7 @@
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
+import { reportEdgeError } from '../_shared/sentry.ts';
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -32,6 +33,7 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify(result), { headers: jsonHeaders });
   } catch (error) {
+    if (!(error instanceof UnauthorizedError)) await reportEdgeError('compute-recovery', error);
     const status = error instanceof UnauthorizedError ? 401 : 500;
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status,

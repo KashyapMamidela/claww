@@ -4,6 +4,7 @@ import { callGroqJSON } from '../_shared/groq.ts';
 import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
+import { reportEdgeError } from '../_shared/sentry.ts';
 
 const RequestSchema = z.object({
   text: z.string().min(1, 'text is required'),
@@ -111,6 +112,7 @@ Deno.serve(async (req: Request) => {
         { status: 503, headers: jsonHeaders }
       );
     }
+    if (!(error instanceof UnauthorizedError)) await reportEdgeError('parse-meal', error);
     const status = error instanceof UnauthorizedError ? 401 : 500;
     return new Response(JSON.stringify({ error: (error as Error).message }), {
       status,

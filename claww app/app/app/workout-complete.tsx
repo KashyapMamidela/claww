@@ -11,6 +11,7 @@ import { notificationsSupported } from '../lib/notifications';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
+import { track, AnalyticsEvent } from '../lib/analytics';
 
 const A = COLORS.blue;
 const A3 = COLORS.blueDeep;
@@ -36,6 +37,7 @@ export default function WorkoutCompleteScreen() {
       Animated.spring(tileScale, { toValue: 1, useNativeDriver: true, speed: 14, bounciness: 12 }),
       Animated.timing(tileOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
     ]).start();
+    track(AnalyticsEvent.WorkoutCompleted);
   }, []);
 
   // SHIP PHASE 8.3 — the contextual moment the roadmap asks for: after a

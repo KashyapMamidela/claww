@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
+import { track, AnalyticsEvent } from './analytics';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -319,12 +320,14 @@ export async function estimateMeal(mealType: MealType, text: string, portion: Po
   try {
     const { data, error } = await supabase.functions.invoke('parse-meal', { body: { text, mealType, portion } });
     if (!error && data && typeof data.calories === 'number') {
+      track(AnalyticsEvent.MealEstimated, { generated: true, source: 'text' });
       return { ok: true, meal: data as EstimatedMeal };
     }
   } catch {
     // Edge Function not deployed / unreachable — fall through to the local estimate.
   }
 
+  track(AnalyticsEvent.MealEstimated, { generated: false, source: 'text' });
   const fallback = FALLBACK_MEAL_MACROS[mealType];
   const multiplier = PORTION_MULTIPLIERS[portion];
   return {
@@ -362,6 +365,7 @@ export async function estimateMealFromPhoto(mealType: MealType, imageDataUri: st
   if (!data || typeof data.calories !== 'number') {
     return { ok: false, reason: "Couldn't estimate that photo — try a clearer shot, or describe the meal in words instead." };
   }
+  track(AnalyticsEvent.MealEstimated, { generated: true, source: 'photo' });
   return { ok: true, meal: data as EstimatedMeal };
 }
 
@@ -390,6 +394,7 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
     console.warn('[Claww] Failed to save meal log:', error.message);
     return null;
   }
+  track(AnalyticsEvent.MealLogged, { meal_type: mealType });
   await awardXp(userId, 10, 'meal_logged');
   return data;
 }
@@ -570,6 +575,10 @@ export async function generateWorkoutPlan(userId: string, reason?: RegenerationR
     console.warn('[Claww] Failed to generate workout plan:', message ?? error.message);
     return { workout: null, error: message ?? undefined };
   }
+  // `generated` distinguishes a real Groq plan from a DEFAULT_PLAN fallback
+  // (see generate-plan/index.ts) — tracked here, not just in
+  // generation_failures, so it's joinable against onboarding/retention funnels.
+  track(AnalyticsEvent.WorkoutPlanGenerated, { generated: Boolean(data?.generated), cached: Boolean(data?.cached) });
   await awardXp(userId, 50, 'plan_generated');
   return { workout: data?.workout ?? null };
 }

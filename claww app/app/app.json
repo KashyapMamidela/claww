@@ -44,12 +44,14 @@
         "expo-image-picker",
         {
           "photosPermission": "CLAWW uses your photo library to estimate a meal's nutrition from a picture you already have.",
-          "cameraPermission": "CLAWW uses your camera to estimate a meal's nutrition from a photo."
+          "cameraPermission": "CLAWW uses your camera to estimate a meal's nutrition from a photo.",
+          "microphonePermission": false
         }
       ],
       "expo-web-browser",
       "expo-notifications",
-      "expo-sensors"
+      "expo-sensors",
+      "@sentry/react-native"
     ]
   }
 }

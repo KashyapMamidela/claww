@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
+import { reportEdgeError } from '../_shared/sentry.ts';
 
 // SHIP PHASE 7.1 — the one other legitimate service-role use in this codebase
 // besides check_and_increment_generation_usage's SECURITY DEFINER function.
@@ -66,6 +67,7 @@ Deno.serve(async (req: Request) => {
     console.log(`[delete-account] Deleted account ${user.id}`);
     return new Response(JSON.stringify({ deleted: true }), { headers: jsonHeaders });
   } catch (error) {
+    if (!(error instanceof UnauthorizedError)) await reportEdgeError('delete-account', error);
     const status = error instanceof UnauthorizedError ? 401 : 500;
     return new Response(JSON.stringify({ error: (error as Error).message }), { status, headers: jsonHeaders });
   }
