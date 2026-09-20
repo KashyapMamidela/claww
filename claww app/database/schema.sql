@@ -37,6 +37,15 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS personalization_profile JSONB;
 -- wording change is possible later without a schema change.
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS medical_disclaimer_acknowledged_at TIMESTAMPTZ;
 
+-- SHIP PHASE 8.3 — local notification reminders. notification_prompt_shown_at
+-- gates the one-time soft-ask card on workout-complete.tsx (contextual, per
+-- the roadmap — never requested on cold start) so it's shown once, ever, not
+-- once per session. notifications_enabled reflects whether the user actually
+-- granted OS permission and turned reminders on, editable later from
+-- Settings — independent of the prompt having been shown.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notifications_enabled BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notification_prompt_shown_at TIMESTAMPTZ;
+
 -- profiles.id should always match a real auth.users.id (1:1 with Supabase
 -- Auth), so tie it down with a proper FK instead of a bare UUID PK.
 DO $$

@@ -4,9 +4,10 @@ import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSequence, w
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, FONT } from '../../../lib/theme';
-import { signIn } from '../../../lib/auth';
+import { signIn, signInWithGoogle } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
+import { GoogleSignInButton } from '../../../components/GoogleSignInButton';
 
 const A = COLORS.blue;
 
@@ -15,11 +16,22 @@ export default function SignInScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const shakeX = useSharedValue(0);
   const shakeStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shakeX.value }] }));
 
   const canSubmit = email.trim().length > 3 && password.length > 0 && !loading;
+
+  const shake = () => {
+    shakeX.value = withSequence(
+      withTiming(-8, { duration: 50 }),
+      withTiming(8, { duration: 50 }),
+      withTiming(-6, { duration: 50 }),
+      withTiming(6, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -31,18 +43,26 @@ export default function SignInScreen() {
     if (signInError) {
       setError(signInError.message);
       setLoading(false);
-      shakeX.value = withSequence(
-        withTiming(-8, { duration: 50 }),
-        withTiming(8, { duration: 50 }),
-        withTiming(-6, { duration: 50 }),
-        withTiming(6, { duration: 50 }),
-        withTiming(0, { duration: 50 })
-      );
+      shake();
       return;
     }
     // Session now exists — the root layout's auth listener routes to
     // onboarding or the tab app depending on onboarding completion.
     setLoading(false);
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+    setError(null);
+    const { error: googleError } = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (googleError) {
+      setError(googleError.message);
+      shake();
+    }
+    // Success: same as email sign-in, the root layout's auth listener
+    // routes onward once the session is set.
   };
 
   return (
@@ -94,17 +114,29 @@ export default function SignInScreen() {
             />
           </Animated.View>
 
+          <TouchableOpacity onPress={() => router.push('/screens/auth/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
+            <Text style={{ color: COLORS.fgGrayDim, fontSize: 12.5, fontFamily: FONT }}>Forgot password?</Text>
+          </TouchableOpacity>
+
           {error ? (
             <Animated.View entering={FadeInDown.duration(220)}>
               <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 12, fontFamily: FONT }}>{error}</Text>
             </Animated.View>
           ) : null}
 
-          <View style={{ marginTop: 24 }}>
+          <View style={{ marginTop: 20 }}>
             <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
               {loading ? 'Signing in…' : 'Sign in'}
             </Button>
           </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+            <Text style={{ color: '#52525B', fontSize: 11, fontFamily: FONT }}>OR</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+          </View>
+
+          <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-up')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
             <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, fontFamily: FONT }}>

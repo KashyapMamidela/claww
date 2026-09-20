@@ -49,9 +49,12 @@ export interface Profile {
   experience_level: ExperienceLevel | null;
   equipment: Equipment | null;
   personalization_profile: PersonalizationProfile | null;
+  notifications_enabled: boolean;
+  notification_prompt_shown_at: string | null;
 }
 
-const PROFILE_COLUMNS = 'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile';
+const PROFILE_COLUMNS =
+  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at';
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', userId).maybeSingle();
@@ -60,6 +63,19 @@ export async function getProfile(userId: string): Promise<Profile | null> {
     return null;
   }
   return data;
+}
+
+// SHIP PHASE 8.3 — records the one-time soft-ask (never re-shown) and
+// whether reminders are actually on, independently: shown-but-declined and
+// shown-then-later-enabled-from-Settings are both valid states.
+export async function setNotificationPromptShown(userId: string): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ notification_prompt_shown_at: new Date().toISOString() }).eq('id', userId);
+  if (error) console.warn('[Claww] Failed to record notification prompt shown:', error.message);
+}
+
+export async function setNotificationsEnabled(userId: string, enabled: boolean): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ notifications_enabled: enabled }).eq('id', userId);
+  if (error) console.warn('[Claww] Failed to update notification preference:', error.message);
 }
 
 export interface WorkoutIntakeInput {

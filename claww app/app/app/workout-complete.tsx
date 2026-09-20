@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, ScrollView, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -6,8 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { useWorkoutSession } from '../lib/workoutSession';
+import { getProfile } from '../lib/data';
+import { notificationsSupported } from '../lib/notifications';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
+import { NotificationPromptCard } from '../components/NotificationPromptCard';
 
 const A = COLORS.blue;
 const A3 = COLORS.blueDeep;
@@ -21,8 +24,9 @@ function formatClock(totalSeconds: number): string {
 export default function WorkoutCompleteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userName } = useAppState();
+  const { userId, userName } = useAppState();
   const { lastSummary } = useWorkoutSession();
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
 
   const tileScale = useRef(new Animated.Value(0.5)).current;
   const tileOpacity = useRef(new Animated.Value(0)).current;
@@ -33,6 +37,24 @@ export default function WorkoutCompleteScreen() {
       Animated.timing(tileOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
     ]).start();
   }, []);
+
+  // SHIP PHASE 8.3 — the contextual moment the roadmap asks for: after a
+  // user's first completed workout, never on cold start. Only shown if the
+  // prompt has genuinely never been shown before (notification_prompt_shown_at
+  // is null), which setNotificationPromptShown makes permanent either way
+  // (enabled or declined) so this never nags twice.
+  useEffect(() => {
+    if (!userId || !notificationsSupported) return;
+    let cancelled = false;
+    getProfile(userId).then((profile) => {
+      if (!cancelled && profile && !profile.notification_prompt_shown_at) {
+        setShowNotificationPrompt(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const summary = lastSummary;
   const STATS = [
@@ -170,6 +192,12 @@ export default function WorkoutCompleteScreen() {
             </View>
           ))}
         </View>
+
+        {showNotificationPrompt && userId ? (
+          <View style={{ width: '100%', marginTop: 16 }}>
+            <NotificationPromptCard userId={userId} onDismiss={() => setShowNotificationPrompt(false)} />
+          </View>
+        ) : null}
       </ScrollView>
 
       <View style={{ paddingHorizontal: 22, paddingTop: 14, paddingBottom: Math.max(insets.bottom, 26) }}>

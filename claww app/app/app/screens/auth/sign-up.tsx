@@ -4,9 +4,10 @@ import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSequence, w
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, FONT } from '../../../lib/theme';
-import { signUp, ensureProfileRow } from '../../../lib/auth';
+import { signUp, ensureProfileRow, signInWithGoogle } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
+import { GoogleSignInButton } from '../../../components/GoogleSignInButton';
 
 const A = COLORS.blue;
 
@@ -15,12 +16,35 @@ export default function SignUpScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [checkEmail, setCheckEmail] = useState(false);
   const shakeX = useSharedValue(0);
   const shakeStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shakeX.value }] }));
 
   const canSubmit = email.trim().length > 3 && password.length >= 6 && !loading;
+
+  const shake = () => {
+    shakeX.value = withSequence(
+      withTiming(-8, { duration: 50 }),
+      withTiming(8, { duration: 50 }),
+      withTiming(-6, { duration: 50 }),
+      withTiming(6, { duration: 50 }),
+      withTiming(0, { duration: 50 })
+    );
+  };
+
+  const handleGoogleSignIn = async () => {
+    if (googleLoading) return;
+    setGoogleLoading(true);
+    setError(null);
+    const { error: googleError } = await signInWithGoogle();
+    setGoogleLoading(false);
+    if (googleError) {
+      setError(googleError.message);
+      shake();
+    }
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -32,13 +56,7 @@ export default function SignUpScreen() {
     if (signUpError) {
       setError(signUpError.message);
       setLoading(false);
-      shakeX.value = withSequence(
-        withTiming(-8, { duration: 50 }),
-        withTiming(8, { duration: 50 }),
-        withTiming(-6, { duration: 50 }),
-        withTiming(6, { duration: 50 }),
-        withTiming(0, { duration: 50 })
-      );
+      shake();
       return;
     }
 
@@ -135,6 +153,14 @@ export default function SignUpScreen() {
               {loading ? 'Creating account…' : 'Create account'}
             </Button>
           </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+            <Text style={{ color: '#52525B', fontSize: 11, fontFamily: FONT }}>OR</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+          </View>
+
+          <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-in')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
             <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, fontFamily: FONT }}>

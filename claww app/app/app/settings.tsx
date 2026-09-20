@@ -1,44 +1,69 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
-import { getGenerationUsageToday } from '../lib/data';
+import { getGenerationUsageToday, getProfile, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
+import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleDefaultReminders } from '../lib/notifications';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 
 const P = '#A1A1AA';
 
 // SHIP PHASE 8.2 — a real Settings screen, scoped to what's actually real
-// today: live generation-cap usage (read-only) and sign-out. Units
-// (metric/imperial) need a display-layer conversion audited across every
-// screen that renders kg/cm, not a toggle here that silently does nothing —
-// deliberately left out rather than shipped as a decorative stub.
-// Notification preferences wait on SHIP PHASE 8.3 actually requesting OS
-// permission; a toggle with no real permission behind it would be exactly
-// the kind of dead control this phase exists to remove.
+// today: live generation-cap usage (read-only), the SHIP PHASE 8.3
+// notification toggle, and sign-out. Units (metric/imperial) still need a
+// display-layer conversion audited across every screen that renders
+// kg/cm — deliberately left out rather than shipped as a decorative stub.
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userId } = useAppState();
   const [usage, setUsage] = useState<{ plan: number; meal: number } | null>(null);
+  const [notificationsOn, setNotificationsOn] = useState(false);
+  const [notificationsBusy, setNotificationsBusy] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      getGenerationUsageToday(userId).then((u) => {
-        if (!cancelled) setUsage(u);
+      Promise.all([getGenerationUsageToday(userId), getProfile(userId)]).then(([u, profile]) => {
+        if (cancelled) return;
+        setUsage(u);
+        setNotificationsOn(profile?.notifications_enabled ?? false);
       });
       return () => {
         cancelled = true;
       };
     }, [userId])
   );
+
+  const handleToggleNotifications = async (next: boolean) => {
+    if (!userId || notificationsBusy) return;
+    setNotificationsBusy(true);
+    setPermissionDenied(false);
+    if (next) {
+      const granted = await requestNotificationPermission();
+      if (!granted) {
+        setPermissionDenied(true);
+        setNotificationsBusy(false);
+        return;
+      }
+      await scheduleDefaultReminders();
+      await setNotificationsEnabled(userId, true);
+      setNotificationsOn(true);
+    } else {
+      await cancelAllReminders();
+      await setNotificationsEnabled(userId, false);
+      setNotificationsOn(false);
+    }
+    setNotificationsBusy(false);
+  };
 
   const rows = [
     { label: 'Workout plan generations', used: usage?.plan ?? 0, cap: GENERATION_CAPS.plan },
@@ -94,6 +119,26 @@ export default function SettingsScreen() {
             </View>
           ))}
         </View>
+
+        {notificationsSupported ? (
+          <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="bell" size={16} color={COLORS.blue} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Reminders</Text>
+                <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, and sleep nudges</Text>
+              </View>
+              <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
+            </View>
+            {permissionDenied ? (
+              <Text style={{ color: COLORS.danger, fontSize: 11, marginTop: 10, fontFamily: FONT }}>
+                Notifications are blocked for CLAWW in your device settings — enable them there first.
+              </Text>
+            ) : null}
+          </View>
+        ) : null}
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
           <TouchableOpacity

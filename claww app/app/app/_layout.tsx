@@ -4,15 +4,32 @@ import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
+import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 import { AppStateProvider } from '../lib/appState';
 import { WorkoutSessionProvider } from '../lib/workoutSession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
+import { notificationsSupported, type ReminderType } from '../lib/notifications';
 import { SplashIntro } from '../components/SplashIntro';
 
+// SHIP PHASE 8.3 — where a tapped reminder actually takes the user. Kept
+// next to the notification scheduling itself only because both files agree
+// on the same `data.type` contract; nothing about routing belongs in
+// lib/notifications.ts.
+const REMINDER_ROUTES: Record<ReminderType, string> = {
+  workout: '/(tabs)/workouts',
+  meal: '/meal-log',
+  sleep: '/(tabs)',
+};
+
 SplashScreen.preventAutoHideAsync().catch(() => {});
+// Required by expo-web-browser for signInWithGoogle's openAuthSessionAsync
+// to resolve correctly when the auth session closes/redirects (matters most
+// on web, where it dismisses the popup) — must run once at module scope.
+WebBrowser.maybeCompleteAuthSession();
 
 type AuthState = 'loading' | 'auth' | 'onboarding' | 'app';
 
@@ -47,6 +64,16 @@ export default function RootLayout() {
 
     return () => subscription.unsubscribe();
   }, [resolveSession]);
+
+  useEffect(() => {
+    if (!notificationsSupported) return;
+    const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      const type = response.notification.request.content.data?.type as ReminderType | undefined;
+      const route = type ? REMINDER_ROUTES[type] : undefined;
+      if (route) router.push(route as never);
+    });
+    return () => subscription.remove();
+  }, [router]);
 
   useEffect(() => {
     if (authState === 'auth') {

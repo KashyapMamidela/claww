@@ -70,7 +70,7 @@ export default function MoreTab() {
     },
     {
       title: 'PERSONALISE',
-      rows: [{ icon: 'settings', color: '#A1A1AA', label: 'Settings', sub: "Today's generation usage & sign out", onPress: openSettings }],
+      rows: [{ icon: 'settings', color: '#A1A1AA', label: 'Settings', sub: 'Reminders, generation usage & sign out', onPress: openSettings }],
     },
     {
       title: 'SUPPORT',

@@ -45,7 +45,9 @@
           "photosPermission": "CLAWW uses your photo library to estimate a meal's nutrition from a picture you already have.",
           "cameraPermission": "CLAWW uses your camera to estimate a meal's nutrition from a photo."
         }
-      ]
+      ],
+      "expo-web-browser",
+      "expo-notifications"
     ]
   }
 }
