@@ -1,19 +1,27 @@
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Ordered fallback chains, not a single hardcoded model. llama-3.3-70b-versatile
-// was deprecated and removed by Groq (June 2026); openai/gpt-oss-120b was its
-// replacement but has previously returned 403 model_permission_blocked_org for
-// this org until enabled at console.groq.com/settings/limits. A single-model
-// setup meant that block took down 100% of generation with no recourse — this
-// chain exists so a blocked/decommissioned/rate-limited primary degrades to a
-// working model instead of straight to DEFAULT_PLAN.
+// Ordered fallback chains, not a single hardcoded model. A single-model setup
+// meant a block/deprecation on that one model took down 100% of generation
+// with no recourse — this chain exists so a blocked/decommissioned/
+// rate-limited primary degrades to a working model instead of straight to
+// DEFAULT_PLAN.
 //
-// SHIP PHASE 6.1: verify every model below is (a) still in Groq's catalog and
-// (b) enabled for this org before trusting this list — don't assume it from
-// this comment. `npx supabase functions deploy health-check` + a call to it
-// checks all of them in one shot (see the health-check function).
-const GROQ_TEXT_MODELS = ['openai/gpt-oss-120b', 'llama-3.3-70b-versatile', 'llama-3.1-8b-instant'] as const;
-const GROQ_VISION_MODELS = ['qwen/qwen3.6-27b', 'llama-3.2-90b-vision-preview'] as const;
+// SHIP PHASE 6.1 (verified 2026-09-19 via GET /openai/v1/models against the
+// live GROQ_API_KEY, then confirmed live via health-check): both text models
+// below exist and are active for this org. openai/gpt-oss-20b is the same
+// OSS family as the primary (tools, json_mode, structured_outputs) — a real
+// second option, not a downgrade guess.
+//
+// Vision has only ONE image-capable model on this account: qwen/qwen3.8-27b.
+// qwen/qwen3.6-27b (previously configured) and llama-3.2-90b-vision-preview
+// (decommissioned by Groq) do not exist for this org — confirmed absent from
+// the live /models listing, not just a 404 fluke. There is currently no real
+// second vision model to fall back to; callGroqVisionJSON's caller must
+// handle a total vision-chain failure as a real failure (surfaced via
+// generation_failures, SHIP PHASE 6.3), not assume a fallback exists.
+// Re-run the /models check periodically — Groq's vision lineup moves fast.
+const GROQ_TEXT_MODELS = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'] as const;
+const GROQ_VISION_MODELS = ['qwen/qwen3.8-27b'] as const;
 
 export interface GroqMessage {
   role: 'system' | 'user' | 'assistant';

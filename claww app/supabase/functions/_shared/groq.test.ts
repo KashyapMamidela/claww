@@ -43,16 +43,15 @@ describe('callGroqJSON fallback chain', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
-  it('retries past a rate-limited model and a not-found model to reach a working one', async () => {
+  it('retries past a rate-limited primary to reach the backup model', async () => {
     fetchMock
       .mockResolvedValueOnce(errorResponse(429, 'rate limited'))
-      .mockResolvedValueOnce(errorResponse(404, 'model not found'))
       .mockResolvedValueOnce(jsonResponse({ choices: [{ message: { content: '{"days":[]}' } }] }));
 
     const result = await callGroqJSON([{ role: 'user', content: 'hi' }]);
 
-    expect(result.model).toBe(GROQ_MODEL_CHAINS.text[2]);
-    expect(fetchMock).toHaveBeenCalledTimes(3);
+    expect(result.model).toBe(GROQ_MODEL_CHAINS.text[1]);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it('throws the last error when every model in the chain is blocked, not the first', async () => {
