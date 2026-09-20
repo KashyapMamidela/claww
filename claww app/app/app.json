@@ -50,8 +50,14 @@
       ],
       "expo-web-browser",
       "expo-notifications",
-      "expo-sensors",
-      "@sentry/react-native"
-    ]
+      "expo-sensors"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4b42d004-63a9-487e-bc2d-00ffc1354f09"
+      }
+    },
+    "owner": "kashyapmamidela"
   }
 }

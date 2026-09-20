@@ -5,6 +5,15 @@ import Constants from 'expo-constants';
 // EXPO_PUBLIC_SENTRY_DSN is set (empty string in .env until the user
 // creates a Sentry project and supplies the DSN), so this is safe to ship
 // even before that happens — Sentry.* calls elsewhere become harmless.
+//
+// NOTE: "@sentry/react-native" is deliberately NOT in app.json's plugins
+// array right now. That native config plugin patches android/app/build.gradle
+// to apply Sentry's Gradle script, which (a) fails the release build with
+// "An organization ID or slug is required" since no org/project is
+// configured yet, and (b) its bundled JS ships private-class-field syntax
+// that broke Hermes compilation in the same build. Neither matters without
+// a real DSN anyway — re-add the plugin (with organization/project set)
+// once Sentry is actually configured, then re-verify a production build.
 const dsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
 export const sentryEnabled = Boolean(dsn);
