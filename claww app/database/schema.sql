@@ -31,6 +31,12 @@ CREATE TABLE IF NOT EXISTS profiles (
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS gender TEXT CHECK (gender IN ('male', 'female', 'other'));
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS personalization_profile JSONB;
 
+-- SHIP PHASE 7.4 — records when the user explicitly acknowledged the medical
+-- disclaimer at the end of onboarding (screens/onboarding/reveal.tsx). A real
+-- timestamp, not a boolean, so "when" is auditable and re-prompting after a
+-- wording change is possible later without a schema change.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS medical_disclaimer_acknowledged_at TIMESTAMPTZ;
+
 -- profiles.id should always match a real auth.users.id (1:1 with Supabase
 -- Auth), so tie it down with a proper FK instead of a bare UUID PK.
 DO $$

@@ -10,7 +10,13 @@ import { Icon } from '../../../components/ui/Icon';
 const ACCENT = COLORS.blue;
 const ACCENT_DEEP = COLORS.blueDeep;
 
-const TRUST_SIGNALS = ['100% Personalized', 'Privacy-First', 'Science-Backed'];
+// "Science-Backed" was dropped as a blanket trust badge (SHIP PHASE 7.4):
+// defensible for the deterministic rep-range/volume tables, not for the
+// injury filter (a documented best-effort heuristic, see SHIP PHASE 10.1) or
+// photo calorie estimates. "Adapts To You" is real and live-verified —
+// SHIP PHASE 1.5's adaptive loop actually feeds logged performance back into
+// the next generated plan.
+const TRUST_SIGNALS = ['100% Personalized', 'Privacy-First', 'Adapts To You'];
 
 export default function WelcomeScreen() {
   const router = useRouter();
@@ -101,11 +107,11 @@ export default function WelcomeScreen() {
           </Animated.View>
 
           <Animated.View style={{ opacity: subOpacity, transform: [{ translateY: subTranslateY }] }}>
-            <Text style={styles.subheading}>Your AI-Powered Fitness Coach</Text>
+            <Text style={styles.subheading}>Your Personalized Fitness Coach</Text>
           </Animated.View>
 
           <Animated.View style={{ opacity: bodyOpacity, transform: [{ translateY: bodyTranslateY }] }}>
-            <Text style={styles.bodyText}>Personalized workouts, nutrition, and AI coaching tailored to YOUR goals.</Text>
+            <Text style={styles.bodyText}>Personalized workouts and nutrition, adapted to what you actually do.</Text>
           </Animated.View>
 
           <Animated.View style={[styles.trustSignalsRow, { opacity: trustOpacity, transform: [{ translateY: trustTranslateY }] }]}>

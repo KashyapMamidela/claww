@@ -20,6 +20,7 @@ import {
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
+import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
 
 const P = COLORS.amber;
 
@@ -47,6 +48,7 @@ export default function ProfileScreen() {
   const [volume, setVolume] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [disclaimerModalVisible, setDisclaimerModalVisible] = useState(false);
 
   // xp/streak come from AppState (live — see appState.tsx).
   useFocusEffect(
@@ -247,6 +249,25 @@ export default function ProfileScreen() {
           ))}
           <TouchableOpacity
             activeOpacity={0.8}
+            onPress={() => setDisclaimerModalVisible(true)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              paddingHorizontal: 16,
+              paddingVertical: 13,
+              gap: 12,
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(255,255,255,0.08)',
+            }}
+          >
+            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="alert-triangle" size={16} color="#A1A1AA" />
+            </View>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Medical Disclaimer</Text>
+            <Icon name="chevron-right" size={15} color="#71717A" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.8}
             onPress={signOut}
             style={{
               flexDirection: 'row',
@@ -284,6 +305,7 @@ export default function ProfileScreen() {
         </View>
       </View>
       <DeleteAccountModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)} />
+      <MedicalDisclaimerModal visible={disclaimerModalVisible} onClose={() => setDisclaimerModalVisible(false)} />
     </ScrollView>
   );
 }

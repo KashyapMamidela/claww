@@ -45,7 +45,7 @@ function AiCard({ children }: { children: React.ReactNode }) {
         >
           <Icon name="sparkles" size={14} color={COLORS.purple} />
         </View>
-        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW AI</Text>
+        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 12.5, lineHeight: 19, fontFamily: FONT }}>{children}</Text>
     </View>

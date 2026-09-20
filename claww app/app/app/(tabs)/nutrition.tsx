@@ -297,7 +297,7 @@ export default function NutritionTab() {
         </View>
 
         <Button variant="secondary" accent={COLORS.purple} fullWidth icon={<Icon name="sparkles" size={16} color={COLORS.purple} />}>
-          AI Suggest
+          Suggest a Meal
         </Button>
       </View>
     </ScrollView>

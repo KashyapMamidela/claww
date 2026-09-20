@@ -163,7 +163,7 @@ function TrackerLocked({ workoutsCompleted }: { workoutsCompleted: number }) {
           paddingVertical: 12,
         }}
       >
-        <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>CLAWW AI · VOLUME ANALYSIS</Text>
+        <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>CLAWW INSIGHT · VOLUME ANALYSIS</Text>
         <Text style={{ color: GR, fontSize: 13, fontWeight: '600', marginTop: 8, lineHeight: 19, fontFamily: FONT }}>
           Still collecting data — a volume trend read appears after your first 3 workouts.
         </Text>

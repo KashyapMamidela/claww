@@ -34,8 +34,8 @@ export default function WorkoutSetupBasics() {
             Height & weight?
           </Text>
           <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 19, fontFamily: FONT }}>
-            A few details so CLAWW can build a plan that actually fits you — this feeds the AI directly, and only exercises from our
-            catalog are ever used.
+            A few details so CLAWW can build a plan that actually fits you — this feeds generation directly, and only exercises
+            from our catalog are ever used.
           </Text>
 
           <View style={{ flexDirection: 'row', gap: 10 }}>

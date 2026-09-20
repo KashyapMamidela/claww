@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, Text, View } from 'react-native';
+import { Animated, Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, FONT } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
+import { Icon } from '../../../components/ui/Icon';
 import { supabase } from '../../../lib/supabase';
 import { useAppState } from '../../../lib/appState';
+import { MEDICAL_DISCLAIMER_ACK_LABEL, MEDICAL_DISCLAIMER_BODY } from '../../../lib/medicalDisclaimer';
 
 const GENDER_ACCENTS: Record<string, string> = {
   male: '#3B82F6',
@@ -19,6 +21,7 @@ export default function OnboardingReveal() {
   const { name, age, gender } = useLocalSearchParams<{ name: string; age: string; gender: string }>();
   const { setUserName } = useAppState();
   const [saving, setSaving] = useState(false);
+  const [disclaimerAcked, setDisclaimerAcked] = useState(false);
 
   const accent = GENDER_ACCENTS[gender ?? ''] ?? COLORS.blue;
   const tileScale = useRef(new Animated.Value(0.6)).current;
@@ -28,7 +31,7 @@ export default function OnboardingReveal() {
   }, []);
 
   const handleEnter = async () => {
-    if (saving) return;
+    if (saving || !disclaimerAcked) return;
     setSaving(true);
 
     setUserName((name ?? '').trim());
@@ -54,6 +57,7 @@ export default function OnboardingReveal() {
             age: age ? Number(age) : null,
             gender: gender ?? null,
             personalization_profile: personalizationProfile,
+            medical_disclaimer_acknowledged_at: new Date().toISOString(),
           })
           .eq('id', user.id);
         if (error) console.warn('[Claww] Failed to save onboarding profile:', error.message);
@@ -125,7 +129,54 @@ export default function OnboardingReveal() {
           {genderLabel ? ` — ${genderLabel.toLowerCase()}` : ''}. Ready to start?
         </Text>
 
-        <Button variant="primary" accent={accent} accentDeep={accent} size="lg" fullWidth onPress={handleEnter} disabled={saving}>
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: '#151517',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderRadius: 14,
+            padding: 14,
+            marginBottom: 18,
+          }}
+        >
+          <Text style={{ color: '#A1A1AA', fontSize: 11.5, lineHeight: 17, fontFamily: FONT, marginBottom: 12 }}>
+            {MEDICAL_DISCLAIMER_BODY}
+          </Text>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setDisclaimerAcked((v) => !v)}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+          >
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: 6,
+                borderWidth: 1.5,
+                borderColor: disclaimerAcked ? accent : 'rgba(255,255,255,0.25)',
+                backgroundColor: disclaimerAcked ? accent : 'transparent',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {disclaimerAcked ? <Icon name="check" size={13} color="#fff" strokeWidth={3} /> : null}
+            </View>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>
+              {MEDICAL_DISCLAIMER_ACK_LABEL}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <Button
+          variant="primary"
+          accent={accent}
+          accentDeep={accent}
+          size="lg"
+          fullWidth
+          onPress={handleEnter}
+          disabled={saving || !disclaimerAcked}
+        >
           ENTER CLAWW 🦅
         </Button>
       </View>

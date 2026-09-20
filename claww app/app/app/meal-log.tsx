@@ -250,8 +250,8 @@ export default function MealLogScreen() {
         )}
         <Text style={{ color: '#52525B', fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
           {photo
-            ? 'CLAWW AI will read this photo and estimate calories and macros.'
-            : 'Portion size, brand, or a rough guess all work — CLAWW AI fills in the rest.'}
+            ? 'CLAWW will read this photo and estimate calories and macros.'
+            : 'Portion size, brand, or a rough guess all work — CLAWW fills in the rest.'}
         </Text>
 
         <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginTop: 22, marginBottom: 10, fontFamily: FONT }}>

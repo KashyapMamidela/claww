@@ -60,7 +60,7 @@ export default function NutritionSetupDietary() {
           Dietary restrictions?
         </Text>
         <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 26, lineHeight: 19, fontFamily: FONT }}>
-          Optional — we'll steer meal suggestions and AI estimates away from anything that conflicts with these.
+          Optional — we'll steer meal suggestions and estimates away from anything that conflicts with these.
         </Text>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
