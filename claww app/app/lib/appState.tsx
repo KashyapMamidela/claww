@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabase';
 import {
+  estimateMeal,
+  estimateMealFromPhoto,
   getActivityStreak,
   getLatestWorkout,
   getProfile,
@@ -8,13 +10,16 @@ import {
   getTodaysMealLogs,
   getUserXp,
   insertSleepLog,
-  logMeal,
-  logMealFromPhoto,
+  saveMeal,
+  type EstimatedMeal,
+  type EstimateResult,
   type MealLogRow,
   type MealType,
   type PortionSize,
   type RecoveryResult,
 } from './data';
+
+export type { EstimatedMeal, EstimateResult } from './data';
 
 export type { MealLogRow, MealType, RecoveryResult } from './data';
 export { MEAL_ORDER } from './data';
@@ -46,8 +51,11 @@ interface AppState {
   recovery: RecoveryResult | null;
   logSleep: (hours: number, bedtime: Date, wakeTime: Date) => Promise<void>;
   meals: MealLogRow[];
-  addMeal: (type: MealType, text: string, portion?: PortionSize) => Promise<boolean>;
-  addMealFromPhoto: (type: MealType, imageDataUri: string, portion?: PortionSize) => Promise<{ ok: boolean; reason?: string }>;
+  /** Dry-run estimate only — does not save. Caller shows this for review/edit, then calls saveMeal. */
+  estimateMealText: (type: MealType, text: string, portion?: PortionSize) => Promise<EstimateResult>;
+  estimateMealPhoto: (type: MealType, imageDataUri: string, portion?: PortionSize) => Promise<EstimateResult>;
+  /** Persists a reviewed (possibly edited) estimate — the only step that actually writes to meal_logs. */
+  saveMeal: (type: MealType, meal: EstimatedMeal) => Promise<MealLogRow | null>;
   xp: number;
   bumpXp: (amount: number) => void;
   streak: number;
@@ -141,32 +149,26 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     [userId, bumpXp]
   );
 
-  const addMeal = useCallback(
-    async (type: MealType, text: string, portion: PortionSize = 'regular') => {
-      if (!userId) return false;
-      const inserted = await logMeal(userId, type, text, portion);
-      if (inserted) {
-        setMeals((m) => [...m, inserted]);
-        bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in logMeal
-        getActivityStreak(userId).then(setStreak);
-        return true;
-      }
-      return false;
-    },
-    [userId, bumpXp]
+  const estimateMealText = useCallback(
+    async (type: MealType, text: string, portion: PortionSize = 'regular') => estimateMeal(type, text, portion),
+    []
   );
 
-  const addMealFromPhoto = useCallback(
-    async (type: MealType, imageDataUri: string, portion: PortionSize = 'regular') => {
-      if (!userId) return { ok: false, reason: 'Not signed in.' };
-      const result = await logMealFromPhoto(userId, type, imageDataUri, portion);
-      if (result.ok && result.meal) {
-        setMeals((m) => [...m, result.meal!]);
-        bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in logMealFromPhoto
+  const estimateMealPhoto = useCallback(
+    async (type: MealType, imageDataUri: string, portion: PortionSize = 'regular') => estimateMealFromPhoto(type, imageDataUri, portion),
+    []
+  );
+
+  const saveMealAndUpdateState = useCallback(
+    async (type: MealType, meal: EstimatedMeal) => {
+      if (!userId) return null;
+      const inserted = await saveMeal(userId, type, meal);
+      if (inserted) {
+        setMeals((m) => [...m, inserted]);
+        bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in saveMeal
         getActivityStreak(userId).then(setStreak);
-        return { ok: true };
       }
-      return { ok: false, reason: result.reason };
+      return inserted;
     },
     [userId, bumpXp]
   );
@@ -183,13 +185,29 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       recovery,
       logSleep,
       meals,
-      addMeal,
-      addMealFromPhoto,
+      estimateMealText,
+      estimateMealPhoto,
+      saveMeal: saveMealAndUpdateState,
       xp,
       bumpXp,
       streak,
     }),
-    [userId, userName, loading, hasPlan, sleepLogged, recovery, meals, logSleep, addMeal, addMealFromPhoto, xp, bumpXp, streak]
+    [
+      userId,
+      userName,
+      loading,
+      hasPlan,
+      sleepLogged,
+      recovery,
+      meals,
+      logSleep,
+      estimateMealText,
+      estimateMealPhoto,
+      saveMealAndUpdateState,
+      xp,
+      bumpXp,
+      streak,
+    ]
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

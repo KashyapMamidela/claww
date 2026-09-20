@@ -5,7 +5,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
-import { useAppState, type MealType } from '../lib/appState';
+import { useAppState, type EstimatedMeal, type MealLogRow, type MealType } from '../lib/appState';
 import { getProfile, type DietaryRestriction, type PortionSize } from '../lib/data';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
@@ -61,13 +61,22 @@ export default function MealLogScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { mealType } = useLocalSearchParams<{ mealType: string }>();
-  const { userId, addMeal, addMealFromPhoto } = useAppState();
+  const { userId, estimateMealText, estimateMealPhoto, saveMeal } = useAppState();
   const [text, setText] = useState('');
   const [portion, setPortion] = useState<PortionSize>('regular');
   const [photo, setPhoto] = useState<{ uri: string; base64: string; mimeType: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<DietaryRestriction[]>([]);
+
+  // SHIP PHASE 8 follow-up — review-before-save. `reviewing` holds the raw
+  // estimate + editable string fields (numeric TextInputs need a string,
+  // not a number, to let a user clear a field while typing) until they
+  // confirm; `logged` holds the actually-saved row, shown as a real
+  // confirmation instead of a silent router.back().
+  const [reviewing, setReviewing] = useState<EstimatedMeal | null>(null);
+  const [reviewFields, setReviewFields] = useState({ calories: '', protein_g: '', carbs_g: '', fats_g: '' });
+  const [logged, setLogged] = useState<MealLogRow | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -108,28 +117,195 @@ export default function MealLogScreen() {
     setText('');
   };
 
-  const handleSubmit = async () => {
+  // Step 1: estimate only — never saves. Populates the review step below so
+  // a bad guess can be corrected before it's ever written to meal_logs.
+  const handleEstimate = async () => {
     if (!canSubmit) return;
     setSaving(true);
     setError(null);
 
-    if (photo) {
-      const result = await addMealFromPhoto((mealType as MealType) ?? 'Snack', `data:${photo.mimeType};base64,${photo.base64}`, portion);
-      setSaving(false);
-      if (!result.ok) {
-        setError(result.reason ?? "Couldn't estimate that photo — try a clearer shot, or describe the meal in words instead.");
-        return;
-      }
-    } else {
-      const ok = await addMeal((mealType as MealType) ?? 'Snack', text.trim(), portion);
-      setSaving(false);
-      if (!ok) {
-        setError("Couldn't log that meal — check your connection and try again.");
-        return;
-      }
+    const result = photo
+      ? await estimateMealPhoto((mealType as MealType) ?? 'Snack', `data:${photo.mimeType};base64,${photo.base64}`, portion)
+      : await estimateMealText((mealType as MealType) ?? 'Snack', text.trim(), portion);
+
+    setSaving(false);
+    if (!result.ok || !result.meal) {
+      setError(result.reason ?? "Couldn't estimate that meal — check your connection and try again.");
+      return;
     }
-    router.back();
+    setReviewing(result.meal);
+    setReviewFields({
+      calories: String(Math.round(result.meal.calories)),
+      protein_g: String(Math.round(result.meal.protein_g)),
+      carbs_g: String(Math.round(result.meal.carbs_g)),
+      fats_g: String(Math.round(result.meal.fats_g)),
+    });
   };
+
+  // Step 2: user reviewed (and maybe edited) the estimate — this is the only
+  // place that actually saves. An empty/invalid field falls back to the
+  // original estimate for that field rather than saving a garbage 0.
+  const handleConfirmLog = async () => {
+    if (!reviewing || saving) return;
+    setSaving(true);
+    setError(null);
+
+    const parsed = (value: string, fallback: number) => {
+      const n = Number(value);
+      return Number.isFinite(n) && value.trim() !== '' ? n : fallback;
+    };
+    const finalMeal: EstimatedMeal = {
+      description: reviewing.description,
+      calories: parsed(reviewFields.calories, reviewing.calories),
+      protein_g: parsed(reviewFields.protein_g, reviewing.protein_g),
+      carbs_g: parsed(reviewFields.carbs_g, reviewing.carbs_g),
+      fats_g: parsed(reviewFields.fats_g, reviewing.fats_g),
+    };
+
+    const inserted = await saveMeal((mealType as MealType) ?? 'Snack', finalMeal);
+    setSaving(false);
+    if (!inserted) {
+      setError("Couldn't log that meal — check your connection and try again.");
+      return;
+    }
+    setLogged(inserted);
+  };
+
+  const handleEditEstimate = () => {
+    setReviewing(null);
+    setError(null);
+  };
+
+  // Post-log confirmation — shows exactly what was saved, real numbers from
+  // the inserted row, not the pre-edit estimate. Replaces the old silent
+  // router.back() with something a user can actually verify against what
+  // they just confirmed.
+  if (logged) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#050505', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 }}>
+        <View
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 18,
+            backgroundColor: G.border,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 20,
+          }}
+        >
+          <Icon name="check-circle-2" size={30} color={G.bright} />
+        </View>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '900', marginBottom: 6, fontFamily: FONT, textAlign: 'center' }}>
+          Logged: {logged.description}
+        </Text>
+        <Text style={{ color: '#71717A', fontSize: 12.5, marginBottom: 24, fontFamily: FONT }}>{logged.meal_type ?? mealType}</Text>
+
+        <View style={{ flexDirection: 'row', gap: 10, width: '100%', marginBottom: 28 }}>
+          {[
+            { label: 'Calories', value: Math.round(logged.calories ?? 0) },
+            { label: 'Protein', value: `${Math.round(logged.protein_g ?? 0)}g` },
+            { label: 'Carbs', value: `${Math.round(logged.carbs_g ?? 0)}g` },
+            { label: 'Fats', value: `${Math.round(logged.fats_g ?? 0)}g` },
+          ].map((s) => (
+            <View
+              key={s.label}
+              style={{
+                flex: 1,
+                backgroundColor: '#151517',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.08)',
+                borderRadius: 14,
+                paddingVertical: 12,
+                alignItems: 'center',
+              }}
+            >
+              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
+              <Text style={{ color: '#71717A', fontSize: 9.5, marginTop: 2, fontFamily: FONT }}>{s.label}</Text>
+            </View>
+          ))}
+        </View>
+
+        <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth onPress={() => router.back()}>
+          Done
+        </Button>
+      </View>
+    );
+  }
+
+  // Review-before-save — the estimate is never written to meal_logs until
+  // the user confirms here, matching the workout confirm-before-log pattern.
+  // Macro fields are editable; the description carries over as-is.
+  if (reviewing) {
+    const field = (key: keyof typeof reviewFields, label: string, suffix: string) => (
+      <View style={{ flex: 1 }}>
+        <Text style={{ color: '#71717A', fontSize: 10.5, marginBottom: 6, fontFamily: FONT }}>{label}</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: '#151517',
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.12)',
+            borderRadius: 12,
+            paddingHorizontal: 12,
+          }}
+        >
+          <TextInput
+            value={reviewFields[key]}
+            onChangeText={(v) => setReviewFields((f) => ({ ...f, [key]: v.replace(/[^0-9]/g, '') }))}
+            keyboardType="number-pad"
+            style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '700', fontFamily: FONT, paddingVertical: 12 }}
+          />
+          <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{suffix}</Text>
+        </View>
+      </View>
+    );
+
+    return (
+      <View style={{ flex: 1, backgroundColor: '#050505' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: insets.top + 26, paddingHorizontal: 20, paddingBottom: 4 }}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={handleEditEstimate}
+            style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Icon name="chevron-left" size={16} color="#A1A1AA" />
+          </TouchableOpacity>
+          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Review estimate</Text>
+        </View>
+
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
+          <Text style={{ color: '#71717A', fontSize: 12, marginBottom: 4, fontFamily: FONT }}>Does this look right? Adjust anything before logging it.</Text>
+          <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginBottom: 20, fontFamily: FONT }}>{reviewing.description}</Text>
+
+          <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
+            {field('calories', 'Calories', 'kcal')}
+            {field('protein_g', 'Protein', 'g')}
+          </View>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {field('carbs_g', 'Carbs', 'g')}
+            {field('fats_g', 'Fats', 'g')}
+          </View>
+
+          {error ? (
+            <View style={{ marginTop: 16 }}>
+              <ErrorCard message={error} onRetry={handleConfirmLog} retrying={saving} />
+            </View>
+          ) : null}
+
+          <View style={{ marginTop: 24, gap: 10 }}>
+            <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth disabled={saving} onPress={handleConfirmLog}>
+              {saving ? 'Logging…' : 'Looks good, log it'}
+            </Button>
+            <Button variant="ghost" size="md" fullWidth onPress={handleEditEstimate} disabled={saving}>
+              Edit meal instead
+            </Button>
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
@@ -288,7 +464,7 @@ export default function MealLogScreen() {
 
         {error ? (
           <View style={{ marginTop: 16 }}>
-            <ErrorCard message={error} onRetry={canSubmit ? handleSubmit : undefined} retrying={saving} />
+            <ErrorCard message={error} onRetry={canSubmit ? handleEstimate : undefined} retrying={saving} />
           </View>
         ) : null}
 
@@ -300,10 +476,10 @@ export default function MealLogScreen() {
             size="lg"
             fullWidth
             disabled={!canSubmit}
-            onPress={handleSubmit}
+            onPress={handleEstimate}
             icon={<Icon name="sparkles" size={17} color="#fff" />}
           >
-            {saving ? 'Logging…' : photo ? 'Estimate & Log from Photo' : 'Log This Meal'}
+            {saving ? 'Estimating…' : photo ? 'Estimate from Photo' : 'Estimate Meal'}
           </Button>
         </View>
 

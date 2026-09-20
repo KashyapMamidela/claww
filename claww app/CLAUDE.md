@@ -86,6 +86,44 @@ labels in the UI (Tracker's "CLAWW AI · Volume Analysis" among them) — which 
   - [x] 8.3 Notifications — installed `expo-notifications` + `expo-web-browser` via `npx expo install` (SDK-54-compatible versions), added the `expo-notifications` config plugin to `app.json`. Three **local, scheduled** daily reminders (`lib/notifications.ts`): workout (18:00), meal (13:00), sleep (22:00) — not server-triggered push, since there's no backend to trigger one; that distinction is documented in-code and was flagged to the user up front. Permission requested contextually via a real soft-ask card (`NotificationPromptCard.tsx`) shown exactly once, after a user's first completed workout (`workout-complete.tsx`) — gated by a new `profiles.notification_prompt_shown_at` timestamp, never on cold start. Tapping a reminder deep-links to the relevant tab via a response listener in `_layout.tsx`. Re-toggleable anytime from the new Settings switch, which calls the real permission/schedule/cancel path, not a fake preference. New `profiles.notifications_enabled` + `notification_prompt_shown_at` columns, schema applied live and confirmed via `information_schema`. Android 13+ `POST_NOTIFICATIONS` is handled by the config plugin, not custom code. Typecheck clean, all 27 tests pass; web build confirmed clean (native modules resolve fine there, scheduling itself is a documented no-op on web via `notificationsSupported`)
   - [x] 8.4 Password reset + Google OAuth finished (not removed) — `resetPasswordForEmail`/`updatePassword` in `lib/auth.ts`, a new "Forgot password?" link on sign-in and `screens/auth/forgot-password.tsx` + `reset-password.tsx`. The reset email deep-links to `claww://screens/auth/reset-password` (path matched exactly to the real route so expo-router auto-navigates); since Supabase puts the recovery tokens in the URL *fragment*, which expo-router's params never see, that screen reads the raw incoming URL itself (`Linking.getInitialURL` + a `url` event listener) and establishes the session before showing the new-password form. Google: `signInWithGoogle` rewritten to actually work — `expo-web-browser`'s `openAuthSessionAsync` opens the real Supabase authorize URL and waits for the `claww://` redirect, then exchanges the returned tokens via `setSession`. **The app-side code needs no Google credentials at all** — those live only in the Supabase dashboard's provider config, which the user will add in a later pass; until then the button correctly reaches Supabase and fails only because the provider isn't enabled yet, not because of a code defect. Live-verified: forgot-password flow completes for real (Supabase accepted the request, no error), and the Google button was confirmed reaching Supabase's real OAuth URL (a simulated click's popup was browser-blocked, which is expected for a non-user-gesture click, not an app bug) — a `try/catch` was added around the browser-session call so a blocked/failed popup resolves as a normal error instead of an unhandled rejection. Typecheck clean, all 27 tests pass
   - [x] 8.5 Version string from `expo-constants` — `about.tsx` and `more.tsx`'s footer both read `Constants.expoConfig?.version` (real: `1.0.0`) instead of the hardcoded `Version 3.4.1 · Build 20240414` that had drifted from `app.json`. Build number shown only when `ios.buildNumber`/`android.versionCode` is actually set (neither is yet — SHIP PHASE 9.4's EAS `autoIncrement` will populate one), never guessed. Live-verified: About screen and More's footer both show `Version 1.0.0` / `v1.0.0`
+## Post-Phase-8 user bug report (2026-09-20)
+
+User audited the app directly and reported 7 issues predating this ship roadmap's start. Checked
+each against the real code before touching anything:
+
+- [ ] 1. No day-of-week picker for workout splits — onboarding only asks a days-per-week count,
+  never which weekdays. The app has no model of specific training weekdays at all. **Not fixed,
+  not started** — real feature work (new onboarding step + schema + generation logic).
+- [ ] 2. "Wrong /4 sets display, 1/4 missed" — read `LiveWorkoutPlayer.tsx` and
+  `workoutSession.tsx` closely; the set-counting state machine looks correct. One real
+  candidate cause found: the header always shows the *upcoming* set number, never a "N/4 done"
+  confirmation, which could read as a skip. **Needs a screenshot/repro to pin down precisely —
+  not fixed.**
+- [ ] 3. No exercise description/how-to/alternates/target-muscle — **not built**; this is
+  SHIP PHASE 11.2 ("Form guidance"), explicitly deferred post-launch in the roadmap.
+- [x] 4. "AI Suggest" was a genuinely dead button (`nutrition.tsx`, no `onPress` at all — missed
+  by SHIP PHASE 8.1's audit since that phase was scoped only to `more.tsx`/`profile.tsx`). Now
+  wired to the same real destination as "Add {nextMeal}": `meal-log.tsx` for the next unlogged
+  meal, disabled with "All Meals Logged Today ✓" when nothing's left — not a fake action. A full
+  generated diet plan (meal-by-meal, like the workout plan) still doesn't exist — only
+  deterministic macro *targets* — and is out of scope for this fix.
+- [x] 5. & [x] 6. Meal logging had no review step and no post-log confirmation — real gaps, now
+  fixed together as one refactor. `parse-meal`/`parse-meal-photo` Edge Functions no longer write
+  to `meal_logs` themselves — they only estimate now. `lib/data.ts` split into
+  `estimateMeal`/`estimateMealFromPhoto` (dry-run, no save) and `saveMeal` (the only thing that
+  writes, RLS-scoped straight from the client). `meal-log.tsx` now has a real review screen
+  between estimate and save — editable calorie/protein/carb/fat fields, defaulting to the
+  estimate — and a post-log confirmation screen showing the actual saved row (not the pre-edit
+  estimate), mirroring the workout confirm-before-log pattern that already existed for sets.
+  Live-verified end-to-end with a throwaway account: edited calories from 455→500 on the review
+  screen, confirmed the saved row and the Nutrition tab both showed 500 (not 455), and the
+  Meal Timeline reflected it correctly. Both Edge Functions redeployed. Typecheck clean, all 27
+  tests pass.
+- [x] 7. "More/Profile page clicks" — this was SHIP PHASE 8.1, already fixed and live-verified
+  before this report; re-confirmed still holds.
+
+Items 1–3 remain open; sequencing them is the user's call.
+
 - [ ] SHIP PHASE 9 — Observability, CI, release engineering
   - [ ] 9.1 Sentry (app + Edge Functions), PII scrubbed, release-tagged
   - [ ] 9.2 PostHog on the core loop, including real-vs-fallback generation (joins with 6.3)

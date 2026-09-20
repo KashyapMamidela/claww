@@ -296,8 +296,15 @@ export default function NutritionTab() {
           )}
         </View>
 
-        <Button variant="secondary" accent={COLORS.purple} fullWidth icon={<Icon name="sparkles" size={16} color={COLORS.purple} />}>
-          Suggest a Meal
+        <Button
+          variant="secondary"
+          accent={COLORS.purple}
+          fullWidth
+          icon={<Icon name="sparkles" size={16} color={COLORS.purple} />}
+          disabled={!nextMeal}
+          onPress={() => nextMeal && router.push({ pathname: '/meal-log', params: { mealType: nextMeal } })}
+        >
+          {nextMeal ? `Suggest ${nextMeal}` : 'All Meals Logged Today ✓'}
         </Button>
       </View>
     </ScrollView>

@@ -89,26 +89,19 @@ Deno.serve(async (req: Request) => {
 
     const multiplier = PORTION_MULTIPLIERS[body.portion];
 
-    const { data: inserted, error: insertError } = await supabase
-      .from('meal_logs')
-      .insert({
-        user_id: user.id,
+    // Estimate-only — does NOT write to meal_logs. The client shows this for
+    // review/edit before saving (see app/lib/data.ts's saveMeal) — same
+    // confirm-before-log pattern as workout sets, now applied to meals too.
+    return new Response(
+      JSON.stringify({
         description: meal.description,
         calories: Math.round(meal.calories * multiplier),
         protein_g: Math.round(meal.protein_g * multiplier),
         carbs_g: Math.round(meal.carbs_g * multiplier),
         fats_g: Math.round(meal.fats_g * multiplier),
-        estimated: true,
-        meal_type: body.mealType ?? null,
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      throw new Error(`Failed to save meal log: ${insertError.message}`);
-    }
-
-    return new Response(JSON.stringify(inserted), { headers: jsonHeaders });
+      }),
+      { headers: jsonHeaders }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return new Response(JSON.stringify({ error: 'Invalid request', details: error.flatten() }), {

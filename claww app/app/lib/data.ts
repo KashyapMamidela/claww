@@ -294,23 +294,32 @@ export type PortionSize = 'small' | 'regular' | 'large';
 // back to the flat per-meal-type estimate below).
 const PORTION_MULTIPLIERS: Record<PortionSize, number> = { small: 0.7, regular: 1, large: 1.4 };
 
+export interface EstimatedMeal {
+  description: string;
+  calories: number;
+  protein_g: number;
+  carbs_g: number;
+  fats_g: number;
+}
+
+export interface EstimateResult {
+  ok: boolean;
+  meal?: EstimatedMeal;
+  reason?: string;
+}
+
 /**
- * Tries the parse-meal Edge Function for an AI macro estimate first; if it's
- * not deployed yet (or errors for any reason), falls back to a rough
- * per-meal-type estimate inserted directly, so the log still saves for real
- * either way instead of failing outright.
+ * Estimates a meal's macros from text — does NOT save anything. Callers
+ * show this to the user for review/edit, then call saveMeal once confirmed
+ * (see meal-log.tsx). Tries the parse-meal Edge Function first; if it's not
+ * deployed yet (or errors for any reason), falls back to a rough
+ * per-meal-type estimate so there's still something to review either way.
  */
-export async function logMeal(
-  userId: string,
-  mealType: MealType,
-  text: string,
-  portion: PortionSize = 'regular'
-): Promise<MealLogRow | null> {
+export async function estimateMeal(mealType: MealType, text: string, portion: PortionSize = 'regular'): Promise<EstimateResult> {
   try {
     const { data, error } = await supabase.functions.invoke('parse-meal', { body: { text, mealType, portion } });
     if (!error && data && typeof data.calories === 'number') {
-      await awardXp(userId, 10, 'meal_logged');
-      return data as MealLogRow;
+      return { ok: true, meal: data as EstimatedMeal };
     }
   } catch {
     // Edge Function not deployed / unreachable — fall through to the local estimate.
@@ -318,49 +327,27 @@ export async function logMeal(
 
   const fallback = FALLBACK_MEAL_MACROS[mealType];
   const multiplier = PORTION_MULTIPLIERS[portion];
-  const { data, error } = await supabase
-    .from('meal_logs')
-    .insert({
-      user_id: userId,
+  return {
+    ok: true,
+    meal: {
       description: text,
       calories: Math.round(fallback.calories * multiplier),
       protein_g: Math.round(fallback.protein_g * multiplier),
       carbs_g: Math.round(fallback.carbs_g * multiplier),
       fats_g: Math.round(fallback.fats_g * multiplier),
-      estimated: true,
-      meal_type: mealType,
-    })
-    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at')
-    .single();
-
-  if (error) {
-    console.warn('[Claww] Failed to save meal log:', error.message);
-    return null;
-  }
-  await awardXp(userId, 10, 'meal_logged');
-  return data;
-}
-
-export interface PhotoMealResult {
-  ok: boolean;
-  meal?: MealLogRow;
-  reason?: string;
+    },
+  };
 }
 
 /**
- * Estimates + logs a meal from a photo via the parse-meal-photo Edge
+ * Estimates a meal's macros from a photo via the parse-meal-photo Edge
  * Function, which also moderates the image (flags non-food or
- * inappropriate photos before ever estimating or saving anything). No
- * local fallback here — unlike text, there's no sane offline guess for
- * "what's in this photo," so a failure surfaces to the caller instead of
- * silently inventing numbers.
+ * inappropriate photos). Does NOT save anything — same review-before-save
+ * contract as estimateMeal. No local fallback here — unlike text, there's
+ * no sane offline guess for "what's in this photo," so a failure surfaces
+ * to the caller instead of silently inventing numbers.
  */
-export async function logMealFromPhoto(
-  userId: string,
-  mealType: MealType,
-  imageDataUri: string,
-  portion: PortionSize = 'regular'
-): Promise<PhotoMealResult> {
+export async function estimateMealFromPhoto(mealType: MealType, imageDataUri: string, portion: PortionSize = 'regular'): Promise<EstimateResult> {
   const { data, error } = await supabase.functions.invoke('parse-meal-photo', {
     body: { image: imageDataUri, mealType, portion },
   });
@@ -375,8 +362,36 @@ export async function logMealFromPhoto(
   if (!data || typeof data.calories !== 'number') {
     return { ok: false, reason: "Couldn't estimate that photo — try a clearer shot, or describe the meal in words instead." };
   }
+  return { ok: true, meal: data as EstimatedMeal };
+}
+
+/**
+ * Saves a meal the user has reviewed (and possibly edited) — the only place
+ * that actually writes to meal_logs. RLS-scoped insert straight from the
+ * client, same pattern as every other own-rows write in this file.
+ */
+export async function saveMeal(userId: string, mealType: MealType, meal: EstimatedMeal): Promise<MealLogRow | null> {
+  const { data, error } = await supabase
+    .from('meal_logs')
+    .insert({
+      user_id: userId,
+      description: meal.description,
+      calories: Math.round(meal.calories),
+      protein_g: Math.round(meal.protein_g),
+      carbs_g: Math.round(meal.carbs_g),
+      fats_g: Math.round(meal.fats_g),
+      estimated: true,
+      meal_type: mealType,
+    })
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at')
+    .single();
+
+  if (error) {
+    console.warn('[Claww] Failed to save meal log:', error.message);
+    return null;
+  }
   await awardXp(userId, 10, 'meal_logged');
-  return { ok: true, meal: data as MealLogRow };
+  return data;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
