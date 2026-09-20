@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -43,9 +43,15 @@ export default Sentry.wrap(RootLayout);
 
 function RootLayout() {
   const router = useRouter();
-  const [fontsLoaded] = useFonts({
-    Inter: require('../assets/fonts/Inter-Variable.ttf'),
-  });
+  // Native (iOS/Android) gets "Inter" as static per-weight files embedded
+  // by the expo-font config plugin (see app.json) — already available at
+  // boot, no JS-side loading needed, and critically avoids this hook
+  // re-registering a single-weight "Inter" face that would shadow the
+  // native weight-mapped family. Only web (no config-plugin embedding)
+  // still needs it loaded here.
+  const [fontsLoaded] = useFonts(
+    Platform.OS === 'web' ? { Inter: require('../assets/fonts/Inter_400Regular.ttf') } : {}
+  );
   const [authState, setAuthState] = useState<AuthState>('loading');
   const [introDone, setIntroDone] = useState(false);
 
