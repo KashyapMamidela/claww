@@ -23,6 +23,8 @@ import { Badge } from '../components/ui/Badge';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
+import { PrivacyDataModal } from '../components/PrivacyDataModal';
+import { openSupportEmail } from '../lib/support';
 
 const P = COLORS.amber;
 
@@ -34,11 +36,15 @@ const GOAL_LABELS: Record<string, string> = {
   flexibility: 'Flexibility',
 };
 
-const menuItems = [
-  { icon: 'bell', label: 'Notifications' },
-  { icon: 'shield', label: 'Privacy & Data' },
-  { icon: 'help-circle', label: 'Help & Support' },
-];
+// SHIP PHASE 8.1 — onPress is required, not optional: a row without a real
+// handler is a compile error here, which is what let "Notifications" (no
+// real destination yet — SHIP PHASE 8.3) get removed instead of shipped as
+// a decorative stub.
+interface MenuRow {
+  icon: string;
+  label: string;
+  onPress: () => void;
+}
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -51,6 +57,7 @@ export default function ProfileScreen() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [disclaimerModalVisible, setDisclaimerModalVisible] = useState(false);
+  const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
@@ -122,6 +129,11 @@ export default function ProfileScreen() {
     { l: 'Weight', v: profile?.weight ? `${profile.weight} kg` : '—' },
     { l: 'Height', v: profile?.height ? `${profile.height} cm` : '—' },
     { l: 'Goal', v: goalLabel },
+  ];
+
+  const menuItems: MenuRow[] = [
+    { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
+    { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
   ];
 
   return (
@@ -266,6 +278,7 @@ export default function ProfileScreen() {
             <TouchableOpacity
               key={item.label}
               activeOpacity={0.8}
+              onPress={item.onPress}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -367,6 +380,12 @@ export default function ProfileScreen() {
       </View>
       <DeleteAccountModal visible={deleteModalVisible} onClose={() => setDeleteModalVisible(false)} />
       <MedicalDisclaimerModal visible={disclaimerModalVisible} onClose={() => setDisclaimerModalVisible(false)} />
+      <PrivacyDataModal
+        visible={privacyModalVisible}
+        onClose={() => setPrivacyModalVisible(false)}
+        onExport={handleExportData}
+        onDelete={() => setDeleteModalVisible(true)}
+      />
     </ScrollView>
   );
 }

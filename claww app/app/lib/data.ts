@@ -865,3 +865,30 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     generationFailures: generationFailures.data ?? [],
   };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHIP PHASE 8.2 — today's real generation usage, read-only, so a Settings
+// screen can show a user hitting a 429 *why* ("18 of 20 used today") instead
+// of a static cap number. Reads the same generation_usage rows the server
+// atomically increments (_shared/usageCap.ts); the caps themselves are
+// mirrored client-side in lib/generationCaps.ts since Deno Edge Functions
+// and the RN bundle can't share an import.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function getGenerationUsageToday(userId: string): Promise<{ plan: number; meal: number }> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data, error } = await supabase
+    .from('generation_usage')
+    .select('kind, count')
+    .eq('user_id', userId)
+    .eq('usage_date', today);
+
+  if (error || !data) return { plan: 0, meal: 0 };
+
+  const usage = { plan: 0, meal: 0 };
+  for (const row of data) {
+    if (row.kind === 'plan') usage.plan = row.count;
+    else if (row.kind === 'meal') usage.meal = row.count;
+  }
+  return usage;
+}

@@ -5,19 +5,37 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { signOut } from '../../lib/auth';
 import { getAchievements, getLevelInfo, getProfile, getTierName, type Achievement } from '../../lib/data';
+import { openStoreListing, openSupportEmail } from '../../lib/support';
 import { Icon } from '../../components/ui/Icon';
 import { Badge } from '../../components/ui/Badge';
 import { Display } from '../../components/ui/Typography';
+
+// SHIP PHASE 8.1 — onPress required, not optional: a row without a real
+// handler fails to typecheck. This is what let Notifications, Appearance,
+// and Connected Apps get removed here instead of shipped as decorative
+// stubs (no real notification permission flow yet, the app is dark-only so
+// there's no theme to switch, and no wearable/health integration exists
+// until SHIP PHASE 11.1) — same rule, applied consistently.
+interface MenuRow {
+  icon: string;
+  color: string;
+  label: string;
+  sub: string;
+  onPress: () => void;
+}
 
 export default function MoreTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userId, userName, xp, streak } = useAppState();
   const openProfile = () => router.push('/profile');
+  const openSettings = () => router.push('/settings');
+  const openAbout = () => router.push('/about');
 
   const [displayName, setDisplayName] = useState('');
   const [achievements, setAchievements] = useState<Achievement[]>([]);
@@ -43,31 +61,26 @@ export default function MoreTab() {
   const earnedCount = achievements.filter((a) => a.earned).length;
   const preview = achievements.slice(0, 4);
 
-  const sections = [
+  const appVersion = Constants.expoConfig?.version ?? 'dev';
+
+  const sections: { title: string; rows: MenuRow[] }[] = [
     {
       title: 'FEATURES',
-      rows: [
-        { icon: 'user-circle-2', color: COLORS.amber, label: 'Profile', sub: 'Stats, badges & body metrics', onPress: openProfile },
-        { icon: 'bell', color: COLORS.purple, label: 'Notifications', sub: 'Workout reminders & alerts' },
-      ],
+      rows: [{ icon: 'user-circle-2', color: COLORS.amber, label: 'Profile', sub: 'Stats, badges & body metrics', onPress: openProfile }],
     },
     {
       title: 'PERSONALISE',
-      rows: [
-        { icon: 'settings', color: '#A1A1AA', label: 'Settings', sub: 'Units, goals & preferences' },
-        { icon: 'moon', color: COLORS.indigo, label: 'Appearance', sub: 'Dark mode · AMOLED · Theme' },
-        { icon: 'smartphone', color: '#A1A1AA', label: 'Connected Apps', sub: 'Not connected — coming soon' },
-      ],
+      rows: [{ icon: 'settings', color: '#A1A1AA', label: 'Settings', sub: "Today's generation usage & sign out", onPress: openSettings }],
     },
     {
       title: 'SUPPORT',
       rows: [
-        { icon: 'help-circle', color: '#A1A1AA', label: 'Help & Support', sub: 'FAQs, tutorials, contact' },
-        { icon: 'star', color: COLORS.amber, label: 'Rate CLAWW', sub: 'Loving the app? Leave a review' },
-        { icon: 'info', color: '#A1A1AA', label: 'About', sub: 'Version 3.4.1 · Build 20240414' },
+        { icon: 'mail', color: '#A1A1AA', label: 'Help & Support', sub: 'Email us a question', onPress: () => openSupportEmail('CLAWW support request') },
+        { icon: 'star', color: COLORS.amber, label: 'Rate CLAWW', sub: 'Loving the app? Leave a review', onPress: openStoreListing },
+        { icon: 'info', color: '#A1A1AA', label: 'About', sub: `Version ${appVersion}`, onPress: openAbout },
       ],
     },
-  ] as const;
+  ];
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
@@ -168,7 +181,7 @@ export default function MoreTab() {
                 <TouchableOpacity
                   key={row.label}
                   activeOpacity={0.8}
-                  onPress={'onPress' in row ? row.onPress : undefined}
+                  onPress={row.onPress}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -225,8 +238,8 @@ export default function MoreTab() {
         </View>
 
         <View style={{ alignItems: 'center', marginTop: 4 }}>
-          <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>CLAWW · v3.4.1 · Built with 💙</Text>
-          <Text style={{ color: '#71717A', fontSize: 10, marginTop: 3, fontFamily: FONT }}>© 2026 CLAWW Technologies. All rights reserved.</Text>
+          <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>CLAWW · v{appVersion} · Built with 💙</Text>
+          <Text style={{ color: '#71717A', fontSize: 10, marginTop: 3, fontFamily: FONT }}>© 2026 CLAWW. All rights reserved.</Text>
         </View>
       </View>
     </ScrollView>
