@@ -1,63 +1,59 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONT } from '../lib/theme';
 import { Icon } from './ui/Icon';
 import { ProgressRing } from './ui/ProgressRing';
 import { useAppState } from '../lib/appState';
+import { SleepLogModal } from './SleepLogModal';
 
 const SLEEP = COLORS.indigo;
 const SLEEP_DIM = COLORS.indigoDim;
 const SLEEP_BORDER = COLORS.indigoBorder;
 
+function formatTime(iso: string | null): string {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+}
+
+function quality(hours: number): { label: string; color: string } {
+  if (hours < 5) return { label: 'Poor', color: COLORS.danger };
+  if (hours < 6.5) return { label: 'Fair', color: COLORS.amber };
+  if (hours < 7.5) return { label: 'Good', color: COLORS.green };
+  if (hours <= 9) return { label: 'Optimal', color: SLEEP };
+  return { label: 'Excess', color: COLORS.fgGray };
+}
+
+const tile = (label: string, value: React.ReactNode, accent = false) => (
+  <View
+    style={{
+      backgroundColor: accent ? SLEEP_DIM : 'rgba(255,255,255,0.04)',
+      borderWidth: 1,
+      borderColor: accent ? SLEEP_BORDER : 'rgba(255,255,255,0.08)',
+      borderRadius: 11,
+      paddingHorizontal: 12,
+      paddingVertical: 9,
+    }}
+  >
+    <Text style={{ color: '#71717A', fontSize: 10, marginBottom: 2, fontFamily: FONT }}>{label}</Text>
+    {value}
+  </View>
+);
+
+/**
+ * Real Home-screen sleep card — reads appState.todaySleep (a genuine
+ * database-backed "did the user actually log sleep today" check) instead
+ * of local component state, so the Logged/unlogged UI survives a full app
+ * restart correctly. Tapping either the ring or the button opens
+ * SleepLogModal, which asks for bedtime/wake-up time directly (scroll-
+ * wheel entry) rather than an hours dial the user has to mentally compute.
+ */
 export function SleepArcDial() {
-  const { logSleep } = useAppState();
-  const [hours, setHours] = useState(7.5);
-  const [submitted, setSubmitted] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const { sleepLogged, todaySleep } = useAppState();
+  const [modalOpen, setModalOpen] = useState(false);
 
+  const hours = todaySleep?.hours ?? 7.5;
   const pct = Math.min(hours / 10, 1) * 100;
-  const quality = hours < 5 ? 'Poor' : hours < 6.5 ? 'Fair' : hours < 7.5 ? 'Good' : hours <= 9 ? 'Optimal' : 'Excess';
-  const qColor =
-    hours < 5 ? COLORS.danger : hours < 6.5 ? COLORS.amber : hours < 7.5 ? COLORS.green : hours <= 9 ? SLEEP : COLORS.fgGray;
-
-  const stepper = (dir: -1 | 1, accent: boolean) => (
-    <TouchableOpacity
-      activeOpacity={0.8}
-      onPress={() => {
-        setHours((h) => Math.max(0, Math.min(12, +(h + dir * 0.5).toFixed(1))));
-        setSubmitted(false);
-      }}
-      style={{
-        width: 30,
-        height: 30,
-        borderRadius: 9,
-        backgroundColor: accent ? SLEEP_DIM : 'rgba(255,255,255,0.05)',
-        borderWidth: 1,
-        borderColor: accent ? SLEEP_BORDER : 'rgba(255,255,255,0.10)',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Icon name={dir === -1 ? 'chevron-left' : 'chevron-right'} size={14} color={accent ? SLEEP : '#A1A1AA'} />
-    </TouchableOpacity>
-  );
-
-  const tile = (label: string, value: React.ReactNode, accent = false) => (
-    <View
-      style={{
-        backgroundColor: accent ? SLEEP_DIM : 'rgba(255,255,255,0.04)',
-        borderWidth: 1,
-        borderColor: accent ? SLEEP_BORDER : 'rgba(255,255,255,0.08)',
-        borderRadius: 11,
-        paddingHorizontal: 12,
-        paddingVertical: 9,
-      }}
-    >
-      <Text style={{ color: '#71717A', fontSize: 10, marginBottom: 2, fontFamily: FONT }}>{label}</Text>
-      {value}
-    </View>
-  );
+  const q = quality(hours);
 
   return (
     <View
@@ -81,7 +77,7 @@ export function SleepArcDial() {
           </View>
           <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Last Night's Sleep</Text>
         </View>
-        {submitted && (
+        {sleepLogged && (
           <View
             style={{
               backgroundColor: 'rgba(34,197,94,0.12)',
@@ -101,7 +97,7 @@ export function SleepArcDial() {
         )}
       </View>
 
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+      <TouchableOpacity activeOpacity={0.85} onPress={() => setModalOpen(true)} style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
         <View style={{ alignItems: 'center', gap: 10 }}>
           <ProgressRing
             size={148}
@@ -114,17 +110,13 @@ export function SleepArcDial() {
               {hours.toFixed(1)}
             </Text>
             <Text style={{ color: '#71717A', fontSize: 9, letterSpacing: 0.6, fontFamily: FONT }}>HOURS</Text>
-            <Text style={{ color: qColor, fontSize: 9.5, fontWeight: '700', marginTop: 1, fontFamily: FONT }}>{quality}</Text>
+            <Text style={{ color: q.color, fontSize: 9.5, fontWeight: '700', marginTop: 1, fontFamily: FONT }}>{q.label}</Text>
           </ProgressRing>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-            {stepper(-1, false)}
-            {stepper(1, true)}
-          </View>
         </View>
 
         <View style={{ flex: 1, gap: 8 }}>
-          {tile('🌙 Bedtime', <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>10:30 PM</Text>)}
-          {tile('⏰ Wake-up', <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>06:00 AM</Text>)}
+          {tile('🌙 Bedtime', <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{formatTime(todaySleep?.bedtime ?? null)}</Text>)}
+          {tile('⏰ Wake-up', <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{formatTime(todaySleep?.wake_time ?? null)}</Text>)}
           {tile(
             'Sleep Score',
             <Text style={{ color: SLEEP, fontSize: 20, fontWeight: '900', fontFamily: FONT }}>
@@ -134,24 +126,10 @@ export function SleepArcDial() {
             true
           )}
         </View>
-      </View>
+      </TouchableOpacity>
 
-      <TouchableOpacity
-        activeOpacity={0.85}
-        disabled={saving}
-        onPress={async () => {
-          setSaving(true);
-          // No dedicated bedtime/wake-time picker yet — approximate from
-          // "now" as wake-up and hours-back as bedtime.
-          const wakeTime = new Date();
-          const bedtime = new Date(wakeTime.getTime() - hours * 60 * 60 * 1000);
-          await logSleep(hours, bedtime, wakeTime);
-          setSaving(false);
-          setSubmitted(true);
-        }}
-        style={{ marginTop: 14 }}
-      >
-        {submitted ? (
+      <TouchableOpacity activeOpacity={0.85} onPress={() => setModalOpen(true)} style={{ marginTop: 14 }}>
+        {sleepLogged ? (
           <View
             style={{
               height: 42,
@@ -165,17 +143,15 @@ export function SleepArcDial() {
           >
             <Icon name="moon" size={13} color={COLORS.green} />
             <Text style={{ color: COLORS.green, fontSize: 13, fontWeight: '800', letterSpacing: 0.5, fontFamily: FONT }}>
-              Sleep Logged ✓
+              Sleep Logged ✓ — tap to edit
             </Text>
           </View>
         ) : (
-          <LinearGradient
-            colors={[COLORS.indigoDeep, SLEEP]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+          <View
             style={{
               height: 42,
               borderRadius: 13,
+              backgroundColor: SLEEP,
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
@@ -184,11 +160,13 @@ export function SleepArcDial() {
           >
             <Icon name="moon" size={13} color="#fff" />
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '800', letterSpacing: 0.5, fontFamily: FONT }}>
-              Log {hours.toFixed(1)} Hours
+              Log Sleep
             </Text>
-          </LinearGradient>
+          </View>
         )}
       </TouchableOpacity>
+
+      <SleepLogModal visible={modalOpen} onClose={() => setModalOpen(false)} />
     </View>
   );
 }

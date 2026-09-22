@@ -8,6 +8,7 @@ import {
   getProfile,
   getRecoveryScore,
   getTodaysMealLogs,
+  getTodaysSleepLog,
   getUserXp,
   insertSleepLog,
   saveMeal,
@@ -17,11 +18,12 @@ import {
   type MealType,
   type PortionSize,
   type RecoveryResult,
+  type SleepLogRow,
 } from './data';
 
 export type { EstimatedMeal, EstimateResult } from './data';
 
-export type { MealLogRow, MealType, RecoveryResult } from './data';
+export type { MealLogRow, MealType, RecoveryResult, SleepLogRow } from './data';
 export { MEAL_ORDER } from './data';
 
 // App-wide state backed by real Supabase data, refreshed whenever a session
@@ -48,6 +50,10 @@ interface AppState {
   hasPlan: boolean;
   generatePlan: () => void;
   sleepLogged: boolean;
+  /** Today's actual sleep_logs row, once logged — the real values a
+   * restarted app should show, not a component-local formula that resets
+   * to a placeholder on every remount. */
+  todaySleep: SleepLogRow | null;
   recovery: RecoveryResult | null;
   logSleep: (hours: number, bedtime: Date, wakeTime: Date) => Promise<void>;
   meals: MealLogRow[];
@@ -69,6 +75,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [hasPlan, setHasPlan] = useState(false);
   const [sleepLogged, setSleepLogged] = useState(false);
+  const [todaySleep, setTodaySleep] = useState<SleepLogRow | null>(null);
   const [recovery, setRecovery] = useState<RecoveryResult | null>(null);
   const [meals, setMeals] = useState<MealLogRow[]>([]);
   const [xp, setXp] = useState(0);
@@ -78,9 +85,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function loadForUser(uid: string) {
-      const [profile, rec, todaysMeals, latestWorkout, userXp, activityStreak] = await Promise.all([
+      const [profile, rec, todaySleepLog, todaysMeals, latestWorkout, userXp, activityStreak] = await Promise.all([
         getProfile(uid),
         getRecoveryScore(uid),
+        getTodaysSleepLog(uid),
         getTodaysMealLogs(uid),
         getLatestWorkout(uid),
         getUserXp(uid),
@@ -89,7 +97,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       if (cancelled) return;
       if (profile?.name) setUserName(profile.name);
       setRecovery(rec);
-      setSleepLogged(!!rec);
+      setTodaySleep(todaySleepLog);
+      setSleepLogged(!!todaySleepLog);
       setMeals(todaysMeals);
       setHasPlan(!!latestWorkout);
       setXp(userXp);
@@ -120,6 +129,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         setHasPlan(false);
         setRecovery(null);
         setSleepLogged(false);
+        setTodaySleep(null);
         setMeals([]);
         setXp(0);
         setStreak(0);
@@ -141,6 +151,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const ok = await insertSleepLog(userId, hours, bedtime, wakeTime);
       if (ok) {
         setSleepLogged(true);
+        setTodaySleep({ hours, bedtime: bedtime.toISOString(), wake_time: wakeTime.toISOString(), logged_at: new Date().toISOString() });
         setRecovery(await getRecoveryScore(userId));
         bumpXp(10); // matches awardXp(userId, 10, 'sleep_logged') in insertSleepLog
         getActivityStreak(userId).then(setStreak);
@@ -182,6 +193,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       hasPlan,
       generatePlan: () => setHasPlan(true),
       sleepLogged,
+      todaySleep,
       recovery,
       logSleep,
       meals,
@@ -198,6 +210,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       loading,
       hasPlan,
       sleepLogged,
+      todaySleep,
       recovery,
       meals,
       logSleep,

@@ -14,6 +14,7 @@ import { StatCard } from '../../components/ui/StatCard';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { SleepArcDial } from '../../components/SleepArcDial';
+import { SleepLogModal } from '../../components/SleepLogModal';
 import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
@@ -102,10 +103,11 @@ function HomeLoadingSkeleton() {
 }
 
 function HomeEmptyState() {
-  const { userName, sleepLogged, logSleep, streak } = useAppState();
+  const { userName, sleepLogged, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const steps = useTodaySteps();
+  const [sleepModalOpen, setSleepModalOpen] = useState(false);
 
   return (
     <View
@@ -229,13 +231,7 @@ function HomeEmptyState() {
         {!sleepLogged ? (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => {
-              // Quick-log default (7.5h) — the full SleepArcDial on the
-              // populated Home lets them adjust hours before logging.
-              const wakeTime = new Date();
-              const bedtime = new Date(wakeTime.getTime() - 7.5 * 60 * 60 * 1000);
-              logSleep(7.5, bedtime, wakeTime);
-            }}
+            onPress={() => setSleepModalOpen(true)}
             style={{
               height: 36,
               paddingHorizontal: 14,
@@ -261,6 +257,8 @@ function HomeEmptyState() {
         Your coach is still warming up — <Text style={{ color: '#fff', fontWeight: '700' }}>generate a plan and log a few days</Text> and
         insights will start showing up here.
       </AiCard>
+
+      <SleepLogModal visible={sleepModalOpen} onClose={() => setSleepModalOpen(false)} />
     </View>
   );
 }

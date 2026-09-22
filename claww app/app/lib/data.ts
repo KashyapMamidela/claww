@@ -174,6 +174,31 @@ export async function getLatestSleepLog(userId: string): Promise<SleepLogRow | n
   return data;
 }
 
+/**
+ * Whether sleep was logged today (local calendar day), not merely "ever" —
+ * `getLatestSleepLog` has no date filter, so appState's `sleepLogged` was
+ * being driven by "does any log exist" and stayed permanently true after
+ * the very first entry, even the next day. This is the real "today"
+ * check the Home card's Logged/unlogged state should reflect.
+ */
+export async function getTodaysSleepLog(userId: string): Promise<SleepLogRow | null> {
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('sleep_logs')
+    .select('hours, bedtime, wake_time, logged_at')
+    .eq('user_id', userId)
+    .gte('logged_at', startOfToday.toISOString())
+    .order('logged_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    console.warn('[Claww] Failed to load today\'s sleep log:', error.message);
+    return null;
+  }
+  return data;
+}
+
 export async function insertSleepLog(userId: string, hours: number, bedtime: Date, wakeTime: Date): Promise<boolean> {
   const { error } = await supabase.from('sleep_logs').insert({
     user_id: userId,
