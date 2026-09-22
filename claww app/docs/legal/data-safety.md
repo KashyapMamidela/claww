@@ -45,11 +45,20 @@ CLAWW collects real data here — this section needs the most careful review.
 | Data type | Collected | Shared | Required/Optional | Purpose | Notes |
 |---|---|---|---|---|---|
 | Health info | Yes — free-text injury/limitation descriptions | With Groq (sent as part of the generation prompt) `[DECISION NEEDED]` | Optional | App functionality | `personalization_profile.workoutDefaults.injuries`; used to exclude contraindicated exercises (`excludeInjuredExercises` — currently a heuristic filter, see SHIP PHASE 10.1) |
-| Fitness info | Yes — height, weight, workout logs, sleep logs, water logs, activity/experience level, goals | With Groq for plan generation only (workout history + profile fields); Supabase for storage `[DECISION NEEDED]` | Required (core function) | App functionality, Personalization | `profiles.height/weight`, `workout_logs`, `sleep_logs`, `water_logs`, `nutrition_logs`/`meal_logs` macros |
+| Fitness info | Yes — height, weight, workout logs, sleep logs, water logs, activity/experience level, goals, **and (Android only) step count + active calories burned read from Health Connect** | With Groq for plan generation only (workout history + profile fields); Supabase for storage `[DECISION NEEDED]`. **Health Connect steps/calories are read-only, processed on-device for the Home screen's stat cards, and never leave the device or reach Groq/Supabase.** | Required (core function) for logged data; Optional for Health Connect steps/calories (declined permission just shows "no data yet") | App functionality, Personalization | `profiles.height/weight`, `workout_logs`, `sleep_logs`, `water_logs`, `nutrition_logs`/`meal_logs` macros; Health Connect via `lib/steps.ts` (`react-native-health-connect`, `Steps` + `ActiveCaloriesBurned` read permissions only — no write access, no other record types) |
 
-**`[DECISION NEEDED]`** — Play may require a separate "Health Connect" or
-sensitive-permission declaration once SHIP PHASE 11.1 (Health Connect sync)
-ships. Not applicable yet on the current codebase.
+**Health Connect declaration — now applicable.** SHIP PHASE 11.1 partially
+shipped (2026-09-22): Android reads real step count and active-calorie
+totals from Health Connect for the Home screen, scoped to exactly those two
+record types, read-only. This requires Play Console's separate Health
+Connect data-access declaration (see
+[Google's guidance](https://support.google.com/googleplay/android-developer/answer/14738291))
+before this build can go to Play — budget ~7 days for that approval plus
+another ~5-7 business days for the whitelist to propagate to Health Connect's
+servers, per `react-native-health-connect`'s own docs. Sleep-log replacement
+and workout-writing (the rest of 11.1's original vision) are still deferred,
+not yet built — this declaration only needs to cover Steps + Active Calories
+Burned read access, not the broader scope.
 
 ## Photos and videos
 

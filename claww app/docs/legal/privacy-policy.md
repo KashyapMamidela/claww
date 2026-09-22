@@ -45,6 +45,11 @@ collects several kinds of it:
   reps and weight
 - Meal and nutrition logs: what you ate, estimated calories/protein/carbs/fats
 - Water intake logs
+- On Android, with your permission: step count and active calories burned
+  today, read from Health Connect to show on the Home screen. This is
+  read-only — CLAWW never writes to Health Connect, never reads any other
+  data type from it, and this data is processed on your device and never
+  sent to our servers or any third party
 
 ### Photos
 When you log a meal by photo, that image is sent for nutritional analysis

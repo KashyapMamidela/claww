@@ -26,7 +26,7 @@ import { estimateCaloriesFromSteps, getTodaySteps, type StepsResult } from '../.
 // screen. Shared between HomeEmptyState and HomePopulated since both show
 // the same Steps stat card.
 function useTodaySteps(): StepsResult {
-  const [steps, setSteps] = useState<StepsResult>({ steps: 0, available: false });
+  const [steps, setSteps] = useState<StepsResult>({ steps: 0, available: false, caloriesBurned: null });
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
@@ -401,14 +401,18 @@ function HomePopulated() {
         <StatCard
           label="Steps"
           value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : 'needs phone sensors'}
+          sub={steps.available ? 'today' : 'no data yet'}
           color="#71717A"
           icon={<Icon name="footprints" size={16} color="#71717A" />}
         />
         <StatCard
           label="Burned"
-          value={steps.available ? estimateCaloriesFromSteps(steps.steps, weightKg).toLocaleString() : '—'}
-          sub={steps.available ? 'from steps (est.)' : 'not tracked yet'}
+          value={
+            steps.available
+              ? (steps.caloriesBurned ?? estimateCaloriesFromSteps(steps.steps, weightKg)).toLocaleString()
+              : '—'
+          }
+          sub={steps.available ? (steps.caloriesBurned !== null ? 'active kcal' : 'from steps (est.)') : 'not tracked yet'}
           color="#71717A"
           icon={<Icon name="flame" size={16} color="#71717A" />}
         />
