@@ -1,6 +1,21 @@
-import { Platform } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import * as HealthConnect from 'react-native-health-connect';
+
+// Health Connect's own Play Store package — distinct from CLAWW's. Most
+// Android versions below 14 don't ship it preinstalled, so "the permission
+// prompt never appeared" almost always means this, not a denied
+// permission: getSdkStatus() returns SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED,
+// there's no provider to request permissions from yet, and the earlier
+// version of this file silently gave up right there with no way for the
+// user to tell "not installed" apart from "permission denied."
+const HEALTH_CONNECT_PACKAGE = 'com.google.android.apps.healthdata';
+
+export function openHealthConnectInstall(): void {
+  Linking.openURL(`market://details?id=${HEALTH_CONNECT_PACKAGE}`).catch(() =>
+    Linking.openURL(`https://play.google.com/store/apps/details?id=${HEALTH_CONNECT_PACKAGE}`).catch(() => {})
+  );
+}
 
 // Steps + active-calorie data for Home's "Steps"/"Burned" stats.
 //
@@ -29,30 +44,40 @@ export interface StepsResult {
   /** Real active-calorie total from Health Connect, when granted — null
    * means "use the weight-based estimate instead," not "burned zero." */
   caloriesBurned: number | null;
+  /** Android only: Health Connect itself isn't installed/updated (distinct
+   * from "installed but permission denied") — the UI should offer
+   * openHealthConnectInstall() rather than just showing "no data yet." */
+  needsHealthConnectInstall?: boolean;
 }
 
 const UNAVAILABLE: StepsResult = { steps: 0, available: false, caloriesBurned: null };
+const NEEDS_INSTALL: StepsResult = { steps: 0, available: false, caloriesBurned: null, needsHealthConnectInstall: true };
 
 let healthConnectReady: boolean | null = null;
 
-async function ensureHealthConnectReady(): Promise<boolean> {
-  if (healthConnectReady !== null) return healthConnectReady;
+async function ensureHealthConnectReady(): Promise<'ready' | 'needs-install' | 'unavailable'> {
+  if (healthConnectReady === true) return 'ready';
   try {
     const status = await HealthConnect.getSdkStatus();
+    if (status === HealthConnect.SdkAvailabilityStatus.SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
+      return 'needs-install';
+    }
     if (status !== HealthConnect.SdkAvailabilityStatus.SDK_AVAILABLE) {
       healthConnectReady = false;
-      return false;
+      return 'unavailable';
     }
     healthConnectReady = await HealthConnect.initialize();
+    return healthConnectReady ? 'ready' : 'unavailable';
   } catch {
     healthConnectReady = false;
+    return 'unavailable';
   }
-  return healthConnectReady;
 }
 
 async function getStepsAndCaloriesAndroid(): Promise<StepsResult> {
-  const ready = await ensureHealthConnectReady();
-  if (!ready) return UNAVAILABLE;
+  const readiness = await ensureHealthConnectReady();
+  if (readiness === 'needs-install') return NEEDS_INSTALL;
+  if (readiness !== 'ready') return UNAVAILABLE;
 
   try {
     // Idempotent: if both are already granted, this returns immediately

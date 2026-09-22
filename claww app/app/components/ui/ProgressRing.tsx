@@ -51,12 +51,54 @@ function RingArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcP
 /**
  * A ring at exactly 100% and a ring at 300% both used to render as the same
  * full circle — no way to tell "hit the target" apart from "blew way past
- * it" (e.g. 4000/2461 kcal). This draws a second, darker arc on top of the
- * already-full ring, sweeping from the same start point for however far
- * past 100% the value went (capped at one extra full lap) — a visible
- * "shadow" cutting across the completed ring, not just a static cap.
+ * it" (e.g. 4000/2461 kcal). Matches Apple Activity rings' own visual
+ * language for this (per direct reference image), not an invented one: the
+ * overflow is drawn as a second arc in the *same* bright color as the base
+ * ring — not darkened — that visibly wraps back over the ring's own start
+ * point, with a shadow at that seam so the overlap reads as physically
+ * stacked/layered.
+ *
+ * This is a short thick STROKE starting at the ring's own start point and
+ * extending only clockwise, not a round blob centered on the seam — a
+ * blob has no direction, so it bulged backward over the base ring's own
+ * tail end too (visible in an earlier pass as two separate-looking bulges
+ * flanking the seam instead of one continuous wrap to the right, which is
+ * genuinely wrong: there is nothing "before" the start point, the base
+ * ring hasn't necessarily even reached its own tail there yet on a fresh
+ * animation-in). react-native-svg has no <filter>/feDropShadow support
+ * (checked its type exports directly — none), hence a stroke instead of a
+ * real blur.
  */
-function RingOverflowArc({ cx, cy, r, strokeWidth, pct, trackFraction }: Omit<RingArcProps, 'color'>) {
+function RingOverflowShadow({ cx, cy, r, strokeWidth, pct, trackFraction }: RingArcProps) {
+  const circ = 2 * Math.PI * r;
+  // A fixed short length regardless of how far over 100% the value is —
+  // this is a seam marker, not a duration indicator (RingOverflowArc's own
+  // length already conveys "how far over").
+  const shadowLen = Math.min(circ * 0.05, strokeWidth * 2.4) * trackFraction;
+  const target = pct > 100 ? shadowLen : 0;
+  const arcLen = useSharedValue(0);
+  useEffect(() => {
+    arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
+  }, [target]);
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDasharray: `${arcLen.value} ${Math.max(0, circ - arcLen.value)}`,
+  }));
+
+  return (
+    <AnimatedCircle
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill="none"
+      stroke="rgba(0,0,0,0.5)"
+      strokeWidth={strokeWidth * 1.5}
+      strokeLinecap="round"
+      animatedProps={animatedProps}
+    />
+  );
+}
+
+function RingOverflowArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcProps) {
   const circ = 2 * Math.PI * r;
   const overPct = Math.max(0, Math.min(100, pct - 100));
   const target = (overPct / 100) * circ * trackFraction;
@@ -74,8 +116,12 @@ function RingOverflowArc({ cx, cy, r, strokeWidth, pct, trackFraction }: Omit<Ri
       cy={cy}
       r={r}
       fill="none"
-      stroke="rgba(0,0,0,0.42)"
-      strokeWidth={strokeWidth}
+      stroke={color}
+      // Deliberately thicker than the base ring's own stroke, all the way
+      // along, not just at the tip — the reference's overflow segments
+      // read as a visibly fatter pill wherever they exist, not a
+      // same-width arc with a shadow tacked on.
+      strokeWidth={strokeWidth * 1.35}
       strokeLinecap="round"
       animatedProps={animatedProps}
     />
@@ -132,7 +178,18 @@ export function ProgressRing({
               />
               <RingArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
               {ring.pct > 100 && (
-                <RingOverflowArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} pct={ring.pct} trackFraction={trackFraction} />
+                <>
+                  <RingOverflowShadow
+                    cx={c}
+                    cy={c}
+                    r={ring.r}
+                    strokeWidth={ring.strokeWidth}
+                    color={ring.color}
+                    pct={ring.pct}
+                    trackFraction={trackFraction}
+                  />
+                  <RingOverflowArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
+                </>
               )}
             </React.Fragment>
           );

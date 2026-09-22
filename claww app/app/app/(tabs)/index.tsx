@@ -18,7 +18,7 @@ import { SleepLogModal } from '../../components/SleepLogModal';
 import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { estimateCaloriesFromSteps, getTodaySteps, type StepsResult } from '../../lib/steps';
+import { estimateCaloriesFromSteps, getTodaySteps, openHealthConnectInstall, type StepsResult } from '../../lib/steps';
 
 // New feature — real step count from the phone's own motion sensor
 // (expo-sensors' Pedometer), not a wearable. Refreshes whenever Home
@@ -181,9 +181,10 @@ function HomeEmptyState() {
         <StatCard
           label="Steps"
           value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : 'no data yet'}
+          sub={steps.available ? 'today' : steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}
           color="#A1A1AA"
           icon={<Icon name="footprints" size={16} color="#A1A1AA" />}
+          onPress={steps.needsHealthConnectInstall ? openHealthConnectInstall : undefined}
         />
         <StatCard label="Burned" value="—" sub="no data yet" color="#71717A" icon={<Icon name="flame" size={16} color="#71717A" />} />
         <StatCard label="Streak" value={String(streak)} sub="days" color="#71717A" icon={<Icon name="trending-up" size={16} color="#71717A" />} />
@@ -401,9 +402,10 @@ function HomePopulated() {
         <StatCard
           label="Steps"
           value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : 'no data yet'}
+          sub={steps.available ? 'today' : steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}
           color="#71717A"
           icon={<Icon name="footprints" size={16} color="#71717A" />}
+          onPress={steps.needsHealthConnectInstall ? openHealthConnectInstall : undefined}
         />
         <StatCard
           label="Burned"

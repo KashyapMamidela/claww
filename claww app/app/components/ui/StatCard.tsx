@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { FONT } from '../../lib/theme';
 
 export interface StatCardProps {
@@ -9,16 +9,20 @@ export interface StatCardProps {
   sub?: string;
   pct?: number;
   color?: string;
+  onPress?: () => void;
 }
 
-export function StatCard({ icon, label, value, sub, pct, color = '#A1A1AA' }: StatCardProps) {
+export function StatCard({ icon, label, value, sub, pct, color = '#A1A1AA', onPress }: StatCardProps) {
+  const Container = onPress ? TouchableOpacity : View;
   return (
-    <View
+    <Container
+      activeOpacity={onPress ? 0.8 : undefined}
+      onPress={onPress}
       style={{
         flex: 1,
         backgroundColor: '#151517',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: onPress ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
         borderRadius: 14,
         paddingHorizontal: 14,
         paddingVertical: 12,
@@ -54,6 +58,6 @@ export function StatCard({ icon, label, value, sub, pct, color = '#A1A1AA' }: St
           <View style={{ height: '100%', width: `${Math.max(0, Math.min(100, pct))}%`, borderRadius: 100, backgroundColor: color }} />
         </View>
       )}
-    </View>
+    </Container>
   );
 }
