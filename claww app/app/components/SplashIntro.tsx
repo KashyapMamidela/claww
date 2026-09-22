@@ -51,8 +51,8 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
           width: 220,
           height: 220,
           borderRadius: 110,
-          backgroundColor: COLORS.blue,
-          opacity: glowOpacity.interpolate({ inputRange: [0, 1], outputRange: [0, 0.16] }),
+          backgroundColor: '#FFFFFF',
+          opacity: glowOpacity.interpolate({ inputRange: [0, 1], outputRange: [0, 0.1] }),
           transform: [{ scale: markScale }],
         }}
       />
@@ -61,16 +61,16 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
           width: 76,
           height: 76,
           borderRadius: 22,
-          backgroundColor: COLORS.blue,
+          backgroundColor: COLORS.card,
           alignItems: 'center',
           justifyContent: 'center',
           borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.22)',
+          borderColor: 'rgba(255,255,255,0.28)',
           opacity: markOpacity,
           transform: [{ scale: markScale }],
-          shadowColor: COLORS.blue,
+          shadowColor: '#FFFFFF',
           shadowOffset: { width: 0, height: 10 },
-          shadowOpacity: 0.4,
+          shadowOpacity: 0.18,
           shadowRadius: 24,
           elevation: 12,
         }}
@@ -87,7 +87,7 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
       >
         <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>
           CLAW
-          <Text style={{ color: COLORS.blue }}>W</Text>
+          <Text style={{ color: COLORS.fgGray }}>W</Text>
         </Text>
       </Animated.View>
 

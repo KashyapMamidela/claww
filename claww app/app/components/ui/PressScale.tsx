@@ -18,6 +18,15 @@ export function PressScale({ children, scaleTo = 0.97, style, disabled, onPressI
   return (
     <Pressable
       disabled={disabled}
+      // `style` (including `alignSelf: 'stretch'` for fullWidth buttons) must
+      // live on this outer Pressable, not the inner Animated.View: a
+      // Pressable with no layout style of its own hugs its child's natural
+      // content size, so a child asking to "stretch" has nothing full-width
+      // to stretch into — the button silently stays content-sized and
+      // centered no matter what fullWidth/alignSelf says. Confirmed this was
+      // the actual cause of every "fullWidth" button in the app rendering
+      // small and centered.
+      style={style}
       onPressIn={(e) => {
         scale.value = withSpring(scaleTo, { damping: 15, stiffness: 400 });
         onPressIn?.(e);
@@ -28,7 +37,7 @@ export function PressScale({ children, scaleTo = 0.97, style, disabled, onPressI
       }}
       {...rest}
     >
-      <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>
+      <Animated.View style={animatedStyle}>{children}</Animated.View>
     </Pressable>
   );
 }

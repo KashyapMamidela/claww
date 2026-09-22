@@ -7,8 +7,7 @@ import { Button } from '../../../components/ui/Button';
 import { SectionLabel } from '../../../components/ui/SectionLabel';
 import { Icon } from '../../../components/ui/Icon';
 
-const ACCENT = COLORS.blue;
-const ACCENT_DEEP = COLORS.blueDeep;
+const ACCENT = COLORS.fg;
 
 // "Science-Backed" was dropped as a blanket trust badge (SHIP PHASE 7.4):
 // defensible for the deterministic rep-range/volume tables, not for the
@@ -117,7 +116,7 @@ export default function WelcomeScreen() {
           <Animated.View style={[styles.trustSignalsRow, { opacity: trustOpacity, transform: [{ translateY: trustTranslateY }] }]}>
             {TRUST_SIGNALS.map((t) => (
               <View key={t} style={styles.trustBadge}>
-                <Icon name="check" size={11} color={COLORS.green} strokeWidth={3} />
+                <Icon name="check" size={11} color={COLORS.fgGray} strokeWidth={3} />
                 <Text style={styles.trustText}>{t}</Text>
               </View>
             ))}
@@ -126,7 +125,7 @@ export default function WelcomeScreen() {
           <View style={styles.spacer} />
 
           <Animated.View style={[styles.bottomSection, { opacity: btnOpacity, transform: [{ translateY: btnTranslateY }] }]}>
-            <Button variant="primary" accent={ACCENT} accentDeep={ACCENT_DEEP} size="lg" fullWidth onPress={handleGetStarted}>
+            <Button variant="inverted" size="lg" fullWidth onPress={handleGetStarted}>
               Get Started
             </Button>
 
@@ -174,14 +173,14 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 22,
-    backgroundColor: ACCENT,
+    backgroundColor: COLORS.card,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    shadowColor: ACCENT,
+    borderColor: 'rgba(255,255,255,0.28)',
+    shadowColor: '#FFFFFF',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.35,
+    shadowOpacity: 0.14,
     shadowRadius: 17,
     elevation: 10,
   },

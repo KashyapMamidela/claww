@@ -8,8 +8,6 @@ import { establishSessionFromUrl, updatePassword } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 
-const A = COLORS.blue;
-
 type LinkState = 'checking' | 'valid' | 'invalid';
 
 // SHIP PHASE 8.4 — where the password-reset email link actually lands
@@ -86,14 +84,12 @@ export default function ResetPasswordScreen() {
             </View>
           ) : done ? (
             <View style={{ alignItems: 'center' }}>
-              <Icon name="check-circle-2" size={30} color={COLORS.success} />
+              <Icon name="check-circle-2" size={30} color={COLORS.fg} />
               <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginTop: 16, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Password updated
               </Text>
               <Button
-                variant="primary"
-                accent={A}
-                accentDeep={COLORS.blueDeep}
+                variant="inverted"
                 size="md"
                 style={{ marginTop: 12 }}
                 onPress={() => router.replace('/(tabs)')}
@@ -132,7 +128,7 @@ export default function ResetPasswordScreen() {
               </View>
               {error ? <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
               <View style={{ marginTop: 24 }}>
-                <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
+                <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
                   {loading ? 'Updating…' : 'Update password'}
                 </Button>
               </View>
@@ -149,7 +145,7 @@ function inputStyle(active: boolean) {
     height: 54,
     backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: active ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.12)',
+    borderColor: active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)',
     borderRadius: 14,
     color: '#fff',
     fontSize: 15,

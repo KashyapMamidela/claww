@@ -7,7 +7,7 @@ import { resetPasswordForEmail } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 
-const A = COLORS.blue;
+const A = COLORS.fg;
 
 // SHIP PHASE 8.4 — a user who forgets their password today is permanently
 // locked out. resetPasswordForEmail's link deep-links straight back to
@@ -63,13 +63,15 @@ export default function ForgotPasswordScreen() {
                   width: 64,
                   height: 64,
                   borderRadius: 18,
-                  backgroundColor: 'rgba(34,197,94,0.14)',
+                  backgroundColor: COLORS.card,
+                  borderWidth: 1,
+                  borderColor: 'rgba(255,255,255,0.2)',
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: 20,
                 }}
               >
-                <Icon name="check-circle-2" size={30} color={COLORS.success} />
+                <Icon name="check-circle-2" size={30} color={COLORS.fg} />
               </View>
               <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Check your email
@@ -103,7 +105,7 @@ export default function ForgotPasswordScreen() {
                   height: 54,
                   backgroundColor: COLORS.card,
                   borderWidth: 1,
-                  borderColor: email.length > 0 ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.12)',
+                  borderColor: email.length > 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)',
                   borderRadius: 14,
                   color: '#fff',
                   fontSize: 15,
@@ -114,7 +116,7 @@ export default function ForgotPasswordScreen() {
               />
               {error ? <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
               <View style={{ marginTop: 24 }}>
-                <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
+                <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
                   {loading ? 'Sending…' : 'Send reset link'}
                 </Button>
               </View>

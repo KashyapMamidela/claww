@@ -9,7 +9,7 @@ import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { GoogleSignInButton } from '../../../components/GoogleSignInButton';
 
-const A = COLORS.blue;
+const A = COLORS.fg;
 
 export default function SignUpScreen() {
   const router = useRouter();
@@ -149,7 +149,7 @@ export default function SignUpScreen() {
           ) : null}
 
           <View style={{ marginTop: 24 }}>
-            <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
+            <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
               {loading ? 'Creating account…' : 'Create account'}
             </Button>
           </View>
@@ -188,12 +188,11 @@ const logoTileStyle = {
   width: 56,
   height: 56,
   borderRadius: 16,
-  backgroundColor: A,
+  backgroundColor: COLORS.card,
   alignItems: 'center' as const,
   justifyContent: 'center' as const,
   borderWidth: 1,
-  borderColor: 'rgba(255,255,255,0.15)',
-  boxShadow: `0px 6px 14px ${A}40`,
+  borderColor: 'rgba(255,255,255,0.28)',
 };
 
 function inputStyle(active: boolean) {
@@ -201,7 +200,7 @@ function inputStyle(active: boolean) {
     height: 54,
     backgroundColor: COLORS.card,
     borderWidth: 1,
-    borderColor: active ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.12)',
+    borderColor: active ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)',
     borderRadius: 14,
     color: '#fff',
     fontSize: 15,

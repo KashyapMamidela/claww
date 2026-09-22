@@ -44,7 +44,7 @@ export function GoogleSignInButton({ onPress, loading = false }: GoogleSignInBut
             justifyContent: 'center',
           }}
         >
-          <Text style={{ fontSize: 12, fontWeight: '900', color: '#4285F4' }}>G</Text>
+          <Text style={{ fontSize: 12, fontWeight: '900', color: '#000000' }}>G</Text>
         </View>
       )}
       <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
