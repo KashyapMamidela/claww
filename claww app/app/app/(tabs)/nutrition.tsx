@@ -147,7 +147,7 @@ export default function NutritionTab() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20 }}>
               <ProgressRing
                 size={size}
-                rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G.bright, pct: empty ? 0 : Math.min((consumed / GOALS.kcal) * 100, 100) }]}
+                rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G.bright, pct: empty ? 0 : (consumed / GOALS.kcal) * 100 }]}
                 trackColor="rgba(255,255,255,0.055)"
                 trackDash={empty ? '3 8' : undefined}
               >

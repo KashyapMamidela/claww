@@ -297,7 +297,11 @@ function HomePopulated() {
   // Nutrition-today, derived from real meal logs against the user's real
   // (or generic fallback) targets — same numbers the Nutrition tab shows.
   const consumedKcal = meals.reduce((s, m) => s + (m.calories ?? 0), 0);
-  const nutritionPct = Math.min((consumedKcal / targetKcal) * 100, 100);
+  // Unclamped — ProgressRing needs the real value (over 100%) to render the
+  // "shadow" overflow arc that shows a day that blew past target, not just
+  // a ring that looks identically full whether you hit or tripled it.
+  const nutritionPctRaw = targetKcal > 0 ? (consumedKcal / targetKcal) * 100 : 0;
+  const nutritionPct = Math.min(nutritionPctRaw, 100);
 
   const sleepPct = recovery ? Math.min((recovery.score / 100) * 100, 100) : 0; // recovery score already IS the sleep-driven composite
   const recoveryPct = recovery?.score ?? 0;
@@ -365,7 +369,7 @@ function HomePopulated() {
             rings={[
               { r: 72, strokeWidth: 7, color: COLORS.blue, pct: recoveryPct },
               { r: 57, strokeWidth: 7, color: '#FFFFFF', pct: sleepPct },
-              { r: 42, strokeWidth: 7, color: COLORS.green, pct: nutritionPct },
+              { r: 42, strokeWidth: 7, color: COLORS.green, pct: nutritionPctRaw },
             ]}
             trackColor="rgba(255,255,255,0.055)"
           >

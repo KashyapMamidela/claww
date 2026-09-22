@@ -48,6 +48,40 @@ function RingArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcP
   );
 }
 
+/**
+ * A ring at exactly 100% and a ring at 300% both used to render as the same
+ * full circle — no way to tell "hit the target" apart from "blew way past
+ * it" (e.g. 4000/2461 kcal). This draws a second, darker arc on top of the
+ * already-full ring, sweeping from the same start point for however far
+ * past 100% the value went (capped at one extra full lap) — a visible
+ * "shadow" cutting across the completed ring, not just a static cap.
+ */
+function RingOverflowArc({ cx, cy, r, strokeWidth, pct, trackFraction }: Omit<RingArcProps, 'color'>) {
+  const circ = 2 * Math.PI * r;
+  const overPct = Math.max(0, Math.min(100, pct - 100));
+  const target = (overPct / 100) * circ * trackFraction;
+  const arcLen = useSharedValue(0);
+  useEffect(() => {
+    arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
+  }, [target]);
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDasharray: `${arcLen.value} ${Math.max(0, circ - arcLen.value)}`,
+  }));
+
+  return (
+    <AnimatedCircle
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill="none"
+      stroke="rgba(0,0,0,0.42)"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      animatedProps={animatedProps}
+    />
+  );
+}
+
 export interface ProgressRingProps {
   size: number;
   rings: RingSpec[];
@@ -97,6 +131,9 @@ export function ProgressRing({
                   : {})}
               />
               <RingArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
+              {ring.pct > 100 && (
+                <RingOverflowArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} pct={ring.pct} trackFraction={trackFraction} />
+              )}
             </React.Fragment>
           );
         })}
