@@ -4,7 +4,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
-import { getCompletedWorkoutDays, getTotalVolume, getWorkoutsThisMonth } from '../../lib/data';
+import { getCompletedWorkoutDays, getNutritionSummary, getTotalVolume, getWorkoutsThisMonth, type NutritionSummary } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { ProgressBar } from '../../components/ui/ProgressBar';
@@ -199,9 +199,10 @@ interface TrackerUnlockedProps {
   streak: number;
   volume: number;
   xp: number;
+  nutrition: NutritionSummary | null;
 }
 
-function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume, xp }: TrackerUnlockedProps) {
+function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume, xp, nutrition }: TrackerUnlockedProps) {
   const insets = useSafeAreaInsets();
   // CLAWW Score: real XP directly, capped at 1000 — not a separate fabricated metric.
   const clawwScore = Math.min(1000, xp);
@@ -216,7 +217,10 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
     `Streak: ${streak} days\n` +
     `Workouts (all-time): ${workoutsCompleted}\n` +
     `Workouts this month: ${workoutsThisMonth}\n` +
-    `Total volume: ${Math.round(volume).toLocaleString()} kg`;
+    `Total volume: ${Math.round(volume).toLocaleString()} kg` +
+    (nutrition && nutrition.daysLoggedLast7 > 0
+      ? `\nAvg daily calories (last 7d): ${nutrition.avgDailyCalories}\nDays logged (last 7d): ${nutrition.daysLoggedLast7}/7`
+      : '');
 
   const shareReport = useCallback(() => {
     Share.share({ message: reportText, title: 'CLAWW Tracker Report' });
@@ -322,6 +326,43 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
         <Text style={{ color: WD, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Total logged this all-time</Text>
       </View>
 
+      <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.13)', borderRadius: 16, overflow: 'hidden' }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: 14,
+            paddingVertical: 11,
+            borderBottomWidth: 1,
+            borderBottomColor: 'rgba(255,255,255,0.13)',
+            backgroundColor: '#1A1A1C',
+          }}
+        >
+          <Text style={{ color: W, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Nutrition</Text>
+          <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>last 7 days</Text>
+        </View>
+        {nutrition && nutrition.daysLoggedLast7 > 0 ? (
+          <View style={{ flexDirection: 'row' }}>
+            <View style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.07)' }}>
+              <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>AVG DAILY CALORIES</Text>
+              <Text style={{ color: W, fontSize: 22, fontWeight: '900', marginTop: 4, fontFamily: FONT }}>{nutrition.avgDailyCalories}</Text>
+              <Text style={{ color: GD, fontSize: 10, marginTop: 2, fontFamily: FONT }}>on days you logged</Text>
+            </View>
+            <View style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12 }}>
+              <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>DAYS LOGGED</Text>
+              <Text style={{ color: W, fontSize: 22, fontWeight: '900', marginTop: 4, fontFamily: FONT }}>{nutrition.daysLoggedLast7} / 7</Text>
+              <Text style={{ color: GD, fontSize: 10, marginTop: 2, fontFamily: FONT }}>{nutrition.mealsLoggedThisMonth} this month</Text>
+            </View>
+          </View>
+        ) : (
+          <View style={{ padding: 14 }}>
+            <Text style={{ color: GD, fontSize: 12, lineHeight: 19, fontFamily: FONT }}>
+              No meals logged in the last 7 days — log a meal on the Nutrition tab to see trends here.
+            </Text>
+          </View>
+        )}
+      </View>
+
       <View style={{ flexDirection: 'row', gap: 8 }}>
         <Button variant="inverted" onPress={shareReport} icon={<Icon name="download" size={16} color="#000" />} style={{ flex: 2 }}>
           Export Report
@@ -340,6 +381,7 @@ export default function TrackerTab() {
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [workoutsThisMonth, setWorkoutsThisMonth] = useState(0);
   const [volume, setVolume] = useState(0);
+  const [nutrition, setNutrition] = useState<NutritionSummary | null>(null);
 
   // xp/streak come from AppState (live — see appState.tsx); the rest are
   // tracker-specific counts refreshed each time this tab gains focus.
@@ -347,12 +389,13 @@ export default function TrackerTab() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getCompletedWorkoutDays(userId), getWorkoutsThisMonth(userId), getTotalVolume(userId)]).then(
-        ([count, monthCount, v]) => {
+      Promise.all([getCompletedWorkoutDays(userId), getWorkoutsThisMonth(userId), getTotalVolume(userId), getNutritionSummary(userId)]).then(
+        ([count, monthCount, v, n]) => {
           if (cancelled) return;
           setWorkoutsCompleted(count);
           setWorkoutsThisMonth(monthCount);
           setVolume(v);
+          setNutrition(n);
           setLoaded(true);
         }
       );
@@ -382,6 +425,7 @@ export default function TrackerTab() {
           streak={streak}
           volume={volume}
           xp={xp}
+          nutrition={nutrition}
         />
       )}
     </ScrollView>

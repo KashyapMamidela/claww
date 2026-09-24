@@ -45,7 +45,11 @@ export default function TabsLayout() {
         <Tabs.Screen name="tracker" />
         <Tabs.Screen name="more" />
       </Tabs>
-      <AppHeader wordmarkAccent={wordmarkAccent} onBellPress={() => router.navigate('/(tabs)/more')} />
+      {/* The bell implies a notification inbox, which doesn't exist — the
+          only real notification-related feature today is the reminders
+          toggle in Settings, so point there directly instead of a generic
+          "More" tab that has nothing bell-related on it at all. */}
+      <AppHeader wordmarkAccent={wordmarkAccent} onBellPress={() => router.push('/settings')} />
       <LiveWorkoutPlayer bottomOffset={tabBarHeight + 10} />
     </View>
   );

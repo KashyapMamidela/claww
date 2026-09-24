@@ -10,10 +10,13 @@ import { useWorkoutSession } from '../../lib/workoutSession';
 import {
   generateWorkoutPlan,
   getLatestWorkout,
+  getProfile,
   getSuggestedDayIndex,
+  getTodayWorkoutStats,
   getWorkoutDayEvents,
   logWorkoutDayEvent,
   type RegenerationReason,
+  type TodayWorkoutStats,
   type WorkoutDayEvent,
   type WorkoutRow,
 } from '../../lib/data';
@@ -114,6 +117,7 @@ export default function WorkoutsTab() {
   const [regenerating, setRegenerating] = useState(false);
   const [regenError, setRegenError] = useState<string | null>(null);
   const [lastReason, setLastReason] = useState<RegenerationReason | null>(null);
+  const [todayStats, setTodayStats] = useState<TodayWorkoutStats | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -130,6 +134,12 @@ export default function WorkoutsTab() {
         }
         setLoaded(true);
       });
+      getProfile(userId).then((p) => {
+        if (cancelled) return;
+        getTodayWorkoutStats(userId, p?.weight ?? null).then((s) => {
+          if (!cancelled) setTodayStats(s);
+        });
+      });
       return () => {
         cancelled = true;
       };
@@ -144,6 +154,7 @@ export default function WorkoutsTab() {
       setEvents(dayEvents);
       setSelectedDay(getSuggestedDayIndex(workout.plan, dayEvents));
     });
+    getProfile(userId).then((p) => getTodayWorkoutStats(userId, p?.weight ?? null)).then(setTodayStats);
   }, [sessionStatus, userId, workout]);
 
   if (!loaded) {
@@ -382,6 +393,40 @@ export default function WorkoutsTab() {
               {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}
             </Text>
           </LinearGradient>
+
+          {todayStats ? (
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {[
+                {
+                  label: 'PROGRESS',
+                  value: `${Math.min(
+                    100,
+                    Math.round((todayStats.setsCompleted / Math.max(1, day.exercises.reduce((s, ex) => s + ex.sets, 0))) * 100)
+                  )}%`,
+                  sub: `${todayStats.setsCompleted} sets today`,
+                },
+                { label: 'VOLUME', value: todayStats.volume >= 1000 ? `${(todayStats.volume / 1000).toFixed(1)}K` : String(Math.round(todayStats.volume)), sub: 'kg today' },
+                { label: 'BURNED', value: todayStats.calorieBurn > 0 ? String(todayStats.calorieBurn) : '—', sub: 'kcal est.' },
+              ].map((s) => (
+                <View
+                  key={s.label}
+                  style={{
+                    flex: 1,
+                    backgroundColor: '#151517',
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderRadius: 14,
+                    paddingHorizontal: 12,
+                    paddingVertical: 10,
+                  }}
+                >
+                  <Text style={{ color: '#71717A', fontSize: 9, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
+                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
+                  <Text style={{ color: '#52525B', fontSize: 9.5, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
 
           <View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>

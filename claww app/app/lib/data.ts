@@ -305,6 +305,43 @@ export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
   return data ?? [];
 }
 
+export interface NutritionSummary {
+  /** Real average across days that actually had a meal logged in the last
+   * 7 days — not divided by 7 unconditionally, which would understate a
+   * user who only started logging 2 days ago. */
+  avgDailyCalories: number;
+  daysLoggedLast7: number;
+  mealsLoggedThisMonth: number;
+}
+
+/** Tracker had zero nutrition content before this — every stat here is a
+ * real aggregate over meal_logs, not a fabricated number. */
+export async function getNutritionSummary(userId: string): Promise<NutritionSummary> {
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const [weekRes, monthRes] = await Promise.all([
+    supabase.from('meal_logs').select('calories, logged_at').eq('user_id', userId).gte('logged_at', sevenDaysAgo.toISOString()),
+    supabase.from('meal_logs').select('logged_at').eq('user_id', userId).gte('logged_at', startOfMonth.toISOString()),
+  ]);
+
+  const weekRows = weekRes.data ?? [];
+  const dayTotals = new Map<string, number>();
+  for (const row of weekRows) {
+    const day = new Date(row.logged_at).toDateString();
+    dayTotals.set(day, (dayTotals.get(day) ?? 0) + (row.calories ?? 0));
+  }
+  const daysLoggedLast7 = dayTotals.size;
+  const avgDailyCalories = daysLoggedLast7 > 0 ? Math.round([...dayTotals.values()].reduce((s, c) => s + c, 0) / daysLoggedLast7) : 0;
+
+  const monthDays = new Set((monthRes.data ?? []).map((row) => new Date(row.logged_at).toDateString()));
+
+  return { avgDailyCalories, daysLoggedLast7, mealsLoggedThisMonth: monthDays.size };
+}
+
 const FALLBACK_MEAL_MACROS: Record<MealType, { calories: number; protein_g: number; carbs_g: number; fats_g: number }> = {
   Breakfast: { calories: 455, protein_g: 32, carbs_g: 48, fats_g: 14 },
   Lunch: { calories: 605, protein_g: 46, carbs_g: 58, fats_g: 18 },
@@ -504,11 +541,23 @@ export async function getWorkoutsThisMonth(userId: string): Promise<number> {
   return days.size;
 }
 
-/** Total sets x reps x weight lifted, all-time — achieved where logged, prescribed otherwise (pre-migration rows have no achieved value yet). */
+/**
+ * Total reps x weight lifted, all-time — achieved where logged, prescribed
+ * otherwise (pre-migration rows have no achieved value yet).
+ *
+ * BUG FIXED: this used to multiply each row by `row.sets`, but `sets` on
+ * workout_logs holds the SET NUMBER within an exercise (1, 2, 3...), not a
+ * count — logWorkoutSet inserts one row per completed set with
+ * `sets: log.setNumber` (see schema.sql's own comment on the column). Each
+ * row already IS one set, so multiplying by its set number inflated later
+ * sets: a 4-set exercise's volume came out as (1+2+3+4)x too high instead
+ * of the true 4x. Found while investigating a cofounder report that
+ * Tracker's volume/progress numbers looked wrong.
+ */
 export async function getTotalVolume(userId: string): Promise<number> {
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed')
+    .select('reps_achieved, reps_prescribed, weight_achieved, weight_prescribed')
     .eq('user_id', userId);
   if (error) {
     console.warn('[Claww] Failed to load workout volume:', error.message);
@@ -517,8 +566,69 @@ export async function getTotalVolume(userId: string): Promise<number> {
   return (data ?? []).reduce((sum, row) => {
     const reps = row.reps_achieved ?? row.reps_prescribed ?? 0;
     const weight = row.weight_achieved ?? row.weight_prescribed ?? 0;
-    return sum + (row.sets ?? 0) * reps * weight;
+    return sum + reps * weight;
   }, 0);
+}
+
+export interface TodayWorkoutStats {
+  volume: number;
+  setsCompleted: number;
+  calorieBurn: number;
+}
+
+/** Population-average MET for general resistance training (ACSM tables,
+ * "weight lifting, general") — used only when a set's exercise has no
+ * met_value in the catalog, same fallback posture as
+ * estimateCaloriesFromSteps' weight default. */
+const DEFAULT_STRENGTH_MET = 5.0;
+/** No prior set to measure a real gap from — a single flat estimate for
+ * just that first set, not compounded into every later set's real delta. */
+const FIRST_SET_ASSUMED_SECONDS = 60;
+
+/**
+ * Today's volume, set count, and a real calorie-burn estimate — for the
+ * Workouts tab's daily stat board (previously nothing existed here at
+ * all, see the calorie-burn gap called out directly in the cofounder's
+ * report).
+ *
+ * Calorie burn is MET_value * weight_kg * hours, using the ACTUAL elapsed
+ * time between consecutive completed_at timestamps for the day as the
+ * duration for each set (genuinely measured, not a guessed flat rate per
+ * set) — matches the "no fake precision" standard the rest of the app
+ * holds itself to (see getTotalVolume's fix above, in the same spirit).
+ */
+export async function getTodayWorkoutStats(userId: string, weightKg: number | null): Promise<TodayWorkoutStats> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at, exercises(met_value)')
+    .eq('user_id', userId)
+    .gte('completed_at', startOfDay.toISOString())
+    .order('completed_at', { ascending: true });
+  if (error) {
+    console.warn('[Claww] Failed to load today\'s workout stats:', error.message);
+    return { volume: 0, setsCompleted: 0, calorieBurn: 0 };
+  }
+  const rows = data ?? [];
+  const weight = weightKg ?? 70; // same population-average fallback as estimateCaloriesFromSteps
+
+  let volume = 0;
+  let calorieBurn = 0;
+  let prevTime: number | null = null;
+  for (const row of rows) {
+    const reps = row.reps_achieved ?? row.reps_prescribed ?? 0;
+    const w = row.weight_achieved ?? row.weight_prescribed ?? 0;
+    volume += reps * w;
+
+    const met = (row as unknown as { exercises: { met_value: number | null } | null }).exercises?.met_value ?? DEFAULT_STRENGTH_MET;
+    const thisTime = new Date(row.completed_at).getTime();
+    const seconds = prevTime === null ? FIRST_SET_ASSUMED_SECONDS : Math.min(600, (thisTime - prevTime) / 1000); // cap at 10min so a paused/abandoned session doesn't blow up the estimate
+    calorieBurn += met * weight * (seconds / 3600);
+    prevTime = thisTime;
+  }
+
+  return { volume, setsCompleted: rows.length, calorieBurn: Math.round(calorieBurn) };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
