@@ -70,6 +70,28 @@ function computeRepRange(goal: string | null, experienceLevel: string | null, ag
   return { minSets: Math.min(base.minSets, maxSets), maxSets, minReps, maxReps: Math.max(base.maxReps, minReps) };
 }
 
+/**
+ * Deterministic recovery -> volume link (item #13: "once sleep is logged,
+ * the workout must be modified according to it"). Previously recovery only
+ * ever showed up as prose in the LLM prompt ("adjust where in the range
+ * you land") — a *suggestion* the model could ignore, never a real change
+ * to the numbers themselves, and nothing about generation was ever
+ * triggered by a new sleep log at all. This makes it a real, deterministic
+ * ±1 set adjustment applied server-side before the model ever sees the
+ * range, same "don't trust the model, ground it" posture as everything
+ * else in this file. Only takes effect at the next plan generation/
+ * regeneration — it does not retroactively rewrite an already-saved plan,
+ * which would silently change a workout a user has already mentally
+ * committed to.
+ */
+function applyRecoveryToSets(range: RepRange, band: 'Low' | 'Moderate' | 'High', experienceLevel: string | null): RepRange {
+  if (band === 'Moderate') return range;
+  const experienceCap = EXPERIENCE_MAX_SETS[experienceLevel ?? ''] ?? EXPERIENCE_MAX_SETS.intermediate;
+  const delta = band === 'Low' ? -1 : 1;
+  const maxSets = Math.min(experienceCap, Math.max(range.minSets, range.maxSets + delta));
+  return { ...range, maxSets, minSets: Math.min(range.minSets, maxSets) };
+}
+
 function computeTrainingDays(experienceLevel: string | null, activityLevel: string | null, age: number | null): number {
   const row = FREQUENCY_TABLE[experienceLevel ?? ''] ?? FREQUENCY_TABLE.intermediate;
   let days = row[activityLevel ?? ''] ?? row.moderate;
@@ -363,13 +385,17 @@ Deno.serve(async (req: Request) => {
     }
 
     const exercises = excludeInjuredExercises(rawExercises ?? [], injuriesText);
-    const baseRepRange = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
+    const recoveryAdjustedRange = applyRecoveryToSets(
+      computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null),
+      recovery.band,
+      profile?.experience_level ?? null
+    );
     const adjustDirection = deriveAdjustDirection(reason, recentWorkouts ?? []);
-    const repRange = applyAdjustDirection(baseRepRange, adjustDirection, reason !== null);
+    const repRange = applyAdjustDirection(recoveryAdjustedRange, adjustDirection, reason !== null);
     if (adjustDirection !== 'hold') {
       console.log(
         `[generate-plan] Adjusting rep range ${adjustDirection} for user ${user.id} ` +
-          `(reason: ${reason ?? 'performance trend'}) — ${baseRepRange.minReps}-${baseRepRange.maxReps} -> ${repRange.minReps}-${repRange.maxReps}`
+          `(reason: ${reason ?? 'performance trend'}) — ${recoveryAdjustedRange.minReps}-${recoveryAdjustedRange.maxReps} -> ${repRange.minReps}-${repRange.maxReps}`
       );
     }
     const { trainingDays, splitPreference } = deriveScheduleConstraints(personalizationProfile);
