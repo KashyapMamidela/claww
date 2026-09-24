@@ -106,7 +106,9 @@ export default function MealLogScreen() {
       return;
     }
 
-    const options: ImagePicker.ImagePickerOptions = { mediaTypes: 'images', base64: true, quality: 0.5, allowsEditing: true, aspect: [4, 3] };
+    // No forced crop — a meal photo's real framing matters for accurate
+    // estimation, and a fixed 4:3 crop was cutting off part of the plate.
+    const options: ImagePicker.ImagePickerOptions = { mediaTypes: 'images', base64: true, quality: 0.5 };
     const result = source === 'camera'
       ? await ImagePicker.launchCameraAsync(options)
       : await ImagePicker.launchImageLibraryAsync(options);

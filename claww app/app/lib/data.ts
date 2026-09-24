@@ -761,14 +761,18 @@ export function getTierName(level: number): string {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function getActivityStreak(userId: string): Promise<number> {
-  const [sleepRes, mealRes] = await Promise.all([
+  const [sleepRes, mealRes, workoutRes] = await Promise.all([
     supabase.from('sleep_logs').select('logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(120),
     supabase.from('meal_logs').select('logged_at').eq('user_id', userId).order('logged_at', { ascending: false }).limit(120),
+    supabase.from('workout_logs').select('completed_at').eq('user_id', userId).order('completed_at', { ascending: false }).limit(120),
   ]);
 
   const days = new Set<string>();
   for (const row of [...(sleepRes.data ?? []), ...(mealRes.data ?? [])]) {
     days.add(new Date(row.logged_at).toDateString());
+  }
+  for (const row of workoutRes.data ?? []) {
+    days.add(new Date(row.completed_at).toDateString());
   }
   if (days.size === 0) return 0;
 

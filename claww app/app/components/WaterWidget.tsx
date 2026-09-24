@@ -169,26 +169,29 @@ export function WaterWidget({ compact = false, onOpenFull }: WaterWidgetProps) {
           <Text style={{ color: '#71717A', fontSize: 11, marginTop: 2, fontFamily: FONT }}>
             {formatMl(waterMl)} <Text style={{ color: '#52525B' }}>/ {formatMl(WATER_TARGET_ML)}</Text>
           </Text>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => addWater(TAP_ADD_ML)}
-            style={{
-              alignSelf: 'flex-start',
-              marginTop: 7,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 4,
-              backgroundColor: 'rgba(56,189,248,0.14)',
-              borderWidth: 1,
-              borderColor: 'rgba(56,189,248,0.3)',
-              borderRadius: 100,
-              paddingHorizontal: 10,
-              paddingVertical: 4,
-            }}
-          >
-            <Icon name="plus" size={11} color={WATER} />
-            <Text style={{ color: WATER, fontSize: 10.5, fontWeight: '700', fontFamily: FONT }}>{TAP_ADD_ML}ml</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 6, marginTop: 7 }}>
+            {[TAP_ADD_ML, 500].map((p) => (
+              <TouchableOpacity
+                key={p}
+                activeOpacity={0.8}
+                onPress={() => addWater(p)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                  backgroundColor: 'rgba(56,189,248,0.14)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(56,189,248,0.3)',
+                  borderRadius: 100,
+                  paddingHorizontal: 10,
+                  paddingVertical: 4,
+                }}
+              >
+                <Icon name="plus" size={11} color={WATER} />
+                <Text style={{ color: WATER, fontSize: 10.5, fontWeight: '700', fontFamily: FONT }}>{p}ml</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
         <Icon name="droplets" size={18} color={WATER} />
       </TouchableOpacity>

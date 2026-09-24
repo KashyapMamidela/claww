@@ -16,6 +16,12 @@ export interface SessionSummary {
   xpEarned: number;
 }
 
+export interface LastCompletedSet {
+  exerciseName: string;
+  setNumber: number;
+  totalSets: number;
+}
+
 interface WorkoutSessionState {
   status: SessionStatus;
   workout: WorkoutRow | null;
@@ -27,6 +33,11 @@ interface WorkoutSessionState {
   isPaused: boolean;
   weight: number;
   lastSummary: SessionSummary | null;
+  /** The set that was just confirmed — shown during the rest screen instead
+   * of the upcoming set number, so the last set of an exercise reads as
+   * "4/4 ✓" rather than jumping straight to the next exercise's "1/N" with
+   * no confirmation the 4th set ever happened. */
+  lastCompletedSet: LastCompletedSet | null;
   startSession: (workout: WorkoutRow, dayIndex?: number) => void;
   togglePause: () => void;
   setWeight: (w: number) => void;
@@ -51,6 +62,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const [isPaused, setIsPaused] = useState(false);
   const [weight, setWeightState] = useState(0);
   const [lastSummary, setLastSummary] = useState<SessionSummary | null>(null);
+  const [lastCompletedSet, setLastCompletedSet] = useState<LastCompletedSet | null>(null);
 
   const totals = useRef({ setsCompleted: 0, repsCompleted: 0, exercisesCompleted: 0, xpEarned: 0 });
 
@@ -88,6 +100,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     setIsPaused(false);
     setWeightState(0);
     setLastSummary(null);
+    setLastCompletedSet(null);
     setStatus('active');
   }, []);
 
@@ -127,6 +140,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
 
     const isLastSetOfExercise = setNumber >= exercise.sets;
     const isLastExercise = exerciseIndex >= exercises.length - 1;
+
+    setLastCompletedSet({ exerciseName: exercise.name, setNumber, totalSets: exercise.sets });
 
     if (isLastSetOfExercise) {
       totals.current.exercisesCompleted += 1;
@@ -201,6 +216,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       isPaused,
       weight,
       lastSummary,
+      lastCompletedSet,
       startSession,
       togglePause,
       setWeight,
@@ -220,6 +236,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       isPaused,
       weight,
       lastSummary,
+      lastCompletedSet,
       startSession,
       togglePause,
       setWeight,

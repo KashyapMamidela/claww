@@ -21,6 +21,7 @@ import {
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 import { ErrorCard } from '../components/ui/ErrorCard';
+import { Skeleton } from '../components/ui/Skeleton';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
 import { PrivacyDataModal } from '../components/PrivacyDataModal';
@@ -55,6 +56,7 @@ export default function ProfileScreen() {
   const [workoutCount, setWorkoutCount] = useState(0);
   const [volume, setVolume] = useState(0);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [loaded, setLoaded] = useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = useState(false);
   const [disclaimerModalVisible, setDisclaimerModalVisible] = useState(false);
   const [privacyModalVisible, setPrivacyModalVisible] = useState(false);
@@ -105,6 +107,7 @@ export default function ProfileScreen() {
           setWorkoutCount(wc);
           setVolume(v);
           setAchievements(a);
+          setLoaded(true);
         }
       );
       return () => {
@@ -135,6 +138,28 @@ export default function ProfileScreen() {
     { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
   ];
+
+  if (!loaded) {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+        <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
+            <Skeleton width={30} height={30} borderRadius={8} />
+            <Skeleton width={90} height={16} borderRadius={4} />
+          </View>
+          <Skeleton height={150} borderRadius={18} />
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Skeleton height={92} borderRadius={14} style={{ flex: 1 }} />
+            <Skeleton height={92} borderRadius={14} style={{ flex: 1 }} />
+            <Skeleton height={92} borderRadius={14} style={{ flex: 1 }} />
+            <Skeleton height={92} borderRadius={14} style={{ flex: 1 }} />
+          </View>
+          <Skeleton height={120} borderRadius={16} />
+          <Skeleton height={140} borderRadius={16} />
+        </View>
+      </ScrollView>
+    );
+  }
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
@@ -82,11 +82,16 @@ function TrackerLoadingSkeleton() {
   );
 }
 
-function TrackerLocked({ workoutsCompleted }: { workoutsCompleted: number }) {
+function TrackerLocked({ workoutsCompleted, xp }: { workoutsCompleted: number; xp: number }) {
   const insets = useSafeAreaInsets();
   const remaining = UNLOCK_AT - workoutsCompleted;
+  // CLAWW Score is just capped XP (see TrackerUnlocked) — the same number
+  // already shown unconditionally on Profile and Home's header badge, so
+  // there's no honest reason to hide it here too. Only the stats that
+  // genuinely need workout history (streak, volume, goals) stay locked.
+  const clawwScore = Math.min(1000, xp);
   const KPI_LOCKED = [
-    { label: 'CLAWW SCORE', value: '—', note: 'Complete 3 workouts to unlock your CLAWW Score.' },
+    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
     { label: 'STREAK', value: '—', note: 'Log workouts on consecutive days to start a streak.' },
     {
       label: 'WORKOUTS',
@@ -202,11 +207,30 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
   const clawwScore = Math.min(1000, xp);
   const scorePct = (clawwScore / 1000) * 100;
 
+  // Plain-text summary of exactly what's on screen — a real report, not a
+  // fabricated one, and not the full raw-data dump (that's Profile's
+  // "Download My Data"). No branded template yet, just real numbers.
+  const reportText =
+    `CLAWW Tracker Report — ${new Date().toLocaleDateString()}\n\n` +
+    `CLAWW Score: ${clawwScore} / 1000\n` +
+    `Streak: ${streak} days\n` +
+    `Workouts (all-time): ${workoutsCompleted}\n` +
+    `Workouts this month: ${workoutsThisMonth}\n` +
+    `Total volume: ${Math.round(volume).toLocaleString()} kg`;
+
+  const shareReport = useCallback(() => {
+    Share.share({ message: reportText, title: 'CLAWW Tracker Report' });
+  }, [reportText]);
+
   const KPI = [
     { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
     { label: 'STREAK', value: String(streak), sub: 'days' },
     { label: 'WORKOUTS', value: String(workoutsCompleted), sub: 'sessions' },
-    { label: 'VOLUME', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), sub: 'lbs' },
+    // VOLUME used to be a duplicate tile here — the dedicated card below
+    // already shows it with more context ("Total logged this all-time").
+    // This month's session count is real data that had no home anywhere
+    // in the tab before.
+    { label: 'THIS MONTH', value: String(workoutsThisMonth), sub: 'sessions' },
   ];
   const GOALS = [
     { label: 'Monthly Workouts', pct: Math.min(100, Math.round((workoutsThisMonth / MONTHLY_WORKOUT_TARGET) * 100)) },
@@ -293,16 +317,16 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
       >
         <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>VOLUME</Text>
         <Text style={{ color: W, fontSize: 34, fontWeight: '900', letterSpacing: -1.5, marginVertical: 6, fontFamily: FONT }}>
-          {Math.round(volume).toLocaleString()} lbs
+          {Math.round(volume).toLocaleString()} kg
         </Text>
         <Text style={{ color: WD, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Total logged this all-time</Text>
       </View>
 
       <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Button variant="inverted" disabled icon={<Icon name="download" size={16} color="#000" />} style={{ flex: 2 }}>
+        <Button variant="inverted" onPress={shareReport} icon={<Icon name="download" size={16} color="#000" />} style={{ flex: 2 }}>
           Export Report
         </Button>
-        <Button variant="ghost" disabled style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={GR} />}>
+        <Button variant="ghost" onPress={shareReport} style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={GR} />}>
           Share
         </Button>
       </View>
@@ -350,7 +374,7 @@ export default function TrackerTab() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       {locked ? (
-        <TrackerLocked workoutsCompleted={workoutsCompleted} />
+        <TrackerLocked workoutsCompleted={workoutsCompleted} xp={xp} />
       ) : (
         <TrackerUnlocked
           workoutsCompleted={workoutsCompleted}

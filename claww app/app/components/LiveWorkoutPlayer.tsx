@@ -64,6 +64,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
     restRemaining,
     isPaused,
     weight,
+    lastCompletedSet,
     togglePause,
     setWeight,
     finishSet,
@@ -297,10 +298,23 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
                 <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.7, fontFamily: FONT }}>
                   {isResting ? `RESTING · ${formatClock(restRemaining)}` : isPaused ? 'PAUSED' : `LIVE · ${formatClock(elapsedSeconds)}`}
                 </Text>
-                <View style={{ backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 3, paddingHorizontal: 5, paddingVertical: 1 }}>
-                  <Text style={{ fontSize: 8.5, fontWeight: '700', color: 'rgba(255,255,255,0.65)', fontFamily: FONT }}>
-                    Set {setNumber}/{current.sets}
-                  </Text>
+                <View
+                  style={{
+                    backgroundColor: isResting && lastCompletedSet ? 'rgba(34,197,94,0.18)' : 'rgba(255,255,255,0.12)',
+                    borderRadius: 3,
+                    paddingHorizontal: 5,
+                    paddingVertical: 1,
+                  }}
+                >
+                  {isResting && lastCompletedSet ? (
+                    <Text style={{ fontSize: 8.5, fontWeight: '700', color: COLORS.green, fontFamily: FONT }}>
+                      Set {lastCompletedSet.setNumber}/{lastCompletedSet.totalSets} ✓
+                    </Text>
+                  ) : (
+                    <Text style={{ fontSize: 8.5, fontWeight: '700', color: 'rgba(255,255,255,0.65)', fontFamily: FONT }}>
+                      Set {setNumber}/{current.sets}
+                    </Text>
+                  )}
                 </View>
               </View>
               <Text numberOfLines={1} style={{ color: '#fff', fontSize: 13, fontWeight: '800', fontFamily: FONT }}>

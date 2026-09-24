@@ -6,7 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { MEAL_ORDER, useAppState } from '../../lib/appState';
-import { getProfile, type NutritionDefaults } from '../../lib/data';
+import { getProfile, type MealLogRow, type NutritionDefaults } from '../../lib/data';
+import { MealDetailModal } from '../../components/MealDetailModal';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -28,6 +29,7 @@ export default function NutritionTab() {
   const [nutritionDefaults, setNutritionDefaults] = useState<NutritionDefaults | null>(null);
   const [hasCustomTargets, setHasCustomTargets] = useState(false);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
+  const [selectedMeal, setSelectedMeal] = useState<MealLogRow | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -252,9 +254,10 @@ export default function NutritionTab() {
           ) : (
             <View style={{ gap: 8 }}>
               {meals.map((m, i) => (
-                <Animated.View
-                  key={m.id}
-                  entering={FadeInDown.delay(i * 60).springify().damping(18)}
+                <Animated.View key={m.id} entering={FadeInDown.delay(i * 60).springify().damping(18)}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setSelectedMeal(m)}
                   style={{
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -290,6 +293,7 @@ export default function NutritionTab() {
                     </Text>
                   </View>
                   <Text style={{ color: G.bright, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{Math.round(m.calories ?? 0)}</Text>
+                </TouchableOpacity>
                 </Animated.View>
               ))}
             </View>
@@ -307,6 +311,7 @@ export default function NutritionTab() {
           {nextMeal ? `Suggest ${nextMeal}` : 'All Meals Logged Today ✓'}
         </Button>
       </View>
+      <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
     </ScrollView>
   );
 }
