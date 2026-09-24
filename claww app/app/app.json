@@ -29,7 +29,11 @@
       },
       "package": "com.claww.app",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.health.READ_STEPS",
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED"
+      ]
     },
     "web": {
       "bundler": "metro",
