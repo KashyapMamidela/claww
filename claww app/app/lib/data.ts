@@ -12,11 +12,23 @@ export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 export type Equipment = 'gym' | 'home' | 'none';
 export type Modality = 'strength' | 'cardio' | 'mobility' | 'yoga';
 
+export type SplitPreference = 'auto' | 'full_body' | 'upper_lower' | 'push_pull_legs';
+
 export interface WorkoutDefaults {
   modalities: Modality[];
   activityLevel: ActivityLevel;
   /** Free-text injuries/limitations (e.g. "bad knees, avoid heavy squats") — feeds the exercise-exclusion filter in generate-plan. */
   injuries?: string;
+  /** Real weekday names the user actually picked (e.g. ["Monday","Wednesday"])
+   * — when present, generate-plan uses these directly instead of estimating
+   * a day count from activity level, and names each generated day after the
+   * real weekday instead of a generic "Day 1". Empty/absent falls back to
+   * the old activity-based estimate untouched. */
+  trainingDays?: string[];
+  /** 'auto' lets the LLM choose within its existing judgment, same as
+   * before this existed — the other values are a hard constraint passed
+   * into the prompt, not another exercise-picking `suggestion`. */
+  splitPreference?: SplitPreference;
 }
 
 export type DietaryRestriction =
@@ -88,6 +100,8 @@ export interface WorkoutIntakeInput {
   modalities: Modality[];
   activityLevel: ActivityLevel;
   injuries?: string;
+  trainingDays?: string[];
+  splitPreference?: SplitPreference;
 }
 
 /**
@@ -102,7 +116,13 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
   const profile = await getProfile(userId);
   const nextPersonalization: PersonalizationProfile = {
     ...(profile?.personalization_profile ?? {}),
-    workoutDefaults: { modalities: input.modalities, activityLevel: input.activityLevel, injuries: input.injuries?.trim() || undefined },
+    workoutDefaults: {
+      modalities: input.modalities,
+      activityLevel: input.activityLevel,
+      injuries: input.injuries?.trim() || undefined,
+      trainingDays: input.trainingDays?.length ? input.trainingDays : undefined,
+      splitPreference: input.splitPreference,
+    },
   };
 
   const { error } = await supabase

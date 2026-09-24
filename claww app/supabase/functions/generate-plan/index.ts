@@ -219,9 +219,41 @@ function derivePreferredModalities(personalizationProfile: Record<string, unknow
   return [...MODALITIES];
 }
 
+const VALID_SPLITS = ['auto', 'full_body', 'upper_lower', 'push_pull_legs'] as const;
+type SplitPreference = (typeof VALID_SPLITS)[number];
+
+/** Real weekday names the user picked (empty/absent = old activity-based
+ * day-count estimate, untouched) and a split they asked for instead of
+ * leaving it entirely to the LLM's judgment. Both optional — a user who
+ * never saw or skipped screens/workout-setup/schedule.tsx gets identical
+ * behavior to before it existed. */
+function deriveScheduleConstraints(personalizationProfile: Record<string, unknown> | null): {
+  trainingDays: string[] | null;
+  splitPreference: SplitPreference;
+} {
+  const wd = (personalizationProfile as { workoutDefaults?: { trainingDays?: unknown; splitPreference?: unknown } } | null)
+    ?.workoutDefaults;
+  const trainingDays = Array.isArray(wd?.trainingDays) && wd!.trainingDays!.length > 0 ? (wd!.trainingDays as string[]) : null;
+  const splitPreference = VALID_SPLITS.includes(wd?.splitPreference as SplitPreference) ? (wd!.splitPreference as SplitPreference) : 'auto';
+  return { trainingDays, splitPreference };
+}
+
+const SPLIT_INSTRUCTIONS: Record<Exclude<SplitPreference, 'auto'>, string> = {
+  full_body: 'The user asked for a Full Body split — every training day must train the whole body, not a muscle-group/movement-pattern split across days.',
+  upper_lower: 'The user asked for an Upper/Lower split — alternate strictly between an Upper Body day and a Lower Body day across the given days, in that order, wrapping back to Upper after Lower.',
+  push_pull_legs: 'The user asked for a Push/Pull/Legs split — cycle strictly through Push, Pull, Legs in that order across the given days, wrapping back to Push after Legs.',
+};
+
 const GENERATION_COOLDOWN_MS = 30_000;
 
-function buildSystemPrompt(range: RepRange, dayCount: number, injuriesText: string | null | undefined, regenerationReason: string | null): string {
+function buildSystemPrompt(
+  range: RepRange,
+  dayCount: number,
+  injuriesText: string | null | undefined,
+  regenerationReason: string | null,
+  trainingDays: string[] | null,
+  splitPreference: SplitPreference
+): string {
   const injuriesLine = injuriesText?.trim()
     ? `The user reported these injuries/limitations: "${injuriesText.trim()}". The available-exercises list has already been filtered to exclude movements that commonly stress those areas — do not work around the filter or suggest anything outside the provided list.`
     : 'The user reported no injuries or limitations.';
@@ -235,6 +267,12 @@ function buildSystemPrompt(range: RepRange, dayCount: number, injuriesText: stri
       ? 'The user regenerated because the previous plan\'s day split / focus areas were wrong for them — choose a meaningfully different day split and exercise selection this time, not a near-copy of a typical plan for their goal.'
       : '';
 
+  const dayNamingLine = trainingDays
+    ? `Use these exact real weekday names for the "day" field, in this order, one per training day: ${trainingDays.join(', ')}. Do not invent generic labels like "Day 1".`
+    : 'Name each "day" field something like "Day 1", "Day 2" etc. — the user did not pick specific weekdays.';
+
+  const splitLine = splitPreference !== 'auto' ? SPLIT_INSTRUCTIONS[splitPreference] : '';
+
   return `You are a certified personal trainer generating a workout plan. You will be given the user's
 recovery score/band, their personalization profile, recent workout history, and a filtered list of
 available exercises. Build a plan using ONLY exercises from the provided list. Respond with ONLY a JSON
@@ -243,12 +281,13 @@ object matching this exact shape:
 
 Hard constraints, already computed for this specific user — follow them exactly:
 - Generate EXACTLY ${dayCount} training day(s).
+- ${dayNamingLine}
 - Every exercise must use ${range.minSets}-${range.maxSets} sets and ${range.minReps}-${range.maxReps} reps.
 - ${injuriesLine}
-${regenerationLine ? `- ${regenerationLine}\n` : ''}
-Within those constraints, use your judgment like a trainer would: pick a sensible day split and exercise
-selection for the user's goal and equipment, and adjust where in each range you land based on recovery
-(lower in the range when recovery is Low, higher when High).`;
+${splitLine ? `- ${splitLine}\n` : ''}${regenerationLine ? `- ${regenerationLine}\n` : ''}
+Within those constraints, use your judgment like a trainer would: pick a sensible ${splitLine ? 'exercise selection' : 'day split and exercise selection'}
+for the user's goal and equipment, and adjust where in each range you land based on recovery (lower in
+the range when recovery is Low, higher when High).`;
 }
 
 Deno.serve(async (req: Request) => {
@@ -333,8 +372,9 @@ Deno.serve(async (req: Request) => {
           `(reason: ${reason ?? 'performance trend'}) — ${baseRepRange.minReps}-${baseRepRange.maxReps} -> ${repRange.minReps}-${repRange.maxReps}`
       );
     }
-    const dayCount = computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
-    const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText, reason);
+    const { trainingDays, splitPreference } = deriveScheduleConstraints(personalizationProfile);
+    const dayCount = trainingDays?.length || computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
+    const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText, reason, trainingDays, splitPreference);
 
     // Checked right before the real Groq call, after the cache/cooldown
     // short-circuit above — a cached response must never burn a cap slot.

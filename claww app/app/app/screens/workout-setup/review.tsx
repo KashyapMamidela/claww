@@ -8,15 +8,24 @@ import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { ErrorCard } from '../../../components/ui/ErrorCard';
-import { saveWorkoutIntake, generateWorkoutPlan, type ActivityLevel, type Equipment, type ExperienceLevel, type Goal, type Modality } from '../../../lib/data';
+import {
+  saveWorkoutIntake,
+  generateWorkoutPlan,
+  type ActivityLevel,
+  type Equipment,
+  type ExperienceLevel,
+  type Goal,
+  type Modality,
+  type SplitPreference,
+} from '../../../lib/data';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 export default function WorkoutSetupReview() {
   const router = useRouter();
   const { userId, generatePlan, bumpXp } = useAppState();
-  const { height, weight, equipment, modalities, goal, experienceLevel, activityLevel } = useLocalSearchParams<{
+  const { height, weight, equipment, modalities, goal, experienceLevel, activityLevel, trainingDays, splitPreference } = useLocalSearchParams<{
     height: string;
     weight: string;
     equipment: string;
@@ -24,6 +33,8 @@ export default function WorkoutSetupReview() {
     goal: string;
     experienceLevel: string;
     activityLevel: string;
+    trainingDays: string;
+    splitPreference: string;
   }>();
 
   const [injuries, setInjuries] = useState('');
@@ -43,6 +54,8 @@ export default function WorkoutSetupReview() {
       equipment: equipment as Equipment,
       modalities: (modalities ?? '').split(',').filter(Boolean) as Modality[],
       activityLevel: activityLevel as ActivityLevel,
+      trainingDays: (trainingDays ?? '').split(',').filter(Boolean),
+      splitPreference: (splitPreference as SplitPreference) || 'auto',
       injuries,
     });
 
@@ -67,7 +80,7 @@ export default function WorkoutSetupReview() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={6} totalSteps={TOTAL_STEPS} accent={A} showBack={!submitting} />
+      <OnboardingTopBar step={7} totalSteps={TOTAL_STEPS} accent={A} showBack={!submitting} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>

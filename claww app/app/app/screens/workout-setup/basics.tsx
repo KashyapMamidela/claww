@@ -7,7 +7,7 @@ import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 export default function WorkoutSetupBasics() {
   const router = useRouter();

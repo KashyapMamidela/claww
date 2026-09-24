@@ -5,7 +5,7 @@ import { SetupChipStep } from '../../../components/SetupChipStep';
 import type { Equipment } from '../../../lib/data';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const OPTIONS: { value: Equipment; label: string }[] = [
   { value: 'gym', label: 'Full Gym' },

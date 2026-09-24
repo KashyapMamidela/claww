@@ -5,7 +5,7 @@ import { SetupChipStep } from '../../../components/SetupChipStep';
 import type { ActivityLevel } from '../../../lib/data';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const OPTIONS: { value: ActivityLevel; label: string }[] = [
   { value: 'sedentary', label: 'Sedentary' },
@@ -29,7 +29,7 @@ export default function WorkoutSetupActivity() {
     setActivityLevel(value);
     setTimeout(() => {
       router.push({
-        pathname: '/screens/workout-setup/review',
+        pathname: '/screens/workout-setup/schedule',
         params: { height, weight, equipment, modalities, goal, experienceLevel, activityLevel: value },
       });
     }, 220);

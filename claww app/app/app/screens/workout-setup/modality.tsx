@@ -9,7 +9,7 @@ import { Chip } from '../../../components/ui/Chip';
 import type { Modality } from '../../../lib/data';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const OPTIONS: { value: Modality; label: string }[] = [
   { value: 'strength', label: 'Strength' },

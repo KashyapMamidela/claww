@@ -5,7 +5,7 @@ import { SetupChipStep } from '../../../components/SetupChipStep';
 import type { Goal } from '../../../lib/data';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const OPTIONS: { value: Goal; label: string }[] = [
   { value: 'muscle_gain', label: 'Build Muscle' },
