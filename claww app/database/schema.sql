@@ -264,6 +264,30 @@ CREATE TABLE IF NOT EXISTS meal_logs (
 -- an ALTER rather than part of the CREATE TABLE above.
 ALTER TABLE meal_logs ADD COLUMN IF NOT EXISTS meal_type TEXT CHECK (meal_type IN ('Breakfast', 'Lunch', 'Snack', 'Dinner'));
 
+-- Item #22 — a meal photo was sent to Groq for estimation and then
+-- discarded; never stored, so "you ate this before" suggestions had
+-- nothing to draw on. Stores a path into the meal-photos Storage bucket
+-- below, not the image itself — NULL for text-only logs, unchanged.
+ALTER TABLE meal_logs ADD COLUMN IF NOT EXISTS photo_url TEXT;
+
+-- ============================================================
+-- STORAGE: meal-photos bucket
+-- Private (not public) — meal photos are a Play-sensitive category per
+-- docs/legal/data-safety.md, so access goes through RLS + signed URLs
+-- (lib/data.ts's getSignedMealPhotoUrl), never a public bucket URL.
+-- Objects are stored at "<user_id>/<filename>" so the RLS policy below
+-- can scope access to the owning user's own folder via storage.foldername.
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('meal-photos', 'meal-photos', false)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS "meal_photos_own" ON storage.objects;
+CREATE POLICY "meal_photos_own" ON storage.objects
+  FOR ALL
+  USING (bucket_id = 'meal-photos' AND auth.uid()::text = (storage.foldername(name))[1])
+  WITH CHECK (bucket_id = 'meal-photos' AND auth.uid()::text = (storage.foldername(name))[1]);
+
 -- ============================================================
 -- TABLE: water_logs
 -- Each tap of a water glass on the Nutrition tab is one row —

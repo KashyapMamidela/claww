@@ -1,3 +1,4 @@
+import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
@@ -340,6 +341,9 @@ export interface MealLogRow {
   estimated: boolean;
   meal_type: MealType | null;
   logged_at: string;
+  /** Path into the private meal-photos Storage bucket, not a usable URL —
+   * see getSignedMealPhotoUrl. NULL for text-only logs. */
+  photo_url: string | null;
 }
 
 export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
@@ -347,7 +351,7 @@ export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
   startOfDay.setHours(0, 0, 0, 0);
   const { data, error } = await supabase
     .from('meal_logs')
-    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at')
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url')
     .eq('user_id', userId)
     .gte('logged_at', startOfDay.toISOString())
     .order('logged_at', { ascending: true });
@@ -416,6 +420,8 @@ export interface EstimatedMeal {
   protein_g: number;
   carbs_g: number;
   fats_g: number;
+  /** Set when a photo was captured/reused for this meal — a Storage path (see uploadMealPhoto), not a URL. */
+  photoPath?: string | null;
 }
 
 export interface EstimateResult {
@@ -501,8 +507,9 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
       fats_g: Math.round(meal.fats_g),
       estimated: true,
       meal_type: mealType,
+      photo_url: meal.photoPath ?? null,
     })
-    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at')
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url')
     .single();
 
   if (error) {
@@ -512,6 +519,55 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
   track(AnalyticsEvent.MealLogged, { meal_type: mealType });
   await awardXp(userId, 10, 'meal_logged');
   return data;
+}
+
+const MEAL_PHOTOS_BUCKET = 'meal-photos';
+
+/**
+ * Item #22 — a meal photo was previously sent to Groq for estimation and
+ * then discarded; never stored anywhere. Uploads to a private bucket
+ * (RLS-scoped to "<user_id>/..." — see schema.sql) so a later "you ate
+ * this before" suggestion can reuse it without asking for the photo
+ * again. Returns the Storage PATH, not a public URL (the bucket isn't
+ * public) — display goes through getSignedMealPhotoUrl.
+ */
+export async function uploadMealPhoto(userId: string, base64: string, mimeType: string): Promise<string | null> {
+  const ext = mimeType.split('/')[1]?.split('+')[0] || 'jpg';
+  const path = `${userId}/${Date.now()}.${ext}`;
+  const { error } = await supabase.storage.from(MEAL_PHOTOS_BUCKET).upload(path, decode(base64), { contentType: mimeType });
+  if (error) {
+    console.warn('[Claww] Failed to upload meal photo:', error.message);
+    return null;
+  }
+  return path;
+}
+
+/** A short-lived (1h) signed URL for a photo path — the bucket is private, so nothing displays it without one. */
+export async function getSignedMealPhotoUrl(path: string): Promise<string | null> {
+  const { data, error } = await supabase.storage.from(MEAL_PHOTOS_BUCKET).createSignedUrl(path, 3600);
+  if (error) {
+    console.warn('[Claww] Failed to sign meal photo URL:', error.message);
+    return null;
+  }
+  return data.signedUrl;
+}
+
+/** Past photographed meals, most recent first — the raw material for
+ * "log this again" suggestions on meal-log.tsx. Capped at 20; this is a
+ * quick-pick list, not a full history browser. */
+export async function getMealPhotoHistory(userId: string): Promise<MealLogRow[]> {
+  const { data, error } = await supabase
+    .from('meal_logs')
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url')
+    .eq('user_id', userId)
+    .not('photo_url', 'is', null)
+    .order('logged_at', { ascending: false })
+    .limit(20);
+  if (error) {
+    console.warn('[Claww] Failed to load meal photo history:', error.message);
+    return [];
+  }
+  return data ?? [];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -6,7 +6,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState, type EstimatedMeal, type MealLogRow, type MealType } from '../lib/appState';
-import { getProfile, type DietaryRestriction, type PortionSize } from '../lib/data';
+import {
+  getMealPhotoHistory,
+  getProfile,
+  getSignedMealPhotoUrl,
+  uploadMealPhoto,
+  type DietaryRestriction,
+  type PortionSize,
+} from '../lib/data';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
 import { ErrorCard } from '../components/ui/ErrorCard';
@@ -78,6 +85,13 @@ export default function MealLogScreen() {
   const [reviewFields, setReviewFields] = useState({ calories: '', protein_g: '', carbs_g: '', fats_g: '' });
   const [logged, setLogged] = useState<MealLogRow | null>(null);
 
+  // Item #22 — "you ate this before" quick-pick, so a repeated meal doesn't
+  // need a fresh photo every time. History rows come with a photo_url
+  // Storage PATH (private bucket), so thumbnails need their own signed
+  // URLs before they're displayable — fetched alongside the history itself.
+  const [photoHistory, setPhotoHistory] = useState<MealLogRow[]>([]);
+  const [photoHistoryUrls, setPhotoHistoryUrls] = useState<Record<string, string>>({});
+
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
@@ -85,11 +99,42 @@ export default function MealLogScreen() {
       getProfile(userId).then((profile) => {
         if (!cancelled) setDietaryRestrictions(profile?.personalization_profile?.dietaryRestrictions ?? []);
       });
+      getMealPhotoHistory(userId).then(async (rows) => {
+        if (cancelled) return;
+        setPhotoHistory(rows);
+        const entries = await Promise.all(
+          rows.map(async (r) => [r.id, r.photo_url ? await getSignedMealPhotoUrl(r.photo_url) : null] as const)
+        );
+        if (!cancelled) {
+          setPhotoHistoryUrls(Object.fromEntries(entries.filter(([, url]) => url)) as Record<string, string>);
+        }
+      });
       return () => {
         cancelled = true;
       };
     }, [userId])
   );
+
+  // Reusing a past photographed meal — skip straight to review with its
+  // saved macros/description, no re-estimation and no re-upload (same
+  // Storage path is reused as-is).
+  const reuseHistoryMeal = (row: MealLogRow) => {
+    const meal: EstimatedMeal = {
+      description: row.description,
+      calories: row.calories ?? 0,
+      protein_g: row.protein_g ?? 0,
+      carbs_g: row.carbs_g ?? 0,
+      fats_g: row.fats_g ?? 0,
+      photoPath: row.photo_url,
+    };
+    setReviewing(meal);
+    setReviewFields({
+      calories: String(Math.round(meal.calories)),
+      protein_g: String(Math.round(meal.protein_g)),
+      carbs_g: String(Math.round(meal.carbs_g)),
+      fats_g: String(Math.round(meal.fats_g)),
+    });
+  };
 
   const allSuggestions = SUGGESTIONS[mealType ?? ''] ?? SUGGESTIONS.Snack;
   const suggestions = allSuggestions.filter((s) => !s.violates.some((v) => dietaryRestrictions.includes(v)));
@@ -156,12 +201,19 @@ export default function MealLogScreen() {
       const n = Number(value);
       return Number.isFinite(n) && value.trim() !== '' ? n : fallback;
     };
+    // A brand-new photo (not one reused from history, which already carries
+    // its own photoPath on `reviewing`) gets uploaded once, right here —
+    // not earlier, so cancelling out of the review step never leaves an
+    // orphaned upload with no meal_logs row pointing at it.
+    const photoPath = reviewing.photoPath ?? (photo ? await uploadMealPhoto(userId!, photo.base64, photo.mimeType) : null);
+
     const finalMeal: EstimatedMeal = {
       description: reviewing.description,
       calories: parsed(reviewFields.calories, reviewing.calories),
       protein_g: parsed(reviewFields.protein_g, reviewing.protein_g),
       carbs_g: parsed(reviewFields.carbs_g, reviewing.carbs_g),
       fats_g: parsed(reviewFields.fats_g, reviewing.fats_g),
+      photoPath,
     };
 
     const inserted = await saveMeal((mealType as MealType) ?? 'Snack', finalMeal);
@@ -341,6 +393,29 @@ export default function MealLogScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
+        {!photo && !text && photoHistory.length > 0 && (
+          <View style={{ marginBottom: 20 }}>
+            <Text style={{ color: '#71717A', fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginBottom: 10, fontFamily: FONT }}>
+              EATEN THIS BEFORE?
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+              {photoHistory.map((row) => (
+                <TouchableOpacity key={row.id} activeOpacity={0.85} onPress={() => reuseHistoryMeal(row)} style={{ width: 96 }}>
+                  <Image
+                    source={{ uri: photoHistoryUrls[row.id] }}
+                    style={{ width: 96, height: 96, borderRadius: 14, backgroundColor: '#151517' }}
+                    resizeMode="cover"
+                  />
+                  <Text numberOfLines={1} style={{ color: '#fff', fontSize: 11, fontWeight: '700', marginTop: 5, fontFamily: FONT }}>
+                    {row.description}
+                  </Text>
+                  <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>{Math.round(row.calories ?? 0)} kcal</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: G.bright }} />
           <Text style={{ color: G.bright, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WHAT DID YOU EAT?</Text>
