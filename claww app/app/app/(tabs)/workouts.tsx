@@ -8,6 +8,7 @@ import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../
 import { useAppState } from '../../lib/appState';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import {
+  addExerciseToDay,
   generateWorkoutPlan,
   getLatestWorkout,
   getProfile,
@@ -15,6 +16,8 @@ import {
   getTodayWorkoutStats,
   getWorkoutDayEvents,
   logWorkoutDayEvent,
+  type CatalogExercise,
+  type Equipment,
   type RegenerationReason,
   type TodayWorkoutStats,
   type WorkoutDayEvent,
@@ -27,6 +30,8 @@ import { ErrorCard } from '../../components/ui/ErrorCard';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { WorkoutCalendar } from '../../components/WorkoutCalendar';
 import { Display } from '../../components/ui/Typography';
+import { ExercisePickerModal } from '../../components/ExercisePickerModal';
+import { LogSessionModal } from '../../components/LogSessionModal';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -118,6 +123,9 @@ export default function WorkoutsTab() {
   const [regenError, setRegenError] = useState<string | null>(null);
   const [lastReason, setLastReason] = useState<RegenerationReason | null>(null);
   const [todayStats, setTodayStats] = useState<TodayWorkoutStats | null>(null);
+  const [equipment, setEquipment] = useState<Equipment>('gym');
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [sessionModalOpen, setSessionModalOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -136,6 +144,7 @@ export default function WorkoutsTab() {
       });
       getProfile(userId).then((p) => {
         if (cancelled) return;
+        setEquipment(p?.equipment ?? 'gym');
         getTodayWorkoutStats(userId, p?.weight ?? null).then((s) => {
           if (!cancelled) setTodayStats(s);
         });
@@ -225,6 +234,20 @@ export default function WorkoutsTab() {
       setRegenError(error ?? 'Could not rebuild your plan — try again shortly.');
     }
     setRegenerating(false);
+  };
+
+  const handleAddExercise = async (exercise: CatalogExercise) => {
+    setPickerOpen(false);
+    const ok = await addExerciseToDay(workout.id, selectedDay, {
+      exerciseId: exercise.id,
+      name: exercise.name,
+      sets: 3,
+      reps: 10,
+    });
+    if (ok) {
+      const refreshed = await getLatestWorkout(userId!);
+      if (refreshed) setWorkout(refreshed);
+    }
   };
 
   return (
@@ -458,6 +481,25 @@ export default function WorkoutsTab() {
                 </View>
               ))}
             </View>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => setPickerOpen(true)}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                marginTop: 8,
+                paddingVertical: 12,
+                borderRadius: 14,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: 'rgba(255,255,255,0.18)',
+              }}
+            >
+              <Icon name="plus" size={14} color="#A1A1AA" />
+              <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Add Exercise</Text>
+            </TouchableOpacity>
           </View>
 
           {workout.plan.notes ? (
@@ -505,8 +547,40 @@ export default function WorkoutsTab() {
           )}
 
           <WorkoutCalendar />
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => setSessionModalOpen(true)}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 6,
+              paddingVertical: 13,
+              borderRadius: 14,
+              backgroundColor: '#151517',
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.12)',
+            }}
+          >
+            <Icon name="activity" size={14} color="#A1A1AA" />
+            <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Log a Session</Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+      <ExercisePickerModal visible={pickerOpen} equipment={equipment} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      <LogSessionModal
+        visible={sessionModalOpen}
+        equipment={equipment}
+        onClose={() => setSessionModalOpen(false)}
+        onLogged={async () => {
+          setSessionModalOpen(false);
+          if (userId) {
+            const p = await getProfile(userId);
+            setTodayStats(await getTodayWorkoutStats(userId, p?.weight ?? null));
+          }
+        }}
+      />
     </View>
   );
 }

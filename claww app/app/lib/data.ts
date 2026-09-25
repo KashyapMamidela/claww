@@ -515,6 +515,101 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
   return true;
 }
 
+// Equipment tiers, duplicated from supabase/functions/_shared/planning.ts —
+// Deno Edge Functions and the RN bundle can't share an import (same
+// documented reason as lib/generationCaps.ts vs the server-side cap
+// values), so this must stay in sync with that file by hand.
+const EQUIPMENT_TIERS: Record<string, string[]> = {
+  none: ['none'],
+  home: ['none', 'home'],
+  gym: ['none', 'home', 'gym'],
+};
+
+export interface CatalogExercise {
+  id: string;
+  name: string;
+  modality: Modality;
+  muscle_group: string | null;
+  equipment: string | null;
+}
+
+/**
+ * Item #18 — "user should manually be able to add workouts, selecting from
+ * a real dataset". Queries the same exercises catalog generate-plan uses,
+ * scoped to the user's own equipment tier (no showing gym-only moves to a
+ * bodyweight-only user) and optionally a modality (cardio vs strength, for
+ * item #17's ad-hoc session logging).
+ */
+export async function searchExercises(query: string, equipment: Equipment, modality?: Modality): Promise<CatalogExercise[]> {
+  const allowed = EQUIPMENT_TIERS[equipment] ?? EQUIPMENT_TIERS.gym;
+  let q = supabase.from('exercises').select('id, name, modality, muscle_group, equipment').in('equipment', allowed).limit(30);
+  if (modality) q = q.eq('modality', modality);
+  if (query.trim()) q = q.ilike('name', `%${query.trim()}%`);
+  const { data, error } = await q.order('name', { ascending: true });
+  if (error) {
+    console.warn('[Claww] Failed to search exercises:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+/** Appends an exercise to a specific day of an already-generated plan — the
+ * manual-add counterpart to generation, item #18. Read-modify-write on the
+ * plan JSON since there's no per-exercise row to insert into. */
+export async function addExerciseToDay(workoutId: string, dayIndex: number, exercise: PlanExercise): Promise<boolean> {
+  const { data: workout, error: fetchError } = await supabase.from('workouts').select('plan').eq('id', workoutId).single();
+  if (fetchError || !workout) {
+    console.warn('[Claww] Failed to load workout for manual exercise add:', fetchError?.message);
+    return false;
+  }
+  const plan = workout.plan as WorkoutPlan;
+  const day = plan.days[dayIndex];
+  if (!day) return false;
+  day.exercises = [...day.exercises, exercise];
+
+  const { error } = await supabase.from('workouts').update({ plan }).eq('id', workoutId);
+  if (error) {
+    console.warn('[Claww] Failed to save manually added exercise:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export interface AdHocSessionInput {
+  exerciseName: string;
+  exerciseId?: string | null;
+  modality: Modality;
+  /** Strength: reps/weight for one set. Cardio: durationMinutes instead — never both, matches which fields are actually meaningful for the modality. */
+  reps?: number;
+  weight?: number;
+  durationMinutes?: number;
+}
+
+/**
+ * Item #17 — logging a cardio/strength session that isn't part of the
+ * generated plan (e.g. an extra run). Writes directly to workout_logs so it
+ * counts toward streak/volume/completed-workout-days exactly like a
+ * planned set does (those queries just read workout_logs generally) — not
+ * a separate, second-class log table.
+ */
+export async function logAdHocSession(userId: string, input: AdHocSessionInput): Promise<boolean> {
+  const { error } = await supabase.from('workout_logs').insert({
+    user_id: userId,
+    exercise_id: input.exerciseId ?? null,
+    exercise_name: input.exerciseName,
+    sets: 1,
+    reps_achieved: input.reps ?? null,
+    weight_achieved: input.weight ?? null,
+    duration_minutes: input.durationMinutes ?? null,
+  });
+  if (error) {
+    console.warn('[Claww] Failed to log ad-hoc session:', error.message);
+    return false;
+  }
+  await awardXp(userId, 5, 'set_completed');
+  return true;
+}
+
 /** Count of completed sets logged (one workout_logs row per set — see logWorkoutSet). */
 export async function getWorkoutLogCount(userId: string): Promise<number> {
   const { count, error } = await supabase

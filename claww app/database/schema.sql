@@ -213,6 +213,11 @@ ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS reps_achieved INT;
 ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS weight_prescribed FLOAT;
 ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS weight_achieved FLOAT;
 
+-- Ad-hoc sessions logged outside the generated plan (e.g. a cardio run) —
+-- sets/reps/weight don't naturally fit those, so a nullable duration
+-- covers them instead. NULL for ordinary strength sets, exactly as before.
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS duration_minutes FLOAT;
+
 -- ============================================================
 -- TABLE: workout_day_events
 -- One row per plan-day the user completed or explicitly skipped —
