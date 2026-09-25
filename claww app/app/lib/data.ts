@@ -64,10 +64,11 @@ export interface Profile {
   personalization_profile: PersonalizationProfile | null;
   notifications_enabled: boolean;
   notification_prompt_shown_at: string | null;
+  rating_prompt_shown_at: string | null;
 }
 
 const PROFILE_COLUMNS =
-  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at';
+  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at';
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', userId).maybeSingle();
@@ -89,6 +90,12 @@ export async function setNotificationPromptShown(userId: string): Promise<void> 
 export async function setNotificationsEnabled(userId: string, enabled: boolean): Promise<void> {
   const { error } = await supabase.from('profiles').update({ notifications_enabled: enabled }).eq('id', userId);
   if (error) console.warn('[Claww] Failed to update notification preference:', error.message);
+}
+
+// Item #31 — same one-time-ever gate as setNotificationPromptShown above.
+export async function setRatingPromptShown(userId: string): Promise<void> {
+  const { error } = await supabase.from('profiles').update({ rating_prompt_shown_at: new Date().toISOString() }).eq('id', userId);
+  if (error) console.warn('[Claww] Failed to record rating prompt shown:', error.message);
 }
 
 export interface WorkoutIntakeInput {

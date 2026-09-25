@@ -46,6 +46,13 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS medical_disclaimer_acknowledged_at
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notifications_enabled BOOLEAN NOT NULL DEFAULT false;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS notification_prompt_shown_at TIMESTAMPTZ;
 
+-- Item #31 — app-rating reminders. Same one-time-ever gate pattern as
+-- notification_prompt_shown_at above: set the instant the native review
+-- sheet is triggered (workout-complete.tsx, after a real milestone), never
+-- re-shown regardless of whether the OS actually displayed a dialog (Apple/
+-- Google throttle that on their end independently of this app).
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS rating_prompt_shown_at TIMESTAMPTZ;
+
 -- profiles.id should always match a real auth.users.id (1:1 with Supabase
 -- Auth), so tie it down with a proper FK instead of a bare UUID PK.
 DO $$

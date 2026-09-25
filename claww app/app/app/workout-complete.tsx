@@ -6,12 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { useWorkoutSession } from '../lib/workoutSession';
-import { getProfile } from '../lib/data';
+import { getCompletedWorkoutDays, getProfile, setRatingPromptShown } from '../lib/data';
 import { notificationsSupported } from '../lib/notifications';
+import { requestAppReview } from '../lib/rating';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
 import { track, AnalyticsEvent } from '../lib/analytics';
+
+const RATING_PROMPT_AT_WORKOUTS = 3; // same milestone as Tracker's own unlock threshold
 
 const A = COLORS.blue;
 const A3 = COLORS.blueDeep;
@@ -40,18 +43,30 @@ export default function WorkoutCompleteScreen() {
     track(AnalyticsEvent.WorkoutCompleted);
   }, []);
 
-  // SHIP PHASE 8.3 — the contextual moment the roadmap asks for: after a
-  // user's first completed workout, never on cold start. Only shown if the
-  // prompt has genuinely never been shown before (notification_prompt_shown_at
-  // is null), which setNotificationPromptShown makes permanent either way
-  // (enabled or declined) so this never nags twice.
+  // SHIP PHASE 8.3 + item #31 — at most one soft-ask on this screen. The
+  // notification prompt (contextual, after a user's first completed
+  // workout) takes priority since it's been live longer; the rating
+  // prompt (item #31: a real milestone, the 3rd completed workout — same
+  // threshold Tracker itself unlocks at) only fires when the notification
+  // one genuinely isn't showing this time, checked in the same effect so
+  // there's no render-order race between the two. Both are one-time-ever,
+  // via their own *_prompt_shown_at column, set the instant they fire
+  // regardless of whether the OS actually displayed anything (that's
+  // throttled on Apple/Google's end, not ours to retry around).
   useEffect(() => {
-    if (!userId || !notificationsSupported) return;
+    if (!userId) return;
     let cancelled = false;
-    getProfile(userId).then((profile) => {
-      if (!cancelled && profile && !profile.notification_prompt_shown_at) {
+    getProfile(userId).then(async (profile) => {
+      if (cancelled || !profile) return;
+      if (notificationsSupported && !profile.notification_prompt_shown_at) {
         setShowNotificationPrompt(true);
+        return;
       }
+      if (profile.rating_prompt_shown_at) return;
+      const workoutCount = await getCompletedWorkoutDays(userId);
+      if (cancelled || workoutCount < RATING_PROMPT_AT_WORKOUTS) return;
+      setRatingPromptShown(userId);
+      requestAppReview();
     });
     return () => {
       cancelled = true;
