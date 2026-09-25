@@ -17,9 +17,14 @@ import { notificationsSupported, type ReminderType } from '../lib/notifications'
 import { SplashIntro } from '../components/SplashIntro';
 import { initSentry } from '../lib/sentry';
 import { initAnalytics, identify, resetAnalytics } from '../lib/analytics';
+import { ensureSkiaWebLoaded } from '../lib/skiaWeb';
 
 initSentry();
 initAnalytics();
+// Kicks off the web CanvasKit load as early as possible; ProgressRing
+// itself awaits the same cached promise before mounting its <Canvas>, so
+// this is just a head start, not the only place it's requested.
+ensureSkiaWebLoaded();
 
 // SHIP PHASE 8.3 — where a tapped reminder actually takes the user. Kept
 // next to the notification scheduling itself only because both files agree
