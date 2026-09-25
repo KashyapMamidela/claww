@@ -241,12 +241,17 @@ export async function insertSleepLog(userId: string, hours: number, bedtime: Dat
 // Home can show a real score today without depending on that Edge Function
 // being deployed yet. Once it is deployed, generate-plan will use the
 // server-side version for plan generation; this stays as Home's quick read.
+// Keep this formula in sync with that file by hand — same documented
+// constraint as EQUIPMENT_TIERS above (Deno Edge Functions and the RN
+// bundle can't share an import).
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface RecoveryResult {
   score: number;
   band: 'Low' | 'Moderate' | 'High';
 }
+
+const RECOVERY_WATER_TARGET_ML = 2000;
 
 function estimateSessionIntensity(workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null } | null): number {
   if (!workoutLog) return 0;
@@ -255,28 +260,42 @@ function estimateSessionIntensity(workoutLog: { sets: number | null; reps_achiev
   return Math.max(0, Math.min(10, volume / 10));
 }
 
+/**
+ * Extended to cover sleep + hydration + a nutrition-logging signal + rest
+ * days since the last session, matching the fuller definition of recovery
+ * requested directly ("getting enough sleep, eating nutritious food,
+ * staying hydrated, taking rest days, doing light activity"). Light
+ * activity/steps is deliberately excluded — that data lives only on-device
+ * (lib/steps.ts), nothing persists it server-side to read here, so adding
+ * a term for it would mean fabricating a number.
+ */
 export function computeRecoveryScore(
   sleepLog: { hours: number | null } | null,
-  workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null; completed_at: string } | null
+  workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null; completed_at: string } | null,
+  hydration?: { waterMl: number } | null,
+  nutrition?: { loggedMealToday: boolean } | null
 ): RecoveryResult {
   const sleepHours = sleepLog?.hours ?? 0;
-  const sleepScore = Math.min(sleepHours / 8, 1) * 40;
+  const sleepScore = Math.min(sleepHours / 8, 1) * 35;
 
-  let recoveryGap = 30; // no prior session on record -> full recovery credit
+  let recoveryGap = 25; // no prior session on record -> full recovery credit
   if (workoutLog?.completed_at) {
     const hoursSinceLastSession = (Date.now() - new Date(workoutLog.completed_at).getTime()) / (1000 * 60 * 60);
-    recoveryGap = Math.min(Math.max(hoursSinceLastSession, 0) / 24, 1) * 30;
+    recoveryGap = Math.min(Math.max(hoursSinceLastSession, 0) / 24, 1) * 25;
   }
 
   const fatiguePenalty = estimateSessionIntensity(workoutLog) * 3;
-  const score = Math.max(0, Math.min(100, sleepScore + recoveryGap - fatiguePenalty + 30));
+  const hydrationScore = Math.min(Math.max(hydration?.waterMl ?? 0, 0) / RECOVERY_WATER_TARGET_ML, 1) * 10;
+  const nutritionScore = nutrition?.loggedMealToday ? 10 : 0;
+
+  const score = Math.max(0, Math.min(100, sleepScore + recoveryGap - fatiguePenalty + hydrationScore + nutritionScore + 20));
   const band: RecoveryResult['band'] = score < 40 ? 'Low' : score <= 70 ? 'Moderate' : 'High';
   return { score: Math.round(score), band };
 }
 
 /** Returns null when there's no sleep log yet — nothing to compute a score from. */
 export async function getRecoveryScore(userId: string): Promise<RecoveryResult | null> {
-  const [sleepLog, workoutLogResult] = await Promise.all([
+  const [sleepLog, workoutLogResult, todaysWaterMl, todaysMeals] = await Promise.all([
     getLatestSleepLog(userId),
     supabase
       .from('workout_logs')
@@ -285,9 +304,16 @@ export async function getRecoveryScore(userId: string): Promise<RecoveryResult |
       .order('completed_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
+    getTodaysWaterMl(userId),
+    getTodaysMealLogs(userId),
   ]);
   if (!sleepLog) return null;
-  return computeRecoveryScore(sleepLog, workoutLogResult.data);
+  return computeRecoveryScore(
+    sleepLog,
+    workoutLogResult.data,
+    { waterMl: todaysWaterMl },
+    { loggedMealToday: todaysMeals.length > 0 }
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

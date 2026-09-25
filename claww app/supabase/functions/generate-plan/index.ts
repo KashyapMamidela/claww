@@ -324,39 +324,61 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const reason = typeof body?.reason === 'string' ? body.reason : null;
 
-    const [{ data: profile }, { data: sleepLog }, { data: lastWorkout }, { data: recentWorkouts }, { data: latestWorkout }] =
-      await Promise.all([
-        supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
-        supabase
-          .from('sleep_logs')
-          .select('hours, bedtime, wake_time, logged_at')
-          .eq('user_id', user.id)
-          .order('logged_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from('workout_logs')
-          .select('sets, reps_achieved, reps_prescribed, completed_at')
-          .eq('user_id', user.id)
-          .order('completed_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-        supabase
-          .from('workout_logs')
-          .select('exercise_id, exercise_name, sets, reps_prescribed, reps_achieved, weight_prescribed, weight_achieved, completed_at')
-          .eq('user_id', user.id)
-          .order('completed_at', { ascending: false })
-          .limit(10),
-        supabase
-          .from('workouts')
-          .select('id, user_id, plan, created_at')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle(),
-      ]);
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
 
-    const recovery = computeRecoveryScore(sleepLog, lastWorkout);
+    const [
+      { data: profile },
+      { data: sleepLog },
+      { data: lastWorkout },
+      { data: recentWorkouts },
+      { data: latestWorkout },
+      { data: todaysWater },
+      { count: todaysMealCount },
+    ] = await Promise.all([
+      supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
+      supabase
+        .from('sleep_logs')
+        .select('hours, bedtime, wake_time, logged_at')
+        .eq('user_id', user.id)
+        .order('logged_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('workout_logs')
+        .select('sets, reps_achieved, reps_prescribed, completed_at')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from('workout_logs')
+        .select('exercise_id, exercise_name, sets, reps_prescribed, reps_achieved, weight_prescribed, weight_achieved, completed_at')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false })
+        .limit(10),
+      supabase
+        .from('workouts')
+        .select('id, user_id, plan, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase.from('water_logs').select('ml').eq('user_id', user.id).gte('logged_at', startOfDay.toISOString()),
+      supabase
+        .from('meal_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('logged_at', startOfDay.toISOString()),
+    ]);
+
+    const todaysWaterMl = (todaysWater ?? []).reduce((sum, row) => sum + (row.ml ?? 0), 0);
+    const recovery = computeRecoveryScore(
+      sleepLog,
+      lastWorkout,
+      { waterMl: todaysWaterMl },
+      { loggedMealToday: (todaysMealCount ?? 0) > 0 }
+    );
 
     // Cooldown: a double-tap or accidental repeat shouldn't burn another
     // Groq call — just hand back the plan that was just generated. Does NOT

@@ -12,7 +12,10 @@ Deno.serve(async (req: Request) => {
     const supabase = userClientFromRequest(req);
     const user = await requireUser(supabase);
 
-    const [{ data: sleepLog }, { data: workoutLog }] = await Promise.all([
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const [{ data: sleepLog }, { data: workoutLog }, { data: todaysWater }, { count: todaysMealCount }] = await Promise.all([
       supabase
         .from('sleep_logs')
         .select('hours, bedtime, wake_time, logged_at')
@@ -27,9 +30,21 @@ Deno.serve(async (req: Request) => {
         .order('completed_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
+      supabase.from('water_logs').select('ml').eq('user_id', user.id).gte('logged_at', startOfDay.toISOString()),
+      supabase
+        .from('meal_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('logged_at', startOfDay.toISOString()),
     ]);
 
-    const result = computeRecoveryScore(sleepLog, workoutLog);
+    const todaysWaterMl = (todaysWater ?? []).reduce((sum, row) => sum + (row.ml ?? 0), 0);
+    const result = computeRecoveryScore(
+      sleepLog,
+      workoutLog,
+      { waterMl: todaysWaterMl },
+      { loggedMealToday: (todaysMealCount ?? 0) > 0 }
+    );
 
     return new Response(JSON.stringify(result), { headers: jsonHeaders });
   } catch (error) {

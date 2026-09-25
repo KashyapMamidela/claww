@@ -226,7 +226,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
-              : "Unlocks your Recovery Score — a sleep-and-rest-based estimate to guide today's training."}
+              : "Unlocks your Recovery Score — a sleep, hydration, and nutrition-based estimate to guide today's training."}
           </Text>
         </View>
         {!sleepLogged ? (
