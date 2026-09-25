@@ -1,51 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import Animated, { useAnimatedProps, useSharedValue, withSpring } from 'react-native-reanimated';
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 export interface RingSpec {
   r: number;
   strokeWidth: number;
   color: string;
   pct: number;
-}
-
-interface RingArcProps {
-  cx: number;
-  cy: number;
-  r: number;
-  strokeWidth: number;
-  color: string;
-  pct: number;
-  trackFraction: number;
-}
-
-/** The colored (filled) arc of one ring — springs its length to a new pct instead of jump-cutting. */
-function RingArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcProps) {
-  const circ = 2 * Math.PI * r;
-  const target = Math.max(0, Math.min(1, pct / 100)) * circ * trackFraction;
-  const arcLen = useSharedValue(0);
-  useEffect(() => {
-    arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
-  }, [target]);
-  const animatedProps = useAnimatedProps(() => ({
-    strokeDasharray: `${arcLen.value} ${Math.max(0, circ - arcLen.value)}`,
-  }));
-
-  return (
-    <AnimatedCircle
-      cx={cx}
-      cy={cy}
-      r={r}
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      animatedProps={animatedProps}
-    />
-  );
 }
 
 /** Parses a "#rrggbb" color and returns a darkened "rgb(...)" version of it
@@ -62,93 +26,158 @@ function darken(color: string, factor: number): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
-interface RingLapProps extends RingArcProps {
-  /** How many complete extra laps (each a full 100%) sit "inside" this one —
-   * used to push this lap's radius outward so it coils past the base ring
-   * instead of sitting flush on top of it. */
-  lapIndex: number;
-  /** Arc length for this lap as a 0..1 fraction of a full lap (1 = a fully
-   * closed extra loop, <1 = the currently in-progress partial loop). */
-  lapFraction: number;
+function polarToXY(cx: number, cy: number, r: number, angleDeg: number) {
+  const rad = (angleDeg * Math.PI) / 180;
+  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
 /**
  * A ring at exactly 100% and a ring at 300% both used to render as the same
  * full circle — no way to tell "hit the target" apart from "blew way past
- * it" (e.g. 4000/2461 kcal). Fixed once already by drawing the overflow as a
- * same-radius, same-length arc laid back over the ring's own start point —
- * but that read as a second, disconnected ring beginning there rather than
- * a continuation of the first (confirmed by direct user feedback against a
- * real Apple Activity ring screenshot). Apple's own rings don't overlap
- * flush — each extra lap coils to a slightly LARGER radius than the one
- * inside it, so the overlap reads as one continuous spiral viewed from
- * above, not two flat rings sharing a track. Each lap here is pushed
- * outward by `lapIndex * SPIRAL_STEP` for exactly that reason.
+ * it" (e.g. 4000/2461 kcal). This is a genuine multi-revolution circular
+ * arc, not a normal 0–100% progress circle clamped at one lap: `revolutions`
+ * is not capped, and 2.5 means the path actually travels 2 full turns plus
+ * half of a third, all as ONE continuous SVG <Path> built by sampling points
+ * around the center in polar coordinates — not several stacked <Circle>
+ * elements. That distinction matters for exactly one reason: a <Circle>'s
+ * stroke-dasharray puts a rounded cap at BOTH ends of whatever's visible,
+ * so stacking one "ring" per lap put a second cap at the lap's start point
+ * (the same angle every lap starts from) as well as the real leading tip —
+ * which is what made overlapping laps read as a new ring beginning there
+ * instead of a continuation. A single <Path> only ever has two ends: the
+ * true start (angle 0, hidden under the track before any progress) and the
+ * true leading tip (wherever `revolutions` actually lands) — so the only
+ * capsule-shaped cap that ever shows is the one at the real leading end.
  *
- * Every lap is a same-center, WIDER shadow arc (darkened color) directly
- * under a same-center bright arc at the true stroke width — not a
- * same-color blob (had no direction, bulged both ways) and not a
- * translated *black* circle (two earlier bugs, in order: (1) offsetting the
- * shadow's own center a couple pixels off-axis to fake a drop-shadow made
- * it an eccentric circle relative to the arc it's meant to sit under, which
- * pixel-sampled testing showed clips unpredictably well before its nominal
- * width; (2) pure black at any opacity is close to invisible against this
- * app's near-black card backgrounds — only a colored shadow shows up
- * there). react-native-svg has no <filter>/feDropShadow support (checked
- * its type exports directly — none), hence a plain wider stroke instead of
- * a real blur.
+ * Each full revolution's radius grows by `spiralStepPx` so overlapping laps
+ * are visually distinguishable as a coil (this is what makes 250% legible
+ * as "2.5 turns" instead of a solid blob) — this is still ONE continuous
+ * path, just one whose radius is itself a function of cumulative angle
+ * traveled, not multiple independent rings at different fixed radii.
  */
 const SPIRAL_STEP_FACTOR = 0.6;
+/** Degrees between sampled points along the path — small enough that the
+ * polyline reads as a smooth curve at any ring size used in this app. */
+const SAMPLE_STEP_DEG = 4;
 
-function RingLapShadow({ cx, cy, r, strokeWidth, color, lapIndex, lapFraction, trackFraction }: RingLapProps) {
-  const spiralR = r + lapIndex * strokeWidth * SPIRAL_STEP_FACTOR;
-  const circ = 2 * Math.PI * spiralR;
-  const target = Math.max(0, Math.min(1, lapFraction)) * circ * trackFraction;
-  const arcLen = useSharedValue(0);
-  useEffect(() => {
-    arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
-  }, [target]);
-  const animatedProps = useAnimatedProps(() => ({
-    strokeDasharray: `${arcLen.value} ${Math.max(0, circ - arcLen.value)}`,
-  }));
-
-  return (
-    <AnimatedCircle
-      cx={cx}
-      cy={cy}
-      r={spiralR}
-      fill="none"
-      stroke={darken(color, 0.4)}
-      strokeWidth={strokeWidth * 1.5}
-      strokeLinecap="round"
-      animatedProps={animatedProps}
-    />
-  );
+interface SpiralPath {
+  d: string;
+  totalLength: number;
 }
 
-function RingLapArc({ cx, cy, r, strokeWidth, color, lapIndex, lapFraction, trackFraction }: RingLapProps) {
-  const spiralR = r + lapIndex * strokeWidth * SPIRAL_STEP_FACTOR;
-  const circ = 2 * Math.PI * spiralR;
-  const target = Math.max(0, Math.min(1, lapFraction)) * circ * trackFraction;
-  const arcLen = useSharedValue(0);
+/**
+ * Builds one continuous multi-turn circular path by sampling points in
+ * polar coordinates and joining them with line segments — the standard way
+ * to draw a path whose radius changes with angle, since SVG's own arc
+ * command can't express more than ~360° per call, let alone a spiral.
+ * `revolutions` is not clamped: 2.5 samples all the way around twice, then
+ * half again, with the radius growing every full turn.
+ */
+function buildSpiralPath(
+  cx: number,
+  cy: number,
+  r0: number,
+  revolutions: number,
+  spiralStepPx: number,
+  startAngleDeg: number,
+  direction: 1 | -1
+): SpiralPath {
+  const safeRevolutions = Math.max(0, revolutions);
+  const totalAngleDeg = safeRevolutions * 360 * direction;
+  const numSamples = Math.max(1, Math.min(1440, Math.ceil((Math.abs(totalAngleDeg) || 1) / SAMPLE_STEP_DEG)));
+
+  let d = '';
+  let prevX = 0;
+  let prevY = 0;
+  let totalLength = 0;
+
+  for (let i = 0; i <= numSamples; i++) {
+    const frac = i / numSamples;
+    const angleTraveled = frac * totalAngleDeg;
+    const revFrac = Math.abs(angleTraveled) / 360;
+    const r = r0 + spiralStepPx * revFrac;
+    const angleDeg = startAngleDeg + angleTraveled;
+    const { x, y } = polarToXY(cx, cy, r, angleDeg);
+    if (i === 0) {
+      d = `M ${x} ${y}`;
+    } else {
+      d += ` L ${x} ${y}`;
+      totalLength += Math.hypot(x - prevX, y - prevY);
+    }
+    prevX = x;
+    prevY = y;
+  }
+
+  return { d, totalLength };
+}
+
+interface ActiveArcProps {
+  cx: number;
+  cy: number;
+  r: number;
+  strokeWidth: number;
+  color: string;
+  /** Progress expressed in full revolutions (0.6 = 60%, 2.5 = two and a
+   * half laps) — not clamped to 1. */
+  progressInRevolutions: number;
+  startAngleDeg: number;
+  direction: 1 | -1;
+}
+
+/**
+ * The single continuous active arc — a darker, wider "shadow" path directly
+ * under a bright, true-width path on top, both sharing the exact same
+ * geometry so the shadow reads as a rim peeking out along the bright path's
+ * whole length, with the raised capsule look concentrated at the leading
+ * tip where strokeLinecap="round" actually terminates the path.
+ */
+function ActiveArc({ cx, cy, r, strokeWidth, color, progressInRevolutions, startAngleDeg, direction }: ActiveArcProps) {
+  const spiralStepPx = strokeWidth * SPIRAL_STEP_FACTOR;
+  const { d, totalLength } = useMemo(
+    () => buildSpiralPath(cx, cy, r, progressInRevolutions, spiralStepPx, startAngleDeg, direction),
+    [cx, cy, r, progressInRevolutions, spiralStepPx, startAngleDeg, direction]
+  );
+
+  // The path's own geometry (and therefore its length) changes shape every
+  // time progress changes — there's no stable "arc length" to animate
+  // incrementally between two different spirals the way a plain circle's
+  // dasharray can. Instead this replays a draw-on animation (hidden -> full)
+  // against the new path's own length each time, via the standard
+  // dasharray/dashoffset reveal trick.
+  const dashoffset = useSharedValue(totalLength);
   useEffect(() => {
-    arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
-  }, [target]);
+    dashoffset.value = totalLength;
+    dashoffset.value = withSpring(0, { duration: 700, dampingRatio: 1 });
+  }, [d, totalLength]);
   const animatedProps = useAnimatedProps(() => ({
-    strokeDasharray: `${arcLen.value} ${Math.max(0, circ - arcLen.value)}`,
+    strokeDashoffset: dashoffset.value,
   }));
 
+  if (totalLength <= 0) return null;
+
   return (
-    <AnimatedCircle
-      cx={cx}
-      cy={cy}
-      r={spiralR}
-      fill="none"
-      stroke={color}
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      animatedProps={animatedProps}
-    />
+    <>
+      <AnimatedPath
+        d={d}
+        fill="none"
+        stroke={darken(color, 0.4)}
+        strokeWidth={strokeWidth * 1.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={`${totalLength} ${totalLength}`}
+        animatedProps={animatedProps}
+      />
+      <AnimatedPath
+        d={d}
+        fill="none"
+        stroke={color}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={`${totalLength} ${totalLength}`}
+        animatedProps={animatedProps}
+      />
+    </>
   );
 }
 
@@ -162,12 +191,17 @@ export interface ProgressRingProps {
   rotation?: number;
   /** fraction of the circle the track covers (1 = full, 0.75 = arc dial) */
   trackFraction?: number;
+  /** direction the active arc travels: 1 = clockwise, -1 = counter-clockwise */
+  direction?: 1 | -1;
   children?: React.ReactNode;
 }
 
 /**
- * Circular progress ring(s) with a centered content slot.
- * Ports the inline-SVG ring pattern used across the design screens.
+ * Circular progress ring(s) with a centered content slot. The background
+ * track is a plain full circle; the active progress is one continuous
+ * multi-revolution SVG path (see `ActiveArc`/`buildSpiralPath`) that is
+ * never clamped to a single lap — values over 100% keep traveling around
+ * the same center, coiling outward turn by turn.
  */
 export function ProgressRing({
   size,
@@ -176,18 +210,16 @@ export function ProgressRing({
   trackColor = 'rgba(255,255,255,0.06)',
   rotation = -90,
   trackFraction = 1,
+  direction = 1,
   children,
 }: ProgressRingProps) {
   const c = size / 2;
   return (
     <View style={{ width: size, height: size }}>
-      {/* overflow: 'visible' — the overflow shadow/arc strokes are deliberately
-          wider than the base ring's own stroke width (up to 1.7x), so their
-          outer edge extends past this Svg's nominal width/height (sized only
-          for the base ring). SVG clips to its own viewport by default, which
-          was silently cutting off exactly the outer half of the shadow rim
-          that's supposed to be visible — confirmed by sampling the rendered
-          pixels directly, not a guess. */}
+      {/* overflow: 'visible' — the shadow path is wider than the bright
+          path's own stroke, and outer revolutions of the spiral extend past
+          this Svg's nominal width/height (sized only for the base radius).
+          SVG clips to its own viewport by default. */}
       <Svg width={size} height={size} style={{ transform: [{ rotate: `${rotation}deg` }], overflow: 'visible' }}>
         {rings.map((ring, i) => {
           const circ = 2 * Math.PI * ring.r;
@@ -207,42 +239,16 @@ export function ProgressRing({
                   ? { strokeDasharray: trackDash }
                   : {})}
               />
-              <RingArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
-              {ring.pct > 100 &&
-                (() => {
-                  const extraPct = ring.pct - 100;
-                  const fullExtraLaps = Math.floor(extraPct / 100);
-                  const partialLapFraction = (extraPct % 100) / 100;
-                  const laps: { lapIndex: number; lapFraction: number }[] = [];
-                  for (let i = 1; i <= fullExtraLaps; i++) laps.push({ lapIndex: i, lapFraction: 1 });
-                  if (partialLapFraction > 0) laps.push({ lapIndex: fullExtraLaps + 1, lapFraction: partialLapFraction });
-                  return laps.map((lap) => (
-                    <React.Fragment key={lap.lapIndex}>
-                      <RingLapShadow
-                        cx={c}
-                        cy={c}
-                        r={ring.r}
-                        strokeWidth={ring.strokeWidth}
-                        color={ring.color}
-                        pct={ring.pct}
-                        trackFraction={trackFraction}
-                        lapIndex={lap.lapIndex}
-                        lapFraction={lap.lapFraction}
-                      />
-                      <RingLapArc
-                        cx={c}
-                        cy={c}
-                        r={ring.r}
-                        strokeWidth={ring.strokeWidth}
-                        color={ring.color}
-                        pct={ring.pct}
-                        trackFraction={trackFraction}
-                        lapIndex={lap.lapIndex}
-                        lapFraction={lap.lapFraction}
-                      />
-                    </React.Fragment>
-                  ));
-                })()}
+              <ActiveArc
+                cx={c}
+                cy={c}
+                r={ring.r}
+                strokeWidth={ring.strokeWidth}
+                color={ring.color}
+                progressInRevolutions={(Math.max(0, ring.pct) / 100) * trackFraction}
+                startAngleDeg={0}
+                direction={direction}
+              />
             </React.Fragment>
           );
         })}
