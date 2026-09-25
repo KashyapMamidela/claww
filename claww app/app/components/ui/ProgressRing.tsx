@@ -62,36 +62,48 @@ function darken(color: string, factor: number): string {
   return `rgb(${r}, ${g}, ${b})`;
 }
 
+interface RingLapProps extends RingArcProps {
+  /** How many complete extra laps (each a full 100%) sit "inside" this one —
+   * used to push this lap's radius outward so it coils past the base ring
+   * instead of sitting flush on top of it. */
+  lapIndex: number;
+  /** Arc length for this lap as a 0..1 fraction of a full lap (1 = a fully
+   * closed extra loop, <1 = the currently in-progress partial loop). */
+  lapFraction: number;
+}
+
 /**
  * A ring at exactly 100% and a ring at 300% both used to render as the same
  * full circle — no way to tell "hit the target" apart from "blew way past
- * it" (e.g. 4000/2461 kcal). Matches Apple Activity rings' own visual
- * language for this (per direct reference image), not an invented one: the
- * overflow is drawn as a second arc in the *same* bright color as the base
- * ring — not darkened — that visibly wraps back over the ring's own start
- * point, with a shadow along that wrap so the overlap reads as physically
- * stacked/layered.
+ * it" (e.g. 4000/2461 kcal). Fixed once already by drawing the overflow as a
+ * same-radius, same-length arc laid back over the ring's own start point —
+ * but that read as a second, disconnected ring beginning there rather than
+ * a continuation of the first (confirmed by direct user feedback against a
+ * real Apple Activity ring screenshot). Apple's own rings don't overlap
+ * flush — each extra lap coils to a slightly LARGER radius than the one
+ * inside it, so the overlap reads as one continuous spiral viewed from
+ * above, not two flat rings sharing a track. Each lap here is pushed
+ * outward by `lapIndex * SPIRAL_STEP` for exactly that reason.
  *
- * This is a same-center, same-length, WIDER arc in a darkened version of
- * the ring's own color, drawn directly under RingOverflowArc so a dark rim
- * of it peeks out along both edges for the overflow arc's whole length —
- * not a same-color blob (had no direction, bulged both ways) and not a
- * translated *black* circle (two earlier bugs, in order: (1) offsetting
- * the shadow's own center a couple pixels off-axis to fake a drop-shadow
- * made it an eccentric circle relative to the arc it's meant to sit under
- * — same radius, different center — which pixel-sampled testing showed
- * clips unpredictably against the dash's own round end-cap well before its
- * nominal width, visible on essentially none of the arc's length; (2) pure
- * black at any opacity is close to invisible against this app's near-black
- * card backgrounds wherever it pokes out past the base ring's own track —
- * only a colored shadow shows up there). react-native-svg has no
- * <filter>/feDropShadow support (checked its type exports directly — none),
- * hence a plain wider stroke instead of a real blur.
+ * Every lap is a same-center, WIDER shadow arc (darkened color) directly
+ * under a same-center bright arc at the true stroke width — not a
+ * same-color blob (had no direction, bulged both ways) and not a
+ * translated *black* circle (two earlier bugs, in order: (1) offsetting the
+ * shadow's own center a couple pixels off-axis to fake a drop-shadow made
+ * it an eccentric circle relative to the arc it's meant to sit under, which
+ * pixel-sampled testing showed clips unpredictably well before its nominal
+ * width; (2) pure black at any opacity is close to invisible against this
+ * app's near-black card backgrounds — only a colored shadow shows up
+ * there). react-native-svg has no <filter>/feDropShadow support (checked
+ * its type exports directly — none), hence a plain wider stroke instead of
+ * a real blur.
  */
-function RingOverflowShadow({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcProps) {
-  const circ = 2 * Math.PI * r;
-  const overPct = Math.max(0, Math.min(100, pct - 100));
-  const target = (overPct / 100) * circ * trackFraction;
+const SPIRAL_STEP_FACTOR = 0.6;
+
+function RingLapShadow({ cx, cy, r, strokeWidth, color, lapIndex, lapFraction, trackFraction }: RingLapProps) {
+  const spiralR = r + lapIndex * strokeWidth * SPIRAL_STEP_FACTOR;
+  const circ = 2 * Math.PI * spiralR;
+  const target = Math.max(0, Math.min(1, lapFraction)) * circ * trackFraction;
   const arcLen = useSharedValue(0);
   useEffect(() => {
     arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
@@ -104,20 +116,20 @@ function RingOverflowShadow({ cx, cy, r, strokeWidth, color, pct, trackFraction 
     <AnimatedCircle
       cx={cx}
       cy={cy}
-      r={r}
+      r={spiralR}
       fill="none"
       stroke={darken(color, 0.4)}
-      strokeWidth={strokeWidth * 1.7}
+      strokeWidth={strokeWidth * 1.5}
       strokeLinecap="round"
       animatedProps={animatedProps}
     />
   );
 }
 
-function RingOverflowArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: RingArcProps) {
-  const circ = 2 * Math.PI * r;
-  const overPct = Math.max(0, Math.min(100, pct - 100));
-  const target = (overPct / 100) * circ * trackFraction;
+function RingLapArc({ cx, cy, r, strokeWidth, color, lapIndex, lapFraction, trackFraction }: RingLapProps) {
+  const spiralR = r + lapIndex * strokeWidth * SPIRAL_STEP_FACTOR;
+  const circ = 2 * Math.PI * spiralR;
+  const target = Math.max(0, Math.min(1, lapFraction)) * circ * trackFraction;
   const arcLen = useSharedValue(0);
   useEffect(() => {
     arcLen.value = withSpring(target, { duration: 700, dampingRatio: 1 });
@@ -130,14 +142,10 @@ function RingOverflowArc({ cx, cy, r, strokeWidth, color, pct, trackFraction }: 
     <AnimatedCircle
       cx={cx}
       cy={cy}
-      r={r}
+      r={spiralR}
       fill="none"
       stroke={color}
-      // Deliberately thicker than the base ring's own stroke, all the way
-      // along, not just at the tip — the reference's overflow segments
-      // read as a visibly fatter pill wherever they exist, not a
-      // same-width arc with a shadow tacked on.
-      strokeWidth={strokeWidth * 1.35}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       animatedProps={animatedProps}
     />
@@ -200,20 +208,41 @@ export function ProgressRing({
                   : {})}
               />
               <RingArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
-              {ring.pct > 100 && (
-                <>
-                  <RingOverflowShadow
-                    cx={c}
-                    cy={c}
-                    r={ring.r}
-                    strokeWidth={ring.strokeWidth}
-                    color={ring.color}
-                    pct={ring.pct}
-                    trackFraction={trackFraction}
-                  />
-                  <RingOverflowArc cx={c} cy={c} r={ring.r} strokeWidth={ring.strokeWidth} color={ring.color} pct={ring.pct} trackFraction={trackFraction} />
-                </>
-              )}
+              {ring.pct > 100 &&
+                (() => {
+                  const extraPct = ring.pct - 100;
+                  const fullExtraLaps = Math.floor(extraPct / 100);
+                  const partialLapFraction = (extraPct % 100) / 100;
+                  const laps: { lapIndex: number; lapFraction: number }[] = [];
+                  for (let i = 1; i <= fullExtraLaps; i++) laps.push({ lapIndex: i, lapFraction: 1 });
+                  if (partialLapFraction > 0) laps.push({ lapIndex: fullExtraLaps + 1, lapFraction: partialLapFraction });
+                  return laps.map((lap) => (
+                    <React.Fragment key={lap.lapIndex}>
+                      <RingLapShadow
+                        cx={c}
+                        cy={c}
+                        r={ring.r}
+                        strokeWidth={ring.strokeWidth}
+                        color={ring.color}
+                        pct={ring.pct}
+                        trackFraction={trackFraction}
+                        lapIndex={lap.lapIndex}
+                        lapFraction={lap.lapFraction}
+                      />
+                      <RingLapArc
+                        cx={c}
+                        cy={c}
+                        r={ring.r}
+                        strokeWidth={ring.strokeWidth}
+                        color={ring.color}
+                        pct={ring.pct}
+                        trackFraction={trackFraction}
+                        lapIndex={lap.lapIndex}
+                        lapFraction={lap.lapFraction}
+                      />
+                    </React.Fragment>
+                  ));
+                })()}
             </React.Fragment>
           );
         })}
