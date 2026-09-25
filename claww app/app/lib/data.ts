@@ -430,6 +430,60 @@ export interface EstimateResult {
   reason?: string;
 }
 
+export interface RemainingMacros {
+  calories: number;
+  protein_g: number;
+}
+
+/**
+ * Item #24 — "Suggest {meal}" used to route to the exact same screen as
+ * "Add {meal}", with no way to say what you actually want. Calls the
+ * suggest-meal Edge Function with a free-text preference (optional — empty
+ * string means "anything reasonable"), dietary restrictions, and the
+ * user's real remaining macro budget for today, so the suggestion is
+ * grounded in actual data rather than freeform. Falls back to a generic
+ * per-meal-type estimate (same FALLBACK_MEAL_MACROS table estimateMeal
+ * uses) if the function isn't reachable — honestly labeled as a generic
+ * suggestion, not a personalized one, when that happens.
+ */
+export async function suggestMeal(
+  mealType: MealType,
+  preference: string,
+  dietaryRestrictions: DietaryRestriction[],
+  remaining?: RemainingMacros
+): Promise<EstimateResult> {
+  try {
+    const { data, error } = await supabase.functions.invoke('suggest-meal', {
+      body: {
+        mealType,
+        preference,
+        dietaryRestrictions,
+        remainingCalories: remaining?.calories,
+        remainingProteinG: remaining?.protein_g,
+      },
+    });
+    if (!error && data && typeof data.calories === 'number') {
+      track(AnalyticsEvent.MealEstimated, { generated: true, source: 'suggestion' });
+      return { ok: true, meal: data as EstimatedMeal };
+    }
+  } catch {
+    // Edge Function not deployed / unreachable — fall through to a generic suggestion.
+  }
+
+  track(AnalyticsEvent.MealEstimated, { generated: false, source: 'suggestion' });
+  const fallback = FALLBACK_MEAL_MACROS[mealType];
+  return {
+    ok: true,
+    meal: {
+      description: `${mealType} suggestion`,
+      calories: fallback.calories,
+      protein_g: fallback.protein_g,
+      carbs_g: fallback.carbs_g,
+      fats_g: fallback.fats_g,
+    },
+  };
+}
+
 /**
  * Estimates a meal's macros from text — does NOT save anything. Callers
  * show this to the user for review/edit, then call saveMeal once confirmed

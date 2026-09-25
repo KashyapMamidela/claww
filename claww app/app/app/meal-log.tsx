@@ -10,8 +10,11 @@ import {
   getMealPhotoHistory,
   getProfile,
   getSignedMealPhotoUrl,
+  getTodaysMealLogs,
+  suggestMeal,
   uploadMealPhoto,
   type DietaryRestriction,
+  type NutritionDefaults,
   type PortionSize,
 } from '../lib/data';
 import { Icon } from '../components/ui/Icon';
@@ -76,6 +79,15 @@ export default function MealLogScreen() {
   const [error, setError] = useState<string | null>(null);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<DietaryRestriction[]>([]);
 
+  // Item #24 — a real preference-aware suggestion, not the fixed chip list
+  // below. Remaining macros are computed from the user's own real
+  // nutrition targets + what they've actually logged today, so the
+  // suggestion is grounded rather than freeform.
+  const [preferenceText, setPreferenceText] = useState('');
+  const [suggesting, setSuggesting] = useState(false);
+  const [nutritionDefaults, setNutritionDefaults] = useState<NutritionDefaults | null>(null);
+  const [consumedToday, setConsumedToday] = useState({ calories: 0, protein_g: 0 });
+
   // SHIP PHASE 8 follow-up — review-before-save. `reviewing` holds the raw
   // estimate + editable string fields (numeric TextInputs need a string,
   // not a number, to let a user clear a field while typing) until they
@@ -97,7 +109,17 @@ export default function MealLogScreen() {
       if (!userId) return;
       let cancelled = false;
       getProfile(userId).then((profile) => {
-        if (!cancelled) setDietaryRestrictions(profile?.personalization_profile?.dietaryRestrictions ?? []);
+        if (!cancelled) {
+          setDietaryRestrictions(profile?.personalization_profile?.dietaryRestrictions ?? []);
+          setNutritionDefaults(profile?.personalization_profile?.nutritionDefaults ?? null);
+        }
+      });
+      getTodaysMealLogs(userId).then((meals) => {
+        if (cancelled) return;
+        setConsumedToday({
+          calories: meals.reduce((s, m) => s + (m.calories ?? 0), 0),
+          protein_g: meals.reduce((s, m) => s + (m.protein_g ?? 0), 0),
+        });
       });
       getMealPhotoHistory(userId).then(async (rows) => {
         if (cancelled) return;
@@ -139,6 +161,35 @@ export default function MealLogScreen() {
   const allSuggestions = SUGGESTIONS[mealType ?? ''] ?? SUGGESTIONS.Snack;
   const suggestions = allSuggestions.filter((s) => !s.violates.some((v) => dietaryRestrictions.includes(v)));
   const canSubmit = (text.trim().length > 0 || photo) && !saving;
+
+  // Item #24 — real remaining budget, not a fabricated number: the user's
+  // own saved nutrition targets (or nothing, if they haven't set any up
+  // yet) minus what they've actually logged today.
+  const remainingMacros = nutritionDefaults
+    ? {
+        calories: Math.max(0, nutritionDefaults.calories - consumedToday.calories),
+        protein_g: Math.max(0, nutritionDefaults.protein_g - consumedToday.protein_g),
+      }
+    : undefined;
+
+  const handleSuggest = async () => {
+    if (suggesting) return;
+    setSuggesting(true);
+    setError(null);
+    const result = await suggestMeal((mealType as MealType) ?? 'Snack', preferenceText.trim(), dietaryRestrictions, remainingMacros);
+    setSuggesting(false);
+    if (!result.ok || !result.meal) {
+      setError(result.reason ?? "Couldn't get a suggestion — check your connection and try again.");
+      return;
+    }
+    setReviewing(result.meal);
+    setReviewFields({
+      calories: String(Math.round(result.meal.calories)),
+      protein_g: String(Math.round(result.meal.protein_g)),
+      carbs_g: String(Math.round(result.meal.carbs_g)),
+      fats_g: String(Math.round(result.meal.fats_g)),
+    });
+  };
 
   const pickPhoto = async (source: 'camera' | 'library') => {
     setError(null);
@@ -413,6 +464,62 @@ export default function MealLogScreen() {
                 </TouchableOpacity>
               ))}
             </ScrollView>
+          </View>
+        )}
+
+        {!photo && (
+          <View
+            style={{
+              backgroundColor: '#151517',
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderRadius: 16,
+              padding: 14,
+              marginBottom: 20,
+            }}
+          >
+            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginBottom: 8, fontFamily: FONT }}>
+              Not sure what to eat?
+            </Text>
+            <TextInput
+              value={preferenceText}
+              onChangeText={setPreferenceText}
+              placeholder="e.g. something light, no dairy, only have eggs and rice…"
+              placeholderTextColor="#52525B"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.04)',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.12)',
+                borderRadius: 12,
+                color: '#fff',
+                fontSize: 13,
+                paddingHorizontal: 12,
+                paddingVertical: 10,
+                marginBottom: 10,
+                fontFamily: FONT,
+              }}
+            />
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleSuggest}
+              disabled={suggesting}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                paddingVertical: 11,
+                borderRadius: 12,
+                backgroundColor: 'rgba(168,85,247,0.14)',
+                borderWidth: 1,
+                borderColor: 'rgba(168,85,247,0.3)',
+              }}
+            >
+              <Icon name="sparkles" size={14} color={COLORS.purple} />
+              <Text style={{ color: COLORS.purple, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>
+                {suggesting ? 'Thinking…' : preferenceText.trim() ? 'Suggest based on this' : 'Suggest something for me'}
+              </Text>
+            </TouchableOpacity>
           </View>
         )}
 
