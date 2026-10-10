@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -19,6 +19,18 @@ import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { estimateCaloriesFromSteps, getTodaySteps, openHealthConnectInstall, type StepsResult } from '../../lib/steps';
+import { greetingFor, type Greeting } from '../../lib/greeting';
+
+function useGreeting(): Greeting {
+  const [greeting, setGreeting] = useState(() => greetingFor(new Date()));
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setGreeting(greetingFor(new Date()));
+    });
+    return () => sub.remove();
+  }, []);
+  return greeting;
+}
 
 // New feature — real step count from the phone's own motion sensor
 // (expo-sensors' Pedometer), not a wearable. Refreshes whenever Home
@@ -268,6 +280,7 @@ function HomePopulated() {
   const { userId, userName, recovery, meals, xp, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const greeting = useGreeting();
   const recoveryColor = recovery?.band === 'Low' ? COLORS.danger : recovery?.band === 'High' ? COLORS.green : COLORS.amber;
 
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
@@ -322,7 +335,7 @@ function HomePopulated() {
       <View>
         <SectionLabel color={COLORS.green}>TODAY</SectionLabel>
         <Display style={{ marginTop: 4 }}>
-          Good morning,{'\n'}{userName || 'there'}.
+          {greeting},{'\n'}{userName || 'there'}.
         </Display>
         <Text style={{ color: '#71717A', fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
           {recovery ? (
