@@ -20,6 +20,7 @@ import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { estimateCaloriesFromSteps, getTodaySteps, openHealthConnectInstall, type StepsResult } from '../../lib/steps';
 import { greetingFor, type Greeting } from '../../lib/greeting';
+import { SLEEP_TARGET_HOURS, sleepRingPct } from '../../lib/sleepTarget';
 
 function useGreeting(): Greeting {
   const [greeting, setGreeting] = useState(() => greetingFor(new Date()));
@@ -277,7 +278,7 @@ function HomeEmptyState() {
 }
 
 function HomePopulated() {
-  const { userId, userName, recovery, meals, xp, streak } = useAppState();
+  const { userId, userName, recovery, meals, xp, streak, todaySleep } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const greeting = useGreeting();
@@ -320,7 +321,8 @@ function HomePopulated() {
   const nutritionPctRaw = targetKcal > 0 ? (consumedKcal / targetKcal) * 100 : 0;
   const nutritionPct = Math.min(nutritionPctRaw, 100);
 
-  const sleepPct = recovery ? Math.min((recovery.score / 100) * 100, 100) : 0; // recovery score already IS the sleep-driven composite
+  const sleepHours = todaySleep?.hours ?? null;
+  const sleepPct = sleepRingPct(sleepHours);
   const recoveryPct = recovery?.score ?? 0;
   const dailyGoalPct = recovery ? Math.round((recoveryPct + nutritionPct + sleepPct) / 3) : 0;
 
@@ -404,7 +406,13 @@ function HomePopulated() {
           <View style={{ flex: 1, gap: 11 }}>
             {[
               { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: COLORS.blue },
-              { label: 'Sleep', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: sleepPct, color: '#FFFFFF' },
+              {
+                label: 'Sleep',
+                value: sleepHours !== null ? `${Math.round(sleepHours * 10) / 10}` : '—',
+                sub: `/ ${SLEEP_TARGET_HOURS} h`,
+                pct: sleepPct,
+                color: '#FFFFFF',
+              },
               { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: COLORS.green },
             ].map((s) => (
               <View key={s.label}>
