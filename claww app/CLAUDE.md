@@ -17,12 +17,13 @@ Full setup instructions: `docs/setup.md`.
 
 ## Roadmaps
 
+- `claww-v2-phased-prompts.md` — the active plan from 2026-10-10. 17 changes plus the co-founder's adaptive system as 10 phases labeled V2 PHASE N, mockups in docs/change-plan-v2.html. It absorbs the open day-of-week picker and exercise how-to bugs, and SHIP PHASE 10.3, 11.2, 11.3 and 11.5.
 - `claww-ship-roadmap.md` — **the active roadmap.** Everything between the current repo state and a published Play Store app: unblocking generation, legal/policy compliance, finishing the unfinished UI, observability, safety hardening, differentiation, and the closed-testing run. Phases labeled **SHIP PHASE N**. Standing rules are near the top of that file.
 - `claww-phased-prompts.md` — the previous execution plan, **Phases 1–5 complete**. Its thin three-prompt `PHASE 6 — Ship to testers` is superseded by `claww-ship-roadmap.md`, which absorbs it as SHIP PHASE 9 and 12. Phases labeled **PHASE N**.
 - `claww-full-roadmap.md` — the long-range **Engine Phase** roadmap (adaptive generation, multi-modality, trust layer, wearables, creator layer). Phases labeled **Engine Phase N**. Deferred until after launch.
 - The UI/UX polish audit is a separate published Artifact, not a repo file. Phases labeled **UI Phase N**.
 
-Don't confuse "phase 2" between these four without checking which one is meant.
+Don't confuse "phase 2" between these five without checking which one is meant.
 
 ## Completed phases (claww-phased-prompts.md)
 
