@@ -6,7 +6,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
-import { getLatestWorkout, getProfile, type WorkoutRow } from '../../lib/data';
+import { getLatestWorkout, getProfile, getSuggestedDayIndex, getWorkoutDayEvents, type WorkoutRow } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
@@ -284,6 +284,7 @@ function HomePopulated() {
   const recoveryColor = recovery?.band === 'Low' ? COLORS.danger : recovery?.band === 'High' ? COLORS.green : COLORS.amber;
 
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
+  const [suggestedDayIndex, setSuggestedDayIndex] = useState(0);
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
   const [weightKg, setWeightKg] = useState<number | null>(null);
   const steps = useTodaySteps();
@@ -295,9 +296,11 @@ function HomePopulated() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(([w, profile]) => {
+      Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(async ([w, profile]) => {
+        const dayEvents = w ? await getWorkoutDayEvents(userId, w.id) : [];
         if (cancelled) return;
         setLatestWorkout(w);
+        setSuggestedDayIndex(w ? getSuggestedDayIndex(w.plan, dayEvents) : 0);
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
         setWeightKg(profile?.weight ?? null);
@@ -321,7 +324,15 @@ function HomePopulated() {
   const recoveryPct = recovery?.score ?? 0;
   const dailyGoalPct = recovery ? Math.round((recoveryPct + nutritionPct + sleepPct) / 3) : 0;
 
-  const today = latestWorkout?.plan.days[0];
+  const planDays = latestWorkout?.plan.days ?? [];
+  const today = planDays[suggestedDayIndex] ?? planDays[0];
+  const todayIndex = planDays[suggestedDayIndex] ? suggestedDayIndex : 0;
+  const dayOfLabel = `DAY ${todayIndex + 1} OF ${planDays.length}`;
+  const planCardLabel = today
+    ? /^day \d+$/i.test(today.day.trim())
+      ? dayOfLabel
+      : `${today.day.toUpperCase()} · ${dayOfLabel}`
+    : null;
 
   return (
     <View
@@ -438,7 +449,12 @@ function HomePopulated() {
 
       <SleepArcDial />
 
-      <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/(tabs)/workouts')}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() =>
+          today ? router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } }) : router.push('/(tabs)/workouts')
+        }
+      >
         <LinearGradient
           colors={['#0F172A', '#1E3A5F', '#1D4ED8']}
           start={{ x: 0, y: 0 }}
@@ -452,7 +468,7 @@ function HomePopulated() {
           }}
         >
           <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
-            {today ? `YOUR PLAN · ${today.day.toUpperCase()}` : 'YOUR PLAN'}
+            {planCardLabel ? `YOUR PLAN · ${planCardLabel}` : 'YOUR PLAN'}
           </Text>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, marginTop: 6, marginBottom: 8, fontFamily: FONT }}>
             {today ? today.focus : 'No plan yet — tap to generate one'}

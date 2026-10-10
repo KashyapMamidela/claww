@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
@@ -113,6 +113,13 @@ export default function WorkoutsTab() {
   const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
   const { status: sessionStatus, startSession } = useWorkoutSession();
+  const router = useRouter();
+  // Home's plan card links here with ?day=N so the same day it shows is the
+  // one selected. Applied once, then cleared, so a later plain visit to the
+  // tab falls back to the suggested day instead of a stale one.
+  const { day: dayParam } = useLocalSearchParams<{ day?: string }>();
+  const dayParamRef = useRef(dayParam);
+  dayParamRef.current = dayParam;
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
   const [events, setEvents] = useState<WorkoutDayEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -131,6 +138,8 @@ export default function WorkoutsTab() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
+      const requestedParam = dayParamRef.current;
+      if (requestedParam !== undefined) router.setParams({ day: undefined });
       getLatestWorkout(userId).then(async (w) => {
         if (cancelled) return;
         setWorkout(w);
@@ -138,7 +147,9 @@ export default function WorkoutsTab() {
           const dayEvents = await getWorkoutDayEvents(userId, w.id);
           if (cancelled) return;
           setEvents(dayEvents);
-          setSelectedDay(getSuggestedDayIndex(w.plan, dayEvents));
+          const requested = requestedParam !== undefined ? Number(requestedParam) : NaN;
+          const hasRequested = Number.isInteger(requested) && requested >= 0 && requested < w.plan.days.length;
+          setSelectedDay(hasRequested ? requested : getSuggestedDayIndex(w.plan, dayEvents));
         }
         setLoaded(true);
       });
@@ -152,13 +163,18 @@ export default function WorkoutsTab() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, router])
   );
 
   // Re-suggest whenever a session finishes (status flips through 'completed'
   // then back to 'idle') so returning to this tab reflects the new progress.
+  // Only on that transition: running on every workout change would also
+  // override a day just chosen via Home's plan card.
+  const prevSessionStatus = useRef(sessionStatus);
   useEffect(() => {
-    if (!userId || !workout || sessionStatus !== 'idle') return;
+    const finished = prevSessionStatus.current !== 'idle' && sessionStatus === 'idle';
+    prevSessionStatus.current = sessionStatus;
+    if (!userId || !workout || !finished) return;
     getWorkoutDayEvents(userId, workout.id).then((dayEvents) => {
       setEvents(dayEvents);
       setSelectedDay(getSuggestedDayIndex(workout.plan, dayEvents));
