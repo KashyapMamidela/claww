@@ -5,6 +5,7 @@ import { getExerciseForms, getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, t
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
 import { useSetQueueFlusher } from './setQueueRuntime';
+import { refreshReminders } from './reminderSync';
 import {
   adjustRest as adjustRestClock,
   elapsedSeconds,
@@ -219,7 +220,9 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const finish = useCallback(
     (finalPlan: ExerciseState[]) => {
       if (userId && workout && today) {
-        logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed');
+        logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed').then(() => {
+          refreshReminders(userId).catch(() => {}); // drops today's workout reminder
+        });
       }
       const totals = sessionTotals(finalPlan);
       setLastSummary({

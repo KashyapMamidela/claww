@@ -35,6 +35,7 @@ const REMINDER_ROUTES: Record<ReminderType, string> = {
   workout: '/(tabs)/workouts',
   meal: '/meal-log',
   sleep: '/(tabs)',
+  water: '/(tabs)/nutrition',
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});

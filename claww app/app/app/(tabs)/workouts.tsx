@@ -35,6 +35,7 @@ import { LogSessionModal } from '../../components/LogSessionModal';
 import { CompletedDayCard, SkippedDayCard } from '../../components/PastDayCards';
 import { computeDayStates } from '../../lib/workoutDayState';
 import { useRenderCount } from '../../lib/perf';
+import { refreshReminders } from '../../lib/reminderSync';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -237,6 +238,7 @@ export default function WorkoutsTab() {
     if (!userId || skipping) return;
     setSkipping(true);
     await logWorkoutDayEvent(userId, workout.id, day.day, day.focus, 'skipped');
+    refreshReminders(userId).catch(() => {}); // drops today's workout reminder
     const dayEvents = await getWorkoutDayEvents(userId, workout.id);
     setEvents(dayEvents);
     setSelectedDay(getSuggestedDayIndex(workout.plan, dayEvents));

@@ -6,6 +6,7 @@ import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
 import { enqueueSet, newClientId } from './setQueueRuntime';
 import { toExerciseForm, type ExerciseForm, type ExerciseFormRow } from './exerciseForm';
+import type { ReminderSettings } from './reminderPlan';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -53,6 +54,8 @@ export interface PersonalizationProfile {
   workoutDefaults?: WorkoutDefaults | null;
   nutritionDefaults?: NutritionDefaults | null;
   dietaryRestrictions?: DietaryRestriction[];
+  /** Per-type reminder switches and times (V2 PHASE 3.3); read through normalizeReminderSettings. */
+  reminders?: Partial<ReminderSettings>;
 }
 
 export interface Profile {
@@ -90,6 +93,18 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 export async function setNotificationPromptShown(userId: string): Promise<void> {
   const { error } = await supabase.from('profiles').update({ notification_prompt_shown_at: new Date().toISOString() }).eq('id', userId);
   if (error) console.warn('[Claww] Failed to record notification prompt shown:', error.message);
+}
+
+/** Saves the per-type reminder settings into personalization_profile.reminders (read-modify-write, like the other JSON fields). */
+export async function saveReminderSettings(userId: string, reminders: ReminderSettings): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), reminders };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to save reminder settings:', error.message);
+    return false;
+  }
+  return true;
 }
 
 export async function setNotificationsEnabled(userId: string, enabled: boolean): Promise<void> {

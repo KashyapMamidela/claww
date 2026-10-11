@@ -6,10 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
-import { getGenerationUsageToday, getProfile, setNotificationsEnabled } from '../lib/data';
+import { getGenerationUsageToday, getProfile, saveReminderSettings, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
-import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleDefaultReminders, scheduleTestReminder } from '../lib/notifications';
+import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
+import { refreshReminders } from '../lib/reminderSync';
+import { DEFAULT_REMINDER_SETTINGS, normalizeReminderSettings, type ReminderSettings } from '../lib/reminderPlan';
+import { ReminderSettingsCard } from '../components/ReminderSettingsCard';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 
@@ -29,6 +32,7 @@ export default function SettingsScreen() {
   const [notificationsBusy, setNotificationsBusy] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [testStatus, setTestStatus] = useState<string | null>(null);
+  const [reminderSettings, setReminderSettings] = useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
 
   useFocusEffect(
     useCallback(() => {
@@ -38,6 +42,7 @@ export default function SettingsScreen() {
         if (cancelled) return;
         setUsage(u);
         setNotificationsOn(profile?.notifications_enabled ?? false);
+        setReminderSettings(normalizeReminderSettings(profile?.personalization_profile?.reminders));
       });
       return () => {
         cancelled = true;
@@ -56,15 +61,22 @@ export default function SettingsScreen() {
         setNotificationsBusy(false);
         return;
       }
-      await scheduleDefaultReminders();
       await setNotificationsEnabled(userId, true);
       setNotificationsOn(true);
+      await refreshReminders(userId).catch(() => {});
     } else {
       await cancelAllReminders();
       await setNotificationsEnabled(userId, false);
       setNotificationsOn(false);
     }
     setNotificationsBusy(false);
+  };
+
+  const handleReminderSettings = async (next: ReminderSettings) => {
+    if (!userId) return;
+    setReminderSettings(next);
+    await saveReminderSettings(userId, next);
+    refreshReminders(userId).catch(() => {});
   };
 
   const rows = [
@@ -130,10 +142,15 @@ export default function SettingsScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Reminders</Text>
-                <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, and sleep nudges</Text>
+                <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
               </View>
               <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
+            {notificationsOn ? (
+              <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 4 }}>
+                <ReminderSettingsCard settings={reminderSettings} disabled={notificationsBusy} onChange={handleReminderSettings} />
+              </View>
+            ) : null}
             {permissionDenied ? (
               <Text style={{ color: COLORS.danger, fontSize: 11, marginTop: 10, fontFamily: FONT }}>
                 Notifications are blocked for CLAWW in your device settings — enable them there first.

@@ -62,6 +62,9 @@ export const COLORS = {
   indigoBorder: 'rgba(129,140,248,0.28)',
   indigoDeep: '#4338CA',
 
+  // Water — sky (V2 plan color map; WaterWidget already uses this value)
+  water: '#38BDF8',
+
   // Semantic / one-offs
   success: '#22C55E',
   warning: '#F59E0B',

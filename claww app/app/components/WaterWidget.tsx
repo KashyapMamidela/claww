@@ -5,6 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getTodaysWaterMl, logWater } from '../lib/data';
+import { refreshReminders } from '../lib/reminderSync';
 import { Icon } from './ui/Icon';
 
 const WATER_TARGET_ML = 2000;
@@ -119,6 +120,7 @@ export function WaterWidget({ compact = false, onOpenFull }: WaterWidgetProps) {
     setWaterMl((prev) => prev + ml);
     const ok = await logWater(userId, ml);
     if (!ok) setWaterMl((prev) => Math.max(0, prev - ml));
+    else refreshReminders(userId).catch(() => {}); // updates or drops today's water reminder
   };
 
   const handleCustomSubmit = () => {
