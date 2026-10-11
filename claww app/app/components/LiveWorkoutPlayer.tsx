@@ -13,6 +13,7 @@ import { PressScale } from './ui/PressScale';
 import { markSetTap, useRenderCount } from '../lib/perf';
 import { ElapsedClock, RestCountdown } from './player/clocks';
 import { FullPlayer } from './player/FullPlayer';
+import { useRestEndNotification } from '../lib/restNotification';
 
 const clockLabelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.7, fontFamily: FONT } as const;
 
@@ -48,7 +49,15 @@ interface LiveWorkoutPlayerProps {
  */
 export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps) {
   useRenderCount('LiveWorkoutPlayer');
-  const { status, workout, dayIndex, exerciseIndex, setIndex, plan, clock, isPaused, logSet, skipRest, endSession } = useWorkoutSession();
+  const { status, workout, dayIndex, exerciseIndex, setIndex, plan, clock, isPaused, restEndsAt, logSet, skipRest, endSession } = useWorkoutSession();
+
+  const nextExercise = workout?.plan.days[dayIndex]?.exercises[exerciseIndex];
+  const nextRow = setIndex >= 0 ? plan[exerciseIndex]?.rows[setIndex] : undefined;
+  const nextLabel =
+    nextExercise && nextRow
+      ? `${nextExercise.name}, set ${setIndex + 1} · ${nextRow.weight > 0 ? `${nextRow.weight} kg × ${nextRow.reps}` : `${nextRow.reps} reps`}`
+      : null;
+  useRestEndNotification(status === 'resting', isPaused, restEndsAt, nextLabel);
 
   const [mode, setMode] = useState<Mode>('full');
   // -1 = pill, 0 = bar. Dragging the bar upward past the threshold opens full screen.

@@ -13,10 +13,12 @@ export interface ClockState {
   pausedTotalMs: number;
   /** When the current rest ends, or null when not resting. */
   restEndsAt: number | null;
+  /** When the current rest started (shifted by pauses like restEndsAt), or null. Lets a ring show progress. */
+  restStartedAt: number | null;
 }
 
 export function startClock(now: number): ClockState {
-  return { startedAt: now, pausedAt: null, pausedTotalMs: 0, restEndsAt: null };
+  return { startedAt: now, pausedAt: null, pausedTotalMs: 0, restEndsAt: null, restStartedAt: null };
 }
 
 /** Active (unpaused) seconds since the session started. */
@@ -46,15 +48,16 @@ export function resume(clock: ClockState, now: number): ClockState {
     pausedAt: null,
     pausedTotalMs: clock.pausedTotalMs + pausedMs,
     restEndsAt: clock.restEndsAt === null ? null : clock.restEndsAt + pausedMs,
+    restStartedAt: clock.restStartedAt === null ? null : clock.restStartedAt + pausedMs,
   };
 }
 
 export function startRest(clock: ClockState, now: number, seconds: number): ClockState {
-  return { ...clock, restEndsAt: now + seconds * 1000 };
+  return { ...clock, restEndsAt: now + seconds * 1000, restStartedAt: now };
 }
 
 export function endRest(clock: ClockState): ClockState {
-  return { ...clock, restEndsAt: null };
+  return { ...clock, restEndsAt: null, restStartedAt: null };
 }
 
 /** Adds (or with a negative value removes) rest time; never goes below "now". */
@@ -62,6 +65,15 @@ export function adjustRest(clock: ClockState, now: number, deltaSeconds: number)
   if (clock.restEndsAt === null) return clock;
   const reference = clock.pausedAt ?? now;
   return { ...clock, restEndsAt: Math.max(reference, clock.restEndsAt + deltaSeconds * 1000) };
+}
+
+/** Fraction of the current rest still to go, 0..1 (1 at the start). 0 when not resting. */
+export function restFractionRemaining(clock: ClockState, now: number): number {
+  if (clock.restEndsAt === null || clock.restStartedAt === null) return 0;
+  const total = clock.restEndsAt - clock.restStartedAt;
+  if (total <= 0) return 0;
+  const until = clock.pausedAt ?? now;
+  return Math.max(0, Math.min(1, (clock.restEndsAt - until) / total));
 }
 
 /** True when a rest is running and its end time has passed (and the session isn't paused). */

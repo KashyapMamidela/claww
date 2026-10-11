@@ -4,6 +4,7 @@ import {
   elapsedSeconds,
   endRest,
   pause,
+  restFractionRemaining,
   restIsOver,
   restRemainingSeconds,
   resume,
@@ -67,6 +68,18 @@ describe('sessionClock', () => {
     expect(restRemainingSeconds(c, T0)).toBe(0);
     expect(restIsOver(c, T0)).toBe(false);
     expect(endRest(startRest(c, T0, 45)).restEndsAt).toBeNull();
+  });
+
+  it('reports the fraction of rest left, unaffected by a pause and widened by +15 s', () => {
+    let c = startRest(startClock(T0), T0, 40);
+    expect(restFractionRemaining(c, T0)).toBe(1);
+    expect(restFractionRemaining(c, T0 + s(10))).toBe(0.75);
+    c = pause(c, T0 + s(10));
+    c = resume(c, T0 + s(100));
+    expect(restFractionRemaining(c, T0 + s(100))).toBe(0.75);
+    c = adjustRest(c, T0 + s(100), 20);
+    expect(restFractionRemaining(c, T0 + s(100))).toBe(50 / 60);
+    expect(restFractionRemaining(endRest(c), T0)).toBe(0);
   });
 
   it('pause and resume are idempotent', () => {

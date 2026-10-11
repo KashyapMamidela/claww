@@ -12,7 +12,7 @@ import { markSetTap, useRenderCount, useSetLatency } from '../../lib/perf';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
 import { ElapsedClock } from './clocks';
-import { RestPanel } from './RestPanel';
+import { RestView } from './RestView';
 import { ValuePickerSheet, type PickerKind } from './ValuePickerSheet';
 
 const A = COLORS.blue;
@@ -162,8 +162,12 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             <IconButton icon="x" label="End workout" onPress={endSession} tint="rgba(255,255,255,0.5)" />
           </View>
 
-          {status === 'resting' ? <RestPanel /> : null}
-
+          {status === 'resting' ? (
+            <View style={{ flex: 1, paddingBottom: Math.max(insets.bottom, 16) + 8 }}>
+              <RestView />
+            </View>
+          ) : (
+          <>
           <GestureDetector gesture={swipe}>
             <Animated.View style={[{ flex: 1 }, contentStyle]}>
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 24, gap: 14 }}>
@@ -310,6 +314,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             ) : null}
             <Text style={{ color: '#52525B', fontSize: 11, textAlign: 'center', fontFamily: FONT }}>Tap a number to change it · swipe left to skip, right to go back</Text>
           </View>
+          </>
+          )}
         </View>
 
         {picker && pickerRow ? (
