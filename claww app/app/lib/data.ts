@@ -1321,6 +1321,39 @@ export async function logWater(userId: string, ml: number): Promise<boolean> {
   return true;
 }
 
+export interface WaterLogRow {
+  id: string;
+  ml: number;
+  logged_at: string;
+}
+
+/** Today's individual water entries, newest first (V2 PHASE 4.3's log with undo). */
+export async function getTodaysWaterLogs(userId: string): Promise<WaterLogRow[]> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('water_logs')
+    .select('id, ml, logged_at')
+    .eq('user_id', userId)
+    .gte('logged_at', startOfDay.toISOString())
+    .order('logged_at', { ascending: false });
+  if (error) {
+    console.warn('[Claww] Failed to load water entries:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+/** Undo one water entry. RLS limits it to the user's own rows. */
+export async function deleteWaterLog(id: string): Promise<boolean> {
+  const { error } = await supabase.from('water_logs').delete().eq('id', id);
+  if (error) {
+    console.warn('[Claww] Failed to undo water entry:', error.message);
+    return false;
+  }
+  return true;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Achievements — every badge below is computed from a real signal already
 // in the database. None are permanently-fake placeholders; a badge with no

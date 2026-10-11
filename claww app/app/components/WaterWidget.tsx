@@ -72,9 +72,11 @@ function Bottle({ width, height, fillAnim, scaleAnim }: BottleProps) {
 interface WaterWidgetProps {
   compact?: boolean;
   onOpenFull?: () => void;
+  /** Called after water is saved, so a parent (e.g. Home's water row) can refresh. */
+  onAdded?: (ml: number) => void;
 }
 
-export function WaterWidget({ compact = false, onOpenFull }: WaterWidgetProps) {
+export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidgetProps) {
   const { userId } = useAppState();
   const [waterMl, setWaterMl] = useState(0);
   const [customOpen, setCustomOpen] = useState(false);
@@ -120,7 +122,10 @@ export function WaterWidget({ compact = false, onOpenFull }: WaterWidgetProps) {
     setWaterMl((prev) => prev + ml);
     const ok = await logWater(userId, ml);
     if (!ok) setWaterMl((prev) => Math.max(0, prev - ml));
-    else refreshReminders(userId).catch(() => {}); // updates or drops today's water reminder
+    else {
+      refreshReminders(userId).catch(() => {}); // updates or drops today's water reminder
+      onAdded?.(ml);
+    }
   };
 
   const handleCustomSubmit = () => {

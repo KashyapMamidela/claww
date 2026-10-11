@@ -15,7 +15,7 @@ import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { SleepArcDial } from '../../components/SleepArcDial';
 import { SleepLogModal } from '../../components/SleepLogModal';
-import { WaterWidget } from '../../components/WaterWidget';
+import { WaterRow } from '../../components/WaterRow';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
@@ -192,7 +192,7 @@ function HomeEmptyState() {
 
       <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
-      <WaterWidget compact onOpenFull={() => router.push('/(tabs)/nutrition')} />
+      <WaterRow userId={userId} />
 
       <View
         style={{
@@ -419,7 +419,7 @@ function HomePopulated() {
 
       <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
-      <WaterWidget compact onOpenFull={() => router.push('/(tabs)/nutrition')} />
+      <WaterRow userId={userId} />
 
       <SleepArcDial />
 
