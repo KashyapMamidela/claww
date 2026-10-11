@@ -17,6 +17,7 @@ import { COLORS, FONT } from '../lib/theme';
 import { useWorkoutSession } from '../lib/workoutSession';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
+import { markSetTap, useRenderCount, useSetLatency } from '../lib/perf';
 
 function formatClock(totalSeconds: number): string {
   const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
@@ -72,6 +73,8 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
     skipRest,
     endSession,
   } = useWorkoutSession();
+  useRenderCount('LiveWorkoutPlayer');
+  useSetLatency(`${exerciseIndex}:${setNumber}`);
 
   const [expanded, setExpanded] = useState(false);
   const [minimized, setMinimized] = useState(false);
@@ -204,6 +207,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
     setConfirming(true);
   };
   const confirmSet = () => {
+    markSetTap();
     finishSet(pendingReps, weight);
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     setConfirming(false);

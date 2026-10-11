@@ -34,6 +34,7 @@ import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
 import { CompletedDayCard, SkippedDayCard } from '../../components/PastDayCards';
 import { computeDayStates } from '../../lib/workoutDayState';
+import { useRenderCount } from '../../lib/perf';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -112,6 +113,7 @@ function WorkoutsEmptyState() {
 }
 
 export default function WorkoutsTab() {
+  useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
   const { status: sessionStatus, startSession } = useWorkoutSession();
