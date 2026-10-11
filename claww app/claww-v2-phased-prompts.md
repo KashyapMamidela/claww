@@ -145,6 +145,18 @@ the repo's `animate-expo` skill (`.claude/skills/`) for the sheet, swipe, ring a
 > generated id and make the insert ignore duplicates, adding a unique column to `workout_logs` in
 > the idempotent schema style if needed. Add tests for the queue logic.
 
+### 2.6 Form strip slot (change 06, part 1)
+
+> Above the set rows, add a slim form strip: a body map on the left with the exercise's primary
+> muscle lit in the workouts blue and secondary muscles at lower opacity, one form cue on the
+> right ("Cue 2/3", advancing one cue per set), and a Demo button that opens the full exercise
+> guide as a sheet over the player while the session and rest timer keep running. The first time
+> a user does an exercise, show the strip expanded (all 3 steps and the common mistake); after
+> that, slim. On the rest screen before a new exercise, preview that exercise's strip. Build the
+> body map as one reusable Skia or SVG component that takes a list of muscles and intensities,
+> because V2 PHASE 9 reuses it for the recovery map. The catalog has no form content yet (V2 PHASE
+> 6.2 and 8 add it), so render the strip only when content exists. Never show an empty strip.
+
 Target: under 100 ms from tapping Done to the UI showing the next set, on a mid-range Android
 phone. Record before and after numbers in the PR.
 
@@ -398,13 +410,15 @@ Absorbs the open "no day-of-week picker" bug in `CLAUDE.md` and the start of SHI
 
 ---
 
-## V2 PHASE 8: Exercise how-to v1 (change 06; absorbs SHIP PHASE 11.2)
+## V2 PHASE 8: Form guide content (change 06, part 2; absorbs SHIP PHASE 11.2)
 
-> Tapping any exercise name (plan, picker or player) opens a sheet with the 3 form steps, the
-> common mistake and the primary and secondary muscles from the catalog fields added in V2
-> PHASE 6.2, plus a History tab with the user's last sessions of that exercise. Leave the media
-> area out for now; video is V2 PHASE 10. The text is authored and reviewed, never generated
-> at runtime.
+> The player's form strip from V2 PHASE 2.6 is mostly where users see this. Make sure all 183
+> exercises have the 3 form steps, the common mistake and the primary and secondary muscles from
+> the catalog fields added in V2 PHASE 6.2, so the strip shows for every exercise. Then build the
+> full guide sheet that Demo opens: the body map large, the 3 numbered steps, the common mistake,
+> the muscles, and a History tab with the user's last sessions of that exercise. The same sheet
+> opens from any exercise name in the plan or the picker. Leave room at the top for a demo clip;
+> 3D demo videos are V2 PHASE 11. The text is authored and reviewed, never generated at runtime.
 
 ---
 
@@ -447,7 +461,39 @@ Do these as separate prompts, in this order, and check with the user before each
 > user's call). Gate on depth, not access, using `GENERATION_CAPS` as the seam. Ask the user for
 > the exact tier contents before building.
 
-### 10.4 Exercise video (change 06, version 2)
+---
 
-> Once the user has chosen a media source, add a looping demo clip area to the exercise sheet,
-> stored in Supabase Storage and cached on device after first view.
+## V2 PHASE 11: Blender-made 3D demo videos (change 06, final version) — LAST
+
+I build the exercise demos in Blender, with Claude driving Blender through a Blender connection
+(for example the open-source blender-mcp, or Blender's Python run headless). The app never runs
+3D: every demo is pre-rendered to a short looping video, so it plays like any video, with no lag
+and no extra app size. Rotating 3D in the app is out of scope. Per exercise: male and female
+model × front and side angle = 4 clips, about 6 s, seamless loop, 480p H.264, 300–800 KB each, no
+audio. Start with the 30 most-used exercises; the rest keep the text form guide until done.
+
+### 11.1 Blender pipeline
+
+> Help me set up a Blender project: two rigged base characters (male and female) in one art
+> style, a dark studio scene matching CLAWW, front and side cameras, lighting. For each exercise:
+> import the animation (preferred route: I film the move, an AI motion-capture tool turns it into
+> animation, it's retargeted onto both characters), clean it up, make the loop seamless, and check
+> the form against the exercise's form steps. Render all 4 clips with a headless Blender Python
+> script, encode with ffmpeg. Keep scripts in tools/blender/ with a README. Render one test
+> exercise first and show me frames before batching.
+
+### 11.2 Storage and naming
+
+> Supabase Storage bucket exercise-demos, files named {exercise_id}/{male|female}-{front|side}.mp4.
+> Add demo_version int to exercises (idempotent) so the app knows when a clip changed, and an
+> upload script in tools/blender/ that uploads clips and bumps demo_version.
+
+### 11.3 Demos in the live player
+
+> When clips exist, the form strip from 2.6 becomes a muted looping video of the current exercise
+> at the top of the player (expo-video), with the form cue over it. After the first set it shrinks
+> to a thumbnail; tap for full screen with front/side switch and 0.5× speed. During rest, play the
+> next exercise. Gender comes from the profile, with a male/female switch in full screen. Preload
+> the next clip, cache by exercise_id + demo_version, download only the plan's exercises in the
+> user's gender, never block Done on video loading, pause in background. Exercises without clips
+> fall back to the text strip. Confirm Done still meets the under-100 ms target with video playing.
