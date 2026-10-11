@@ -32,6 +32,8 @@ import { WorkoutCalendar } from '../../components/WorkoutCalendar';
 import { Display } from '../../components/ui/Typography';
 import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
+import { CompletedDayCard, SkippedDayCard } from '../../components/PastDayCards';
+import { computeDayStates } from '../../lib/workoutDayState';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -222,6 +224,12 @@ export default function WorkoutsTab() {
   const suggestedDay = getSuggestedDayIndex(workout.plan, events);
   const day = workout.plan.days[selectedDay] ?? workout.plan.days[0];
   const isSuggested = selectedDay === suggestedDay;
+  const dayStates = computeDayStates(
+    workout.plan.days.map((d) => d.day),
+    events,
+    suggestedDay
+  );
+  const selectedState = dayStates[selectedDay] ?? dayStates[0];
 
   const handleSkip = async () => {
     if (!userId || skipping) return;
@@ -389,7 +397,8 @@ export default function WorkoutsTab() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 7 }}>
               {workout.plan.days.map((d, i) => {
                 const active = i === selectedDay;
-                const suggested = i === suggestedDay;
+                const state = dayStates[i]?.state ?? 'upcoming';
+                const suggested = state === 'suggested';
                 return (
                   <TouchableOpacity
                     key={`${d.day}-${i}`}
@@ -407,7 +416,13 @@ export default function WorkoutsTab() {
                       gap: 5,
                     }}
                   >
-                    {suggested && !active ? <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} /> : null}
+                    {state === 'completed' ? (
+                      <Icon name="check" size={12} color={active ? '#fff' : COLORS.green} strokeWidth={3} />
+                    ) : state === 'skipped' ? (
+                      <Icon name="x" size={12} color={active ? '#fff' : COLORS.danger} strokeWidth={3} />
+                    ) : suggested && !active ? (
+                      <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} />
+                    ) : null}
                     <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{d.day}</Text>
                   </TouchableOpacity>
                 );
@@ -524,7 +539,16 @@ export default function WorkoutsTab() {
             </Text>
           ) : null}
 
-          {sessionStatus === 'idle' ? (
+          {sessionStatus === 'idle' && selectedState.state === 'completed' && selectedState.event && userId ? (
+            <CompletedDayCard userId={userId} day={day} event={selectedState.event} />
+          ) : sessionStatus === 'idle' && selectedState.state === 'skipped' && selectedState.event ? (
+            <SkippedDayCard
+              day={day}
+              event={selectedState.event}
+              onDoToday={() => startSession(workout, selectedDay)}
+              onKeepToday={() => setSelectedDay(suggestedDay)}
+            />
+          ) : sessionStatus === 'idle' ? (
             <View style={{ gap: 8 }}>
               <Button
                 variant="primary"

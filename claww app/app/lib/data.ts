@@ -2,6 +2,7 @@ import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
+import type { LoggedSetRow } from './workoutDayState';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -990,7 +991,8 @@ export interface WorkoutDayEvent {
   dayLabel: string;
   dayFocus: string | null;
   status: WorkoutDayStatus;
-  eventDate: string; // YYYY-MM-DD
+  eventDate: string; // YYYY-MM-DD — the server's UTC date; prefer createdAt for anything local-time
+  createdAt: string;
 }
 
 function mapDayEventRow(row: {
@@ -1000,6 +1002,7 @@ function mapDayEventRow(row: {
   day_focus: string | null;
   status: WorkoutDayStatus;
   event_date: string;
+  created_at: string;
 }): WorkoutDayEvent {
   return {
     id: row.id,
@@ -1008,6 +1011,7 @@ function mapDayEventRow(row: {
     dayFocus: row.day_focus,
     status: row.status,
     eventDate: row.event_date,
+    createdAt: row.created_at,
   };
 }
 
@@ -1036,7 +1040,7 @@ export async function logWorkoutDayEvent(
 export async function getWorkoutDayEvents(userId: string, workoutId: string): Promise<WorkoutDayEvent[]> {
   const { data, error } = await supabase
     .from('workout_day_events')
-    .select('id, workout_id, day_label, day_focus, status, event_date')
+    .select('id, workout_id, day_label, day_focus, status, event_date, created_at')
     .eq('user_id', userId)
     .eq('workout_id', workoutId)
     .order('created_at', { ascending: false });
@@ -1051,7 +1055,7 @@ export async function getWorkoutDayEvents(userId: string, workoutId: string): Pr
 export async function getWorkoutDayEventsInRange(userId: string, startDate: string, endDate: string): Promise<WorkoutDayEvent[]> {
   const { data, error } = await supabase
     .from('workout_day_events')
-    .select('id, workout_id, day_label, day_focus, status, event_date')
+    .select('id, workout_id, day_label, day_focus, status, event_date, created_at')
     .eq('user_id', userId)
     .gte('event_date', startDate)
     .lte('event_date', endDate)
@@ -1075,6 +1079,34 @@ export function getSuggestedDayIndex(plan: WorkoutPlan, recentEventsDesc: Workou
   const lastIndex = plan.days.findIndex((d) => d.day === mostRecent.dayLabel);
   if (lastIndex === -1) return 0;
   return (lastIndex + 1) % plan.days.length;
+}
+
+/**
+ * The sets logged for one completed plan day. workout_logs has no session
+ * id, so a session is the sets of that day's exercises logged on the same
+ * local calendar day as the "completed" event. The event's own timestamp
+ * is used rather than event_date, which is the server's UTC date and lands
+ * on the previous day for sessions finished early in the morning in India.
+ */
+export async function getDaySessionLogs(userId: string, completedAt: string, exerciseNames: string[]): Promise<LoggedSetRow[]> {
+  if (exerciseNames.length === 0) return [];
+  const start = new Date(completedAt);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('exercise_name, sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at')
+    .eq('user_id', userId)
+    .in('exercise_name', exerciseNames)
+    .gte('completed_at', start.toISOString())
+    .lt('completed_at', end.toISOString())
+    .order('completed_at', { ascending: true });
+  if (error) {
+    console.warn('[Claww] Failed to load session sets:', error.message);
+    return [];
+  }
+  return data ?? [];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
