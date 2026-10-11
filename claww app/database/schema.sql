@@ -225,6 +225,14 @@ ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS weight_achieved FLOAT;
 -- covers them instead. NULL for ordinary strength sets, exactly as before.
 ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS duration_minutes FLOAT;
 
+-- V2 PHASE 2.5 — offline set queue. The app writes every set to an on-device
+-- queue and sends it from there, retrying until it lands. Each set carries a
+-- client-generated id; the insert is ON CONFLICT (client_id) DO NOTHING, so
+-- a retry after a lost response can never log the same set twice. NULL for
+-- rows written before this (NULLs don't collide in a unique index).
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS client_id UUID;
+CREATE UNIQUE INDEX IF NOT EXISTS workout_logs_client_id_key ON workout_logs (client_id);
+
 -- ============================================================
 -- TABLE: workout_day_events
 -- One row per plan-day the user completed or explicitly skipped —

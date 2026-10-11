@@ -4,6 +4,7 @@ import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDe
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
+import { enqueueSet, newClientId } from './setQueueRuntime';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -657,9 +658,14 @@ export async function getLastTimeSets(userId: string, exerciseNames: string[]): 
   return lastSessionSets(data ?? []);
 }
 
-/** Logs one completed set (see WorkoutSessionProvider). Awards a small, real XP amount per set. */
+/**
+ * Logs one completed set (see WorkoutSessionProvider). It goes into the
+ * on-device queue first (lib/setQueueRuntime.ts) and is sent from there, so a
+ * set done with no signal is saved once the network is back instead of
+ * lost. XP (5 per set) is awarded when the row is actually inserted.
+ */
 export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promise<boolean> {
-  const { error } = await supabase.from('workout_logs').insert({
+  await enqueueSet(newClientId(), {
     user_id: userId,
     exercise_id: log.exerciseId ?? null,
     exercise_name: log.exerciseName,
@@ -668,12 +674,8 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
     reps_achieved: log.repsAchieved,
     weight_prescribed: log.weightPrescribed,
     weight_achieved: log.weightAchieved,
+    completed_at: new Date().toISOString(),
   });
-  if (error) {
-    console.warn('[Claww] Failed to log workout set:', error.message);
-    return false;
-  }
-  await awardXp(userId, 5, 'set_completed');
   return true;
 }
 

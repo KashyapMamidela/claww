@@ -3,6 +3,7 @@ import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import { useAppState } from './appState';
+import { useSetQueueFlusher } from './setQueueRuntime';
 import {
   adjustRest as adjustRestClock,
   elapsedSeconds,
@@ -92,6 +93,7 @@ const WorkoutSessionContext = createContext<WorkoutSessionState | null>(null);
 
 export function WorkoutSessionProvider({ children }: { children: React.ReactNode }) {
   const { userId, bumpXp } = useAppState();
+  useSetQueueFlusher(userId);
   const [status, setStatus] = useState<SessionStatus>('idle');
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
