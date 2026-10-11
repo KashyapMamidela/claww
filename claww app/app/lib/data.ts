@@ -1346,6 +1346,8 @@ export interface UserDataExport {
   xpEvents: unknown[];
   generationUsage: unknown[];
   generationFailures: unknown[];
+  pushTokens: unknown[];
+  pushSends: unknown[];
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1363,6 +1365,8 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     xpEvents,
     generationUsage,
     generationFailures,
+    pushTokens,
+    pushSends,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1376,6 +1380,8 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('xp_events').select('*').eq('user_id', userId),
     supabase.from('generation_usage').select('*').eq('user_id', userId),
     supabase.from('generation_failures').select('*').eq('user_id', userId),
+    supabase.from('push_tokens').select('*').eq('user_id', userId),
+    supabase.from('push_sends').select('*').eq('user_id', userId),
   ]);
 
   return {
@@ -1392,6 +1398,8 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     xpEvents: xpEvents.data ?? [],
     generationUsage: generationUsage.data ?? [],
     generationFailures: generationFailures.data ?? [],
+    pushTokens: pushTokens.data ?? [],
+    pushSends: pushSends.data ?? [],
   };
 }
 

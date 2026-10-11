@@ -505,3 +505,53 @@ DROP POLICY IF EXISTS "generation_failures_own" ON generation_failures;
 CREATE POLICY "generation_failures_own" ON generation_failures
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- V2 PHASE 3.4 — server push for things the phone can't know (a missed
+-- workout, a streak about to break). The app registers its Expo push token
+-- after notification permission is granted and deletes it on sign-out;
+-- account deletion removes both tables' rows through the profiles cascade.
+-- ============================================================
+
+-- TABLE: push_tokens — one row per device the user is signed in on.
+CREATE TABLE IF NOT EXISTS push_tokens (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  token       TEXT NOT NULL,
+  platform    TEXT NOT NULL CHECK (platform IN ('ios', 'android')),
+  -- IANA zone from the device (e.g. 'Asia/Kolkata'), so the scheduled
+  -- send-reminders function can pick each user's local morning/evening.
+  timezone    TEXT,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS push_tokens_token_key ON push_tokens (token);
+CREATE INDEX IF NOT EXISTS push_tokens_user_idx ON push_tokens (user_id);
+
+-- TABLE: push_sends — what send-reminders has already sent, one row per
+-- user per kind per local day. The unique key makes a re-run (or two
+-- overlapping cron runs) unable to send the same nudge twice, and the
+-- function counts these toward the 2-a-day cap together with local
+-- reminders. Written only by the service role.
+CREATE TABLE IF NOT EXISTS push_sends (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  kind        TEXT NOT NULL,
+  local_date  DATE NOT NULL,
+  sent_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, kind, local_date)
+);
+
+ALTER TABLE push_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE push_sends  ENABLE ROW LEVEL SECURITY;
+
+-- Push tokens: own rows only (the app inserts/updates/deletes its own).
+DROP POLICY IF EXISTS "push_tokens_own" ON push_tokens;
+CREATE POLICY "push_tokens_own" ON push_tokens
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Push sends: a user can read their own history; only the service role
+-- (send-reminders) writes, and it bypasses RLS.
+DROP POLICY IF EXISTS "push_sends_read_own" ON push_sends;
+CREATE POLICY "push_sends_read_own" ON push_sends
+  FOR SELECT USING (auth.uid() = user_id);

@@ -9,6 +9,7 @@ import {
 } from './data';
 import { cancelAllReminders, ensureNotificationChannels, hasNotificationPermission, notificationsSupported, scheduleReminderPlan } from './notifications';
 import { normalizeReminderSettings, planReminders, type TodayState } from './reminderPlan';
+import { registerPushToken } from './pushTokens';
 
 /** Matches WaterWidget's target. */
 const WATER_TARGET_ML = 2000;
@@ -52,6 +53,8 @@ async function run(userId: string): Promise<void> {
   const settings = normalizeReminderSettings(profile.personalization_profile?.reminders);
   const today = await buildTodayState(userId);
   await scheduleReminderPlan(planReminders(settings, today, new Date()));
+  // Same moment is right for server push: permission granted, reminders on.
+  await registerPushToken(userId);
 }
 
 /**
