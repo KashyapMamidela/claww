@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { AREA_COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getCompletedWorkoutDays, getNutritionSummary, getTotalVolume, getWorkoutsThisMonth, type NutritionSummary } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
@@ -12,14 +12,15 @@ import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 
-// Tracker is strictly black & white — no accent hues on this screen.
+// Tracker cards stay black and white; since V2 PHASE 4.1 each area's label
+// takes its AREA_COLORS hue (score stays white). V2 PHASE 9 rebuilds this screen.
 const W = '#FFFFFF';
 const WD = '#D4D4D8';
 const GR = '#A1A1AA';
 const GD = '#52525B';
 const UNLOCK_AT = 3;
 
-function KpiTile({ label, value, sub, note, delta }: { label: string; value: string; sub?: string; note?: string; delta?: string }) {
+function KpiTile({ label, value, sub, note, delta, color = GD }: { label: string; value: string; sub?: string; note?: string; delta?: string; color?: string }) {
   return (
     <View
       style={{
@@ -34,7 +35,7 @@ function KpiTile({ label, value, sub, note, delta }: { label: string; value: str
         paddingBottom: 12,
       }}
     >
-      <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
       <Text style={{ color: value === '—' ? GD : W, fontSize: 30, fontWeight: '900', letterSpacing: -1.2, marginTop: 4, fontFamily: FONT }}>
         {value}
         {sub ? <Text style={{ color: GD, fontSize: 11, fontWeight: '400', letterSpacing: 0 }}> {sub}</Text> : null}
@@ -91,15 +92,16 @@ function TrackerLocked({ workoutsCompleted, xp }: { workoutsCompleted: number; x
   // genuinely need workout history (streak, volume, goals) stay locked.
   const clawwScore = Math.min(1000, xp);
   const KPI_LOCKED = [
-    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
-    { label: 'STREAK', value: '—', note: 'Log workouts on consecutive days to start a streak.' },
+    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000', color: AREA_COLORS.score },
+    { label: 'STREAK', color: AREA_COLORS.streak, value: '—', note: 'Log workouts on consecutive days to start a streak.' },
     {
       label: 'WORKOUTS',
+      color: AREA_COLORS.workouts,
       value: String(workoutsCompleted),
       sub: `/ ${UNLOCK_AT}`,
       note: remaining > 0 ? `${remaining} more to unlock your Tracker.` : 'Unlocking…',
     },
-    { label: 'VOLUME', value: '—', note: 'Volume trends appear after your first 3 workouts.' },
+    { label: 'VOLUME', color: AREA_COLORS.workouts, value: '—', note: 'Volume trends appear after your first 3 workouts.' },
   ];
 
   return (
@@ -128,7 +130,7 @@ function TrackerLocked({ workoutsCompleted, xp }: { workoutsCompleted: number; x
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         {KPI_LOCKED.map((k) => (
-          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} note={k.note} />
+          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} note={k.note} color={k.color} />
         ))}
       </View>
 
@@ -227,14 +229,14 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
   }, [reportText]);
 
   const KPI = [
-    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
-    { label: 'STREAK', value: String(streak), sub: 'days' },
-    { label: 'WORKOUTS', value: String(workoutsCompleted), sub: 'sessions' },
+    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000', color: AREA_COLORS.score },
+    { label: 'STREAK', value: String(streak), sub: 'days', color: AREA_COLORS.streak },
+    { label: 'WORKOUTS', value: String(workoutsCompleted), sub: 'sessions', color: AREA_COLORS.workouts },
     // VOLUME used to be a duplicate tile here — the dedicated card below
     // already shows it with more context ("Total logged this all-time").
     // This month's session count is real data that had no home anywhere
     // in the tab before.
-    { label: 'THIS MONTH', value: String(workoutsThisMonth), sub: 'sessions' },
+    { label: 'THIS MONTH', value: String(workoutsThisMonth), sub: 'sessions', color: AREA_COLORS.workouts },
   ];
   const GOALS = [
     { label: 'Monthly Workouts', pct: Math.min(100, Math.round((workoutsThisMonth / MONTHLY_WORKOUT_TARGET) * 100)) },
@@ -266,7 +268,7 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
         {KPI.map((k) => (
-          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} />
+          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} color={k.color} />
         ))}
       </View>
 
@@ -338,7 +340,7 @@ function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume,
             backgroundColor: '#1A1A1C',
           }}
         >
-          <Text style={{ color: W, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Nutrition</Text>
+          <Text style={{ color: AREA_COLORS.nutrition, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Nutrition</Text>
           <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>last 7 days</Text>
         </View>
         {nutrition && nutrition.daysLoggedLast7 > 0 ? (

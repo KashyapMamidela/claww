@@ -99,3 +99,32 @@ export const TAB_ACCENTS: Record<string, { accent: string; wordmark: string }> =
 export function alpha(hex: string, suffix: string): string {
   return `${hex}${suffix}`;
 }
+
+/**
+ * V2 PHASE 4.1 — one color per area, used everywhere that area appears
+ * (Home, Tracker, sheets). Cards stay black; color goes only on data — lines,
+ * bars, rings, section labels. The CLAWW Score stays white. Fats keep
+ * COLORS.danger inside macro charts only.
+ */
+export const AREA_COLORS = {
+  workouts: '#3B82F6',
+  nutrition: '#22C55E',
+  recovery: '#2DD4BF',
+  sleep: '#818CF8',
+  steps: '#F59E0B',
+  burned: '#FB923C',
+  streak: '#F472B6',
+  water: COLORS.water,
+  engine: '#A855F7',
+  score: '#FFFFFF',
+} as const;
+
+export type Area = keyof typeof AREA_COLORS;
+
+/** An area color at low opacity, for icon wells and tinted strips (0..1). */
+export function tint(hex: string, opacity: number): string {
+  const m = /^#([0-9a-fA-F]{6})$/.exec(hex);
+  if (!m) return hex;
+  const n = parseInt(m[1], 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity})`;
+}

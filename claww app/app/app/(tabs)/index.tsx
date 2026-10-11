@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, tint } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getLatestWorkout, getProfile, getSuggestedDayIndex, getWorkoutDayEvents, type WorkoutRow } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
@@ -60,7 +60,7 @@ function AiCard({ children }: { children: React.ReactNode }) {
       style={{
         backgroundColor: '#151517',
         borderWidth: 1,
-        borderColor: 'rgba(168,85,247,0.22)',
+        borderColor: tint(AREA_COLORS.engine, 0.22),
         borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 14,
@@ -72,14 +72,14 @@ function AiCard({ children }: { children: React.ReactNode }) {
             width: 28,
             height: 28,
             borderRadius: 8,
-            backgroundColor: 'rgba(168,85,247,0.15)',
+            backgroundColor: tint(AREA_COLORS.engine, 0.15),
             borderWidth: 1,
-            borderColor: 'rgba(168,85,247,0.3)',
+            borderColor: tint(AREA_COLORS.engine, 0.3),
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Icon name="sparkles" size={14} color={COLORS.purple} />
+          <Icon name="sparkles" size={14} color={AREA_COLORS.engine} />
         </View>
         <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
       </View>
@@ -394,9 +394,9 @@ function HomePopulated() {
           <ProgressRing
             size={164}
             rings={[
-              { r: 72, strokeWidth: 7, color: COLORS.blue, pct: recoveryPct },
-              { r: 57, strokeWidth: 7, color: '#FFFFFF', pct: sleepPct },
-              { r: 42, strokeWidth: 7, color: COLORS.green, pct: nutritionPctRaw },
+              { r: 72, strokeWidth: 7, color: AREA_COLORS.recovery, pct: recoveryPct },
+              { r: 57, strokeWidth: 7, color: AREA_COLORS.sleep, pct: sleepPct },
+              { r: 42, strokeWidth: 7, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
             ]}
             trackColor="rgba(255,255,255,0.055)"
           >
@@ -405,15 +405,15 @@ function HomePopulated() {
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
             {[
-              { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: COLORS.blue },
+              { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: AREA_COLORS.recovery },
               {
                 label: 'Sleep',
                 value: sleepHours !== null ? `${Math.round(sleepHours * 10) / 10}` : '—',
                 sub: `/ ${SLEEP_TARGET_HOURS} h`,
                 pct: sleepPct,
-                color: '#FFFFFF',
+                color: AREA_COLORS.sleep,
               },
-              { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: COLORS.green },
+              { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: AREA_COLORS.nutrition },
             ].map((s) => (
               <View key={s.label}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -496,7 +496,7 @@ function HomePopulated() {
             <Text style={{ color: recoveryColor, fontWeight: '700' }}>{recovery.band.toLowerCase()}</Text> recovery today
             {streak > 0 ? (
               <>
-                , and you're on a <Text style={{ color: COLORS.purple, fontWeight: '700' }}>{streak}-day streak</Text>
+                , and you're on a <Text style={{ color: AREA_COLORS.streak, fontWeight: '700' }}>{streak}-day streak</Text>
               </>
             ) : null}
             .
