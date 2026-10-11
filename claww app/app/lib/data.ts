@@ -3,6 +3,7 @@ import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
+import { lastSessionSets, type LastTimeMap } from './sessionPlan';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -637,6 +638,23 @@ export interface WorkoutSetInput {
   repsAchieved: number;
   weightPrescribed: number;
   weightAchieved: number;
+}
+
+/** Last session's sets for each of these exercises (most recent calendar day each), for the player's "last time" column and weight prefill. */
+export async function getLastTimeSets(userId: string, exerciseNames: string[]): Promise<LastTimeMap> {
+  if (exerciseNames.length === 0) return {};
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('exercise_name, sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at')
+    .eq('user_id', userId)
+    .in('exercise_name', exerciseNames)
+    .order('completed_at', { ascending: false })
+    .limit(300);
+  if (error) {
+    console.warn('[Claww] Failed to load last-time sets:', error.message);
+    return {};
+  }
+  return lastSessionSets(data ?? []);
 }
 
 /** Logs one completed set (see WorkoutSessionProvider). Awards a small, real XP amount per set. */

@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
+import { getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import { useAppState } from './appState';
 import {
   adjustRest as adjustRestClock,
@@ -14,6 +14,21 @@ import {
   startRest,
   type ClockState,
 } from './sessionClock';
+import {
+  applyLastTimeWeights,
+  buildInitialState,
+  currentSetIndex,
+  isExerciseComplete,
+  isSessionComplete,
+  markDone,
+  markSkipped,
+  nextExerciseWithWork,
+  sessionTotals,
+  updateRow,
+  type ExerciseState,
+  type LastTimeMap,
+  type SetRowState,
+} from './sessionPlan';
 
 const REST_SECONDS = 45;
 
@@ -33,6 +48,8 @@ export interface LastCompletedSet {
   exerciseName: string;
   setNumber: number;
   totalSets: number;
+  reps: number;
+  weight: number;
 }
 
 interface WorkoutSessionState {
@@ -40,7 +57,12 @@ interface WorkoutSessionState {
   workout: WorkoutRow | null;
   dayIndex: number;
   exerciseIndex: number;
-  setNumber: number;
+  /** Index of the first unlogged set of the current exercise, or -1 when it's complete. */
+  setIndex: number;
+  /** Every exercise's set rows — what the player renders and edits. */
+  plan: ExerciseState[];
+  /** Last session's sets per exercise name, for the "last" column. */
+  lastTime: LastTimeMap;
   /** Start, pause and rest timestamps. Changes only on those events — never
    * once a second — so ticking displays derive their value locally with
    * useNow (see components/player/clocks.tsx). */
@@ -48,19 +70,18 @@ interface WorkoutSessionState {
   /** When the current rest ends (ms since epoch), or null. Same as clock.restEndsAt. */
   restEndsAt: number | null;
   isPaused: boolean;
-  weight: number;
   lastSummary: SessionSummary | null;
-  /** The set that was just confirmed — shown during the rest screen instead
-   * of the upcoming set number, so the last set of an exercise reads as
-   * "4/4" done rather than jumping straight to the next exercise's "1/N" with
-   * no confirmation the 4th set ever happened. */
+  /** The set that was just logged — shown on the rest screen. */
   lastCompletedSet: LastCompletedSet | null;
   startSession: (workout: WorkoutRow, dayIndex?: number) => void;
   togglePause: () => void;
-  setWeight: (w: number) => void;
-  /** Logs the set with what the user actually did. */
-  finishSet: (repsAchieved: number, weightAchieved: number) => void;
+  /** Edits a set row; a weight change carries forward to later unlogged sets. */
+  updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
+  /** Logs a set with its row's numbers — the current one by default. Updates the UI at once; saving happens in the background. */
+  logSet: (exIdx?: number, setIdx?: number) => void;
   skipExercise: () => void;
+  goToExercise: (exIdx: number) => void;
+  previousExercise: () => void;
   skipRest: () => void;
   /** Adds or removes rest time, in seconds (e.g. ±15). */
   adjustRest: (deltaSeconds: number) => void;
@@ -75,24 +96,33 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
   const [exerciseIndex, setExerciseIndex] = useState(0);
-  const [setNumber, setSetNumber] = useState(1);
+  const [plan, setPlanState] = useState<ExerciseState[]>([]);
+  const [lastTime, setLastTime] = useState<LastTimeMap>({});
   const [clock, setClock] = useState<ClockState | null>(null);
-  const [weight, setWeightState] = useState(0);
   const [lastSummary, setLastSummary] = useState<SessionSummary | null>(null);
   const [lastCompletedSet, setLastCompletedSet] = useState<LastCompletedSet | null>(null);
 
-  const totals = useRef({ setsCompleted: 0, repsCompleted: 0, exercisesCompleted: 0, xpEarned: 0 });
+  // Mirrors of state that taps read synchronously, so two quick taps can't
+  // both act on a stale copy.
+  const planRef = useRef<ExerciseState[]>([]);
+  const touched = useRef(new Set<string>());
+  const sessionKey = useRef(0);
+
+  const setPlan = useCallback((next: ExerciseState[]) => {
+    planRef.current = next;
+    setPlanState(next);
+  }, []);
 
   const today = workout?.plan.days[dayIndex] ?? null;
-  const exercises = today?.exercises ?? [];
-  const totalSetsPlanned = exercises.reduce((s, ex) => s + ex.sets, 0);
+  const exercises = useMemo(() => today?.exercises ?? [], [today]);
   const isPaused = clock?.pausedAt != null;
   const restEndsAt = clock?.restEndsAt ?? null;
+  const setIndex = currentSetIndex(plan[exerciseIndex]);
 
   const finishRest = useCallback(() => {
     setClock((c) => (c ? endRest(c) : c));
     setStatus((s) => (s === 'resting' ? 'active' : s));
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
   }, []);
 
   // One timeout to the rest's end time — not a per-second interval. Re-armed
@@ -124,18 +154,31 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     return () => sub.remove();
   }, []);
 
-  const startSession = useCallback((w: WorkoutRow, startDayIndex = 0) => {
-    totals.current = { setsCompleted: 0, repsCompleted: 0, exercisesCompleted: 0, xpEarned: 0 };
-    setWorkout(w);
-    setDayIndex(startDayIndex);
-    setExerciseIndex(0);
-    setSetNumber(1);
-    setClock(startClock(Date.now()));
-    setWeightState(0);
-    setLastSummary(null);
-    setLastCompletedSet(null);
-    setStatus('active');
-  }, []);
+  const startSession = useCallback(
+    (w: WorkoutRow, startDayIndex = 0) => {
+      const key = ++sessionKey.current;
+      const dayExercises = w.plan.days[startDayIndex]?.exercises ?? [];
+      touched.current = new Set();
+      setWorkout(w);
+      setDayIndex(startDayIndex);
+      setExerciseIndex(0);
+      setPlan(buildInitialState(dayExercises, {}));
+      setLastTime({});
+      setClock(startClock(Date.now()));
+      setLastSummary(null);
+      setLastCompletedSet(null);
+      setStatus('active');
+
+      if (userId) {
+        getLastTimeSets(userId, dayExercises.map((ex) => ex.name)).then((map) => {
+          if (sessionKey.current !== key) return;
+          setLastTime(map);
+          setPlan(applyLastTimeWeights(planRef.current, dayExercises, map, (e, s) => !touched.current.has(`${e}:${s}`)));
+        });
+      }
+    },
+    [userId, setPlan]
+  );
 
   const togglePause = useCallback(() => {
     setClock((c) => {
@@ -145,100 +188,117 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     });
   }, []);
 
-  const setWeight = useCallback((w: number) => setWeightState(Math.max(0, w)), []);
+  const updateSetRow = useCallback(
+    (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => {
+      touched.current.add(`${exIdx}:${setIdx}`);
+      if (patch.weight !== undefined) {
+        planRef.current[exIdx]?.rows.forEach((row, s) => {
+          if (s > setIdx && !row.done) touched.current.add(`${exIdx}:${s}`);
+        });
+      }
+      setPlan(updateRow(planRef.current, exIdx, setIdx, patch));
+    },
+    [setPlan]
+  );
 
   const finish = useCallback(
-    (summary: Omit<SessionSummary, 'elapsedSeconds'>) => {
+    (finalPlan: ExerciseState[]) => {
       if (userId && workout && today) {
         logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed');
       }
-      setLastSummary({ ...summary, elapsedSeconds: clock ? elapsedSeconds(clock, Date.now()) : 0 });
+      const totals = sessionTotals(finalPlan);
+      setLastSummary({
+        ...totals,
+        elapsedSeconds: clock ? elapsedSeconds(clock, Date.now()) : 0,
+        totalSetsPlanned: finalPlan.reduce((s, ex) => s + ex.rows.length, 0),
+        totalExercises: finalPlan.length,
+        xpEarned: totals.setsCompleted * 5,
+      });
       setClock((c) => (c ? endRest(c) : c));
       setStatus('completed');
     },
     [userId, workout, today, clock]
   );
 
-  const finishSet = useCallback(
-    (repsAchieved: number, weightAchieved: number) => {
+  const logSet = useCallback(
+    (exIdxArg?: number, setIdxArg?: number) => {
       if (!userId || !workout || !today) return;
-      const exercise = exercises[exerciseIndex];
-      if (!exercise) return;
+      const current = planRef.current;
+      const exIdx = exIdxArg ?? exerciseIndex;
+      const setIdx = setIdxArg ?? currentSetIndex(current[exIdx]);
+      const exercise = exercises[exIdx];
+      const row = current[exIdx]?.rows[setIdx];
+      if (!exercise || !row || row.done) return;
 
-      totals.current.setsCompleted += 1;
-      totals.current.repsCompleted += repsAchieved;
-      totals.current.xpEarned += 5;
-      bumpXp(5); // matches awardXp(userId, 5, 'set_completed') in logWorkoutSet — live, not just on the session summary
+      const next = markDone(current, exIdx, setIdx);
+      setPlan(next);
+      setLastCompletedSet({
+        exerciseName: exercise.name,
+        setNumber: setIdx + 1,
+        totalSets: row ? current[exIdx].rows.length : exercise.sets,
+        reps: row.reps,
+        weight: row.weight,
+      });
+      bumpXp(5); // matches awardXp(userId, 5, 'set_completed') in logWorkoutSet
 
+      // Fire-and-forget: the UI above has already moved on.
       logWorkoutSet(userId, {
         exerciseName: exercise.name,
         exerciseId: exercise.exerciseId,
-        setNumber,
+        setNumber: setIdx + 1,
         repsPrescribed: exercise.reps,
-        repsAchieved,
-        weightPrescribed: weight,
-        weightAchieved,
+        repsAchieved: row.reps,
+        weightPrescribed: row.prescribedWeight,
+        weightAchieved: row.weight,
       });
 
-      const isLastSetOfExercise = setNumber >= exercise.sets;
-      const isLastExercise = exerciseIndex >= exercises.length - 1;
-
-      setLastCompletedSet({ exerciseName: exercise.name, setNumber, totalSets: exercise.sets });
-
-      if (isLastSetOfExercise) {
-        totals.current.exercisesCompleted += 1;
-      }
-
-      if (isLastSetOfExercise && isLastExercise) {
-        finish({
-          setsCompleted: totals.current.setsCompleted,
-          totalSetsPlanned,
-          repsCompleted: totals.current.repsCompleted,
-          exercisesCompleted: totals.current.exercisesCompleted,
-          totalExercises: exercises.length,
-          xpEarned: totals.current.xpEarned,
-        });
+      if (isSessionComplete(next)) {
+        finish(next);
         return;
       }
-
-      if (isLastSetOfExercise) {
-        setExerciseIndex((i) => i + 1);
-        setSetNumber(1);
-        setWeightState(0);
-      } else {
-        setSetNumber((n) => n + 1);
-        setWeightState(weightAchieved); // next set starts from what was actually lifted, not the un-adjusted prior value
+      if (isExerciseComplete(next[exIdx])) {
+        const nextIdx = nextExerciseWithWork(next, exIdx);
+        if (nextIdx !== -1) setExerciseIndex(nextIdx);
+      } else if (exIdx !== exerciseIndex) {
+        setExerciseIndex(exIdx);
       }
       setClock((c) => (c ? startRest(c, Date.now(), REST_SECONDS) : c));
       setStatus('resting');
     },
-    [userId, workout, today, exercises, exerciseIndex, setNumber, weight, totalSetsPlanned, finish, bumpXp]
+    [userId, workout, today, exercises, exerciseIndex, bumpXp, finish, setPlan]
   );
 
   const skipExercise = useCallback(() => {
-    if (!today) return;
-    const isLastExercise = exerciseIndex >= exercises.length - 1;
-    if (isLastExercise) {
-      finish({
-        setsCompleted: totals.current.setsCompleted,
-        totalSetsPlanned,
-        repsCompleted: totals.current.repsCompleted,
-        exercisesCompleted: totals.current.exercisesCompleted,
-        totalExercises: exercises.length,
-        xpEarned: totals.current.xpEarned,
-      });
+    const next = markSkipped(planRef.current, exerciseIndex);
+    setPlan(next);
+    if (isSessionComplete(next)) {
+      finish(next);
       return;
     }
-    setExerciseIndex((i) => i + 1);
-    setSetNumber(1);
-    setWeightState(0);
-    setClock((c) => (c ? endRest(c) : c));
-    setStatus('active');
-  }, [today, exercises, exerciseIndex, totalSetsPlanned, finish]);
+    const nextIdx = nextExerciseWithWork(next, exerciseIndex);
+    if (nextIdx !== -1) setExerciseIndex(nextIdx);
+  }, [exerciseIndex, finish, setPlan]);
+
+  const goToExercise = useCallback(
+    (exIdx: number) => {
+      if (exIdx >= 0 && exIdx < planRef.current.length) {
+        // Coming back to a skipped exercise un-skips it, so its sets can be logged.
+        if (planRef.current[exIdx].skipped) {
+          setPlan(planRef.current.map((ex, i) => (i === exIdx ? { ...ex, skipped: false } : ex)));
+        }
+        setExerciseIndex(exIdx);
+      }
+    },
+    [setPlan]
+  );
+
+  const previousExercise = useCallback(() => {
+    if (exerciseIndex > 0) goToExercise(exerciseIndex - 1);
+  }, [exerciseIndex, goToExercise]);
 
   const skipRest = useCallback(() => {
     setClock((c) => (c ? endRest(c) : c));
-    setStatus('active');
+    setStatus((s) => (s === 'resting' ? 'active' : s));
   }, []);
 
   const adjustRest = useCallback((deltaSeconds: number) => {
@@ -246,11 +306,13 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   }, []);
 
   const endSession = useCallback(() => {
+    sessionKey.current += 1;
     setStatus('idle');
     setWorkout(null);
     setDayIndex(0);
+    setPlan([]);
     setClock(null);
-  }, []);
+  }, [setPlan]);
 
   const value = useMemo<WorkoutSessionState>(
     () => ({
@@ -258,18 +320,21 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       workout,
       dayIndex,
       exerciseIndex,
-      setNumber,
+      setIndex,
+      plan,
+      lastTime,
       clock,
       restEndsAt,
       isPaused,
-      weight,
       lastSummary,
       lastCompletedSet,
       startSession,
       togglePause,
-      setWeight,
-      finishSet,
+      updateSetRow,
+      logSet,
       skipExercise,
+      goToExercise,
+      previousExercise,
       skipRest,
       adjustRest,
       endSession,
@@ -279,18 +344,21 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       workout,
       dayIndex,
       exerciseIndex,
-      setNumber,
+      setIndex,
+      plan,
+      lastTime,
       clock,
       restEndsAt,
       isPaused,
-      weight,
       lastSummary,
       lastCompletedSet,
       startSession,
       togglePause,
-      setWeight,
-      finishSet,
+      updateSetRow,
+      logSet,
       skipExercise,
+      goToExercise,
+      previousExercise,
       skipRest,
       adjustRest,
       endSession,
