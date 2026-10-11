@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
+import { getExerciseForms, getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
+import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
 import { useSetQueueFlusher } from './setQueueRuntime';
 import {
@@ -64,6 +65,10 @@ interface WorkoutSessionState {
   plan: ExerciseState[];
   /** Last session's sets per exercise name, for the "last" column. */
   lastTime: LastTimeMap;
+  /** Form-guide content per exercise name — empty until the catalog has it (V2 PHASE 6.2 / 8). */
+  forms: Record<string, ExerciseForm>;
+  /** True once lastTime has loaded, so "first time doing this exercise" isn't guessed from an empty map. */
+  lastTimeLoaded: boolean;
   /** Start, pause and rest timestamps. Changes only on those events — never
    * once a second — so ticking displays derive their value locally with
    * useNow (see components/player/clocks.tsx). */
@@ -100,6 +105,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const [exerciseIndex, setExerciseIndex] = useState(0);
   const [plan, setPlanState] = useState<ExerciseState[]>([]);
   const [lastTime, setLastTime] = useState<LastTimeMap>({});
+  const [forms, setForms] = useState<Record<string, ExerciseForm>>({});
+  const [lastTimeLoaded, setLastTimeLoaded] = useState(false);
   const [clock, setClock] = useState<ClockState | null>(null);
   const [lastSummary, setLastSummary] = useState<SessionSummary | null>(null);
   const [lastCompletedSet, setLastCompletedSet] = useState<LastCompletedSet | null>(null);
@@ -166,6 +173,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       setExerciseIndex(0);
       setPlan(buildInitialState(dayExercises, {}));
       setLastTime({});
+      setLastTimeLoaded(false);
+      setForms({});
       setClock(startClock(Date.now()));
       setLastSummary(null);
       setLastCompletedSet(null);
@@ -175,9 +184,13 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         getLastTimeSets(userId, dayExercises.map((ex) => ex.name)).then((map) => {
           if (sessionKey.current !== key) return;
           setLastTime(map);
+          setLastTimeLoaded(true);
           setPlan(applyLastTimeWeights(planRef.current, dayExercises, map, (e, s) => !touched.current.has(`${e}:${s}`)));
         });
       }
+      getExerciseForms(dayExercises.map((ex) => ex.name)).then((f) => {
+        if (sessionKey.current === key) setForms(f);
+      });
     },
     [userId, setPlan]
   );
@@ -325,6 +338,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       setIndex,
       plan,
       lastTime,
+      forms,
+      lastTimeLoaded,
       clock,
       restEndsAt,
       isPaused,
@@ -349,6 +364,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       setIndex,
       plan,
       lastTime,
+      forms,
+      lastTimeLoaded,
       clock,
       restEndsAt,
       isPaused,

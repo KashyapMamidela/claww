@@ -9,6 +9,7 @@ import { useRenderCount } from '../../lib/perf';
 import { ProgressRing } from '../ui/ProgressRing';
 import { PressScale } from '../ui/PressScale';
 import { formatRest } from './clocks';
+import { FormStrip } from './FormStrip';
 
 const RING = 230;
 const STROKE = 16;
@@ -55,9 +56,10 @@ function RestButton({ label, onPress, strong = false }: { label: string; onPress
   );
 }
 
-/** Rest screen (V2 PHASE 2.4): a big ring readable from the bench, ±15 s, Skip, and the next set's numbers. */
-export function RestView() {
-  const { workout, dayIndex, exerciseIndex, setIndex, plan, lastCompletedSet, adjustRest, skipRest } = useWorkoutSession();
+/** Rest screen (V2 PHASE 2.4): a big ring readable from the bench, ±15 s, Skip, and the next set's numbers.
+ * Before a new exercise it previews that exercise's form strip (V2 PHASE 2.6). */
+export function RestView({ onDemo }: { onDemo: (exerciseName: string) => void }) {
+  const { workout, dayIndex, exerciseIndex, setIndex, plan, lastCompletedSet, forms, adjustRest, skipRest } = useWorkoutSession();
   const exercise = workout?.plan.days[dayIndex]?.exercises[exerciseIndex];
   const state = plan[exerciseIndex];
   const nextRow = state && setIndex >= 0 ? state.rows[setIndex] : null;
@@ -86,6 +88,12 @@ export function RestView() {
           <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>
             {nextRow.weight > 0 ? `${nextRow.weight} kg × ${nextRow.reps}` : `${nextRow.reps} reps`}
           </Text>
+        </View>
+      ) : null}
+
+      {switchedExercise && exercise ? (
+        <View style={{ alignSelf: 'stretch' }}>
+          <FormStrip form={forms[exercise.name]} setIndex={0} expanded={false} onDemo={() => onDemo(exercise.name)} />
         </View>
       ) : null}
 

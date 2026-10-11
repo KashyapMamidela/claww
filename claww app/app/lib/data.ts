@@ -5,6 +5,7 @@ import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
 import { enqueueSet, newClientId } from './setQueueRuntime';
+import { toExerciseForm, type ExerciseForm, type ExerciseFormRow } from './exerciseForm';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -656,6 +657,30 @@ export async function getLastTimeSets(userId: string, exerciseNames: string[]): 
     return {};
   }
   return lastSessionSets(data ?? []);
+}
+
+/**
+ * Form-guide content per exercise name (form steps, common mistake,
+ * muscles). The catalog columns arrive in V2 PHASE 6.2; until then the
+ * query fails with "column does not exist" and this quietly returns {}, so
+ * the form strip simply doesn't render.
+ */
+export async function getExerciseForms(exerciseNames: string[]): Promise<Record<string, ExerciseForm>> {
+  if (exerciseNames.length === 0) return {};
+  const { data, error } = await supabase
+    .from('exercises')
+    .select('name, primary_muscle, secondary_muscles, form_steps, common_mistake')
+    .in('name', exerciseNames);
+  if (error) {
+    if (error.code !== '42703' && error.code !== 'PGRST204') console.warn('[Claww] Failed to load form guides:', error.message);
+    return {};
+  }
+  const out: Record<string, ExerciseForm> = {};
+  for (const row of (data ?? []) as (ExerciseFormRow & { name: string })[]) {
+    const form = toExerciseForm(row);
+    if (form) out[row.name] = form;
+  }
+  return out;
 }
 
 /**

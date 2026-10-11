@@ -13,6 +13,8 @@ import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
 import { ElapsedClock } from './clocks';
 import { RestView } from './RestView';
+import { FormStrip } from './FormStrip';
+import { ExerciseGuideSheet } from '../ExerciseGuideSheet';
 import { ValuePickerSheet, type PickerKind } from './ValuePickerSheet';
 
 const A = COLORS.blue;
@@ -72,6 +74,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
     setIndex,
     plan,
     lastTime,
+    forms,
+    lastTimeLoaded,
     clock,
     isPaused,
     togglePause,
@@ -86,6 +90,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
   const [picker, setPicker] = useState<PickerTarget | null>(null);
   const [listOpen, setListOpen] = useState(false);
+  const [guideName, setGuideName] = useState<string | null>(null);
   const translateX = useSharedValue(0);
 
   const onSwipeLeft = () => {
@@ -164,7 +169,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
           {status === 'resting' ? (
             <View style={{ flex: 1, paddingBottom: Math.max(insets.bottom, 16) + 8 }}>
-              <RestView />
+              <RestView onDemo={setGuideName} />
             </View>
           ) : (
           <>
@@ -177,6 +182,13 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     <Text style={{ color: A, fontSize: 12.5, fontWeight: '600', marginTop: 4, fontFamily: FONT }}>{reason}</Text>
                   ) : null}
                 </View>
+
+                <FormStrip
+                  form={forms[exercise.name]}
+                  setIndex={Math.max(0, setIndex)}
+                  expanded={lastTimeLoaded && !lastTime[exercise.name]}
+                  onDemo={() => setGuideName(exercise.name)}
+                />
 
                 {/* Set rows */}
                 <View style={{ backgroundColor: '#111113', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
@@ -331,6 +343,10 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             }}
             onClose={() => setPicker(null)}
           />
+        ) : null}
+
+        {guideName && forms[guideName] ? (
+          <ExerciseGuideSheet name={guideName} form={forms[guideName]} onClose={() => setGuideName(null)} />
         ) : null}
 
         {listOpen ? (
