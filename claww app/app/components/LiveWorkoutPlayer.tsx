@@ -18,12 +18,9 @@ import { useWorkoutSession } from '../lib/workoutSession';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
 import { markSetTap, useRenderCount, useSetLatency } from '../lib/perf';
+import { ElapsedClock, RestCountdown } from './player/clocks';
 
-function formatClock(totalSeconds: number): string {
-  const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-  const ss = String(totalSeconds % 60).padStart(2, '0');
-  return `${mm}:${ss}`;
-}
+const clockLabelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.7, fontFamily: FONT } as const;
 
 // Apple's "Drawer / sheet" spring values (damping 0.8, response 0.3s),
 // expressed in Reanimated's duration+dampingRatio spring API.
@@ -61,8 +58,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
     dayIndex,
     exerciseIndex,
     setNumber,
-    elapsedSeconds,
-    restRemaining,
+    clock,
     isPaused,
     weight,
     lastCompletedSet,
@@ -299,9 +295,13 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
             />
             <View style={{ flex: 1, minWidth: 0 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.7, fontFamily: FONT }}>
-                  {isResting ? `RESTING · ${formatClock(restRemaining)}` : isPaused ? 'PAUSED' : `LIVE · ${formatClock(elapsedSeconds)}`}
-                </Text>
+                {isPaused || !clock ? (
+                  <Text style={clockLabelStyle}>PAUSED</Text>
+                ) : isResting ? (
+                  <RestCountdown clock={clock} style={clockLabelStyle} prefix="RESTING · " />
+                ) : (
+                  <ElapsedClock clock={clock} style={clockLabelStyle} prefix="LIVE · " />
+                )}
                 <View
                   style={{
                     backgroundColor: isResting && lastCompletedSet ? 'rgba(34,197,94,0.18)' : 'rgba(255,255,255,0.12)',
