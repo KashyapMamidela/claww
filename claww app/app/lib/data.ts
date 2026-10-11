@@ -7,6 +7,7 @@ import { lastSessionSets, type LastTimeMap } from './sessionPlan';
 import { enqueueSet, newClientId } from './setQueueRuntime';
 import { toExerciseForm, type ExerciseForm, type ExerciseFormRow } from './exerciseForm';
 import type { ReminderSettings } from './reminderPlan';
+import type { DayActivity } from './activityMath';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -56,6 +57,8 @@ export interface PersonalizationProfile {
   dietaryRestrictions?: DietaryRestriction[];
   /** Per-type reminder switches and times (V2 PHASE 3.3); read through normalizeReminderSettings. */
   reminders?: Partial<ReminderSettings>;
+  /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
+  stepsGoal?: number;
 }
 
 export interface Profile {
@@ -105,6 +108,45 @@ export async function saveReminderSettings(userId: string, reminders: ReminderSe
     return false;
   }
   return true;
+}
+
+export async function saveStepsGoal(userId: string, stepsGoal: number): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), stepsGoal };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to save steps goal:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Which local days had a sleep, meal or workout log, and which of the three
+ * — the same signals getActivityStreak counts — over the last `days` days.
+ * Keyed by toDateString, like getActivityStreak.
+ */
+export async function getActivityDays(userId: string, days = 90): Promise<Map<string, DayActivity>> {
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  since.setHours(0, 0, 0, 0);
+  const iso = since.toISOString();
+  const [sleepRes, mealRes, workoutRes] = await Promise.all([
+    supabase.from('sleep_logs').select('logged_at').eq('user_id', userId).gte('logged_at', iso),
+    supabase.from('meal_logs').select('logged_at').eq('user_id', userId).gte('logged_at', iso),
+    supabase.from('workout_logs').select('completed_at').eq('user_id', userId).gte('completed_at', iso),
+  ]);
+  const out = new Map<string, DayActivity>();
+  const mark = (ts: string, key: keyof DayActivity) => {
+    const k = new Date(ts).toDateString();
+    const cur = out.get(k) ?? { sleep: false, meal: false, workout: false };
+    cur[key] = true;
+    out.set(k, cur);
+  };
+  for (const r of sleepRes.data ?? []) mark(r.logged_at, 'sleep');
+  for (const r of mealRes.data ?? []) mark(r.logged_at, 'meal');
+  for (const r of workoutRes.data ?? []) mark(r.completed_at, 'workout');
+  return out;
 }
 
 export async function setNotificationsEnabled(userId: string, enabled: boolean): Promise<void> {

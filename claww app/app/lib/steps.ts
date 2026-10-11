@@ -147,6 +147,38 @@ export async function getTodaySteps(): Promise<StepsResult> {
 }
 
 /**
+ * Step totals for each of `ranges` (V2 PHASE 4.2's hourly and daily bars),
+ * or null when there's no data source or no permission. Assumes
+ * getTodaySteps has already been called this session (it does the
+ * permission request); this only reads.
+ */
+export async function getStepsInRanges(ranges: { start: Date; end: Date }[]): Promise<number[] | null> {
+  if (!stepsSupported || ranges.length === 0) return null;
+  try {
+    if (Platform.OS === 'android') {
+      if ((await ensureHealthConnectReady()) !== 'ready') return null;
+      return await Promise.all(
+        ranges.map(async (r) => {
+          const res = await HealthConnect.aggregateRecord({
+            recordType: 'Steps',
+            timeRangeFilter: { operator: 'between', startTime: r.start.toISOString(), endTime: r.end.toISOString() },
+          });
+          return res.COUNT_TOTAL ?? 0;
+        })
+      );
+    }
+    if (Platform.OS === 'ios') {
+      if (!(await Pedometer.isAvailableAsync())) return null;
+      if (!(await Pedometer.getPermissionsAsync()).granted) return null;
+      return await Promise.all(ranges.map(async (r) => (await Pedometer.getStepCountAsync(r.start, r.end)).steps));
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+/**
  * Very rough calories-from-steps estimate: ~0.0005 kcal per step per kg of
  * bodyweight, the same order-of-magnitude figure most step-tracking apps
  * use (a 70kg person burns roughly 0.035 kcal/step). Deterministic math,

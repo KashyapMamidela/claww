@@ -10,7 +10,7 @@ import { getLatestWorkout, getProfile, getSuggestedDayIndex, getWorkoutDayEvents
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
-import { StatCard } from '../../components/ui/StatCard';
+import { HomeStatTiles } from '../../components/HomeStatTiles';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { SleepArcDial } from '../../components/SleepArcDial';
@@ -18,7 +18,7 @@ import { SleepLogModal } from '../../components/SleepLogModal';
 import { WaterWidget } from '../../components/WaterWidget';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { estimateCaloriesFromSteps, getTodaySteps, openHealthConnectInstall, type StepsResult } from '../../lib/steps';
+import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { greetingFor, type Greeting } from '../../lib/greeting';
 import { SLEEP_TARGET_HOURS, sleepRingPct } from '../../lib/sleepTarget';
 
@@ -116,7 +116,7 @@ function HomeLoadingSkeleton() {
 }
 
 function HomeEmptyState() {
-  const { userName, sleepLogged, streak } = useAppState();
+  const { userId, userName, sleepLogged, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const steps = useTodaySteps();
@@ -190,18 +190,7 @@ function HomeEmptyState() {
         </Button>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <StatCard
-          label="Steps"
-          value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}
-          color="#A1A1AA"
-          icon={<Icon name="footprints" size={16} color="#A1A1AA" />}
-          onPress={steps.needsHealthConnectInstall ? openHealthConnectInstall : undefined}
-        />
-        <StatCard label="Burned" value="—" sub="no data yet" color="#71717A" icon={<Icon name="flame" size={16} color="#71717A" />} />
-        <StatCard label="Streak" value={String(streak)} sub="days" color="#71717A" icon={<Icon name="trending-up" size={16} color="#71717A" />} />
-      </View>
+      <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
       <WaterWidget compact onOpenFull={() => router.push('/(tabs)/nutrition')} />
 
@@ -287,7 +276,6 @@ function HomePopulated() {
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
   const [suggestedDayIndex, setSuggestedDayIndex] = useState(0);
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
-  const [weightKg, setWeightKg] = useState<number | null>(null);
   const steps = useTodaySteps();
 
   // xp/streak come from AppState directly — they update live as XP events
@@ -304,7 +292,6 @@ function HomePopulated() {
         setSuggestedDayIndex(w ? getSuggestedDayIndex(w.plan, dayEvents) : 0);
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
-        setWeightKg(profile?.weight ?? null);
       });
       return () => {
         cancelled = true;
@@ -430,28 +417,7 @@ function HomePopulated() {
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <StatCard
-          label="Steps"
-          value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}
-          color="#71717A"
-          icon={<Icon name="footprints" size={16} color="#71717A" />}
-          onPress={steps.needsHealthConnectInstall ? openHealthConnectInstall : undefined}
-        />
-        <StatCard
-          label="Burned"
-          value={
-            steps.available
-              ? (steps.caloriesBurned ?? estimateCaloriesFromSteps(steps.steps, weightKg)).toLocaleString()
-              : '—'
-          }
-          sub={steps.available ? (steps.caloriesBurned !== null ? 'active kcal' : 'from steps (est.)') : 'not tracked yet'}
-          color="#71717A"
-          icon={<Icon name="flame" size={16} color="#71717A" />}
-        />
-        <StatCard label="Streak" value={String(streak)} sub="days" pct={Math.min(streak * 14, 100)} color={COLORS.green} icon={<Icon name="trending-up" size={16} color={COLORS.green} />} />
-      </View>
+      <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
       <WaterWidget compact onOpenFull={() => router.push('/(tabs)/nutrition')} />
 
