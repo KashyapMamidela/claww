@@ -8,6 +8,7 @@ import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../
 import { MEAL_ORDER, useAppState } from '../../lib/appState';
 import { getProfile, type MealLogRow, type NutritionDefaults } from '../../lib/data';
 import { MealDetailModal } from '../../components/MealDetailModal';
+import { MealThumb } from '../../components/MealPhoto';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -19,7 +20,6 @@ import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 
 const G = { deep: COLORS.greenDeep, bright: COLORS.green, border: COLORS.greenBorder };
-const MEAL_ICON: Record<string, string> = { Breakfast: '🥣', Lunch: '🥗', Snack: '🍎', Dinner: '🍽️' };
 const DEFAULT_GOALS: NutritionDefaults = { calories: 2000, protein_g: 140, carbs_g: 220, fats_g: 65 };
 
 export default function NutritionTab() {
@@ -192,11 +192,11 @@ export default function NutritionTab() {
           accentDeep={G.deep}
           size="lg"
           fullWidth
-          icon={<Icon name="plus" size={18} color="#fff" />}
+          icon={<Icon name={nextMeal ? 'plus' : 'check'} size={18} color="#fff" />}
           disabled={!nextMeal}
           onPress={() => nextMeal && router.push({ pathname: '/meal-log', params: { mealType: nextMeal } })}
         >
-          {nextMeal ? `Add ${nextMeal}` : 'All Meals Logged Today ✓'}
+          {nextMeal ? `Add ${nextMeal}` : 'All Meals Logged Today'}
         </Button>
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)', borderRadius: 20, padding: 16 }}>
@@ -244,7 +244,7 @@ export default function NutritionTab() {
                   justifyContent: 'center',
                 }}
               >
-                <Text style={{ fontSize: 20 }}>🍽️</Text>
+                <Icon name="utensils" size={20} color="#71717A" />
               </View>
               <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>No meals logged yet today</Text>
               <Text style={{ color: '#71717A', fontSize: 11, lineHeight: 16, maxWidth: 220, textAlign: 'center', fontFamily: FONT }}>
@@ -272,20 +272,7 @@ export default function NutritionTab() {
                     paddingVertical: 11,
                   }}
                 >
-                  <View
-                    style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: 9,
-                      backgroundColor: 'rgba(34,197,94,0.11)',
-                      borderWidth: 1,
-                      borderColor: G.border,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
-                  >
-                    <Text style={{ fontSize: 16 }}>{MEAL_ICON[m.meal_type ?? ''] ?? '🍽️'}</Text>
-                  </View>
+                  <MealThumb photoPath={m.photo_url} mealType={m.meal_type} size={34} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{m.meal_type ?? 'Meal'}</Text>
                     <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>
@@ -308,7 +295,7 @@ export default function NutritionTab() {
           disabled={!nextMeal}
           onPress={() => nextMeal && router.push({ pathname: '/meal-log', params: { mealType: nextMeal } })}
         >
-          {nextMeal ? `Suggest ${nextMeal}` : 'All Meals Logged Today ✓'}
+          {nextMeal ? `Suggest ${nextMeal}` : 'All Meals Logged Today'}
         </Button>
       </View>
       <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
