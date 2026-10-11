@@ -14,6 +14,7 @@ import { WorkoutSessionProvider } from '../lib/workoutSession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
 import { notificationsSupported, type ReminderType } from '../lib/notifications';
+import { refreshReminders } from '../lib/reminderSync';
 import { SplashIntro } from '../components/SplashIntro';
 import { initSentry } from '../lib/sentry';
 import { initAnalytics, identify, resetAnalytics } from '../lib/analytics';
@@ -70,6 +71,9 @@ function RootLayout() {
     // A trigger normally creates this row on sign-up (see schema.sql); this
     // is a defensive no-op fallback in case that trigger isn't installed yet.
     await ensureProfileRow(session.user);
+    // Put reminders back on every start (V2 PHASE 3.1) — fire-and-forget,
+    // never blocks getting into the app.
+    refreshReminders(session.user.id).catch(() => {});
     const complete = await isOnboardingComplete(session.user.id);
     setAuthState(complete ? 'app' : 'onboarding');
   }, []);

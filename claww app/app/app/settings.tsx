@@ -8,7 +8,8 @@ import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
 import { getGenerationUsageToday, getProfile, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
-import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleDefaultReminders } from '../lib/notifications';
+import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleDefaultReminders, scheduleTestReminder } from '../lib/notifications';
+import { SHOW_DEV_TOOLS } from '../lib/devTools';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 
@@ -27,6 +28,7 @@ export default function SettingsScreen() {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [notificationsBusy, setNotificationsBusy] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [testStatus, setTestStatus] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -137,6 +139,23 @@ export default function SettingsScreen() {
                 Notifications are blocked for CLAWW in your device settings — enable them there first.
               </Text>
             ) : null}
+          </View>
+        ) : null}
+
+        {notificationsSupported && SHOW_DEV_TOOLS ? (
+          <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
+            <Text style={{ color: COLORS.amber, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>TEST TOOLS · NOT IN RELEASE BUILDS</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={async () => {
+                const ok = await scheduleTestReminder(2);
+                setTestStatus(ok ? 'Test reminder set for 2 minutes from now. Lock the phone and wait.' : 'Notifications are blocked for CLAWW.');
+              }}
+              style={{ height: 42, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Send a test reminder in 2 minutes</Text>
+            </TouchableOpacity>
+            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontFamily: FONT }}>{testStatus}</Text> : null}
           </View>
         ) : null}
 
