@@ -6,7 +6,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { MEAL_ORDER, useAppState } from '../../lib/appState';
-import { getProfile, type MealLogRow, type NutritionDefaults } from '../../lib/data';
+import { getProfile, saveFoodProfile, type MealLogRow, type NutritionDefaults } from '../../lib/data';
+import { normalizeFoodProfile, shouldAskFoodProfile } from '../../lib/foodProfile';
 import { MealDetailModal } from '../../components/MealDetailModal';
 import { MealThumb } from '../../components/MealPhoto';
 import { Icon } from '../../components/ui/Icon';
@@ -29,6 +30,7 @@ export default function NutritionTab() {
   const [nutritionDefaults, setNutritionDefaults] = useState<NutritionDefaults | null>(null);
   const [hasCustomTargets, setHasCustomTargets] = useState(false);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
+  const [askFoodProfile, setAskFoodProfile] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealLogRow | null>(null);
 
   useFocusEffect(
@@ -40,6 +42,7 @@ export default function NutritionTab() {
         const targets = profile?.personalization_profile?.nutritionDefaults ?? null;
         setNutritionDefaults(targets);
         setHasCustomTargets(!!targets);
+        setAskFoodProfile(shouldAskFoodProfile(!!targets, normalizeFoodProfile(profile?.personalization_profile?.foodProfile)));
         setTargetsLoaded(true);
       });
       return () => {
@@ -119,6 +122,34 @@ export default function NutritionTab() {
             </View>
             <Icon name="chevron-right" size={16} color="#71717A" />
           </TouchableOpacity>
+        )}
+
+        {askFoodProfile && (
+          <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: G.border, borderRadius: 16, padding: 14, gap: 10 }}>
+            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>What do you like to eat?</Text>
+            <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
+              Tell us your cuisines and foods to avoid and meal suggestions will fit you better.
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } })}
+                style={{ paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, backgroundColor: 'rgba(34,197,94,0.14)' }}
+              >
+                <Text style={{ color: G.bright, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Set preferences</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                activeOpacity={0.85}
+                onPress={() => {
+                  setAskFoodProfile(false);
+                  if (userId) saveFoodProfile(userId, normalizeFoodProfile({}));
+                }}
+                style={{ paddingHorizontal: 14, paddingVertical: 8 }}
+              >
+                <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         )}
 
         {!targetsLoaded ? (

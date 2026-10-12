@@ -1,3 +1,4 @@
+import type { FoodProfile } from './foodProfile';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
@@ -59,6 +60,8 @@ export interface PersonalizationProfile {
   reminders?: Partial<ReminderSettings>;
   /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
   stepsGoal?: number;
+  /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
+  foodProfile?: FoodProfile;
 }
 
 export interface Profile {
@@ -105,6 +108,20 @@ export async function saveReminderSettings(userId: string, reminders: ReminderSe
   const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
   if (error) {
     console.warn('[Claww] Failed to save reminder settings:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function saveFoodProfile(userId: string, foodProfile: FoodProfile): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = {
+    ...(profile?.personalization_profile ?? {}),
+    foodProfile: { ...foodProfile, askedAt: foodProfile.askedAt ?? new Date().toISOString() },
+  };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to save food profile:', error.message);
     return false;
   }
   return true;

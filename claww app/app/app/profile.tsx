@@ -135,6 +135,7 @@ export default function ProfileScreen() {
   ];
 
   const menuItems: MenuRow[] = [
+    { icon: 'utensils', label: 'Food preferences', onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
     { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
   ];
