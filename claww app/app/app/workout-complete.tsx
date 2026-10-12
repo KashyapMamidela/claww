@@ -58,7 +58,9 @@ export default function WorkoutCompleteScreen() {
     let cancelled = false;
     getProfile(userId).then(async (profile) => {
       if (cancelled || !profile) return;
-      if (notificationsSupported && !profile.notification_prompt_shown_at) {
+      // Only for users who skipped the onboarding ask (V2 PHASE 3.2): "Not
+      // now" there leaves notification_prompt_shown_at unset on purpose.
+      if (notificationsSupported && !profile.notification_prompt_shown_at && !profile.notifications_enabled) {
         setShowNotificationPrompt(true);
         return;
       }

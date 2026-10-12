@@ -1,7 +1,16 @@
+import type { FoodProfile } from './foodProfile';
+import { suggestedWeekdayIndex } from './trainingWeek';
+import { computeRecoveryScore, proteinShare } from './engine';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
+import type { LoggedSetRow } from './workoutDayState';
+import { lastSessionSets, type LastTimeMap } from './sessionPlan';
+import { enqueueSet, newClientId } from './setQueueRuntime';
+import { toExerciseForm, type ExerciseForm, type ExerciseFormRow } from './exerciseForm';
+import type { ReminderSettings } from './reminderPlan';
+import type { DayActivity } from './activityMath';
 
 export { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 
@@ -26,6 +35,8 @@ export interface WorkoutDefaults {
    * real weekday instead of a generic "Day 1". Empty/absent falls back to
    * the old activity-based estimate untouched. */
   trainingDays?: string[];
+  /** Usual time of day the user trains, "HH:MM" 24-hour (V2 PHASE 6.1); optional. */
+  usualTrainingTime?: string;
   /** 'auto' lets the LLM choose within its existing judgment, same as
    * before this existed — the other values are a hard constraint passed
    * into the prompt, not another exercise-picking `suggestion`. */
@@ -49,6 +60,12 @@ export interface PersonalizationProfile {
   workoutDefaults?: WorkoutDefaults | null;
   nutritionDefaults?: NutritionDefaults | null;
   dietaryRestrictions?: DietaryRestriction[];
+  /** Per-type reminder switches and times (V2 PHASE 3.3); read through normalizeReminderSettings. */
+  reminders?: Partial<ReminderSettings>;
+  /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
+  stepsGoal?: number;
+  /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
+  foodProfile?: FoodProfile;
 }
 
 export interface Profile {
@@ -88,6 +105,71 @@ export async function setNotificationPromptShown(userId: string): Promise<void> 
   if (error) console.warn('[Claww] Failed to record notification prompt shown:', error.message);
 }
 
+/** Saves the per-type reminder settings into personalization_profile.reminders (read-modify-write, like the other JSON fields). */
+export async function saveReminderSettings(userId: string, reminders: ReminderSettings): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), reminders };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to save reminder settings:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function saveFoodProfile(userId: string, foodProfile: FoodProfile): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = {
+    ...(profile?.personalization_profile ?? {}),
+    foodProfile: { ...foodProfile, askedAt: foodProfile.askedAt ?? new Date().toISOString() },
+  };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to save food profile:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function saveStepsGoal(userId: string, stepsGoal: number): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), stepsGoal };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to save steps goal:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Which local days had a sleep, meal or workout log, and which of the three
+ * — the same signals getActivityStreak counts — over the last `days` days.
+ * Keyed by toDateString, like getActivityStreak.
+ */
+export async function getActivityDays(userId: string, days = 90): Promise<Map<string, DayActivity>> {
+  const since = new Date();
+  since.setDate(since.getDate() - days);
+  since.setHours(0, 0, 0, 0);
+  const iso = since.toISOString();
+  const [sleepRes, mealRes, workoutRes] = await Promise.all([
+    supabase.from('sleep_logs').select('logged_at').eq('user_id', userId).gte('logged_at', iso),
+    supabase.from('meal_logs').select('logged_at').eq('user_id', userId).gte('logged_at', iso),
+    supabase.from('workout_logs').select('completed_at').eq('user_id', userId).gte('completed_at', iso),
+  ]);
+  const out = new Map<string, DayActivity>();
+  const mark = (ts: string, key: keyof DayActivity) => {
+    const k = new Date(ts).toDateString();
+    const cur = out.get(k) ?? { sleep: false, meal: false, workout: false };
+    cur[key] = true;
+    out.set(k, cur);
+  };
+  for (const r of sleepRes.data ?? []) mark(r.logged_at, 'sleep');
+  for (const r of mealRes.data ?? []) mark(r.logged_at, 'meal');
+  for (const r of workoutRes.data ?? []) mark(r.completed_at, 'workout');
+  return out;
+}
+
 export async function setNotificationsEnabled(userId: string, enabled: boolean): Promise<void> {
   const { error } = await supabase.from('profiles').update({ notifications_enabled: enabled }).eq('id', userId);
   if (error) console.warn('[Claww] Failed to update notification preference:', error.message);
@@ -109,6 +191,7 @@ export interface WorkoutIntakeInput {
   activityLevel: ActivityLevel;
   injuries?: string;
   trainingDays?: string[];
+  usualTrainingTime?: string;
   splitPreference?: SplitPreference;
 }
 
@@ -129,6 +212,7 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
       activityLevel: input.activityLevel,
       injuries: input.injuries?.trim() || undefined,
       trainingDays: input.trainingDays?.length ? input.trainingDays : undefined,
+      usualTrainingTime: input.usualTrainingTime || undefined,
       splitPreference: input.splitPreference,
     },
   };
@@ -227,6 +311,23 @@ export async function getTodaysSleepLog(userId: string): Promise<SleepLogRow | n
   return data;
 }
 
+export async function getRecentSleepLogs(userId: string, days = 7): Promise<SleepLogRow[]> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  since.setDate(since.getDate() - (days - 1));
+  const { data, error } = await supabase
+    .from('sleep_logs')
+    .select('hours, bedtime, wake_time, logged_at')
+    .eq('user_id', userId)
+    .gte('logged_at', since.toISOString())
+    .order('logged_at', { ascending: false });
+  if (error) {
+    console.warn('[Claww] Failed to load recent sleep logs:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
 export async function insertSleepLog(userId: string, hours: number, bedtime: Date, wakeTime: Date): Promise<boolean> {
   const { error } = await supabase.from('sleep_logs').insert({
     user_id: userId,
@@ -259,51 +360,10 @@ export interface RecoveryResult {
   band: 'Low' | 'Moderate' | 'High';
 }
 
-const RECOVERY_WATER_TARGET_ML = 2000;
-
-function estimateSessionIntensity(workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null } | null): number {
-  if (!workoutLog) return 0;
-  const reps = workoutLog.reps_achieved ?? workoutLog.reps_prescribed ?? 0;
-  const volume = (workoutLog.sets ?? 0) * reps;
-  return Math.max(0, Math.min(10, volume / 10));
-}
-
-/**
- * Extended to cover sleep + hydration + a nutrition-logging signal + rest
- * days since the last session, matching the fuller definition of recovery
- * requested directly ("getting enough sleep, eating nutritious food,
- * staying hydrated, taking rest days, doing light activity"). Light
- * activity/steps is deliberately excluded — that data lives only on-device
- * (lib/steps.ts), nothing persists it server-side to read here, so adding
- * a term for it would mean fabricating a number.
- */
-export function computeRecoveryScore(
-  sleepLog: { hours: number | null } | null,
-  workoutLog: { sets: number | null; reps_achieved: number | null; reps_prescribed: number | null; completed_at: string } | null,
-  hydration?: { waterMl: number } | null,
-  nutrition?: { loggedMealToday: boolean } | null
-): RecoveryResult {
-  const sleepHours = sleepLog?.hours ?? 0;
-  const sleepScore = Math.min(sleepHours / 8, 1) * 35;
-
-  let recoveryGap = 25; // no prior session on record -> full recovery credit
-  if (workoutLog?.completed_at) {
-    const hoursSinceLastSession = (Date.now() - new Date(workoutLog.completed_at).getTime()) / (1000 * 60 * 60);
-    recoveryGap = Math.min(Math.max(hoursSinceLastSession, 0) / 24, 1) * 25;
-  }
-
-  const fatiguePenalty = estimateSessionIntensity(workoutLog) * 3;
-  const hydrationScore = Math.min(Math.max(hydration?.waterMl ?? 0, 0) / RECOVERY_WATER_TARGET_ML, 1) * 10;
-  const nutritionScore = nutrition?.loggedMealToday ? 10 : 0;
-
-  const score = Math.max(0, Math.min(100, sleepScore + recoveryGap - fatiguePenalty + hydrationScore + nutritionScore + 20));
-  const band: RecoveryResult['band'] = score < 40 ? 'Low' : score <= 70 ? 'Moderate' : 'High';
-  return { score: Math.round(score), band };
-}
-
 /** Returns null when there's no sleep log yet — nothing to compute a score from. */
 export async function getRecoveryScore(userId: string): Promise<RecoveryResult | null> {
-  const [sleepLog, workoutLogResult, todaysWaterMl, todaysMeals] = await Promise.all([
+  const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const [sleepLog, workoutLogResult, mealsResult, profile] = await Promise.all([
     getLatestSleepLog(userId),
     supabase
       .from('workout_logs')
@@ -312,16 +372,12 @@ export async function getRecoveryScore(userId: string): Promise<RecoveryResult |
       .order('completed_at', { ascending: false })
       .limit(1)
       .maybeSingle(),
-    getTodaysWaterMl(userId),
-    getTodaysMealLogs(userId),
+    supabase.from('meal_logs').select('protein_g').eq('user_id', userId).gte('logged_at', last24h),
+    getProfile(userId),
   ]);
   if (!sleepLog) return null;
-  return computeRecoveryScore(
-    sleepLog,
-    workoutLogResult.data,
-    { waterMl: todaysWaterMl },
-    { loggedMealToday: todaysMeals.length > 0 }
-  );
+  const pct = proteinShare(mealsResult.data, profile?.personalization_profile?.nutritionDefaults?.protein_g ?? null);
+  return computeRecoveryScore(sleepLog, workoutLogResult.data, pct === null ? null : { proteinPct: pct });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -433,55 +489,97 @@ export interface EstimateResult {
 export interface RemainingMacros {
   calories: number;
   protein_g: number;
+  carbs_g: number;
+  fats_g: number;
+}
+
+export type SuggestRefine = 'more_protein' | 'quicker' | 'something_else';
+
+/** One of the (up to) three options the suggest-meal function returns (V2 PHASE 5.2). */
+export interface MealSuggestion extends EstimatedMeal {
+  prep_minutes: number;
+  /** One line written by deterministic code from the numbers. */
+  why: string;
+  bestFit: boolean;
+}
+
+export interface SuggestMealsInput {
+  mealType: MealType;
+  preference: string;
+  dietaryRestrictions: DietaryRestriction[];
+  goal: string | null;
+  cuisines: string[];
+  avoid: string;
+  eatenToday: string[];
+  trainedToday: boolean;
+  remaining?: RemainingMacros;
+  refine?: SuggestRefine;
+}
+
+export interface SuggestMealsResult {
+  options: MealSuggestion[];
+  /** True when the function was unreachable or returned nothing usable and a generic per-meal-type estimate is shown instead. */
+  generic: boolean;
 }
 
 /**
- * Item #24 — "Suggest {meal}" used to route to the exact same screen as
- * "Add {meal}", with no way to say what you actually want. Calls the
- * suggest-meal Edge Function with a free-text preference (optional — empty
- * string means "anything reasonable"), dietary restrictions, and the
- * user's real remaining macro budget for today, so the suggestion is
- * grounded in actual data rather than freeform. Falls back to a generic
- * per-meal-type estimate (same FALLBACK_MEAL_MACROS table estimateMeal
- * uses) if the function isn't reachable — honestly labeled as a generic
- * suggestion, not a personalized one, when that happens.
+ * Asks the suggest-meal Edge Function for three ranked options. Falls back
+ * to one generic per-meal-type estimate (the same table estimateMeal uses),
+ * honestly marked `generic`, if the function is unreachable or fails.
  */
-export async function suggestMeal(
-  mealType: MealType,
-  preference: string,
-  dietaryRestrictions: DietaryRestriction[],
-  remaining?: RemainingMacros
-): Promise<EstimateResult> {
+export async function suggestMeals(input: SuggestMealsInput): Promise<SuggestMealsResult> {
   try {
     const { data, error } = await supabase.functions.invoke('suggest-meal', {
       body: {
-        mealType,
-        preference,
-        dietaryRestrictions,
-        remainingCalories: remaining?.calories,
-        remainingProteinG: remaining?.protein_g,
+        mealType: input.mealType,
+        preference: input.preference,
+        dietaryRestrictions: input.dietaryRestrictions,
+        goal: input.goal ?? '',
+        cuisines: input.cuisines,
+        avoid: input.avoid,
+        eatenToday: input.eatenToday,
+        trainedToday: input.trainedToday,
+        refine: input.refine,
+        remaining: input.remaining,
       },
     });
-    if (!error && data && typeof data.calories === 'number') {
+    if (!error && data && Array.isArray(data.options) && data.options.length > 0) {
       track(AnalyticsEvent.MealEstimated, { generated: true, source: 'suggestion' });
-      return { ok: true, meal: data as EstimatedMeal };
+      return { options: data.options as MealSuggestion[], generic: false };
     }
   } catch {
     // Edge Function not deployed / unreachable — fall through to a generic suggestion.
   }
 
   track(AnalyticsEvent.MealEstimated, { generated: false, source: 'suggestion' });
-  const fallback = FALLBACK_MEAL_MACROS[mealType];
+  const f = FALLBACK_MEAL_MACROS[input.mealType];
   return {
-    ok: true,
-    meal: {
-      description: `${mealType} suggestion`,
-      calories: fallback.calories,
-      protein_g: fallback.protein_g,
-      carbs_g: fallback.carbs_g,
-      fats_g: fallback.fats_g,
-    },
+    options: [
+      {
+        description: `${input.mealType} suggestion`,
+        calories: f.calories,
+        protein_g: f.protein_g,
+        carbs_g: f.carbs_g,
+        fats_g: f.fats_g,
+        prep_minutes: 15,
+        why: 'A typical portion for this meal.',
+        bestFit: true,
+      },
+    ],
+    generic: true,
   };
+}
+
+/** Whether any workout set was logged today (local day) — one input to meal suggestions. */
+export async function didTrainToday(userId: string): Promise<boolean> {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const { count, error } = await supabase
+    .from('workout_logs')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('completed_at', start.toISOString());
+  return !error && (count ?? 0) > 0;
 }
 
 /**
@@ -636,11 +734,60 @@ export interface WorkoutSetInput {
   repsAchieved: number;
   weightPrescribed: number;
   weightAchieved: number;
+  /** Reps left in the tank, 0-3 (3 means 3 or more); undefined when the user didn't say. */
+  rir?: number | null;
+  sessionId?: string | null;
 }
 
-/** Logs one completed set (see WorkoutSessionProvider). Awards a small, real XP amount per set. */
+/** Last session's sets for each of these exercises (most recent calendar day each), for the player's "last time" column and weight prefill. */
+export async function getLastTimeSets(userId: string, exerciseNames: string[]): Promise<LastTimeMap> {
+  if (exerciseNames.length === 0) return {};
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('exercise_name, sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at')
+    .eq('user_id', userId)
+    .in('exercise_name', exerciseNames)
+    .order('completed_at', { ascending: false })
+    .limit(300);
+  if (error) {
+    console.warn('[Claww] Failed to load last-time sets:', error.message);
+    return {};
+  }
+  return lastSessionSets(data ?? []);
+}
+
+/**
+ * Form-guide content per exercise name (form steps, common mistake,
+ * muscles). The catalog columns arrive in V2 PHASE 6.2; until then the
+ * query fails with "column does not exist" and this quietly returns {}, so
+ * the form strip simply doesn't render.
+ */
+export async function getExerciseForms(exerciseNames: string[]): Promise<Record<string, ExerciseForm>> {
+  if (exerciseNames.length === 0) return {};
+  const { data, error } = await supabase
+    .from('exercises')
+    .select('name, primary_muscle, secondary_muscles, form_steps, common_mistake')
+    .in('name', exerciseNames);
+  if (error) {
+    if (error.code !== '42703' && error.code !== 'PGRST204') console.warn('[Claww] Failed to load form guides:', error.message);
+    return {};
+  }
+  const out: Record<string, ExerciseForm> = {};
+  for (const row of (data ?? []) as (ExerciseFormRow & { name: string })[]) {
+    const form = toExerciseForm(row);
+    if (form) out[row.name] = form;
+  }
+  return out;
+}
+
+/**
+ * Logs one completed set (see WorkoutSessionProvider). It goes into the
+ * on-device queue first (lib/setQueueRuntime.ts) and is sent from there, so a
+ * set done with no signal is saved once the network is back instead of
+ * lost. XP (5 per set) is awarded when the row is actually inserted.
+ */
 export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promise<boolean> {
-  const { error } = await supabase.from('workout_logs').insert({
+  await enqueueSet(newClientId(), {
     user_id: userId,
     exercise_id: log.exerciseId ?? null,
     exercise_name: log.exerciseName,
@@ -649,12 +796,11 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
     reps_achieved: log.repsAchieved,
     weight_prescribed: log.weightPrescribed,
     weight_achieved: log.weightAchieved,
+    set_number: log.setNumber,
+    rir: log.rir ?? null,
+    session_id: log.sessionId ?? null,
+    completed_at: new Date().toISOString(),
   });
-  if (error) {
-    console.warn('[Claww] Failed to log workout set:', error.message);
-    return false;
-  }
-  await awardXp(userId, 5, 'set_completed');
   return true;
 }
 
@@ -990,7 +1136,8 @@ export interface WorkoutDayEvent {
   dayLabel: string;
   dayFocus: string | null;
   status: WorkoutDayStatus;
-  eventDate: string; // YYYY-MM-DD
+  eventDate: string; // YYYY-MM-DD — the server's UTC date; prefer createdAt for anything local-time
+  createdAt: string;
 }
 
 function mapDayEventRow(row: {
@@ -1000,6 +1147,7 @@ function mapDayEventRow(row: {
   day_focus: string | null;
   status: WorkoutDayStatus;
   event_date: string;
+  created_at: string;
 }): WorkoutDayEvent {
   return {
     id: row.id,
@@ -1008,6 +1156,7 @@ function mapDayEventRow(row: {
     dayFocus: row.day_focus,
     status: row.status,
     eventDate: row.event_date,
+    createdAt: row.created_at,
   };
 }
 
@@ -1036,7 +1185,7 @@ export async function logWorkoutDayEvent(
 export async function getWorkoutDayEvents(userId: string, workoutId: string): Promise<WorkoutDayEvent[]> {
   const { data, error } = await supabase
     .from('workout_day_events')
-    .select('id, workout_id, day_label, day_focus, status, event_date')
+    .select('id, workout_id, day_label, day_focus, status, event_date, created_at')
     .eq('user_id', userId)
     .eq('workout_id', workoutId)
     .order('created_at', { ascending: false });
@@ -1051,7 +1200,7 @@ export async function getWorkoutDayEvents(userId: string, workoutId: string): Pr
 export async function getWorkoutDayEventsInRange(userId: string, startDate: string, endDate: string): Promise<WorkoutDayEvent[]> {
   const { data, error } = await supabase
     .from('workout_day_events')
-    .select('id, workout_id, day_label, day_focus, status, event_date')
+    .select('id, workout_id, day_label, day_focus, status, event_date, created_at')
     .eq('user_id', userId)
     .gte('event_date', startDate)
     .lte('event_date', endDate)
@@ -1069,12 +1218,43 @@ export async function getWorkoutDayEventsInRange(userId: string, startDate: stri
  * days are exhausted (a split repeats indefinitely, it doesn't "run out").
  * No events yet for this plan -> suggest day 0.
  */
-export function getSuggestedDayIndex(plan: WorkoutPlan, recentEventsDesc: WorkoutDayEvent[]): number {
+export function getSuggestedDayIndex(plan: WorkoutPlan, recentEventsDesc: WorkoutDayEvent[], now: Date = new Date()): number {
+  // A plan on real weekdays suggests today's day, or the next planned one (V2 PHASE 6.1).
+  const byWeekday = suggestedWeekdayIndex(plan.days.map((d) => d.day), now);
+  if (byWeekday !== null) return byWeekday;
   if (recentEventsDesc.length === 0 || plan.days.length === 0) return 0;
   const mostRecent = recentEventsDesc[0];
   const lastIndex = plan.days.findIndex((d) => d.day === mostRecent.dayLabel);
   if (lastIndex === -1) return 0;
   return (lastIndex + 1) % plan.days.length;
+}
+
+/**
+ * The sets logged for one completed plan day. workout_logs has no session
+ * id, so a session is the sets of that day's exercises logged on the same
+ * local calendar day as the "completed" event. The event's own timestamp
+ * is used rather than event_date, which is the server's UTC date and lands
+ * on the previous day for sessions finished early in the morning in India.
+ */
+export async function getDaySessionLogs(userId: string, completedAt: string, exerciseNames: string[]): Promise<LoggedSetRow[]> {
+  if (exerciseNames.length === 0) return [];
+  const start = new Date(completedAt);
+  start.setHours(0, 0, 0, 0);
+  const end = new Date(start);
+  end.setDate(end.getDate() + 1);
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('exercise_name, sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at')
+    .eq('user_id', userId)
+    .in('exercise_name', exerciseNames)
+    .gte('completed_at', start.toISOString())
+    .lt('completed_at', end.toISOString())
+    .order('completed_at', { ascending: true });
+  if (error) {
+    console.warn('[Claww] Failed to load session sets:', error.message);
+    return [];
+  }
+  return data ?? [];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1187,6 +1367,39 @@ export async function logWater(userId: string, ml: number): Promise<boolean> {
   return true;
 }
 
+export interface WaterLogRow {
+  id: string;
+  ml: number;
+  logged_at: string;
+}
+
+/** Today's individual water entries, newest first (V2 PHASE 4.3's log with undo). */
+export async function getTodaysWaterLogs(userId: string): Promise<WaterLogRow[]> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data, error } = await supabase
+    .from('water_logs')
+    .select('id, ml, logged_at')
+    .eq('user_id', userId)
+    .gte('logged_at', startOfDay.toISOString())
+    .order('logged_at', { ascending: false });
+  if (error) {
+    console.warn('[Claww] Failed to load water entries:', error.message);
+    return [];
+  }
+  return data ?? [];
+}
+
+/** Undo one water entry. RLS limits it to the user's own rows. */
+export async function deleteWaterLog(id: string): Promise<boolean> {
+  const { error } = await supabase.from('water_logs').delete().eq('id', id);
+  if (error) {
+    console.warn('[Claww] Failed to undo water entry:', error.message);
+    return false;
+  }
+  return true;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Achievements — every badge below is computed from a real signal already
 // in the database. None are permanently-fake placeholders; a badge with no
@@ -1254,6 +1467,11 @@ export interface UserDataExport {
   xpEvents: unknown[];
   generationUsage: unknown[];
   generationFailures: unknown[];
+  pushTokens: unknown[];
+  pushSends: unknown[];
+  exerciseProgress: unknown[];
+  muscleCheckins: unknown[];
+  prescriptionDecisions: unknown[];
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1271,6 +1489,11 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     xpEvents,
     generationUsage,
     generationFailures,
+    pushTokens,
+    pushSends,
+    exerciseProgress,
+    muscleCheckins,
+    prescriptionDecisions,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1284,6 +1507,11 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('xp_events').select('*').eq('user_id', userId),
     supabase.from('generation_usage').select('*').eq('user_id', userId),
     supabase.from('generation_failures').select('*').eq('user_id', userId),
+    supabase.from('push_tokens').select('*').eq('user_id', userId),
+    supabase.from('push_sends').select('*').eq('user_id', userId),
+    supabase.from('exercise_progress').select('*').eq('user_id', userId),
+    supabase.from('muscle_checkins').select('*').eq('user_id', userId),
+    supabase.from('prescription_decisions').select('*').eq('user_id', userId),
   ]);
 
   return {
@@ -1300,6 +1528,11 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     xpEvents: xpEvents.data ?? [],
     generationUsage: generationUsage.data ?? [],
     generationFailures: generationFailures.data ?? [],
+    pushTokens: pushTokens.data ?? [],
+    pushSends: pushSends.data ?? [],
+    exerciseProgress: exerciseProgress.data ?? [],
+    muscleCheckins: muscleCheckins.data ?? [],
+    prescriptionDecisions: prescriptionDecisions.data ?? [],
   };
 }
 

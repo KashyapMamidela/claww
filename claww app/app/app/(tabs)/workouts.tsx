@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
@@ -32,6 +32,17 @@ import { WorkoutCalendar } from '../../components/WorkoutCalendar';
 import { Display } from '../../components/ui/Typography';
 import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
+import { CompletedDayCard, MissedDayCard, SkippedDayCard } from '../../components/PastDayCards';
+import { computeDayStates } from '../../lib/workoutDayState';
+import { computeWeekdayStates } from '../../lib/trainingWeek';
+import { useRenderCount } from '../../lib/perf';
+import { refreshReminders } from '../../lib/reminderSync';
+import { SessionStartFlow } from '../../components/SessionStartFlow';
+import { ExerciseGuideSheet } from '../../components/ExerciseGuideSheet';
+import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
+import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
+import { computeRepRange, startingPrescription } from '../../lib/engine';
+import { newStateFor } from '../../lib/sessionPrescription';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -110,13 +121,24 @@ function WorkoutsEmptyState() {
 }
 
 export default function WorkoutsTab() {
+  useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
   const { status: sessionStatus, startSession } = useWorkoutSession();
+  const router = useRouter();
+  // Home's plan card links here with ?day=N so the same day it shows is the
+  // one selected. Applied once, then cleared, so a later plain visit to the
+  // tab falls back to the suggested day instead of a stale one.
+  const { day: dayParam } = useLocalSearchParams<{ day?: string }>();
+  const dayParamRef = useRef(dayParam);
+  dayParamRef.current = dayParam;
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
   const [events, setEvents] = useState<WorkoutDayEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [flowOpen, setFlowOpen] = useState(false);
+  const [guideName, setGuideName] = useState<string | null>(null);
+  const [recoveryHints, setRecoveryHints] = useState<Record<string, string>>({});
   const [skipping, setSkipping] = useState(false);
   const [showRegenCard, setShowRegenCard] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
@@ -125,12 +147,36 @@ export default function WorkoutsTab() {
   const [todayStats, setTodayStats] = useState<TodayWorkoutStats | null>(null);
   const [equipment, setEquipment] = useState<Equipment>('gym');
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Hints for the exercise picker: muscles that are Low or Very low today.
+  useEffect(() => {
+    if (!pickerOpen || !userId) return;
+    let cancelled = false;
+    (async () => {
+      const sets = await getRecentLoggedSets(userId);
+      const catalog = await getCatalog(Array.from(new Set(sets.map((x) => x.exerciseName))));
+      const scores = muscleScores(MAJOR_MUSCLES, sets, catalog, new Date());
+      const hints: Record<string, string> = {};
+      for (const m of MAJOR_MUSCLES) {
+        const sc = scores[m];
+        if (sc?.score !== null && sc?.score !== undefined && (sc.band === 'Low' || sc.band === 'Very low')) {
+          hints[m] = `${m.charAt(0).toUpperCase()}${m.slice(1)} is ${sc.band.toLowerCase()} today (${sc.score})`;
+        }
+      }
+      if (!cancelled) setRecoveryHints(hints);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pickerOpen, userId]);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
+      const requestedParam = dayParamRef.current;
+      if (requestedParam !== undefined) router.setParams({ day: undefined });
       getLatestWorkout(userId).then(async (w) => {
         if (cancelled) return;
         setWorkout(w);
@@ -138,7 +184,9 @@ export default function WorkoutsTab() {
           const dayEvents = await getWorkoutDayEvents(userId, w.id);
           if (cancelled) return;
           setEvents(dayEvents);
-          setSelectedDay(getSuggestedDayIndex(w.plan, dayEvents));
+          const requested = requestedParam !== undefined ? Number(requestedParam) : NaN;
+          const hasRequested = Number.isInteger(requested) && requested >= 0 && requested < w.plan.days.length;
+          setSelectedDay(hasRequested ? requested : getSuggestedDayIndex(w.plan, dayEvents));
         }
         setLoaded(true);
       });
@@ -152,13 +200,18 @@ export default function WorkoutsTab() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, router])
   );
 
   // Re-suggest whenever a session finishes (status flips through 'completed'
   // then back to 'idle') so returning to this tab reflects the new progress.
+  // Only on that transition: running on every workout change would also
+  // override a day just chosen via Home's plan card.
+  const prevSessionStatus = useRef(sessionStatus);
   useEffect(() => {
-    if (!userId || !workout || sessionStatus !== 'idle') return;
+    const finished = prevSessionStatus.current !== 'idle' && sessionStatus === 'idle';
+    prevSessionStatus.current = sessionStatus;
+    if (!userId || !workout || !finished) return;
     getWorkoutDayEvents(userId, workout.id).then((dayEvents) => {
       setEvents(dayEvents);
       setSelectedDay(getSuggestedDayIndex(workout.plan, dayEvents));
@@ -206,11 +259,16 @@ export default function WorkoutsTab() {
   const suggestedDay = getSuggestedDayIndex(workout.plan, events);
   const day = workout.plan.days[selectedDay] ?? workout.plan.days[0];
   const isSuggested = selectedDay === suggestedDay;
+  const dayLabels = workout.plan.days.map((d) => d.day);
+  // Plans on real weekdays get week-aware states (and Missed); "Day 1, Day 2" plans keep the old ones.
+  const dayStates = computeWeekdayStates(dayLabels, events, new Date()) ?? computeDayStates(dayLabels, events, suggestedDay);
+  const selectedState = dayStates[selectedDay] ?? dayStates[0];
 
   const handleSkip = async () => {
     if (!userId || skipping) return;
     setSkipping(true);
     await logWorkoutDayEvent(userId, workout.id, day.day, day.focus, 'skipped');
+    refreshReminders(userId).catch(() => {}); // drops today's workout reminder
     const dayEvents = await getWorkoutDayEvents(userId, workout.id);
     setEvents(dayEvents);
     setSelectedDay(getSuggestedDayIndex(workout.plan, dayEvents));
@@ -236,14 +294,32 @@ export default function WorkoutsTab() {
     setRegenerating(false);
   };
 
+  // V2 PHASE 7.4: a manually added exercise gets the same computed range and sets the
+  // plan's own exercises get (by its role), not a fixed 3 x 10, and an engine row whose
+  // first session is a calibration session.
   const handleAddExercise = async (exercise: CatalogExercise) => {
     setPickerOpen(false);
+    let sets = 3;
+    let reps = 10;
+    let created: { exerciseId: string; state: ReturnType<typeof newStateFor> } | null = null;
+    if (userId) {
+      const [catalog, profile] = await Promise.all([getCatalog([exercise.name]), getProfile(userId)]);
+      const entry = catalog[catalogKey(exercise.name)];
+      if (entry && entry.modality === 'strength' && entry.primaryMuscle) {
+        const range = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
+        const start = startingPrescription(range, entry.role);
+        sets = start.sets;
+        reps = start.startReps;
+        created = { exerciseId: exercise.id, state: newStateFor({ name: exercise.name, sets, reps }, entry, range, null) };
+      }
+    }
     const ok = await addExerciseToDay(workout.id, selectedDay, {
       exerciseId: exercise.id,
       name: exercise.name,
-      sets: 3,
-      reps: 10,
+      sets,
+      reps,
     });
+    if (ok && created && userId) saveExerciseProgress(userId, exercise.name, created.exerciseId, created.state).catch(() => {});
     if (ok) {
       const refreshed = await getLatestWorkout(userId!);
       if (refreshed) setWorkout(refreshed);
@@ -373,7 +449,8 @@ export default function WorkoutsTab() {
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 7 }}>
               {workout.plan.days.map((d, i) => {
                 const active = i === selectedDay;
-                const suggested = i === suggestedDay;
+                const state = dayStates[i]?.state ?? 'upcoming';
+                const suggested = state === 'suggested';
                 return (
                   <TouchableOpacity
                     key={`${d.day}-${i}`}
@@ -391,7 +468,13 @@ export default function WorkoutsTab() {
                       gap: 5,
                     }}
                   >
-                    {suggested && !active ? <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} /> : null}
+                    {state === 'completed' ? (
+                      <Icon name="check" size={12} color={active ? '#fff' : COLORS.green} strokeWidth={3} />
+                    ) : state === 'skipped' || state === 'missed' ? (
+                      <Icon name="x" size={12} color={active ? '#fff' : COLORS.danger} strokeWidth={3} />
+                    ) : suggested && !active ? (
+                      <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} />
+                    ) : null}
                     <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{d.day}</Text>
                   </TouchableOpacity>
                 );
@@ -469,7 +552,13 @@ export default function WorkoutsTab() {
                     paddingVertical: 12,
                   }}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setGuideName(ex.name)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${ex.name}: how to do it`}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                  >
                     <Icon name="circle" size={20} color="#71717A" />
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{ex.name}</Text>
@@ -477,7 +566,8 @@ export default function WorkoutsTab() {
                         {ex.sets} sets · {ex.reps} reps
                       </Text>
                     </View>
-                  </View>
+                    <Icon name="info" size={16} color="#52525B" />
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
@@ -508,7 +598,23 @@ export default function WorkoutsTab() {
             </Text>
           ) : null}
 
-          {sessionStatus === 'idle' ? (
+          {sessionStatus === 'idle' && selectedState.state === 'completed' && selectedState.event && userId ? (
+            <CompletedDayCard userId={userId} day={day} event={selectedState.event} />
+          ) : sessionStatus === 'idle' && selectedState.state === 'skipped' && selectedState.event ? (
+            <SkippedDayCard
+              day={day}
+              event={selectedState.event}
+              onDoToday={() => setFlowOpen(true)}
+              onKeepToday={() => setSelectedDay(suggestedDay)}
+            />
+          ) : sessionStatus === 'idle' && selectedState.state === 'missed' && 'date' in selectedState ? (
+            <MissedDayCard
+              day={day}
+              date={(selectedState as { date: Date }).date}
+              onDoToday={() => setFlowOpen(true)}
+              onKeepToday={() => setSelectedDay(suggestedDay)}
+            />
+          ) : sessionStatus === 'idle' ? (
             <View style={{ gap: 8 }}>
               <Button
                 variant="primary"
@@ -516,7 +622,7 @@ export default function WorkoutsTab() {
                 accentDeep={A3}
                 size="lg"
                 fullWidth
-                onPress={() => startSession(workout, selectedDay)}
+                onPress={() => setFlowOpen(true)}
                 icon={<Icon name="play" size={14} color="#fff" />}
               >
                 Begin Workout
@@ -568,7 +674,19 @@ export default function WorkoutsTab() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <ExercisePickerModal visible={pickerOpen} equipment={equipment} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
+      <SessionStartFlow
+        visible={flowOpen}
+        userId={userId}
+        workout={workout}
+        dayIndex={selectedDay}
+        onClose={() => setFlowOpen(false)}
+        onBegin={(start) => {
+          setFlowOpen(false);
+          startSession(start ? start.workout : workout, selectedDay, start ? { sessionId: start.sessionId, prescribed: start.prescribed } : undefined);
+        }}
+      />
       <LogSessionModal
         visible={sessionModalOpen}
         equipment={equipment}

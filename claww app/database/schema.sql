@@ -225,6 +225,14 @@ ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS weight_achieved FLOAT;
 -- covers them instead. NULL for ordinary strength sets, exactly as before.
 ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS duration_minutes FLOAT;
 
+-- V2 PHASE 2.5 — offline set queue. The app writes every set to an on-device
+-- queue and sends it from there, retrying until it lands. Each set carries a
+-- client-generated id; the insert is ON CONFLICT (client_id) DO NOTHING, so
+-- a retry after a lost response can never log the same set twice. NULL for
+-- rows written before this (NULLs don't collide in a unique index).
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS client_id UUID;
+CREATE UNIQUE INDEX IF NOT EXISTS workout_logs_client_id_key ON workout_logs (client_id);
+
 -- ============================================================
 -- TABLE: workout_day_events
 -- One row per plan-day the user completed or explicitly skipped —
@@ -495,5 +503,178 @@ CREATE POLICY "generation_usage_own" ON generation_usage
 -- bypasses RLS entirely, same as every other table in this schema.
 DROP POLICY IF EXISTS "generation_failures_own" ON generation_failures;
 CREATE POLICY "generation_failures_own" ON generation_failures
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- V2 PHASE 3.4 — server push for things the phone can't know (a missed
+-- workout, a streak about to break). The app registers its Expo push token
+-- after notification permission is granted and deletes it on sign-out;
+-- account deletion removes both tables' rows through the profiles cascade.
+-- ============================================================
+
+-- TABLE: push_tokens — one row per device the user is signed in on.
+CREATE TABLE IF NOT EXISTS push_tokens (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  token       TEXT NOT NULL,
+  platform    TEXT NOT NULL CHECK (platform IN ('ios', 'android')),
+  -- IANA zone from the device (e.g. 'Asia/Kolkata'), so the scheduled
+  -- send-reminders function can pick each user's local morning/evening.
+  timezone    TEXT,
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS push_tokens_token_key ON push_tokens (token);
+CREATE INDEX IF NOT EXISTS push_tokens_user_idx ON push_tokens (user_id);
+
+-- TABLE: push_sends — what send-reminders has already sent, one row per
+-- user per kind per local day. The unique key makes a re-run (or two
+-- overlapping cron runs) unable to send the same nudge twice, and the
+-- function counts these toward the 2-a-day cap together with local
+-- reminders. Written only by the service role.
+CREATE TABLE IF NOT EXISTS push_sends (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  kind        TEXT NOT NULL,
+  local_date  DATE NOT NULL,
+  sent_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, kind, local_date)
+);
+
+ALTER TABLE push_tokens ENABLE ROW LEVEL SECURITY;
+ALTER TABLE push_sends  ENABLE ROW LEVEL SECURITY;
+
+-- Push tokens: own rows only (the app inserts/updates/deletes its own).
+DROP POLICY IF EXISTS "push_tokens_own" ON push_tokens;
+CREATE POLICY "push_tokens_own" ON push_tokens
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Push sends: a user can read their own history; only the service role
+-- (send-reminders) writes, and it bypasses RLS.
+DROP POLICY IF EXISTS "push_sends_read_own" ON push_sends;
+CREATE POLICY "push_sends_read_own" ON push_sends
+  FOR SELECT USING (auth.uid() = user_id);
+
+-- ============================================================
+-- V2 PHASE 6 — real weekdays and the adaptive engine foundation.
+-- Everything below is idempotent. Run after seed_exercises.sql, then run
+-- seed_exercise_metadata.sql to fill the new exercises columns.
+-- ============================================================
+
+-- 6.2 Catalog enrichment (D12). Filled by database/seed_exercise_metadata.sql.
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS primary_muscle        TEXT;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS secondary_muscles     TEXT[];
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS movement_pattern      TEXT;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS role                  TEXT;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS loadable              BOOLEAN;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS stimulus_type         TEXT;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS load_increment_kg     NUMERIC;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS harder_variation_id   UUID REFERENCES exercises(id) ON DELETE SET NULL;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS easier_variation_id   UUID REFERENCES exercises(id) ON DELETE SET NULL;
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS form_steps            TEXT[];
+ALTER TABLE exercises ADD COLUMN IF NOT EXISTS common_mistake        TEXT;
+ALTER TABLE exercises DROP CONSTRAINT IF EXISTS exercises_role_check;
+ALTER TABLE exercises ADD CONSTRAINT exercises_role_check CHECK (role IS NULL OR role IN ('main', 'accessory'));
+
+-- 6.3 Per-set logging: which set, how many reps were left in the tank
+-- (0-3, where 3 means "3 or more"), and which session the set belongs to.
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS set_number INT;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS rir SMALLINT;
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS session_id UUID;
+ALTER TABLE workout_logs DROP CONSTRAINT IF EXISTS workout_logs_rir_check;
+ALTER TABLE workout_logs ADD CONSTRAINT workout_logs_rir_check CHECK (rir IS NULL OR (rir >= 0 AND rir <= 3));
+CREATE INDEX IF NOT EXISTS workout_logs_session_idx ON workout_logs (session_id);
+
+-- 6.1 Training weekdays live in profiles.personalization_profile
+-- (workoutDefaults.trainingDays, usualTrainingTime) — JSON, no column needed.
+
+-- TABLE: exercise_progress — one row per user per exercise: the engine's
+-- current state (rep target inside the range, working weight, sets and the
+-- success / failure counters it needs for "two in a row" rules).
+CREATE TABLE IF NOT EXISTS exercise_progress (
+  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id             UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  exercise_name       TEXT NOT NULL,
+  exercise_id         UUID REFERENCES exercises(id) ON DELETE SET NULL,
+  rep_min             INT NOT NULL,
+  rep_max             INT NOT NULL,
+  rep_target          INT NOT NULL,
+  working_weight_kg   NUMERIC,
+  sets                INT NOT NULL DEFAULT 3,
+  top_streak          INT NOT NULL DEFAULT 0,
+  failure_streak      INT NOT NULL DEFAULT 0,
+  success_cycles      INT NOT NULL DEFAULT 0,
+  decline_cycles      INT NOT NULL DEFAULT 0,
+  stagnant_sessions   INT NOT NULL DEFAULT 0,
+  -- What the user actually did last session, and what the engine decided
+  -- for next time (prescribe() falls back to the "last" numbers when
+  -- recovery blocks progression for the day).
+  last_weight_kg      NUMERIC,
+  last_rep_target     INT,
+  last_sets           INT,
+  pending_commands    TEXT[] NOT NULL DEFAULT '{}',
+  pending_reason      TEXT NOT NULL DEFAULT '',
+  last_session_date   DATE,
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (user_id, exercise_name)
+);
+-- Columns added after the first draft of the table (safe on a fresh or an existing project).
+ALTER TABLE exercise_progress ADD COLUMN IF NOT EXISTS stagnant_sessions INT NOT NULL DEFAULT 0;
+ALTER TABLE exercise_progress ADD COLUMN IF NOT EXISTS last_weight_kg NUMERIC;
+ALTER TABLE exercise_progress ADD COLUMN IF NOT EXISTS last_rep_target INT;
+ALTER TABLE exercise_progress ADD COLUMN IF NOT EXISTS last_sets INT;
+ALTER TABLE exercise_progress ADD COLUMN IF NOT EXISTS pending_commands TEXT[] NOT NULL DEFAULT '{}';
+ALTER TABLE exercise_progress ADD COLUMN IF NOT EXISTS pending_reason TEXT NOT NULL DEFAULT '';
+
+-- TABLE: muscle_checkins — the optional pre-session soreness / readiness
+-- answers, one row per muscle per session.
+CREATE TABLE IF NOT EXISTS muscle_checkins (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  session_id  UUID NOT NULL,
+  muscle      TEXT NOT NULL,
+  soreness    SMALLINT CHECK (soreness IS NULL OR (soreness >= 0 AND soreness <= 5)),
+  readiness   TEXT CHECK (readiness IS NULL OR readiness IN ('strong', 'normal', 'slightly_weak', 'weak', 'very_weak')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS muscle_checkins_user_idx ON muscle_checkins (user_id, created_at DESC);
+
+-- TABLE: prescription_decisions — every prescription the engine made, with
+-- its commands and the one-line reason shown in the app.
+CREATE TABLE IF NOT EXISTS prescription_decisions (
+  id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id             UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  session_id          UUID NOT NULL,
+  exercise_name       TEXT NOT NULL,
+  prescribed_weight   NUMERIC,
+  prescribed_reps     INT,
+  prescribed_sets     INT,
+  commands            TEXT[] NOT NULL DEFAULT '{}',
+  reason              TEXT NOT NULL DEFAULT '',
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS prescription_decisions_user_idx ON prescription_decisions (user_id, created_at DESC);
+-- 'prescribed' = what the engine set for the session; 'result' = what it decided for next time once the session ended.
+ALTER TABLE prescription_decisions ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'prescribed';
+ALTER TABLE prescription_decisions DROP CONSTRAINT IF EXISTS prescription_decisions_phase_check;
+ALTER TABLE prescription_decisions ADD CONSTRAINT prescription_decisions_phase_check CHECK (phase IN ('prescribed', 'result'));
+
+ALTER TABLE exercise_progress       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE muscle_checkins         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE prescription_decisions  ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "exercise_progress_own" ON exercise_progress;
+CREATE POLICY "exercise_progress_own" ON exercise_progress
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "muscle_checkins_own" ON muscle_checkins;
+CREATE POLICY "muscle_checkins_own" ON muscle_checkins
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "prescription_decisions_own" ON prescription_decisions;
+CREATE POLICY "prescription_decisions_own" ON prescription_decisions
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);

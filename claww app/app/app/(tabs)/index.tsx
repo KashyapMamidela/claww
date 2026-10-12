@@ -1,24 +1,39 @@
-import React, { useCallback, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, tint } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
-import { getLatestWorkout, getProfile, type WorkoutRow } from '../../lib/data';
+import { getLatestWorkout, getProfile, getSuggestedDayIndex, getWorkoutDayEvents, type WorkoutRow } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
-import { StatCard } from '../../components/ui/StatCard';
+import { HomeStatTiles } from '../../components/HomeStatTiles';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
-import { SleepArcDial } from '../../components/SleepArcDial';
+import { SleepRow } from '../../components/SleepRow';
 import { SleepLogModal } from '../../components/SleepLogModal';
-import { WaterWidget } from '../../components/WaterWidget';
+import { WaterRow } from '../../components/WaterRow';
+import { getCatalog, getRecentLoggedSets } from '../../lib/adaptiveData';
+import { lowestMuscle, muscleScores, musclesForExercises } from '../../lib/muscleRecovery';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { estimateCaloriesFromSteps, getTodaySteps, openHealthConnectInstall, type StepsResult } from '../../lib/steps';
+import { getTodaySteps, type StepsResult } from '../../lib/steps';
+import { greetingFor, type Greeting } from '../../lib/greeting';
+import { SLEEP_TARGET_HOURS, sleepRingPct } from '../../lib/sleepTarget';
+
+function useGreeting(): Greeting {
+  const [greeting, setGreeting] = useState(() => greetingFor(new Date()));
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') setGreeting(greetingFor(new Date()));
+    });
+    return () => sub.remove();
+  }, []);
+  return greeting;
+}
 
 // New feature — real step count from the phone's own motion sensor
 // (expo-sensors' Pedometer), not a wearable. Refreshes whenever Home
@@ -47,7 +62,7 @@ function AiCard({ children }: { children: React.ReactNode }) {
       style={{
         backgroundColor: '#151517',
         borderWidth: 1,
-        borderColor: 'rgba(168,85,247,0.22)',
+        borderColor: tint(AREA_COLORS.engine, 0.22),
         borderRadius: 16,
         paddingHorizontal: 16,
         paddingVertical: 14,
@@ -59,14 +74,14 @@ function AiCard({ children }: { children: React.ReactNode }) {
             width: 28,
             height: 28,
             borderRadius: 8,
-            backgroundColor: 'rgba(168,85,247,0.15)',
+            backgroundColor: tint(AREA_COLORS.engine, 0.15),
             borderWidth: 1,
-            borderColor: 'rgba(168,85,247,0.3)',
+            borderColor: tint(AREA_COLORS.engine, 0.3),
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Icon name="sparkles" size={14} color={COLORS.purple} />
+          <Icon name="sparkles" size={14} color={AREA_COLORS.engine} />
         </View>
         <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
       </View>
@@ -103,7 +118,7 @@ function HomeLoadingSkeleton() {
 }
 
 function HomeEmptyState() {
-  const { userName, sleepLogged, streak } = useAppState();
+  const { userId, userName, sleepLogged, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const steps = useTodaySteps();
@@ -177,20 +192,9 @@ function HomeEmptyState() {
         </Button>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <StatCard
-          label="Steps"
-          value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}
-          color="#A1A1AA"
-          icon={<Icon name="footprints" size={16} color="#A1A1AA" />}
-          onPress={steps.needsHealthConnectInstall ? openHealthConnectInstall : undefined}
-        />
-        <StatCard label="Burned" value="—" sub="no data yet" color="#71717A" icon={<Icon name="flame" size={16} color="#71717A" />} />
-        <StatCard label="Streak" value={String(streak)} sub="days" color="#71717A" icon={<Icon name="trending-up" size={16} color="#71717A" />} />
-      </View>
+      <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
-      <WaterWidget compact onOpenFull={() => router.push('/(tabs)/nutrition')} />
+      <WaterRow userId={userId} />
 
       <View
         style={{
@@ -226,7 +230,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
-              : "Unlocks your Recovery Score — a sleep, hydration, and nutrition-based estimate to guide today's training."}
+              : "Unlocks your Recovery Score — a sleep and protein based estimate to guide today's training."}
           </Text>
         </View>
         {!sleepLogged ? (
@@ -265,14 +269,17 @@ function HomeEmptyState() {
 }
 
 function HomePopulated() {
-  const { userId, userName, recovery, meals, xp, streak } = useAppState();
+  const { userId, userName, recovery, meals, xp, streak, todaySleep } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const greeting = useGreeting();
   const recoveryColor = recovery?.band === 'Low' ? COLORS.danger : recovery?.band === 'High' ? COLORS.green : COLORS.amber;
 
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
+  const [suggestedDayIndex, setSuggestedDayIndex] = useState(0);
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
-  const [weightKg, setWeightKg] = useState<number | null>(null);
+  // The lowest per-muscle recovery score among today's muscles, when it is worth a mention (V2 PHASE 7.5).
+  const [tiredMuscle, setTiredMuscle] = useState<{ muscle: string; band: string } | null>(null);
   const steps = useTodaySteps();
 
   // xp/streak come from AppState directly — they update live as XP events
@@ -282,12 +289,23 @@ function HomePopulated() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(([w, profile]) => {
+      Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(async ([w, profile]) => {
+        const dayEvents = w ? await getWorkoutDayEvents(userId, w.id) : [];
         if (cancelled) return;
         setLatestWorkout(w);
+        const dayIdx = w ? getSuggestedDayIndex(w.plan, dayEvents) : 0;
+        setSuggestedDayIndex(dayIdx);
+        if (w) {
+          const names = (w.plan.days[dayIdx]?.exercises ?? []).map((ex) => ex.name);
+          const [catalog, sets] = await Promise.all([getCatalog(names), getRecentLoggedSets(userId)]);
+          const history = await getCatalog(Array.from(new Set(sets.map((x) => x.exerciseName))));
+          if (cancelled) return;
+          const muscles = musclesForExercises(names, catalog);
+          const low = lowestMuscle(muscleScores(muscles, sets, { ...history, ...catalog }, new Date()), muscles);
+          setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
+        }
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
-        setWeightKg(profile?.weight ?? null);
       });
       return () => {
         cancelled = true;
@@ -304,11 +322,20 @@ function HomePopulated() {
   const nutritionPctRaw = targetKcal > 0 ? (consumedKcal / targetKcal) * 100 : 0;
   const nutritionPct = Math.min(nutritionPctRaw, 100);
 
-  const sleepPct = recovery ? Math.min((recovery.score / 100) * 100, 100) : 0; // recovery score already IS the sleep-driven composite
+  const sleepHours = todaySleep?.hours ?? null;
+  const sleepPct = sleepRingPct(sleepHours);
   const recoveryPct = recovery?.score ?? 0;
   const dailyGoalPct = recovery ? Math.round((recoveryPct + nutritionPct + sleepPct) / 3) : 0;
 
-  const today = latestWorkout?.plan.days[0];
+  const planDays = latestWorkout?.plan.days ?? [];
+  const today = planDays[suggestedDayIndex] ?? planDays[0];
+  const todayIndex = planDays[suggestedDayIndex] ? suggestedDayIndex : 0;
+  const dayOfLabel = `DAY ${todayIndex + 1} OF ${planDays.length}`;
+  const planCardLabel = today
+    ? /^day \d+$/i.test(today.day.trim())
+      ? dayOfLabel
+      : `${today.day.toUpperCase()} · ${dayOfLabel}`
+    : null;
 
   return (
     <View
@@ -322,7 +349,7 @@ function HomePopulated() {
       <View>
         <SectionLabel color={COLORS.green}>TODAY</SectionLabel>
         <Display style={{ marginTop: 4 }}>
-          Good morning,{'\n'}{userName || 'there'}.
+          {greeting},{'\n'}{userName || 'there'}.
         </Display>
         <Text style={{ color: '#71717A', fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
           {recovery ? (
@@ -331,7 +358,11 @@ function HomePopulated() {
               <Text style={{ color: recoveryColor, fontWeight: '700' }}>
                 {recovery.score} · {recovery.band}
               </Text>{' '}
-              — {recovery.band === 'Low' ? 'take it easy today.' : recovery.band === 'High' ? 'great day to push hard.' : 'a solid day for moderate work.'}
+              {tiredMuscle ? (
+                <>. {tiredMuscle.muscle.charAt(0).toUpperCase() + tiredMuscle.muscle.slice(1)} is still recovering ({tiredMuscle.band.toLowerCase()}).</>
+              ) : (
+                <> — {recovery.band === 'Low' ? 'take it easy today.' : recovery.band === 'High' ? 'great day to push hard.' : 'a solid day for moderate work.'}</>
+              )}
             </>
           ) : (
             'Recovery score not available yet — log a night of sleep to unlock it.'
@@ -368,9 +399,9 @@ function HomePopulated() {
           <ProgressRing
             size={164}
             rings={[
-              { r: 72, strokeWidth: 7, color: COLORS.blue, pct: recoveryPct },
-              { r: 57, strokeWidth: 7, color: '#FFFFFF', pct: sleepPct },
-              { r: 42, strokeWidth: 7, color: COLORS.green, pct: nutritionPctRaw },
+              { r: 72, strokeWidth: 7, color: AREA_COLORS.recovery, pct: recoveryPct },
+              { r: 57, strokeWidth: 7, color: AREA_COLORS.sleep, pct: sleepPct },
+              { r: 42, strokeWidth: 7, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
             ]}
             trackColor="rgba(255,255,255,0.055)"
           >
@@ -379,9 +410,15 @@ function HomePopulated() {
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
             {[
-              { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: COLORS.blue },
-              { label: 'Sleep', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: sleepPct, color: '#FFFFFF' },
-              { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: COLORS.green },
+              { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: AREA_COLORS.recovery },
+              {
+                label: 'Sleep',
+                value: sleepHours !== null ? `${Math.round(sleepHours * 10) / 10}` : '—',
+                sub: `/ ${SLEEP_TARGET_HOURS} h`,
+                pct: sleepPct,
+                color: AREA_COLORS.sleep,
+              },
+              { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: AREA_COLORS.nutrition },
             ].map((s) => (
               <View key={s.label}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -398,34 +435,18 @@ function HomePopulated() {
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <StatCard
-          label="Steps"
-          value={steps.available ? steps.steps.toLocaleString() : '—'}
-          sub={steps.available ? 'today' : steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}
-          color="#71717A"
-          icon={<Icon name="footprints" size={16} color="#71717A" />}
-          onPress={steps.needsHealthConnectInstall ? openHealthConnectInstall : undefined}
-        />
-        <StatCard
-          label="Burned"
-          value={
-            steps.available
-              ? (steps.caloriesBurned ?? estimateCaloriesFromSteps(steps.steps, weightKg)).toLocaleString()
-              : '—'
-          }
-          sub={steps.available ? (steps.caloriesBurned !== null ? 'active kcal' : 'from steps (est.)') : 'not tracked yet'}
-          color="#71717A"
-          icon={<Icon name="flame" size={16} color="#71717A" />}
-        />
-        <StatCard label="Streak" value={String(streak)} sub="days" pct={Math.min(streak * 14, 100)} color={COLORS.green} icon={<Icon name="trending-up" size={16} color={COLORS.green} />} />
-      </View>
+      <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
-      <WaterWidget compact onOpenFull={() => router.push('/(tabs)/nutrition')} />
+      <WaterRow userId={userId} />
 
-      <SleepArcDial />
+      <SleepRow />
 
-      <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/(tabs)/workouts')}>
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={() =>
+          today ? router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } }) : router.push('/(tabs)/workouts')
+        }
+      >
         <LinearGradient
           colors={['#0F172A', '#1E3A5F', '#1D4ED8']}
           start={{ x: 0, y: 0 }}
@@ -439,7 +460,7 @@ function HomePopulated() {
           }}
         >
           <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
-            {today ? `YOUR PLAN · ${today.day.toUpperCase()}` : 'YOUR PLAN'}
+            {planCardLabel ? `YOUR PLAN · ${planCardLabel}` : 'YOUR PLAN'}
           </Text>
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, marginTop: 6, marginBottom: 8, fontFamily: FONT }}>
             {today ? today.focus : 'No plan yet — tap to generate one'}
@@ -459,7 +480,7 @@ function HomePopulated() {
             <Text style={{ color: recoveryColor, fontWeight: '700' }}>{recovery.band.toLowerCase()}</Text> recovery today
             {streak > 0 ? (
               <>
-                , and you're on a <Text style={{ color: COLORS.purple, fontWeight: '700' }}>{streak}-day streak</Text>
+                , and you're on a <Text style={{ color: AREA_COLORS.streak, fontWeight: '700' }}>{streak}-day streak</Text>
               </>
             ) : null}
             .

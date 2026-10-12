@@ -5,7 +5,7 @@ import { SetupChipStep } from '../../../components/SetupChipStep';
 import type { ActivityLevel } from '../../../lib/data';
 
 const G = COLORS.green;
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const OPTIONS: { value: ActivityLevel; label: string }[] = [
   { value: 'sedentary', label: 'Sedentary' },

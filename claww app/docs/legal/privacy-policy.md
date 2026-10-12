@@ -64,6 +64,20 @@ code before publishing]`
 XP events, achievement/streak progress, and how many AI-generation requests
 you've made today (to enforce fair-use limits — see `generation_usage`).
 
+### Notifications and push tokens
+If you turn reminders on, the app schedules them on your phone, using your
+reminder settings (which types are on, and at what time) saved with your
+profile. To send a small number of reminders the phone can't work out by
+itself — a nudge the morning after a missed workout, or before a streak
+breaks — we store your device's **push token** (an identifier issued by
+Apple/Google through Expo that lets us address a notification to this
+device), the device's **time zone**, and which of these nudges we have sent
+and on which day (`push_tokens`, `push_sends`). The token is deleted when
+you sign out on that device, when Expo reports it no longer works, and with
+your account. Notifications are sent through Expo's push service, which
+relays them to Apple Push Notification service or Firebase Cloud Messaging;
+the notification text never includes your health data.
+
 ### What we do *not* collect
 We do not collect precise location, contacts, or payment information — CLAWW
 does not currently process payments.
@@ -89,14 +103,15 @@ does not currently process payments.
 
 ## Third parties (subprocessors)
 
-We share data with two subprocessors, both necessary to run the app:
+We share data with these subprocessors, each necessary for the feature it serves:
 
 | Subprocessor | What it receives | Why |
 |---|---|---|
 | **Supabase** | Everything in this policy — it's our database, authentication, and backend hosting provider. | Stores and serves all app data. |
 | **Groq** | Your free-text injury description, workout history, and profile fields relevant to plan generation; your free-text or photo meal description when you log a meal. | Runs the AI model that selects/names exercises within our constraints and estimates nutrition. Groq is a third-party, US-based inference provider. |
+| **Expo (push service)**, relaying via **Firebase Cloud Messaging** (Android) / **Apple Push Notification service** (iOS) | Your device's push token and the text of the reminder being sent. | Delivers the few server-sent reminders described above. Only if you have reminders on. |
 
-Both subprocessors have their own privacy policies governing how they handle
+These subprocessors have their own privacy policies governing how they handle
 data on our behalf: `[FILL IN links to Supabase's and Groq's current privacy
 policies]`. Photos and injury text sent to Groq are subject to Groq's own
 data-handling and retention practices, which we do not control.

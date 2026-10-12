@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View } from 'react-native';
 import { COLORS, FONT } from '../../lib/theme';
 
-const ITEM_HEIGHT = 38;
+export const ITEM_HEIGHT = 38;
 const VISIBLE_ROWS = 5; // odd — the middle row is the selected value
-const PAD = Math.floor(VISIBLE_ROWS / 2) * ITEM_HEIGHT;
+export const PAD = Math.floor(VISIBLE_ROWS / 2) * ITEM_HEIGHT;
 
 export interface TimeValue {
   hour: number; // 1-12
@@ -37,7 +37,7 @@ interface WheelColumnProps {
 // still an ordinary scroll/snap, which is the only genuinely reliable
 // touch gesture for this across iOS/Android/web; only the visual sells
 // "rotating."
-function WheelColumn({ items, initialIndex, onChange, width = 56 }: WheelColumnProps) {
+export function WheelColumn({ items, initialIndex, onChange, width = 56 }: WheelColumnProps) {
   const scrollY = useRef(new Animated.Value(initialIndex * ITEM_HEIGHT)).current;
   const scrollRef = useRef<ScrollView>(null);
   const lastIndex = useRef(initialIndex);

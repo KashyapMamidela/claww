@@ -2,8 +2,8 @@ import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON } from '../_shared/groq.ts';
 import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
-import { computeRecoveryScore } from '../_shared/recovery.ts';
-import { deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
+import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
+import { EXPERIENCE_MAX_SETS, applyTrainingWeekdays, computeRepRange, deriveAllowedEquipment, groundPlanInCatalog, type RepRange } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
@@ -21,26 +21,6 @@ const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
 // instead of exercise names.
 // ─────────────────────────────────────────────────────────────────────────
 
-interface RepRange {
-  minSets: number;
-  maxSets: number;
-  minReps: number;
-  maxReps: number;
-}
-
-// Standard hypertrophy/strength/endurance rep-range conventions per goal.
-const GOAL_REP_RANGES: Record<string, RepRange> = {
-  muscle_gain: { minSets: 3, maxSets: 5, minReps: 6, maxReps: 12 },
-  fat_loss: { minSets: 2, maxSets: 4, minReps: 12, maxReps: 20 },
-  endurance: { minSets: 2, maxSets: 3, minReps: 15, maxReps: 25 },
-  maintenance: { minSets: 2, maxSets: 4, minReps: 8, maxReps: 15 },
-  flexibility: { minSets: 1, maxSets: 3, minReps: 20, maxReps: 60 },
-};
-
-// A beginner shouldn't be programmed the same volume as an advanced lifter
-// even for the same goal — this caps sets regardless of what the goal range allows.
-const EXPERIENCE_MAX_SETS: Record<string, number> = { beginner: 3, intermediate: 4, advanced: 5 };
-
 // experience x activity -> base training days/week. Matches how a trainer
 // would scope a starting frequency before knowing anything else about the client.
 const FREQUENCY_TABLE: Record<string, Record<string, number>> = {
@@ -48,27 +28,6 @@ const FREQUENCY_TABLE: Record<string, Record<string, number>> = {
   intermediate: { sedentary: 3, moderate: 4, active: 4 },
   advanced: { sedentary: 3, moderate: 4, active: 5 },
 };
-
-function computeRepRange(goal: string | null, experienceLevel: string | null, age: number | null): RepRange {
-  const base = GOAL_REP_RANGES[goal ?? ''] ?? GOAL_REP_RANGES.maintenance;
-  const experienceCap = EXPERIENCE_MAX_SETS[experienceLevel ?? ''] ?? EXPERIENCE_MAX_SETS.intermediate;
-  let maxSets = Math.min(base.maxSets, experienceCap);
-  let minReps = base.minReps;
-
-  // Older adults: bias away from heavy near-maximal low-rep work and cap
-  // volume further, even if their goal/experience would otherwise allow more.
-  if (age !== null) {
-    if (age >= 65) {
-      maxSets = Math.min(maxSets, 3);
-      minReps = Math.max(minReps, 10);
-    } else if (age >= 50) {
-      maxSets = Math.min(maxSets, 4);
-      minReps = Math.max(minReps, 8);
-    }
-  }
-
-  return { minSets: Math.min(base.minSets, maxSets), maxSets, minReps, maxReps: Math.max(base.maxReps, minReps) };
-}
 
 /**
  * Deterministic recovery -> volume link (item #13: "once sleep is logged,
@@ -324,8 +283,7 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const reason = typeof body?.reason === 'string' ? body.reason : null;
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const [
       { data: profile },
@@ -333,8 +291,7 @@ Deno.serve(async (req: Request) => {
       { data: lastWorkout },
       { data: recentWorkouts },
       { data: latestWorkout },
-      { data: todaysWater },
-      { count: todaysMealCount },
+      { data: recentMeals },
     ] = await Promise.all([
       supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
       supabase
@@ -364,21 +321,12 @@ Deno.serve(async (req: Request) => {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase.from('water_logs').select('ml').eq('user_id', user.id).gte('logged_at', startOfDay.toISOString()),
-      supabase
-        .from('meal_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .gte('logged_at', startOfDay.toISOString()),
+      supabase.from('meal_logs').select('protein_g').eq('user_id', user.id).gte('logged_at', last24h),
     ]);
 
-    const todaysWaterMl = (todaysWater ?? []).reduce((sum, row) => sum + (row.ml ?? 0), 0);
-    const recovery = computeRecoveryScore(
-      sleepLog,
-      lastWorkout,
-      { waterMl: todaysWaterMl },
-      { loggedMealToday: (todaysMealCount ?? 0) > 0 }
-    );
+    const proteinTarget = (profile?.personalization_profile as { nutritionDefaults?: { protein_g?: number } } | null)?.nutritionDefaults?.protein_g ?? null;
+    const proteinPct = proteinShare(recentMeals, proteinTarget);
+    const recovery = computeRecoveryScore(sleepLog, lastWorkout, proteinPct === null ? null : { proteinPct });
 
     // Cooldown: a double-tap or accidental repeat shouldn't burn another
     // Groq call — just hand back the plan that was just generated. Does NOT
@@ -500,6 +448,8 @@ Deno.serve(async (req: Request) => {
     // Hard-enforce the computed thresholds regardless of what the model
     // returned (or whether we fell back to DEFAULT_PLAN).
     plan = clampPlanToThresholds(plan, repRange, dayCount);
+    // Real weekday labels come from the user's picks, not from the model.
+    plan = applyTrainingWeekdays(plan, trainingDays);
 
     const { data: savedWorkout, error: insertError } = await supabase
       .from('workouts')

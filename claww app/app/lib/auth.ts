@@ -3,6 +3,8 @@ import * as Linking from 'expo-linking';
 import { supabase } from './supabase';
 import type { AuthError, Session, User } from '@supabase/supabase-js';
 import { extractInvokeErrorMessage } from './data';
+import { unregisterPushToken } from './pushTokens';
+import { cancelAllReminders } from './notifications';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -156,6 +158,9 @@ export async function getCurrentUser(): Promise<User | null> {
  * Sign out the current user and clear the session from SecureStore.
  */
 export async function signOut(): Promise<{ error: AuthError | null }> {
+  // Must run while still signed in — RLS only lets the owner delete their token.
+  await unregisterPushToken();
+  await cancelAllReminders().catch(() => {});
   const { error } = await supabase.auth.signOut();
   return { error };
 }

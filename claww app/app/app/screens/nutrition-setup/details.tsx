@@ -7,7 +7,7 @@ import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 
 const G = COLORS.green;
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export default function NutritionSetupDetails() {
   const router = useRouter();

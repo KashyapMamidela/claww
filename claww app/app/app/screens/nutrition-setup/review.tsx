@@ -18,7 +18,7 @@ import {
 } from '../../../lib/data';
 
 const G = COLORS.green;
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 export default function NutritionSetupReview() {
   const router = useRouter();
@@ -67,7 +67,7 @@ export default function NutritionSetupReview() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={4} totalSteps={TOTAL_STEPS} accent={G} showBack={!saving} />
+      <OnboardingTopBar step={5} totalSteps={TOTAL_STEPS} accent={G} showBack={!saving} />
       <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: G }} />

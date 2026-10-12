@@ -1,0 +1,338 @@
+{
+  "Running": {
+    "steps": [
+      "Stand tall, eyes ahead, shoulders relaxed and arms bent about 90 degrees swinging forward and back.",
+      "Land with your foot close under your body and roll through quickly, with short, light steps.",
+      "Keep a steady breathing rhythm at a pace where you could still say a short sentence."
+    ],
+    "mistake": "Overstriding, reaching the foot far in front, which brakes every step and hammers the knees."
+  },
+  "Jogging": {
+    "steps": [
+      "Run tall with a slight forward lean from the ankles and relaxed hands.",
+      "Take short, quick steps landing under your hips, and let your arms swing gently.",
+      "Hold a pace that is easy enough to breathe through your nose or hold a conversation."
+    ],
+    "mistake": "Starting too fast and then fading, instead of settling into an easy pace you can hold."
+  },
+  "Brisk Walking": {
+    "steps": [
+      "Walk tall with your chin level and shoulders back and relaxed.",
+      "Swing your bent arms from the shoulders and take quick, comfortable strides.",
+      "Land on your heel and roll through to push off with your toes, aiming for a pace that raises your breathing."
+    ],
+    "mistake": "Strolling with short steps and still arms, which leaves your heart rate barely raised."
+  },
+  "Power Walking": {
+    "steps": [
+      "Stand tall and drive your elbows back, with arms bent about 90 degrees.",
+      "Take quick, purposeful steps that roll heel to toe, pushing off strongly with the back foot.",
+      "Keep the pace high enough that you are breathing hard but can still talk in short phrases."
+    ],
+    "mistake": "Overreaching with the front foot and leaning back, which slows the stride and strains the shins."
+  },
+  "Sprint Intervals": {
+    "steps": [
+      "Warm up with a few minutes of easy jogging and a couple of short build-ups first.",
+      "Sprint at close to full effort for the set time, driving your knees and arms hard.",
+      "Walk or jog easily to recover fully before the next sprint."
+    ],
+    "mistake": "Sprinting cold or cutting the recovery short, which makes each rep slower and raises injury risk."
+  },
+  "Hill Sprints": {
+    "steps": [
+      "Pick a steady incline and warm up with easy jogging and a couple of short build-ups.",
+      "Lean slightly into the hill and drive hard with your knees and arms for the whole effort.",
+      "Walk back down slowly to recover fully before the next sprint."
+    ],
+    "mistake": "Looking down at your feet and bending at the waist instead of leaning from the ankles."
+  },
+  "Fartlek Running": {
+    "steps": [
+      "Start with a few minutes of easy running to warm up.",
+      "Mix in bursts of faster running of different lengths, picking landmarks like lamp posts as your start and finish.",
+      "Recover with easy jogging until you feel ready, then pick the next burst."
+    ],
+    "mistake": "Making every burst all-out, so the later ones fall apart and the session becomes a slog."
+  },
+  "Jump Rope": {
+    "steps": [
+      "Hold the handles at hip height with your elbows close and turn the rope with your wrists.",
+      "Jump just high enough for the rope to pass, landing softly on the balls of your feet.",
+      "Keep a steady rhythm with your eyes forward and knees slightly bent."
+    ],
+    "mistake": "Jumping too high and turning the rope with the whole arms, which tires you out quickly."
+  },
+  "High Knees": {
+    "steps": [
+      "Stand tall with your feet hip-width apart and your arms bent at your sides.",
+      "Run in place, driving each knee up to hip height while pumping your opposite arm.",
+      "Stay on the balls of your feet with your chest up and core tight."
+    ],
+    "mistake": "Leaning back and landing on the heels instead of staying tall on the balls of the feet."
+  },
+  "Butt Kicks": {
+    "steps": [
+      "Stand tall with your feet hip-width apart and your arms bent at your sides.",
+      "Jog in place, flicking each heel up toward your glutes.",
+      "Keep your knees pointing down and your hips level as you stay light on your feet."
+    ],
+    "mistake": "Letting the knees swing forward so the move turns into a bouncy jog with no hamstring work."
+  },
+  "Jumping Jacks": {
+    "steps": [
+      "Start standing with your feet together and your arms by your sides.",
+      "Jump your feet out wide while swinging your arms overhead.",
+      "Jump back to the start and repeat at a steady rhythm, landing softly."
+    ],
+    "mistake": "Landing stiff-legged on the heels, which jars the knees and hips."
+  },
+  "Skater Jumps": {
+    "steps": [
+      "Stand on one leg with a slight bend in the knee and your torso tilted forward.",
+      "Leap sideways to the other leg, swinging your arms across your body for balance.",
+      "Land softly on the new leg, absorb it with a bent knee and immediately leap back."
+    ],
+    "mistake": "Landing on a straight leg or letting the knee cave in, which jolts the joint."
+  },
+  "Broad Jumps": {
+    "steps": [
+      "Stand with your feet shoulder-width apart and swing your arms back as you sit your hips back.",
+      "Swing your arms forward and explode up and forward as far as you can.",
+      "Land softly with bent knees, hips back, and reset before the next jump."
+    ],
+    "mistake": "Landing with straight legs or the chest collapsed, which sends the impact into the knees and back."
+  },
+  "Tuck Jumps": {
+    "steps": [
+      "Stand with your feet hip-width apart and your knees slightly bent.",
+      "Jump straight up and pull both knees toward your chest at the top.",
+      "Land softly on the balls of your feet with bent knees and reset before the next one."
+    ],
+    "mistake": "Rushing the next rep before the landing is stable, which causes sloppy, stiff landings."
+  },
+  "Shadow Boxing": {
+    "steps": [
+      "Stand with your feet shoulder-width apart in a light stance, knees soft and hands up by your chin.",
+      "Throw jabs, crosses and hooks with your hips and shoulders turning into each punch.",
+      "Stay on the balls of your feet, moving around and breathing out with each punch."
+    ],
+    "mistake": "Throwing arm-only punches and locking the elbows hard at full extension."
+  },
+  "Burpee Cardio Circuit": {
+    "steps": [
+      "Do a burpee: squat, kick back to a plank, lower your chest, then jump your feet back in.",
+      "Explode into a jump with your arms overhead and land softly.",
+      "Move straight into the next exercise in the circuit and keep a steady pace."
+    ],
+    "mistake": "Letting the hips sag in the plank when tired, which puts the load on the lower back."
+  },
+  "Stair Sprints": {
+    "steps": [
+      "Warm up first, then start at the bottom of a flight of stairs, leaning slightly forward.",
+      "Drive up two stairs at a time or one quickly, pumping your arms and pushing through the whole foot.",
+      "Walk back down carefully, one step at a time, and recover before the next climb."
+    ],
+    "mistake": "Landing on your toes with your heels hanging off the step, which strains the calves and Achilles."
+  },
+  "Walking Lunges Cardio": {
+    "steps": [
+      "Stand tall with your hands on your hips or arms swinging, feet hip-width apart.",
+      "Step forward into a lunge until both knees are about 90 degrees, then push off the front foot into the next step.",
+      "Keep moving at a steady pace with your chest up."
+    ],
+    "mistake": "Taking short steps and letting the front knee drift far over the toes."
+  },
+  "Sprint Shuttles": {
+    "steps": [
+      "Set two markers about 10 to 20 metres apart and warm up first.",
+      "Sprint to the far marker, plant one foot, touch the line and drive back.",
+      "Keep your steps short as you turn and rest between sets."
+    ],
+    "mistake": "Turning on a straight, locked leg instead of bending the knee and pushing off the outside foot."
+  },
+  "Agility Ladder Drills": {
+    "steps": [
+      "Lay a ladder flat and stand at one end on the balls of your feet.",
+      "Step quickly in and out of each square in the pattern, keeping your steps short and light.",
+      "Look ahead, not down, and keep your arms pumping."
+    ],
+    "mistake": "Staring at your feet, which slows your rhythm and rounds your back."
+  },
+  "Lateral Bounds": {
+    "steps": [
+      "Stand on one leg with your knee slightly bent and your torso tilted forward.",
+      "Push off sideways to the other leg, covering as much distance as you can control.",
+      "Land softly on the new leg, hold for a beat and bound back."
+    ],
+    "mistake": "Rushing the landing, so the knee wobbles instead of absorbing the impact."
+  },
+  "Stationary Bike": {
+    "steps": [
+      "Adjust the seat so your knee has a slight bend at the bottom of the pedal stroke.",
+      "Sit tall with a relaxed grip, and pedal in smooth circles at a steady cadence.",
+      "Add or reduce resistance to hold the effort you want."
+    ],
+    "mistake": "A seat set too low, which puts stress on the knees and wastes power."
+  },
+  "Treadmill Walk": {
+    "steps": [
+      "Start at a slow speed, holding the rails only to step on, then let go.",
+      "Walk tall with your shoulders relaxed, arms swinging naturally and eyes ahead.",
+      "Increase the speed or incline until your breathing is a bit heavier, then hold it."
+    ],
+    "mistake": "Holding the handrails the whole time, which cuts the effort and throws off your posture."
+  },
+  "Treadmill Jog": {
+    "steps": [
+      "Warm up with a brisk walk, then raise the speed until you are jogging comfortably.",
+      "Run tall in the middle of the belt with your arms swinging and steps landing under your hips.",
+      "Set a pace you can hold, adding a 1 percent incline if you want it closer to road running."
+    ],
+    "mistake": "Running at the very front of the belt and reaching with the feet."
+  },
+  "Home Elliptical": {
+    "steps": [
+      "Stand upright with your feet flat on the pedals and your hands lightly on the handles.",
+      "Push and pull in a smooth, controlled stride, keeping your weight over your hips.",
+      "Pick a resistance that keeps you working, and reverse direction now and then."
+    ],
+    "mistake": "Leaning heavily on the handles, which removes most of the workload from your legs."
+  },
+  "Box Jump": {
+    "steps": [
+      "Stand in front of a sturdy box with your feet shoulder-width apart.",
+      "Swing your arms back, sit your hips back, then jump up and land softly on the box with your whole foot.",
+      "Stand up tall and step down, rather than jumping down, then reset."
+    ],
+    "mistake": "Choosing a box too high and landing in a deep squat, or jumping back down hard onto the knees."
+  },
+  "Battle Ropes": {
+    "steps": [
+      "Stand with your feet shoulder-width apart, knees soft, and hold one rope end in each hand.",
+      "Make fast, alternating waves with your arms, driving from the shoulders and keeping your core tight.",
+      "Work in short bursts and breathe steadily."
+    ],
+    "mistake": "Standing straight-legged and using only the wrists, which makes the waves small and strains the back."
+  },
+  "Step Aerobics": {
+    "steps": [
+      "Stand facing a low step with your chest up and your abs braced.",
+      "Step up with one foot, bring the other up, and step down in a smooth, repeating pattern.",
+      "Land with your whole foot on the platform and keep your steps light."
+    ],
+    "mistake": "Stepping so far back off the platform that you pull yourself off balance."
+  },
+  "Dance Cardio": {
+    "steps": [
+      "Find a song or class with a steady beat and start with a gentle warm-up.",
+      "Move your whole body to the beat, keeping your knees soft and arms active.",
+      "Keep going without stopping, and scale the moves down if you are out of breath."
+    ],
+    "mistake": "Standing stiffly and doing small movements, which keeps the effort too low."
+  },
+  "Kickboxing Cardio": {
+    "steps": [
+      "Stand in a light stance with your hands up and your knees slightly bent.",
+      "Combine punches and kicks, turning your hips and shoulders into each strike.",
+      "Stay light on your feet between strikes and keep your guard up."
+    ],
+    "mistake": "Kicking by locking the knee hard at full extension instead of snapping the leg back."
+  },
+  "Spin Bike Intervals": {
+    "steps": [
+      "Set the saddle so your knee has a slight bend at the bottom, and warm up spinning easily.",
+      "Add resistance and pedal hard for the work interval, staying smooth and keeping your upper body still.",
+      "Drop the resistance and spin easily to recover before the next interval."
+    ],
+    "mistake": "Gripping the handlebars tightly and bouncing on the saddle during the hard efforts."
+  },
+  "Home Cardio Circuit": {
+    "steps": [
+      "Pick 4 to 6 bodyweight moves like squats, jacks, high knees and mountain climbers.",
+      "Do each for a set time or reps with good form and move on with little rest.",
+      "Repeat the circuit for the rounds you planned, resting a minute between rounds."
+    ],
+    "mistake": "Rushing the first round so hard that form falls apart in the later ones."
+  },
+  "Cycling": {
+    "steps": [
+      "Set your saddle so your knee has a slight bend at the bottom of the stroke.",
+      "Keep your back relaxed, hands light on the bars, and pedal in smooth circles.",
+      "Change gears to hold a steady cadence and effort."
+    ],
+    "mistake": "Grinding in a hard gear at a low cadence, which strains the knees."
+  },
+  "Rowing Machine": {
+    "steps": [
+      "Strap in, grab the handle with straight arms, and sit tall with your shins vertical.",
+      "Drive with your legs first, then lean back slightly and pull the handle to your lower ribs.",
+      "Reverse the order to return: arms out, torso forward, then bend the knees."
+    ],
+    "mistake": "Pulling with the arms first and hunching, which loses most of the leg power."
+  },
+  "Stair Climber": {
+    "steps": [
+      "Stand upright with your hands lightly on the rails, feet fully on the steps.",
+      "Climb at a steady pace, pushing through your whole foot with each step.",
+      "Keep your chest up and let the rails guide balance, not carry your weight."
+    ],
+    "mistake": "Leaning on the rails and hunching forward, which cuts the work and strains the back."
+  },
+  "Elliptical Machine": {
+    "steps": [
+      "Stand tall with your feet flat on the pedals and your hands on the moving handles.",
+      "Push and pull smoothly through the stride, driving through your heels.",
+      "Choose a resistance that keeps you working, and switch direction now and then."
+    ],
+    "mistake": "Letting the knees collapse inward or hunching over the console."
+  },
+  "Treadmill Sprints": {
+    "steps": [
+      "Warm up with easy running, then stand on the side rails while you set the sprint speed.",
+      "Step onto the belt and run hard for the interval, keeping your steps quick and landing under your hips.",
+      "Step back onto the side rails or slow to a walk to recover fully."
+    ],
+    "mistake": "Stepping on at sprint speed from a standstill, which is easy to trip on."
+  },
+  "Swimming Laps": {
+    "steps": [
+      "Push off the wall in a streamlined position, arms extended, face down.",
+      "Alternate your arms in smooth strokes, rotating your body, and kick from the hips.",
+      "Turn your head to breathe to the side every few strokes, keeping a steady rhythm."
+    ],
+    "mistake": "Lifting the head to breathe, which sinks the hips and makes you work harder."
+  },
+  "Sled Push": {
+    "steps": [
+      "Place your hands on the sled's uprights with straight arms and a flat back, leaning forward.",
+      "Drive hard with your legs in short, powerful steps, pushing the sled ahead.",
+      "Keep your hips low and your core braced the whole distance."
+    ],
+    "mistake": "Standing too upright with the hips high, which wastes force into the ground."
+  },
+  "Assault Bike": {
+    "steps": [
+      "Adjust the seat so your knee has a slight bend, and sit tall.",
+      "Push and pull the handles with your arms while pedaling hard, in sync with your legs.",
+      "Pace the effort so you can keep going, with a steady rhythm of breathing."
+    ],
+    "mistake": "Sprinting out of the gate and fading, instead of building to a hard but even effort."
+  },
+  "Ski Erg": {
+    "steps": [
+      "Stand tall facing the machine, hands on the handles overhead.",
+      "Pull the handles down toward your thighs, hinging at the hips and bending your knees.",
+      "Return to standing as the handles rise, keeping the movement smooth."
+    ],
+    "mistake": "Pulling with the arms alone, which tires them fast, instead of using the hips and core."
+  },
+  "Versaclimber": {
+    "steps": [
+      "Step onto the pedals and take hold of the handles, standing tall.",
+      "Move opposite arm and leg together in a smooth climbing rhythm.",
+      "Keep your core tight, and use the full length of the reach."
+    ],
+    "mistake": "Taking short, choppy strokes, which lowers the workload and tires the shoulders."
+  }
+}

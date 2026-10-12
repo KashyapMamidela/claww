@@ -2,16 +2,17 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FONT } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getTodaysWaterMl, logWater } from '../lib/data';
+import { refreshReminders } from '../lib/reminderSync';
 import { Icon } from './ui/Icon';
 
 const WATER_TARGET_ML = 2000;
 const TAP_ADD_ML = 250;
 const PRESETS = [250, 500, 1000];
-const WATER = '#38BDF8';
-const WATER_DEEP = '#2563EB';
+const WATER = AREA_COLORS.water;
+const WATER_DEEP = COLORS.blueMid;
 
 function formatMl(ml: number): string {
   return ml >= 1000 ? `${(ml / 1000).toFixed(2)}L` : `${ml}ml`;
@@ -71,9 +72,11 @@ function Bottle({ width, height, fillAnim, scaleAnim }: BottleProps) {
 interface WaterWidgetProps {
   compact?: boolean;
   onOpenFull?: () => void;
+  /** Called after water is saved, so a parent (e.g. Home's water row) can refresh. */
+  onAdded?: (ml: number) => void;
 }
 
-export function WaterWidget({ compact = false, onOpenFull }: WaterWidgetProps) {
+export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidgetProps) {
   const { userId } = useAppState();
   const [waterMl, setWaterMl] = useState(0);
   const [customOpen, setCustomOpen] = useState(false);
@@ -119,6 +122,10 @@ export function WaterWidget({ compact = false, onOpenFull }: WaterWidgetProps) {
     setWaterMl((prev) => prev + ml);
     const ok = await logWater(userId, ml);
     if (!ok) setWaterMl((prev) => Math.max(0, prev - ml));
+    else {
+      refreshReminders(userId).catch(() => {}); // updates or drops today's water reminder
+      onAdded?.(ml);
+    }
   };
 
   const handleCustomSubmit = () => {

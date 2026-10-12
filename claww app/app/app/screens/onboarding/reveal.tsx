@@ -10,6 +10,7 @@ import { supabase } from '../../../lib/supabase';
 import { useAppState } from '../../../lib/appState';
 import { MEDICAL_DISCLAIMER_ACK_LABEL, MEDICAL_DISCLAIMER_BODY } from '../../../lib/medicalDisclaimer';
 import { track, AnalyticsEvent } from '../../../lib/analytics';
+import { notificationsSupported } from '../../../lib/notifications';
 
 const GENDER_ACCENTS: Record<string, string> = {
   male: '#3B82F6',
@@ -70,7 +71,8 @@ export default function OnboardingReveal() {
     }
 
     track(AnalyticsEvent.OnboardingCompleted);
-    router.replace('/(tabs)');
+    // Last onboarding step is the reminder soft-ask (V2 PHASE 3.2); web has no local notifications.
+    router.replace(notificationsSupported ? '/screens/onboarding/reminders' : '/(tabs)');
   };
 
   const genderLabel = gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : null;
@@ -179,7 +181,7 @@ export default function OnboardingReveal() {
           onPress={handleEnter}
           disabled={saving || !disclaimerAcked}
         >
-          ENTER CLAWW 🦅
+          ENTER CLAWW
         </Button>
       </View>
     </SafeAreaView>

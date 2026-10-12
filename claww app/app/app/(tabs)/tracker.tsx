@@ -1,55 +1,30 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { AREA_COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
-import { getCompletedWorkoutDays, getNutritionSummary, getTotalVolume, getWorkoutsThisMonth, type NutritionSummary } from '../../lib/data';
+import { getCompletedWorkoutDays, getLevelInfo, getTotalVolume } from '../../lib/data';
+import { loadTrackerData, type TrackerData } from '../../lib/trackerData';
+import { dailyRanges } from '../../lib/activityMath';
+import { getStepsInRanges } from '../../lib/steps';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
-import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { TrackerBody, type ChartKind } from '../../components/tracker/TrackerBody';
+import { TrackerChartScreen } from '../../components/tracker/TrackerChartScreen';
 
-// Tracker is strictly black & white — no accent hues on this screen.
+// V2 PHASE 9: the Tracker is a performance page. Cards stay black; each area's
+// color (AREA_COLORS) goes only on its label and data, and the CLAWW Score
+// stays white because it isn't one area's data. Charts are Skia.
 const W = '#FFFFFF';
-const WD = '#D4D4D8';
-const GR = '#A1A1AA';
 const GD = '#52525B';
 const UNLOCK_AT = 3;
 
-function KpiTile({ label, value, sub, note, delta }: { label: string; value: string; sub?: string; note?: string; delta?: string }) {
-  return (
-    <View
-      style={{
-        flexBasis: '48.5%',
-        flexGrow: 1,
-        backgroundColor: '#151517',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.13)',
-        borderRadius: 14,
-        paddingHorizontal: 14,
-        paddingTop: 14,
-        paddingBottom: 12,
-      }}
-    >
-      <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
-      <Text style={{ color: value === '—' ? GD : W, fontSize: 30, fontWeight: '900', letterSpacing: -1.2, marginTop: 4, fontFamily: FONT }}>
-        {value}
-        {sub ? <Text style={{ color: GD, fontSize: 11, fontWeight: '400', letterSpacing: 0 }}> {sub}</Text> : null}
-      </Text>
-      {note ? (
-        <Text style={{ color: GD, fontSize: 10.5, lineHeight: 15, marginTop: 7, fontFamily: FONT }}>{note}</Text>
-      ) : delta ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, marginTop: 7 }}>
-          <Icon name="arrow-up-right" size={11} color={WD} />
-          <Text style={{ color: WD, fontSize: 10.5, fontWeight: '700', fontFamily: FONT }}>{delta}</Text>
-          <Text style={{ color: GD, fontSize: 10, fontFamily: FONT }}>vs last month</Text>
-        </View>
-      ) : null}
-    </View>
-  );
+function EmptyData(): TrackerData {
+  return { logs: [], catalog: {}, meals: [], sleep: [], proteinTargetG: null, weightKg: null, stepsGoal: 8000, recovery: {} };
 }
 
 function TrackerLoadingSkeleton() {
@@ -60,7 +35,7 @@ function TrackerLoadingSkeleton() {
         paddingHorizontal: 16,
         paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
         paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
-        gap: 14,
+        gap: 12,
       }}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
@@ -70,340 +45,89 @@ function TrackerLoadingSkeleton() {
         </View>
         <Skeleton width={68} height={68} borderRadius={34} />
       </View>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
-        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
-        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
-        <Skeleton height={92} borderRadius={14} style={{ flexBasis: '48.5%', flexGrow: 1 }} />
-      </View>
-      <Skeleton height={140} borderRadius={16} />
-      <Skeleton height={80} borderRadius={12} />
+      <Skeleton height={190} borderRadius={16} />
+      <Skeleton height={150} borderRadius={16} />
+      <Skeleton height={130} borderRadius={16} />
     </View>
   );
 }
 
-function TrackerLocked({ workoutsCompleted, xp }: { workoutsCompleted: number; xp: number }) {
-  const insets = useSafeAreaInsets();
-  const remaining = UNLOCK_AT - workoutsCompleted;
-  // CLAWW Score is just capped XP (see TrackerUnlocked) — the same number
-  // already shown unconditionally on Profile and Home's header badge, so
-  // there's no honest reason to hide it here too. Only the stats that
-  // genuinely need workout history (streak, volume, goals) stay locked.
-  const clawwScore = Math.min(1000, xp);
-  const KPI_LOCKED = [
-    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
-    { label: 'STREAK', value: '—', note: 'Log workouts on consecutive days to start a streak.' },
-    {
-      label: 'WORKOUTS',
-      value: String(workoutsCompleted),
-      sub: `/ ${UNLOCK_AT}`,
-      note: remaining > 0 ? `${remaining} more to unlock your Tracker.` : 'Unlocking…',
-    },
-    { label: 'VOLUME', value: '—', note: 'Volume trends appear after your first 3 workouts.' },
-  ];
-
-  return (
-    <View
-      style={{
-        paddingHorizontal: 16,
-        paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
-        gap: 14,
-      }}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <View>
-          <Text style={{ color: GD, fontSize: 9.5, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>
-            {new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toUpperCase()} · BUILDING YOUR BASELINE
-          </Text>
-          <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
-          <Text style={{ color: GD, fontSize: 11.5, marginTop: 5, fontFamily: FONT }}>
-            {workoutsCompleted} of {UNLOCK_AT} workouts logged
-          </Text>
-        </View>
-        <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: 0 }]} trackColor="rgba(255,255,255,0.07)" trackDash="3 7">
-          <Icon name="lock" size={18} color={GD} />
-        </ProgressRing>
-      </View>
-
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        {KPI_LOCKED.map((k) => (
-          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} note={k.note} />
-        ))}
-      </View>
-
-      <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.13)', borderRadius: 16, overflow: 'hidden' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 8,
-            paddingHorizontal: 14,
-            paddingVertical: 11,
-            borderBottomWidth: 1,
-            borderBottomColor: 'rgba(255,255,255,0.13)',
-            backgroundColor: '#1A1A1C',
-          }}
-        >
-          <Icon name="lock" size={13} color={GD} />
-          <Text style={{ color: GR, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Goals — locked</Text>
-        </View>
-        <View style={{ padding: 14 }}>
-          <Text style={{ color: GD, fontSize: 12, lineHeight: 19, fontFamily: FONT }}>
-            Monthly workout, volume, streak, and body-weight goals appear once your CLAWW Score unlocks — log{' '}
-            {remaining > 0 ? remaining : 'a few'} more workout{remaining === 1 ? '' : 's'} to get there.
-          </Text>
-        </View>
-      </View>
-
-      <View
-        style={{
-          backgroundColor: '#151517',
-          borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.13)',
-          borderLeftWidth: 3,
-          borderLeftColor: GD,
-          borderRadius: 12,
-          paddingHorizontal: 14,
-          paddingVertical: 12,
-        }}
-      >
-        <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>CLAWW INSIGHT · VOLUME ANALYSIS</Text>
-        <Text style={{ color: GR, fontSize: 13, fontWeight: '600', marginTop: 8, lineHeight: 19, fontFamily: FONT }}>
-          Still collecting data — a volume trend read appears after your first 3 workouts.
-        </Text>
-      </View>
-
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Button variant="ghost" disabled icon={<Icon name="download" size={16} color={GD} />} style={{ flex: 2 }}>
-          Export Report
-        </Button>
-        <Button variant="ghost" disabled style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={GD} />}>
-          Share
-        </Button>
-      </View>
-    </View>
-  );
+interface HeaderProps {
+  title: string;
+  line: string;
+  score: number;
+  locked: boolean;
 }
 
-// Monthly targets — design thresholds (like UNLOCK_AT), not fabricated
-// user data. No per-user goal-setting exists yet, so these are sane
-// generic defaults the progress bars are honestly measured against.
-const MONTHLY_WORKOUT_TARGET = 12;
-const MONTHLY_VOLUME_TARGET = 50_000; // lbs
-const STREAK_TARGET = 30; // days
-
-interface TrackerUnlockedProps {
-  workoutsCompleted: number;
-  workoutsThisMonth: number;
-  streak: number;
-  volume: number;
-  xp: number;
-  nutrition: NutritionSummary | null;
-}
-
-function TrackerUnlocked({ workoutsCompleted, workoutsThisMonth, streak, volume, xp, nutrition }: TrackerUnlockedProps) {
-  const insets = useSafeAreaInsets();
-  // CLAWW Score: real XP directly, capped at 1000 — not a separate fabricated metric.
-  const clawwScore = Math.min(1000, xp);
-  const scorePct = (clawwScore / 1000) * 100;
-
-  // Plain-text summary of exactly what's on screen — a real report, not a
-  // fabricated one, and not the full raw-data dump (that's Profile's
-  // "Download My Data"). No branded template yet, just real numbers.
-  const reportText =
-    `CLAWW Tracker Report — ${new Date().toLocaleDateString()}\n\n` +
-    `CLAWW Score: ${clawwScore} / 1000\n` +
-    `Streak: ${streak} days\n` +
-    `Workouts (all-time): ${workoutsCompleted}\n` +
-    `Workouts this month: ${workoutsThisMonth}\n` +
-    `Total volume: ${Math.round(volume).toLocaleString()} kg` +
-    (nutrition && nutrition.daysLoggedLast7 > 0
-      ? `\nAvg daily calories (last 7d): ${nutrition.avgDailyCalories}\nDays logged (last 7d): ${nutrition.daysLoggedLast7}/7`
-      : '');
-
-  const shareReport = useCallback(() => {
-    Share.share({ message: reportText, title: 'CLAWW Tracker Report' });
-  }, [reportText]);
-
-  const KPI = [
-    { label: 'CLAWW SCORE', value: String(clawwScore), sub: '/ 1000' },
-    { label: 'STREAK', value: String(streak), sub: 'days' },
-    { label: 'WORKOUTS', value: String(workoutsCompleted), sub: 'sessions' },
-    // VOLUME used to be a duplicate tile here — the dedicated card below
-    // already shows it with more context ("Total logged this all-time").
-    // This month's session count is real data that had no home anywhere
-    // in the tab before.
-    { label: 'THIS MONTH', value: String(workoutsThisMonth), sub: 'sessions' },
-  ];
-  const GOALS = [
-    { label: 'Monthly Workouts', pct: Math.min(100, Math.round((workoutsThisMonth / MONTHLY_WORKOUT_TARGET) * 100)) },
-    { label: 'Volume Target', pct: Math.min(100, Math.round((volume / MONTHLY_VOLUME_TARGET) * 100)) },
-    { label: 'Active Streak', pct: Math.min(100, Math.round((streak / STREAK_TARGET) * 100)) },
-  ];
-  const goalsCompleted = GOALS.filter((g) => g.pct >= 100).length;
-
+function Header({ title, line, score, locked }: HeaderProps) {
   return (
-    <View
-      style={{
-        paddingHorizontal: 16,
-        paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
-        gap: 14,
-      }}
-    >
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <View>
-          <Text style={{ color: GD, fontSize: 9.5, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>PERFORMANCE</Text>
-          <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
-          <Text style={{ color: GD, fontSize: 11.5, marginTop: 5, fontFamily: FONT }}>Precision data · no noise</Text>
-        </View>
-        <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: scorePct }]} trackColor="rgba(255,255,255,0.07)">
-          <Text style={{ color: W, fontSize: 16, fontWeight: '900', fontFamily: FONT }}>{clawwScore}</Text>
-          <Text style={{ color: GD, fontSize: 7.5, fontFamily: FONT }}>/1000</Text>
-        </ProgressRing>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <View style={{ flex: 1, paddingRight: 12 }}>
+        <Text style={{ color: GD, fontSize: 9.5, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>{title}</Text>
+        <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
+        <Text style={{ color: GD, fontSize: 11.5, marginTop: 5, fontFamily: FONT }}>{line}</Text>
       </View>
-
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-        {KPI.map((k) => (
-          <KpiTile key={k.label} label={k.label} value={k.value} sub={k.sub} />
-        ))}
-      </View>
-
-      <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.13)', borderRadius: 16, overflow: 'hidden' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: 14,
-            paddingVertical: 11,
-            borderBottomWidth: 1,
-            borderBottomColor: 'rgba(255,255,255,0.13)',
-            backgroundColor: '#1A1A1C',
-          }}
-        >
-          <Text style={{ color: W, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Goals</Text>
-          <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>{goalsCompleted}/{GOALS.length} completed</Text>
-        </View>
-        {GOALS.map((g, i) => (
-          <View
-            key={g.label}
-            style={{
-              paddingHorizontal: 14,
-              paddingVertical: 11,
-              borderTopWidth: i > 0 ? 1 : 0,
-              borderTopColor: 'rgba(255,255,255,0.07)',
-            }}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 7 }}>
-              <Text style={{ color: GR, fontSize: 12, fontFamily: FONT }}>{g.label}</Text>
-              <Text style={{ color: g.pct >= 75 ? WD : GR, fontSize: 20, fontWeight: '900', fontFamily: FONT }}>
-                {g.pct}
-                <Text style={{ color: GD, fontSize: 10 }}>%</Text>
-              </Text>
-            </View>
-            <ProgressBar pct={g.pct} color={g.pct >= 75 ? WD : GR} height={3} glow={false} />
-          </View>
-        ))}
-      </View>
-
-      <View
-        style={{
-          backgroundColor: '#151517',
-          borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.13)',
-          borderLeftWidth: 3,
-          borderLeftColor: W,
-          borderRadius: 12,
-          paddingHorizontal: 14,
-          paddingVertical: 12,
-        }}
-      >
-        <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>VOLUME</Text>
-        <Text style={{ color: W, fontSize: 34, fontWeight: '900', letterSpacing: -1.5, marginVertical: 6, fontFamily: FONT }}>
-          {Math.round(volume).toLocaleString()} kg
-        </Text>
-        <Text style={{ color: WD, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Total logged this all-time</Text>
-      </View>
-
-      <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.13)', borderRadius: 16, overflow: 'hidden' }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            paddingHorizontal: 14,
-            paddingVertical: 11,
-            borderBottomWidth: 1,
-            borderBottomColor: 'rgba(255,255,255,0.13)',
-            backgroundColor: '#1A1A1C',
-          }}
-        >
-          <Text style={{ color: W, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Nutrition</Text>
-          <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>last 7 days</Text>
-        </View>
-        {nutrition && nutrition.daysLoggedLast7 > 0 ? (
-          <View style={{ flexDirection: 'row' }}>
-            <View style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12, borderRightWidth: 1, borderRightColor: 'rgba(255,255,255,0.07)' }}>
-              <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>AVG DAILY CALORIES</Text>
-              <Text style={{ color: W, fontSize: 22, fontWeight: '900', marginTop: 4, fontFamily: FONT }}>{nutrition.avgDailyCalories}</Text>
-              <Text style={{ color: GD, fontSize: 10, marginTop: 2, fontFamily: FONT }}>on days you logged</Text>
-            </View>
-            <View style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 12 }}>
-              <Text style={{ color: GD, fontSize: 9, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>DAYS LOGGED</Text>
-              <Text style={{ color: W, fontSize: 22, fontWeight: '900', marginTop: 4, fontFamily: FONT }}>{nutrition.daysLoggedLast7} / 7</Text>
-              <Text style={{ color: GD, fontSize: 10, marginTop: 2, fontFamily: FONT }}>{nutrition.mealsLoggedThisMonth} this month</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={{ padding: 14 }}>
-            <Text style={{ color: GD, fontSize: 12, lineHeight: 19, fontFamily: FONT }}>
-              No meals logged in the last 7 days — log a meal on the Nutrition tab to see trends here.
-            </Text>
-          </View>
-        )}
-      </View>
-
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <Button variant="inverted" onPress={shareReport} icon={<Icon name="download" size={16} color="#000" />} style={{ flex: 2 }}>
-          Export Report
-        </Button>
-        <Button variant="ghost" onPress={shareReport} style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={GR} />}>
-          Share
-        </Button>
-      </View>
+      <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: locked ? 0 : (score / 1000) * 100 }]} trackColor="rgba(255,255,255,0.07)">
+        <Text style={{ color: W, fontSize: 16, fontWeight: '900', fontFamily: FONT }}>{score}</Text>
+        <Text style={{ color: GD, fontSize: 7.5, fontFamily: FONT }}>/1000</Text>
+      </ProgressRing>
     </View>
   );
 }
 
 export default function TrackerTab() {
   const { userId, xp, streak } = useAppState();
+  const insets = useSafeAreaInsets();
   const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
-  const [workoutsThisMonth, setWorkoutsThisMonth] = useState(0);
   const [volume, setVolume] = useState(0);
-  const [nutrition, setNutrition] = useState<NutritionSummary | null>(null);
+  const [data, setData] = useState<TrackerData>(EmptyData());
+  const [steps, setSteps] = useState<number[] | null>(null);
+  const [chart, setChart] = useState<ChartKind | null>(null);
 
-  // xp/streak come from AppState (live — see appState.tsx); the rest are
-  // tracker-specific counts refreshed each time this tab gains focus.
+  // xp/streak come from AppState (live); the rest is loaded each time this tab gains focus.
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getCompletedWorkoutDays(userId), getWorkoutsThisMonth(userId), getTotalVolume(userId), getNutritionSummary(userId)]).then(
-        ([count, monthCount, v, n]) => {
-          if (cancelled) return;
-          setWorkoutsCompleted(count);
-          setWorkoutsThisMonth(monthCount);
-          setVolume(v);
-          setNutrition(n);
-          setLoaded(true);
-        }
-      );
+      Promise.all([
+        getCompletedWorkoutDays(userId),
+        getTotalVolume(userId),
+        loadTrackerData(userId),
+        getStepsInRanges(dailyRanges(new Date(), 7)),
+      ]).then(([count, v, tracker, stepsWeek]) => {
+        if (cancelled) return;
+        setWorkoutsCompleted(count);
+        setVolume(v);
+        setData(tracker);
+        setSteps(stepsWeek);
+        setLoaded(true);
+      });
       return () => {
         cancelled = true;
       };
     }, [userId])
   );
+
+  const locked = workoutsCompleted < UNLOCK_AT;
+  const remaining = UNLOCK_AT - workoutsCompleted;
+  // CLAWW Score is capped XP (the same number Profile and Home's badge show).
+  const score = Math.min(1000, xp);
+  const level = getLevelInfo(xp);
+  const monthYear = new Date().toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toUpperCase();
+
+  const reportText = useMemo(
+    () =>
+      `CLAWW Tracker Report — ${new Date().toLocaleDateString()}\n\n` +
+      `CLAWW Score: ${score} / 1000 (Level ${level.level})\n` +
+      `Streak: ${streak} days\n` +
+      `Training days (all-time): ${workoutsCompleted}\n` +
+      `Total volume: ${Math.round(volume).toLocaleString()} kg`,
+    [score, level.level, streak, workoutsCompleted, volume]
+  );
+  const shareReport = useCallback(() => {
+    Share.share({ message: reportText, title: 'CLAWW Tracker Report' });
+  }, [reportText]);
 
   if (!loaded) {
     return (
@@ -413,21 +137,59 @@ export default function TrackerTab() {
     );
   }
 
-  const locked = workoutsCompleted < UNLOCK_AT;
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
-      {locked ? (
-        <TrackerLocked workoutsCompleted={workoutsCompleted} xp={xp} />
-      ) : (
-        <TrackerUnlocked
-          workoutsCompleted={workoutsCompleted}
-          workoutsThisMonth={workoutsThisMonth}
-          streak={streak}
-          volume={volume}
-          xp={xp}
-          nutrition={nutrition}
-        />
-      )}
-    </ScrollView>
+    <>
+      <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
+            paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+            gap: 14,
+          }}
+        >
+          <Header
+            title={locked ? `${monthYear} · BUILDING YOUR BASELINE` : `${monthYear} · PERFORMANCE`}
+            line={locked ? `${workoutsCompleted} of ${UNLOCK_AT} workout days logged` : `Level ${level.level} · ${level.xpForNextLevel - level.xpIntoLevel} XP to Level ${level.level + 1}`}
+            score={score}
+            locked={locked}
+          />
+
+          {locked ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10,
+                padding: 14,
+                borderRadius: 14,
+                backgroundColor: '#151517',
+                borderWidth: 1,
+                borderColor: 'rgba(255,255,255,0.13)',
+              }}
+            >
+              <Icon name="lock" size={16} color={AREA_COLORS.score} />
+              <Text style={{ flex: 1, color: '#D4D4D8', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
+                Unlocks after {UNLOCK_AT} workout days. {remaining} more to go. Here is a preview of what it will show.
+              </Text>
+            </View>
+          ) : null}
+
+          <View style={locked ? { opacity: 0.28 } : undefined} pointerEvents={locked ? 'none' : 'auto'} accessibilityElementsHidden={locked} importantForAccessibility={locked ? 'no-hide-descendants' : 'auto'}>
+            <TrackerBody data={data} steps={steps} stepsGoal={data.stepsGoal} onOpen={setChart} />
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Button variant={locked ? 'ghost' : 'inverted'} disabled={locked} onPress={shareReport} icon={<Icon name="download" size={16} color={locked ? GD : '#000'} />} style={{ flex: 2 }}>
+              Export Report
+            </Button>
+            <Button variant="ghost" disabled={locked} onPress={shareReport} style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={locked ? GD : '#A1A1AA'} />}>
+              Share
+            </Button>
+          </View>
+        </View>
+      </ScrollView>
+      {chart ? <TrackerChartScreen kind={chart} data={data} stepsGoal={data.stepsGoal} onClose={() => setChart(null)} /> : null}
+    </>
   );
 }
