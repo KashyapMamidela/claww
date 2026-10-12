@@ -773,6 +773,9 @@ export interface WorkoutSetInput {
   repsAchieved: number;
   weightPrescribed: number;
   weightAchieved: number;
+  /** Reps left in the tank, 0-3 (3 means 3 or more); undefined when the user didn't say. */
+  rir?: number | null;
+  sessionId?: string | null;
 }
 
 /** Last session's sets for each of these exercises (most recent calendar day each), for the player's "last time" column and weight prefill. */
@@ -832,6 +835,9 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
     reps_achieved: log.repsAchieved,
     weight_prescribed: log.weightPrescribed,
     weight_achieved: log.weightAchieved,
+    set_number: log.setNumber,
+    rir: log.rir ?? null,
+    session_id: log.sessionId ?? null,
     completed_at: new Date().toISOString(),
   });
   return true;

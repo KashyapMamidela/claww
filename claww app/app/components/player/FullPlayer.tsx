@@ -19,7 +19,7 @@ import { ValuePickerSheet, type PickerKind } from './ValuePickerSheet';
 
 const A = COLORS.blue;
 /** V2 PHASE 6.3 adds the column the reps-in-reserve chip saves to; until then the slot stays hidden. */
-const RIR_CHIP_ENABLED = false;
+const RIR_CHIP_ENABLED = true;
 const SWIPE_DISTANCE = 90;
 const SWIPE_VELOCITY = 800;
 
@@ -91,6 +91,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const [picker, setPicker] = useState<PickerTarget | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
+  const [rir, setRir] = useState<number | null>(null);
   const translateX = useSharedValue(0);
 
   const onSwipeLeft = () => {
@@ -133,13 +134,15 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
     if (!currentRow) return;
     markSetTap();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    logSet();
+    logSet(undefined, undefined, rir);
+    setRir(null);
   };
 
   const onRowCheck = (s: number) => {
     markSetTap();
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    logSet(exerciseIndex, s);
+    logSet(exerciseIndex, s, s === setIndex ? rir : null);
+    if (s === setIndex) setRir(null);
   };
 
   const pickerRow = picker ? plan[picker.exIdx]?.rows[picker.setIdx] : null;
@@ -277,10 +280,22 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                   <View style={{ gap: 6 }}>
                     <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>Reps left in the tank · optional</Text>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
-                      {['0', '1', '2', '3+'].map((v) => (
-                        <View key={v} style={{ flex: 1, height: 40, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
-                          <Text style={{ color: '#fff', fontWeight: '700', fontFamily: FONT }}>{v}</Text>
-                        </View>
+                      {['0', '1', '2', '3+'].map((v, i) => (
+                        <PressScale
+                          key={v}
+                          style={{ flex: 1 }}
+                          onPress={() => {
+                            Haptics.selectionAsync().catch(() => {});
+                            setRir((cur) => (cur === i ? null : i));
+                          }}
+                          accessibilityRole="button"
+                          accessibilityLabel={`${v} reps left in the tank`}
+                          accessibilityState={{ selected: rir === i }}
+                        >
+                          <View style={{ height: 44, borderRadius: 12, backgroundColor: rir === i ? A : 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ color: '#fff', fontWeight: '700', fontFamily: FONT }}>{v}</Text>
+                          </View>
+                        </PressScale>
                       ))}
                     </View>
                   </View>

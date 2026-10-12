@@ -14,6 +14,10 @@ export interface SetPayload {
   reps_achieved: number;
   weight_prescribed: number;
   weight_achieved: number;
+  /** V2 PHASE 6.3: set number again as its own column, reps left in the tank (0-3, 3 = 3+) and the session this set belongs to. */
+  set_number?: number;
+  rir?: number | null;
+  session_id?: string | null;
   /** When the set was actually done on the phone — kept so a late flush doesn't move it to the wrong day. */
   completed_at: string;
 }

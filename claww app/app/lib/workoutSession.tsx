@@ -4,7 +4,7 @@ import * as Haptics from 'expo-haptics';
 import { getExerciseForms, getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
-import { useSetQueueFlusher } from './setQueueRuntime';
+import { newClientId, useSetQueueFlusher } from './setQueueRuntime';
 import { refreshReminders } from './reminderSync';
 import {
   adjustRest as adjustRestClock,
@@ -84,8 +84,10 @@ interface WorkoutSessionState {
   togglePause: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
-  /** Logs a set with its row's numbers — the current one by default. Updates the UI at once; saving happens in the background. */
-  logSet: (exIdx?: number, setIdx?: number) => void;
+  /** Logs a set with its row's numbers — the current one by default. Updates the UI at once; saving happens in the background. `rir` is the optional reps-left-in-the-tank chip (0-3, 3 = 3+). */
+  logSet: (exIdx?: number, setIdx?: number, rir?: number | null) => void;
+  /** Id shared by every set of this session (V2 PHASE 6.3), or null when idle. */
+  sessionId: string | null;
   skipExercise: () => void;
   goToExercise: (exIdx: number) => void;
   previousExercise: () => void;
@@ -117,6 +119,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const planRef = useRef<ExerciseState[]>([]);
   const touched = useRef(new Set<string>());
   const sessionKey = useRef(0);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const sessionIdRef = useRef<string | null>(null);
 
   const setPlan = useCallback((next: ExerciseState[]) => {
     planRef.current = next;
@@ -169,6 +173,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       const key = ++sessionKey.current;
       const dayExercises = w.plan.days[startDayIndex]?.exercises ?? [];
       touched.current = new Set();
+      sessionIdRef.current = newClientId();
+      setSessionId(sessionIdRef.current);
       setWorkout(w);
       setDayIndex(startDayIndex);
       setExerciseIndex(0);
@@ -239,7 +245,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   );
 
   const logSet = useCallback(
-    (exIdxArg?: number, setIdxArg?: number) => {
+    (exIdxArg?: number, setIdxArg?: number, rir?: number | null) => {
       if (!userId || !workout || !today) return;
       const current = planRef.current;
       const exIdx = exIdxArg ?? exerciseIndex;
@@ -268,6 +274,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         repsAchieved: row.reps,
         weightPrescribed: row.prescribedWeight,
         weightAchieved: row.weight,
+        rir: rir ?? null,
+        sessionId: sessionIdRef.current,
       });
 
       if (isSessionComplete(next)) {
@@ -348,6 +356,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       isPaused,
       lastSummary,
       lastCompletedSet,
+      sessionId,
       startSession,
       togglePause,
       updateSetRow,
@@ -374,6 +383,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       isPaused,
       lastSummary,
       lastCompletedSet,
+      sessionId,
       startSession,
       togglePause,
       updateSetRow,
