@@ -25,7 +25,7 @@ const TOTAL_STEPS = 8;
 export default function WorkoutSetupReview() {
   const router = useRouter();
   const { userId, generatePlan, bumpXp } = useAppState();
-  const { height, weight, equipment, modalities, goal, experienceLevel, activityLevel, trainingDays, splitPreference } = useLocalSearchParams<{
+  const { height, weight, equipment, modalities, goal, experienceLevel, activityLevel, trainingDays, splitPreference, usualTrainingTime } = useLocalSearchParams<{
     height: string;
     weight: string;
     equipment: string;
@@ -35,6 +35,7 @@ export default function WorkoutSetupReview() {
     activityLevel: string;
     trainingDays: string;
     splitPreference: string;
+    usualTrainingTime: string;
   }>();
 
   const [injuries, setInjuries] = useState('');
@@ -55,6 +56,7 @@ export default function WorkoutSetupReview() {
       modalities: (modalities ?? '').split(',').filter(Boolean) as Modality[],
       activityLevel: activityLevel as ActivityLevel,
       trainingDays: (trainingDays ?? '').split(',').filter(Boolean),
+      usualTrainingTime: usualTrainingTime || undefined,
       splitPreference: (splitPreference as SplitPreference) || 'auto',
       injuries,
     });

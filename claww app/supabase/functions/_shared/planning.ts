@@ -59,3 +59,23 @@ export function groundPlanInCatalog<T extends GroundablePlan>(plan: T, available
     .filter((day) => day.exercises.length > 0);
   return { ...plan, days };
 }
+
+const WEEKDAY_ORDER = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+/**
+ * When the user picked training weekdays, the day labels come from them and
+ * not from the model (V2 PHASE 6.1): the model only orders the sessions. The
+ * i-th generated day is labelled with the i-th picked weekday, in calendar
+ * order, and extra generated days beyond the picks are dropped. If the model
+ * returned fewer days than picked, the remaining weekdays are simply not in
+ * the plan. With no picked weekdays the plan is returned untouched.
+ */
+export function applyTrainingWeekdays<T extends { days: { day: string }[] }>(plan: T, trainingDays: string[] | null | undefined): T {
+  if (!trainingDays || trainingDays.length === 0) return plan;
+  const unique = Array.from(new Set(trainingDays.map((d) => d.trim().toLowerCase()))).filter((d) => WEEKDAY_ORDER.includes(d));
+  if (unique.length === 0) return plan;
+  const ordered = unique.sort((a, b) => WEEKDAY_ORDER.indexOf(a) - WEEKDAY_ORDER.indexOf(b));
+  const label = (d: string) => d.charAt(0).toUpperCase() + d.slice(1);
+  const days = plan.days.slice(0, ordered.length).map((d, i) => ({ ...d, day: label(ordered[i]) }));
+  return { ...plan, days };
+}

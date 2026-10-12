@@ -32,8 +32,9 @@ import { WorkoutCalendar } from '../../components/WorkoutCalendar';
 import { Display } from '../../components/ui/Typography';
 import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
-import { CompletedDayCard, SkippedDayCard } from '../../components/PastDayCards';
+import { CompletedDayCard, MissedDayCard, SkippedDayCard } from '../../components/PastDayCards';
 import { computeDayStates } from '../../lib/workoutDayState';
+import { computeWeekdayStates } from '../../lib/trainingWeek';
 import { useRenderCount } from '../../lib/perf';
 import { refreshReminders } from '../../lib/reminderSync';
 
@@ -227,11 +228,9 @@ export default function WorkoutsTab() {
   const suggestedDay = getSuggestedDayIndex(workout.plan, events);
   const day = workout.plan.days[selectedDay] ?? workout.plan.days[0];
   const isSuggested = selectedDay === suggestedDay;
-  const dayStates = computeDayStates(
-    workout.plan.days.map((d) => d.day),
-    events,
-    suggestedDay
-  );
+  const dayLabels = workout.plan.days.map((d) => d.day);
+  // Plans on real weekdays get week-aware states (and Missed); "Day 1, Day 2" plans keep the old ones.
+  const dayStates = computeWeekdayStates(dayLabels, events, new Date()) ?? computeDayStates(dayLabels, events, suggestedDay);
   const selectedState = dayStates[selectedDay] ?? dayStates[0];
 
   const handleSkip = async () => {
@@ -422,7 +421,7 @@ export default function WorkoutsTab() {
                   >
                     {state === 'completed' ? (
                       <Icon name="check" size={12} color={active ? '#fff' : COLORS.green} strokeWidth={3} />
-                    ) : state === 'skipped' ? (
+                    ) : state === 'skipped' || state === 'missed' ? (
                       <Icon name="x" size={12} color={active ? '#fff' : COLORS.danger} strokeWidth={3} />
                     ) : suggested && !active ? (
                       <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} />
@@ -549,6 +548,13 @@ export default function WorkoutsTab() {
             <SkippedDayCard
               day={day}
               event={selectedState.event}
+              onDoToday={() => startSession(workout, selectedDay)}
+              onKeepToday={() => setSelectedDay(suggestedDay)}
+            />
+          ) : sessionStatus === 'idle' && selectedState.state === 'missed' && 'date' in selectedState ? (
+            <MissedDayCard
+              day={day}
+              date={(selectedState as { date: Date }).date}
               onDoToday={() => startSession(workout, selectedDay)}
               onKeepToday={() => setSelectedDay(suggestedDay)}
             />

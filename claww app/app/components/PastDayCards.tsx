@@ -161,3 +161,50 @@ export function SkippedDayCard({ day, event, onDoToday, onKeepToday }: SkippedDa
     </View>
   );
 }
+
+export interface MissedDayCardProps {
+  day: PlanDay;
+  /** The date this plan day was scheduled for (this week). */
+  date: Date;
+  onDoToday: () => void;
+  onKeepToday: () => void;
+}
+
+/** Shown instead of Begin Workout when a planned weekday passed with nothing logged. It never pretends the past day can still be begun. */
+export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCardProps) {
+  return (
+    <View
+      style={{
+        backgroundColor: '#151517',
+        borderWidth: 1,
+        borderColor: COLORS.dangerBorder,
+        borderRadius: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 14,
+        gap: 12,
+      }}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <Icon name="x" size={18} color={COLORS.danger} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: COLORS.danger, fontSize: 13.5, fontWeight: '800', fontFamily: FONT }}>Missed</Text>
+          <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>
+            {date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })}
+          </Text>
+        </View>
+      </View>
+      <Text style={{ color: '#A1A1AA', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
+        {day.focus} · {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}. Nothing was logged for this day.
+      </Text>
+      <View style={{ gap: 8 }}>
+        <Button variant="primary" accent={COLORS.blue} accentDeep={COLORS.blueDeep} fullWidth onPress={onDoToday} icon={<Icon name="play" size={14} color="#fff" />}>
+          Do {day.focus} today instead
+        </Button>
+        <Button variant="ghost" fullWidth onPress={onKeepToday}>
+          Keep today's plan
+        </Button>
+      </View>
+      <Text style={{ color: '#52525B', fontSize: 11, fontFamily: FONT }}>Either way, {day.day} stays marked as missed.</Text>
+    </View>
+  );
+}

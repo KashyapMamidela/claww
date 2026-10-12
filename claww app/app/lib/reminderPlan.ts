@@ -43,8 +43,12 @@ export function normalizeReminderSettings(raw: unknown): ReminderSettings {
 }
 
 export interface TodayState {
-  /** Any plan day completed or skipped today (local). Until real weekdays exist (V2 PHASE 6) the workout reminder runs every day and this cancels today's. */
+  /** Any plan day completed or skipped today (local); cancels today's workout reminder. */
   sessionDoneOrSkippedToday: boolean;
+  /** Weekdays the plan trains on (Monday 0 ... Sunday 6), or null for a "Day 1, Day 2" plan, where the workout reminder runs every day. */
+  trainingWeekdays?: number[] | null;
+  /** Session focus by weekday (Monday 0), so later days can name their session too. */
+  focusByWeekday?: Record<number, string>;
   /** Focus of today's suggested plan day, e.g. "Push", or null without a plan. */
   todaysSession: string | null;
   loggedMealTypes: string[];
@@ -101,8 +105,10 @@ export function planReminders(settings: ReminderSettings, today: TodayState, now
       const id = `${REMINDER_ID_PREFIX}${kind}-${dayKey(date)}`;
 
       if (kind === 'workout') {
+        const weekday = (base.getDay() + 6) % 7;
+        if (today.trainingWeekdays && !today.trainingWeekdays.includes(weekday)) continue;
         if (isToday && today.sessionDoneOrSkippedToday) continue;
-        const session = isToday ? today.todaysSession : null;
+        const session = isToday ? today.todaysSession : today.focusByWeekday?.[weekday] ?? null;
         candidates.push({
           id,
           kind,

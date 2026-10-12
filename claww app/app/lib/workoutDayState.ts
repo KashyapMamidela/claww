@@ -11,7 +11,7 @@ export interface DayEventLike {
   createdAt: string;
 }
 
-export type DayState = 'completed' | 'skipped' | 'suggested' | 'upcoming';
+export type DayState = 'completed' | 'skipped' | 'suggested' | 'upcoming' | 'missed';
 
 export interface DayStateResult<E extends DayEventLike> {
   state: DayState;

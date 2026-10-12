@@ -3,7 +3,7 @@ import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON } from '../_shared/groq.ts';
 import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
-import { deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
+import { applyTrainingWeekdays, deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
@@ -500,6 +500,8 @@ Deno.serve(async (req: Request) => {
     // Hard-enforce the computed thresholds regardless of what the model
     // returned (or whether we fell back to DEFAULT_PLAN).
     plan = clampPlanToThresholds(plan, repRange, dayCount);
+    // Real weekday labels come from the user's picks, not from the model.
+    plan = applyTrainingWeekdays(plan, trainingDays);
 
     const { data: savedWorkout, error: insertError } = await supabase
       .from('workouts')

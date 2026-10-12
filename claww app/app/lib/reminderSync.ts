@@ -10,6 +10,7 @@ import {
 import { cancelAllReminders, ensureNotificationChannels, hasNotificationPermission, notificationsSupported, scheduleReminderPlan } from './notifications';
 import { normalizeReminderSettings, planReminders, type TodayState } from './reminderPlan';
 import { registerPushToken } from './pushTokens';
+import { isWeekdayPlan, weekdayIndex } from './trainingWeek';
 
 /** Matches WaterWidget's target. */
 const WATER_TARGET_ML = 2000;
@@ -28,13 +29,24 @@ async function buildTodayState(userId: string): Promise<TodayState> {
   ]);
   let todaysSession: string | null = null;
   let sessionDoneOrSkippedToday = false;
+  let trainingWeekdays: number[] | null = null;
+  const focusByWeekday: Record<number, string> = {};
   if (workout) {
+    const labels = workout.plan.days.map((d) => d.day);
+    if (isWeekdayPlan(labels)) {
+      trainingWeekdays = labels.map((l) => weekdayIndex(l) as number);
+      workout.plan.days.forEach((d) => {
+        focusByWeekday[weekdayIndex(d.day) as number] = d.focus;
+      });
+    }
     const events = await getWorkoutDayEvents(userId, workout.id);
     todaysSession = workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus ?? null;
     sessionDoneOrSkippedToday = events.some((e) => new Date(e.createdAt).getTime() >= startOfToday.getTime());
   }
   return {
     sessionDoneOrSkippedToday,
+    trainingWeekdays,
+    focusByWeekday,
     todaysSession,
     loggedMealTypes: meals.map((m) => m.meal_type).filter((t): t is NonNullable<typeof t> => !!t),
     sleepLoggedToday: !!sleep,

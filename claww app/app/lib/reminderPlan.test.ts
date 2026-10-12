@@ -111,3 +111,25 @@ describe('normalizeReminderSettings', () => {
     expect(normalizeReminderSettings(undefined)).toEqual(DEFAULT_REMINDER_SETTINGS);
   });
 });
+
+describe('workout reminders on training weekdays (V2 PHASE 6.1)', () => {
+  // Sunday 11 Oct 2026, 07:00 local; the next 6 days are Mon 12 ... Sat 17.
+  const days = (plan: { id: string }[]) => plan.filter((p) => p.id.includes('workout')).map((p) => p.id.slice(-10));
+  it('only schedules the workout reminder on the plan weekdays', () => {
+    const plan = planReminders(allOn, { ...fresh, trainingWeekdays: [0, 2, 4], focusByWeekday: { 0: 'Push', 2: 'Pull', 4: 'Legs' } }, morning);
+    expect(days(plan)).toEqual(['2026-10-12', '2026-10-14', '2026-10-16']);
+  });
+  it('names the session for later days from the plan', () => {
+    const plan = planReminders(allOn, { ...fresh, trainingWeekdays: [0, 2], focusByWeekday: { 0: 'Push', 2: 'Pull' } }, morning);
+    const monday = plan.find((p) => p.id.endsWith('workout-2026-10-12'));
+    expect(monday?.title).toBe('Push day');
+  });
+  it('a plan without weekdays still reminds every day', () => {
+    const plan = planReminders(allOn, { ...fresh, trainingWeekdays: null }, morning);
+    expect(days(plan).length).toBeGreaterThanOrEqual(6);
+  });
+  it("today's reminder is dropped on a rest day", () => {
+    const plan = planReminders(allOn, { ...fresh, trainingWeekdays: [0] }, morning); // today is Sunday
+    expect(days(plan)).not.toContain('2026-10-11');
+  });
+});

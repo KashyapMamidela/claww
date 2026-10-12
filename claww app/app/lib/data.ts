@@ -1,4 +1,5 @@
 import type { FoodProfile } from './foodProfile';
+import { suggestedWeekdayIndex } from './trainingWeek';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
@@ -33,6 +34,8 @@ export interface WorkoutDefaults {
    * real weekday instead of a generic "Day 1". Empty/absent falls back to
    * the old activity-based estimate untouched. */
   trainingDays?: string[];
+  /** Usual time of day the user trains, "HH:MM" 24-hour (V2 PHASE 6.1); optional. */
+  usualTrainingTime?: string;
   /** 'auto' lets the LLM choose within its existing judgment, same as
    * before this existed — the other values are a hard constraint passed
    * into the prompt, not another exercise-picking `suggestion`. */
@@ -187,6 +190,7 @@ export interface WorkoutIntakeInput {
   activityLevel: ActivityLevel;
   injuries?: string;
   trainingDays?: string[];
+  usualTrainingTime?: string;
   splitPreference?: SplitPreference;
 }
 
@@ -207,6 +211,7 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
       activityLevel: input.activityLevel,
       injuries: input.injuries?.trim() || undefined,
       trainingDays: input.trainingDays?.length ? input.trainingDays : undefined,
+      usualTrainingTime: input.usualTrainingTime || undefined,
       splitPreference: input.splitPreference,
     },
   };
@@ -1257,7 +1262,10 @@ export async function getWorkoutDayEventsInRange(userId: string, startDate: stri
  * days are exhausted (a split repeats indefinitely, it doesn't "run out").
  * No events yet for this plan -> suggest day 0.
  */
-export function getSuggestedDayIndex(plan: WorkoutPlan, recentEventsDesc: WorkoutDayEvent[]): number {
+export function getSuggestedDayIndex(plan: WorkoutPlan, recentEventsDesc: WorkoutDayEvent[], now: Date = new Date()): number {
+  // A plan on real weekdays suggests today's day, or the next planned one (V2 PHASE 6.1).
+  const byWeekday = suggestedWeekdayIndex(plan.days.map((d) => d.day), now);
+  if (byWeekday !== null) return byWeekday;
   if (recentEventsDesc.length === 0 || plan.days.length === 0) return 0;
   const mostRecent = recentEventsDesc[0];
   const lastIndex = plan.days.findIndex((d) => d.day === mostRecent.dayLabel);

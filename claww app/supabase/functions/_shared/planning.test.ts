@@ -103,3 +103,24 @@ describe('groundPlanInCatalog', () => {
     expect(grounded.days).toHaveLength(0);
   });
 });
+
+import { applyTrainingWeekdays } from './planning';
+
+describe('applyTrainingWeekdays', () => {
+  const plan = { days: [{ day: 'Day 1 - Push' }, { day: 'Pull' }, { day: 'monday legs' }] };
+  it('labels the generated days with the picked weekdays in calendar order', () => {
+    expect(applyTrainingWeekdays(plan, ['Friday', 'monday', 'Wednesday']).days.map((d) => d.day)).toEqual(['Monday', 'Wednesday', 'Friday']);
+  });
+  it('drops generated days beyond the picks', () => {
+    expect(applyTrainingWeekdays(plan, ['Tuesday', 'Thursday']).days.map((d) => d.day)).toEqual(['Tuesday', 'Thursday']);
+  });
+  it('keeps fewer generated days than picks without inventing any', () => {
+    expect(applyTrainingWeekdays({ days: [{ day: 'x' }] }, ['Monday', 'Tuesday']).days).toEqual([{ day: 'Monday' }]);
+  });
+  it('ignores unknown names and repeats, and leaves the plan alone without picks', () => {
+    expect(applyTrainingWeekdays(plan, ['Funday', 'Monday', 'monday']).days.map((d) => d.day)).toEqual(['Monday']);
+    expect(applyTrainingWeekdays(plan, null)).toBe(plan);
+    expect(applyTrainingWeekdays(plan, [])).toBe(plan);
+    expect(applyTrainingWeekdays(plan, ['Funday'])).toBe(plan);
+  });
+});
