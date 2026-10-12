@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { COLORS, FONT } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT } from '../../lib/theme';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { currentSetIndex, isExerciseComplete, lastFor, nextExerciseWithWork } from '../../lib/sessionPlan';
 import { markSetTap, useRenderCount, useSetLatency } from '../../lib/perf';
@@ -85,6 +85,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
     goToExercise,
     previousExercise,
     endSession,
+    prescriptionFor,
   } = useWorkoutSession();
   useSetLatency(`${exerciseIndex}:${setIndex}`);
 
@@ -181,8 +182,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
               <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 24, gap: 14 }}>
                 <View>
                   <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>{exercise.name}</Text>
-                  {reason ? (
-                    <Text style={{ color: A, fontSize: 12.5, fontWeight: '600', marginTop: 4, fontFamily: FONT }}>{reason}</Text>
+                  {reason || prescriptionFor(exercise.name)?.reason ? (
+                    <Text style={{ color: AREA_COLORS.engine, fontSize: 12.5, fontWeight: '600', marginTop: 4, fontFamily: FONT }}>{reason || prescriptionFor(exercise.name)?.reason}</Text>
                   ) : null}
                 </View>
 

@@ -3,10 +3,10 @@
 // the model never computes a number here, and every sentence in `reason` is
 // built from the numbers.
 //
+// Imports nothing, so it runs in Deno, Node and the app's Metro bundle alike.
+//
 // Decisions D1-D16 from the change plan are the defaults. Every threshold
 // lives in ADAPTIVE_CONFIG so a decision can be changed in one place.
-
-import { deriveAllowedEquipment } from './planning.ts';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Config
@@ -614,10 +614,10 @@ export interface ExerciseDecision {
 export function decideExercise(
   current: ExerciseForSwap,
   catalog: CatalogCandidate[],
-  ctx: { equipmentTier: string | null | undefined; triggers?: SwapTrigger[]; stagnantSessions?: number; atTopOfBodyweightRange?: boolean; avoid?: string[] },
+  ctx: { allowedEquipment: string[]; triggers?: SwapTrigger[]; stagnantSessions?: number; atTopOfBodyweightRange?: boolean; avoid?: string[] },
   cfg: AdaptiveConfig = ADAPTIVE_CONFIG
 ): ExerciseDecision {
-  const allowed = deriveAllowedEquipment(ctx.equipmentTier);
+  const allowed = ctx.allowedEquipment;
   const avoid = new Set((ctx.avoid ?? []).map((n) => n.toLowerCase()));
   const triggers = ctx.triggers ?? [];
   if (!allowed.includes(current.equipment) && !triggers.includes('missing_equipment')) triggers.push('missing_equipment');

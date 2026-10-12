@@ -37,6 +37,11 @@ import { computeDayStates } from '../../lib/workoutDayState';
 import { computeWeekdayStates } from '../../lib/trainingWeek';
 import { useRenderCount } from '../../lib/perf';
 import { refreshReminders } from '../../lib/reminderSync';
+import { SessionStartFlow } from '../../components/SessionStartFlow';
+import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
+import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
+import { computeRepRange, startingPrescription } from '../../lib/engine';
+import { newStateFor } from '../../lib/sessionPrescription';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -130,6 +135,8 @@ export default function WorkoutsTab() {
   const [events, setEvents] = useState<WorkoutDayEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
+  const [flowOpen, setFlowOpen] = useState(false);
+  const [recoveryHints, setRecoveryHints] = useState<Record<string, string>>({});
   const [skipping, setSkipping] = useState(false);
   const [showRegenCard, setShowRegenCard] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
@@ -138,6 +145,28 @@ export default function WorkoutsTab() {
   const [todayStats, setTodayStats] = useState<TodayWorkoutStats | null>(null);
   const [equipment, setEquipment] = useState<Equipment>('gym');
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Hints for the exercise picker: muscles that are Low or Very low today.
+  useEffect(() => {
+    if (!pickerOpen || !userId) return;
+    let cancelled = false;
+    (async () => {
+      const sets = await getRecentLoggedSets(userId);
+      const catalog = await getCatalog(Array.from(new Set(sets.map((x) => x.exerciseName))));
+      const scores = muscleScores(MAJOR_MUSCLES, sets, catalog, new Date());
+      const hints: Record<string, string> = {};
+      for (const m of MAJOR_MUSCLES) {
+        const sc = scores[m];
+        if (sc?.score !== null && sc?.score !== undefined && (sc.band === 'Low' || sc.band === 'Very low')) {
+          hints[m] = `${m.charAt(0).toUpperCase()}${m.slice(1)} is ${sc.band.toLowerCase()} today (${sc.score})`;
+        }
+      }
+      if (!cancelled) setRecoveryHints(hints);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pickerOpen, userId]);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
 
   useFocusEffect(
@@ -263,14 +292,32 @@ export default function WorkoutsTab() {
     setRegenerating(false);
   };
 
+  // V2 PHASE 7.4: a manually added exercise gets the same computed range and sets the
+  // plan's own exercises get (by its role), not a fixed 3 x 10, and an engine row whose
+  // first session is a calibration session.
   const handleAddExercise = async (exercise: CatalogExercise) => {
     setPickerOpen(false);
+    let sets = 3;
+    let reps = 10;
+    let created: { exerciseId: string; state: ReturnType<typeof newStateFor> } | null = null;
+    if (userId) {
+      const [catalog, profile] = await Promise.all([getCatalog([exercise.name]), getProfile(userId)]);
+      const entry = catalog[catalogKey(exercise.name)];
+      if (entry && entry.modality === 'strength' && entry.primaryMuscle) {
+        const range = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
+        const start = startingPrescription(range, entry.role);
+        sets = start.sets;
+        reps = start.startReps;
+        created = { exerciseId: exercise.id, state: newStateFor({ name: exercise.name, sets, reps }, entry, range, null) };
+      }
+    }
     const ok = await addExerciseToDay(workout.id, selectedDay, {
       exerciseId: exercise.id,
       name: exercise.name,
-      sets: 3,
-      reps: 10,
+      sets,
+      reps,
     });
+    if (ok && created && userId) saveExerciseProgress(userId, exercise.name, created.exerciseId, created.state).catch(() => {});
     if (ok) {
       const refreshed = await getLatestWorkout(userId!);
       if (refreshed) setWorkout(refreshed);
@@ -548,14 +595,14 @@ export default function WorkoutsTab() {
             <SkippedDayCard
               day={day}
               event={selectedState.event}
-              onDoToday={() => startSession(workout, selectedDay)}
+              onDoToday={() => setFlowOpen(true)}
               onKeepToday={() => setSelectedDay(suggestedDay)}
             />
           ) : sessionStatus === 'idle' && selectedState.state === 'missed' && 'date' in selectedState ? (
             <MissedDayCard
               day={day}
               date={(selectedState as { date: Date }).date}
-              onDoToday={() => startSession(workout, selectedDay)}
+              onDoToday={() => setFlowOpen(true)}
               onKeepToday={() => setSelectedDay(suggestedDay)}
             />
           ) : sessionStatus === 'idle' ? (
@@ -566,7 +613,7 @@ export default function WorkoutsTab() {
                 accentDeep={A3}
                 size="lg"
                 fullWidth
-                onPress={() => startSession(workout, selectedDay)}
+                onPress={() => setFlowOpen(true)}
                 icon={<Icon name="play" size={14} color="#fff" />}
               >
                 Begin Workout
@@ -618,7 +665,18 @@ export default function WorkoutsTab() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      <ExercisePickerModal visible={pickerOpen} equipment={equipment} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      <SessionStartFlow
+        visible={flowOpen}
+        userId={userId}
+        workout={workout}
+        dayIndex={selectedDay}
+        onClose={() => setFlowOpen(false)}
+        onBegin={(start) => {
+          setFlowOpen(false);
+          startSession(start ? start.workout : workout, selectedDay, start ? { sessionId: start.sessionId, prescribed: start.prescribed } : undefined);
+        }}
+      />
       <LogSessionModal
         visible={sessionModalOpen}
         equipment={equipment}

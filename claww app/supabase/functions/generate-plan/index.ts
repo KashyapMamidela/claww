@@ -3,7 +3,7 @@ import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON } from '../_shared/groq.ts';
 import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore } from '../_shared/recovery.ts';
-import { applyTrainingWeekdays, deriveAllowedEquipment, groundPlanInCatalog } from '../_shared/planning.ts';
+import { EXPERIENCE_MAX_SETS, applyTrainingWeekdays, computeRepRange, deriveAllowedEquipment, groundPlanInCatalog, type RepRange } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
@@ -21,26 +21,6 @@ const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
 // instead of exercise names.
 // ─────────────────────────────────────────────────────────────────────────
 
-interface RepRange {
-  minSets: number;
-  maxSets: number;
-  minReps: number;
-  maxReps: number;
-}
-
-// Standard hypertrophy/strength/endurance rep-range conventions per goal.
-const GOAL_REP_RANGES: Record<string, RepRange> = {
-  muscle_gain: { minSets: 3, maxSets: 5, minReps: 6, maxReps: 12 },
-  fat_loss: { minSets: 2, maxSets: 4, minReps: 12, maxReps: 20 },
-  endurance: { minSets: 2, maxSets: 3, minReps: 15, maxReps: 25 },
-  maintenance: { minSets: 2, maxSets: 4, minReps: 8, maxReps: 15 },
-  flexibility: { minSets: 1, maxSets: 3, minReps: 20, maxReps: 60 },
-};
-
-// A beginner shouldn't be programmed the same volume as an advanced lifter
-// even for the same goal — this caps sets regardless of what the goal range allows.
-const EXPERIENCE_MAX_SETS: Record<string, number> = { beginner: 3, intermediate: 4, advanced: 5 };
-
 // experience x activity -> base training days/week. Matches how a trainer
 // would scope a starting frequency before knowing anything else about the client.
 const FREQUENCY_TABLE: Record<string, Record<string, number>> = {
@@ -48,27 +28,6 @@ const FREQUENCY_TABLE: Record<string, Record<string, number>> = {
   intermediate: { sedentary: 3, moderate: 4, active: 4 },
   advanced: { sedentary: 3, moderate: 4, active: 5 },
 };
-
-function computeRepRange(goal: string | null, experienceLevel: string | null, age: number | null): RepRange {
-  const base = GOAL_REP_RANGES[goal ?? ''] ?? GOAL_REP_RANGES.maintenance;
-  const experienceCap = EXPERIENCE_MAX_SETS[experienceLevel ?? ''] ?? EXPERIENCE_MAX_SETS.intermediate;
-  let maxSets = Math.min(base.maxSets, experienceCap);
-  let minReps = base.minReps;
-
-  // Older adults: bias away from heavy near-maximal low-rep work and cap
-  // volume further, even if their goal/experience would otherwise allow more.
-  if (age !== null) {
-    if (age >= 65) {
-      maxSets = Math.min(maxSets, 3);
-      minReps = Math.max(minReps, 10);
-    } else if (age >= 50) {
-      maxSets = Math.min(maxSets, 4);
-      minReps = Math.max(minReps, 8);
-    }
-  }
-
-  return { minSets: Math.min(base.minSets, maxSets), maxSets, minReps, maxReps: Math.max(base.maxReps, minReps) };
-}
 
 /**
  * Deterministic recovery -> volume link (item #13: "once sleep is logged,

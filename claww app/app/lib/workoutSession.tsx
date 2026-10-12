@@ -5,6 +5,8 @@ import { getExerciseForms, getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, t
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
 import { newClientId, useSetQueueFlusher } from './setQueueRuntime';
+import { saveSessionOutcomes } from './adaptiveData';
+import { commandPill, localDateKey, reasonLine, sessionOutcomes, type PrescribedExercise } from './sessionPrescription';
 import { refreshReminders } from './reminderSync';
 import {
   adjustRest as adjustRestClock,
@@ -80,7 +82,10 @@ interface WorkoutSessionState {
   lastSummary: SessionSummary | null;
   /** The set that was just logged — shown on the rest screen. */
   lastCompletedSet: LastCompletedSet | null;
-  startSession: (workout: WorkoutRow, dayIndex?: number) => void;
+  /** `rx` carries the engine's prescriptions for the day (V2 PHASE 7); without it the plan's own numbers are used. */
+  startSession: (workout: WorkoutRow, dayIndex?: number, rx?: { sessionId: string; prescribed: PrescribedExercise[] }) => void;
+  /** Today's prescription for an exercise, when the engine made one. */
+  prescriptionFor: (exerciseName: string) => { reason: string; pill: string } | null;
   togglePause: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
@@ -121,6 +126,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const sessionKey = useRef(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
+  const prescribedRef = useRef<PrescribedExercise[]>([]);
+  const [prescribed, setPrescribed] = useState<PrescribedExercise[]>([]);
 
   const setPlan = useCallback((next: ExerciseState[]) => {
     planRef.current = next;
@@ -169,16 +176,25 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   }, []);
 
   const startSession = useCallback(
-    (w: WorkoutRow, startDayIndex = 0) => {
+    (w: WorkoutRow, startDayIndex = 0, rx?: { sessionId: string; prescribed: PrescribedExercise[] }) => {
       const key = ++sessionKey.current;
       const dayExercises = w.plan.days[startDayIndex]?.exercises ?? [];
       touched.current = new Set();
-      sessionIdRef.current = newClientId();
+      sessionIdRef.current = rx?.sessionId ?? newClientId();
       setSessionId(sessionIdRef.current);
+      prescribedRef.current = rx?.prescribed ?? [];
+      setPrescribed(prescribedRef.current);
       setWorkout(w);
       setDayIndex(startDayIndex);
       setExerciseIndex(0);
-      setPlan(buildInitialState(dayExercises, {}));
+      const initial = buildInitialState(dayExercises, {});
+      // Rows start at the engine's weight where it set one, and the last-time prefill below leaves them alone.
+      prescribedRef.current.forEach((p) => {
+        const e = dayExercises.findIndex((x) => x.name === p.name);
+        if (e === -1 || !p.managed || p.prescription.weightKg === null) return;
+        initial[e] = { ...initial[e], rows: initial[e].rows.map((r, s) => { touched.current.add(`${e}:${s}`); return { ...r, weight: p.prescription.weightKg as number, prescribedWeight: p.prescription.weightKg as number }; }) };
+      });
+      setPlan(initial);
       setLastTime({});
       setLastTimeLoaded(false);
       setForms({});
@@ -230,6 +246,15 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
           refreshReminders(userId).catch(() => {}); // drops today's workout reminder
         });
       }
+      // V2 PHASE 7.3: the performance step for each exercise, saved as next session's starting point.
+      if (userId && sessionIdRef.current && prescribedRef.current.length > 0) {
+        const rowsByName: Record<string, { reps: number; weight: number; done: boolean }[]> = {};
+        (workout?.plan.days[dayIndex]?.exercises ?? []).forEach((ex, i) => {
+          rowsByName[ex.name] = finalPlan[i]?.rows ?? [];
+        });
+        const outcomes = sessionOutcomes(prescribedRef.current, rowsByName, localDateKey(new Date()));
+        saveSessionOutcomes(userId, sessionIdRef.current, outcomes).catch(() => {});
+      }
       const totals = sessionTotals(finalPlan);
       setLastSummary({
         ...totals,
@@ -241,7 +266,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       setClock((c) => (c ? endRest(c) : c));
       setStatus('completed');
     },
-    [userId, workout, today, clock]
+    [userId, workout, dayIndex, today, clock]
   );
 
   const logSet = useCallback(
@@ -340,6 +365,15 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     setClock(null);
   }, [setPlan]);
 
+  const prescriptionFor = useCallback(
+    (exerciseName: string) => {
+      const p = prescribed.find((x) => x.name === exerciseName);
+      if (!p || !p.managed) return null;
+      return { reason: reasonLine(p), pill: commandPill(p.prescription.commands).label };
+    },
+    [prescribed]
+  );
+
   const value = useMemo<WorkoutSessionState>(
     () => ({
       status,
@@ -358,6 +392,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       lastCompletedSet,
       sessionId,
       startSession,
+      prescriptionFor,
       togglePause,
       updateSetRow,
       logSet,
@@ -385,6 +420,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       lastCompletedSet,
       sessionId,
       startSession,
+      prescriptionFor,
       togglePause,
       updateSetRow,
       logSet,

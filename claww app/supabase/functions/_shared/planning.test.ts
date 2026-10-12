@@ -124,3 +124,42 @@ describe('applyTrainingWeekdays', () => {
     expect(applyTrainingWeekdays(plan, ['Funday'])).toBe(plan);
   });
 });
+
+import { computeRepRange, startingPrescription } from './planning';
+
+describe('computeRepRange', () => {
+  it('uses the goal range, capped by experience', () => {
+    expect(computeRepRange('muscle_gain', 'advanced', 30)).toEqual({ minSets: 3, maxSets: 5, minReps: 6, maxReps: 12 });
+    expect(computeRepRange('muscle_gain', 'beginner', 30).maxSets).toBe(3);
+  });
+  it('falls back to maintenance for an unknown goal', () => {
+    expect(computeRepRange(null, null, null)).toEqual({ minSets: 2, maxSets: 4, minReps: 8, maxReps: 15 });
+  });
+  it('moves older adults away from heavy low-rep work', () => {
+    const r = computeRepRange('muscle_gain', 'advanced', 66);
+    expect(r.maxSets).toBe(3);
+    expect(r.minReps).toBe(10);
+  });
+});
+
+describe('startingPrescription', () => {
+  const gain = computeRepRange('muscle_gain', 'intermediate', 30); // 6-12 reps, 3-4 sets
+  it('gives a main lift the lower part of the range and starts mid-range', () => {
+    expect(startingPrescription(gain, 'main')).toEqual({ repMin: 6, repMax: 10, sets: 3, startReps: 8 });
+  });
+  it('gives an accessory the upper part of the range', () => {
+    expect(startingPrescription(gain, 'accessory')).toEqual({ repMin: 8, repMax: 12, sets: 3, startReps: 10 });
+  });
+  it('uses the whole range when the role is unknown', () => {
+    expect(startingPrescription(gain, null)).toEqual({ repMin: 6, repMax: 12, sets: 3, startReps: 9 });
+  });
+  it('keeps sets inside the goal range', () => {
+    expect(startingPrescription(computeRepRange('flexibility', 'beginner', 30), 'main').sets).toBeLessThanOrEqual(3);
+    expect(startingPrescription(computeRepRange('fat_loss', 'beginner', 30), 'main').sets).toBe(3);
+    expect(startingPrescription({ minSets: 1, maxSets: 2, minReps: 10, maxReps: 12 }, 'main').sets).toBe(2);
+  });
+  it('never returns an inverted range', () => {
+    const r = startingPrescription({ minSets: 1, maxSets: 3, minReps: 20, maxReps: 20 }, 'accessory');
+    expect(r.repMax).toBeGreaterThanOrEqual(r.repMin);
+  });
+});

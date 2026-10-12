@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT } from '../lib/theme';
 import { getDaySessionLogs, type PlanDay, type WorkoutDayEvent } from '../lib/data';
 import { summarizeSession, type LoggedSetRow } from '../lib/workoutDayState';
+import { getNextTimeDecisions, type NextTimeDecision } from '../lib/adaptiveData';
+import { commandPill } from '../lib/sessionPrescription';
 import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
 import { Skeleton } from './ui/Skeleton';
@@ -29,6 +31,22 @@ export interface CompletedDayCardProps {
 export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) {
   const [rows, setRows] = useState<LoggedSetRow[] | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [decisions, setDecisions] = useState<NextTimeDecision[]>([]);
+
+  // V2 PHASE 7.3: what the engine decided for next time, saved when this session ended.
+  useEffect(() => {
+    let cancelled = false;
+    const from = new Date(event.createdAt);
+    from.setHours(0, 0, 0, 0);
+    const to = new Date(from);
+    to.setDate(to.getDate() + 1);
+    getNextTimeDecisions(userId, from.toISOString(), to.toISOString(), day.exercises.map((ex) => ex.name)).then((d) => {
+      if (!cancelled) setDecisions(d);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, event.createdAt, day]);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,6 +125,21 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
               ))}
             </View>
           )}
+
+          {decisions.length > 0 ? (
+            <View style={{ gap: 8, padding: 12, borderRadius: 12, backgroundColor: 'rgba(168,85,247,0.08)' }}>
+              <Text style={{ color: AREA_COLORS.engine, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>WHAT CHANGED FOR NEXT TIME</Text>
+              {decisions.map((d) => (
+                <View key={d.exerciseName} style={{ gap: 2 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
+                    <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{d.exerciseName}</Text>
+                    <Text style={{ color: AREA_COLORS.engine, fontSize: 11, fontWeight: '800', fontFamily: FONT }}>{commandPill(d.commands).label.toUpperCase()}</Text>
+                  </View>
+                  <Text style={{ color: '#A1A1AA', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>{d.reason}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
 
           <Button variant="ghost" fullWidth onPress={() => setDetailOpen(true)} icon={<Icon name="layout-grid" size={14} color="#A1A1AA" />}>
             View full session

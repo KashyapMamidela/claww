@@ -421,6 +421,10 @@ describe('worked example: bench press over five sessions (plan section 13)', () 
   });
 });
 
+const NONE = ['none'];
+const HOME = ['none', 'home'];
+const GYM = ['none', 'home', 'gym'];
+
 describe('exercise intelligence', () => {
   const current = { name: 'Bench Press', primaryMuscle: 'chest', movementPattern: 'horizontal_push', role: 'main', equipment: 'gym' };
   const catalog = [
@@ -432,37 +436,37 @@ describe('exercise intelligence', () => {
     { name: 'Chest Fly', primaryMuscle: 'chest', movementPattern: 'fly', role: 'accessory', equipment: 'gym' },
   ];
   it('keeps an exercise with no trigger', () => {
-    expect(decideExercise(current, catalog, { equipmentTier: 'gym' }).action).toBe('KEEP');
+    expect(decideExercise(current, catalog, { allowedEquipment: GYM }).action).toBe('KEEP');
   });
   it('replaces on a hard trigger with the same muscle, pattern, role and allowed equipment', () => {
-    const d = decideExercise(current, catalog, { equipmentTier: 'gym', triggers: ['discomfort'] });
+    const d = decideExercise(current, catalog, { allowedEquipment: GYM, triggers: ['discomfort'] });
     expect(d.action).toBe('REPLACE');
     expect(d.replacement).toBe('Incline Bench Press'); // same equipment preferred, never Diamond Push-Up (wrong muscle/role) or Chest Fly (wrong pattern)
   });
   it('replaces when the equipment is not available, using only allowed equipment', () => {
-    const d = decideExercise(current, catalog, { equipmentTier: 'home' });
+    const d = decideExercise(current, catalog, { allowedEquipment: HOME });
     expect(d.action).toBe('REPLACE');
     expect(d.replacement).toBe('Dumbbell Chest Press');
-    const none = decideExercise(current, catalog, { equipmentTier: 'none' });
+    const none = decideExercise(current, catalog, { allowedEquipment: NONE });
     expect(none.replacement).toBe('Push-Up');
   });
   it('keeps the exercise when no like-for-like replacement fits', () => {
-    const d = decideExercise(current, [current], { equipmentTier: 'gym', triggers: ['dislike'] });
+    const d = decideExercise(current, [current], { allowedEquipment: GYM, triggers: ['dislike'] });
     expect(d.action).toBe('KEEP');
     expect(d.replacement).toBeNull();
   });
   it('respects the avoid list', () => {
-    const d = decideExercise(current, catalog, { equipmentTier: 'gym', triggers: ['cant_do'], avoid: ['Incline Bench Press'] });
+    const d = decideExercise(current, catalog, { allowedEquipment: GYM, triggers: ['cant_do'], avoid: ['Incline Bench Press'] });
     expect(d.replacement).toBe('Dumbbell Chest Press');
   });
   it('a plateau only suggests a swap', () => {
-    const d = decideExercise(current, catalog, { equipmentTier: 'gym', stagnantSessions: ADAPTIVE_CONFIG.plateauSessions });
+    const d = decideExercise(current, catalog, { allowedEquipment: GYM, stagnantSessions: ADAPTIVE_CONFIG.plateauSessions });
     expect(d.action).toBe('SUGGEST');
-    expect(decideExercise(current, catalog, { equipmentTier: 'gym', stagnantSessions: ADAPTIVE_CONFIG.plateauSessions - 1 }).action).toBe('KEEP');
+    expect(decideExercise(current, catalog, { allowedEquipment: GYM, stagnantSessions: ADAPTIVE_CONFIG.plateauSessions - 1 }).action).toBe('KEEP');
   });
   it('suggests the harder variation for a maxed-out bodyweight exercise', () => {
     const pushUp = { name: 'Push-Up', primaryMuscle: 'chest', movementPattern: 'horizontal_push', role: 'main', equipment: 'none', hasHarderVariation: true };
-    const d = decideExercise(pushUp, catalog, { equipmentTier: 'none', atTopOfBodyweightRange: true });
+    const d = decideExercise(pushUp, catalog, { allowedEquipment: NONE, atTopOfBodyweightRange: true });
     expect(d.action).toBe('SUGGEST');
     expect(d.replacement).toBeNull();
   });

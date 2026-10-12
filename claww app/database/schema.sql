@@ -655,6 +655,10 @@ CREATE TABLE IF NOT EXISTS prescription_decisions (
   created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS prescription_decisions_user_idx ON prescription_decisions (user_id, created_at DESC);
+-- 'prescribed' = what the engine set for the session; 'result' = what it decided for next time once the session ended.
+ALTER TABLE prescription_decisions ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'prescribed';
+ALTER TABLE prescription_decisions DROP CONSTRAINT IF EXISTS prescription_decisions_phase_check;
+ALTER TABLE prescription_decisions ADD CONSTRAINT prescription_decisions_phase_check CHECK (phase IN ('prescribed', 'result'));
 
 ALTER TABLE exercise_progress       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE muscle_checkins         ENABLE ROW LEVEL SECURITY;
