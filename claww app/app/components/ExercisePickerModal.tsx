@@ -5,6 +5,7 @@ import { Icon } from './ui/Icon';
 import { searchExercises, type CatalogExercise, type Equipment, type Modality } from '../lib/data';
 import { getCatalog } from '../lib/adaptiveData';
 import { catalogKey } from '../lib/muscleRecovery';
+import { ExerciseGuideSheet } from './ExerciseGuideSheet';
 
 export interface ExercisePickerModalProps {
   visible: boolean;
@@ -29,6 +30,7 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
   const [results, setResults] = useState<CatalogExercise[]>([]);
   const [loading, setLoading] = useState(false);
   const [hintByName, setHintByName] = useState<Record<string, string>>({});
+  const [guideName, setGuideName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!visible || !recoveryHints || Object.keys(recoveryHints).length === 0 || results.length === 0) {
@@ -143,13 +145,25 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
                       <Text style={{ color: AREA_COLORS.recovery, fontSize: 11, marginTop: 2, fontFamily: FONT }}>{hintByName[item.id]}</Text>
                     ) : null}
                   </View>
-                  <Icon name="plus" size={18} color="#71717A" />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <TouchableOpacity
+                      onPress={() => setGuideName(item.name)}
+                      hitSlop={10}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${item.name}: how to do it`}
+                      style={{ padding: 6 }}
+                    >
+                      <Icon name="info" size={17} color="#71717A" />
+                    </TouchableOpacity>
+                    <Icon name="plus" size={18} color="#71717A" />
+                  </View>
                 </TouchableOpacity>
               )}
             />
           )}
         </View>
       </View>
+      {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
     </Modal>
   );
 }

@@ -1,0 +1,458 @@
+{
+  "Push-Up": {
+    "steps": [
+      "Hands just wider than your shoulders, body in one straight line from head to heels, core and glutes tight.",
+      "Lower your chest toward the floor with elbows about 45 degrees from your body, not flared out.",
+      "Press the floor away until your arms are straight, keeping your hips level the whole way."
+    ],
+    "mistake": "Letting the hips sag or pike up, so the chest and core stop doing the work."
+  },
+  "Incline Push-Up": {
+    "steps": [
+      "Hands on a bench or sturdy surface, a little wider than your shoulders, body in a straight line.",
+      "Lower your chest to the edge with elbows about 45 degrees from your body.",
+      "Press back up until your arms are straight without letting the hips drop."
+    ],
+    "mistake": "Setting the hands too high and cutting the range short, so the chest never gets a full stretch."
+  },
+  "Decline Push-Up": {
+    "steps": [
+      "Feet on a bench, hands on the floor just wider than your shoulders, body in a straight line.",
+      "Lower your chest toward the floor with elbows about 45 degrees from your body.",
+      "Press up and slightly back toward your feet until your arms lock out, keeping your core tight."
+    ],
+    "mistake": "Dropping the head forward and piking the hips, which turns the move into a shoulder press."
+  },
+  "Diamond Push-Up": {
+    "steps": [
+      "Hands under your chest with thumbs and index fingers touching to make a diamond, body in a straight line.",
+      "Lower your chest toward your hands while keeping your elbows close to your ribs.",
+      "Press up until your arms are straight, squeezing your triceps at the top."
+    ],
+    "mistake": "Letting the elbows flare wide, which takes the work off the triceps and strains the wrists."
+  },
+  "Pike Push-Up": {
+    "steps": [
+      "From a downward-dog shape with hips high, hands shoulder-width apart and legs nearly straight.",
+      "Bend your elbows and lower the top of your head toward the floor between your hands.",
+      "Press back up through your shoulders to the starting shape."
+    ],
+    "mistake": "Walking the feet in so far that the move becomes a regular push-up with no shoulder load."
+  },
+  "Bodyweight Squat": {
+    "steps": [
+      "Feet shoulder-width apart, toes turned slightly out, chest tall.",
+      "Sit your hips back and down until your thighs are at least parallel, knees tracking over your toes.",
+      "Drive through your whole foot to stand up, squeezing your glutes at the top."
+    ],
+    "mistake": "Letting the knees cave inward or the heels lift as you come out of the bottom."
+  },
+  "Jump Squat": {
+    "steps": [
+      "Start in a squat stance, chest tall, arms ready to swing.",
+      "Sit back into a quarter to half squat, then explode straight up off the floor.",
+      "Land softly on the middle of your feet, bend your knees to absorb it and go straight into the next rep."
+    ],
+    "mistake": "Landing stiff-legged or with the knees caving in, which sends the impact into the joints."
+  },
+  "Wall Sit": {
+    "steps": [
+      "Lean your back flat against a wall and walk your feet out until your knees are over your ankles.",
+      "Slide down until your thighs are parallel to the floor, with your lower back and shoulders against the wall.",
+      "Hold the position, breathing steadily, with your weight through your heels."
+    ],
+    "mistake": "Resting your hands on your thighs, which takes load off the legs, or sitting too high to feel it."
+  },
+  "Bodyweight Lunge": {
+    "steps": [
+      "Stand tall with your feet hip-width apart and your hands on your hips.",
+      "Step forward and lower until both knees are bent about 90 degrees, with your front knee over your ankle.",
+      "Push through the front foot to return to standing, then switch legs."
+    ],
+    "mistake": "Taking too short a step so the front knee travels far past the toes and the heel lifts."
+  },
+  "Reverse Lunge": {
+    "steps": [
+      "Stand tall with your feet hip-width apart and your chest up.",
+      "Step one foot back and lower until both knees are bent about 90 degrees, front shin close to vertical.",
+      "Push through the front heel to stand up, then switch legs."
+    ],
+    "mistake": "Leaning the torso forward and shifting weight onto the back foot instead of the front leg."
+  },
+  "Bulgarian Split Squat": {
+    "steps": [
+      "Stand about a step and a half in front of a bench and rest the top of one back foot on it.",
+      "Lower straight down until your front thigh is parallel to the floor, torso upright, front heel planted.",
+      "Drive through the front foot to stand, then finish all reps before switching legs."
+    ],
+    "mistake": "Standing too close to the bench so the front knee shoves forward and the back foot does the work."
+  },
+  "Step-Up": {
+    "steps": [
+      "Stand facing a sturdy box or bench, with one whole foot on top.",
+      "Press through that foot to stand up fully, without pushing off the floor foot.",
+      "Lower back down slowly under control, then repeat before switching legs."
+    ],
+    "mistake": "Using the trailing leg to spring up, so the working leg does only part of the lift."
+  },
+  "Calf Raise": {
+    "steps": [
+      "Stand tall with the balls of your feet on the floor or a step, hands on a wall for balance if needed.",
+      "Rise as high as you can onto your toes and pause for a second at the top.",
+      "Lower slowly until your heels are at or just below the step, then repeat."
+    ],
+    "mistake": "Bouncing through the reps with a short range instead of pausing at the top and bottom."
+  },
+  "Pull-Up": {
+    "steps": [
+      "Hang from the bar with an overhand grip just wider than your shoulders, shoulders pulled down away from your ears.",
+      "Pull your chest toward the bar by driving your elbows down and back.",
+      "Lower under control until your arms are fully straight before the next rep."
+    ],
+    "mistake": "Swinging or kipping and cutting the bottom short, so the back never gets the full range."
+  },
+  "Chin-Up": {
+    "steps": [
+      "Hang from the bar with an underhand grip about shoulder-width apart, shoulders set down.",
+      "Pull until your chin clears the bar, leading with your chest and keeping your elbows close.",
+      "Lower slowly to a full hang before the next rep."
+    ],
+    "mistake": "Craning the neck to get the chin over the bar instead of pulling the chest up."
+  },
+  "Inverted Row": {
+    "steps": [
+      "Lie under a sturdy bar or table, grip it just wider than your shoulders and hold your body in a straight line.",
+      "Pull your chest to the bar by squeezing your shoulder blades together.",
+      "Lower under control until your arms are straight, keeping your hips up."
+    ],
+    "mistake": "Letting the hips sag, which shortens the pull and hides how weak the back is."
+  },
+  "Superman": {
+    "steps": [
+      "Lie face down with your arms extended in front and your legs straight.",
+      "Lift your arms, chest and legs a few inches off the floor together, looking at the floor.",
+      "Hold for a second, squeezing your glutes and upper back, then lower with control."
+    ],
+    "mistake": "Cranking the neck upward to look ahead instead of keeping it in line with your spine."
+  },
+  "Bodyweight Dip": {
+    "steps": [
+      "Support yourself on parallel bars with straight arms, shoulders down and chest slightly forward.",
+      "Lower until your upper arms are about parallel to the floor, elbows tracking back.",
+      "Press up until your arms are straight without shrugging your shoulders."
+    ],
+    "mistake": "Dropping far below parallel with the shoulders rolled forward, which strains the front of the shoulder."
+  },
+  "Bench Dip": {
+    "steps": [
+      "Sit on the edge of a bench, place your hands beside your hips, and slide your hips off with legs out in front.",
+      "Bend your elbows straight back and lower until your upper arms are about parallel to the floor.",
+      "Press up through your palms until your arms are straight."
+    ],
+    "mistake": "Sliding too far from the bench and dropping too deep, which overloads the front of the shoulders."
+  },
+  "Plank": {
+    "steps": [
+      "Forearms on the floor with elbows under your shoulders, legs straight, body in one line from head to heels.",
+      "Brace your core and squeeze your glutes as if bracing for a punch.",
+      "Hold while breathing steadily, keeping your hips level."
+    ],
+    "mistake": "Letting the lower back sag or the hips rise, which takes the work off the abs."
+  },
+  "Side Plank": {
+    "steps": [
+      "Lie on your side with your forearm under your shoulder and your legs stacked or staggered.",
+      "Lift your hips so your body forms one straight line from head to feet.",
+      "Hold, keeping your hips high and your top shoulder stacked over the bottom one."
+    ],
+    "mistake": "Letting the hips drop toward the floor or rolling forward, so the obliques stop working."
+  },
+  "Bird Dog": {
+    "steps": [
+      "On hands and knees with your hands under your shoulders and knees under your hips, back flat.",
+      "Reach one arm forward and the opposite leg back until both are in line with your torso.",
+      "Pause for a second without rotating your hips, then return and switch sides."
+    ],
+    "mistake": "Arching the lower back and letting the hips twist as the leg lifts."
+  },
+  "Glute Bridge": {
+    "steps": [
+      "Lie on your back with your knees bent, feet flat and hip-width apart, arms by your sides.",
+      "Drive through your heels to lift your hips until your body forms a line from shoulders to knees.",
+      "Squeeze your glutes at the top for a second, then lower with control."
+    ],
+    "mistake": "Pushing the hips so high that the lower back arches, which shifts the work off the glutes."
+  },
+  "Single-Leg Glute Bridge": {
+    "steps": [
+      "Lie on your back with one foot flat on the floor and the other leg extended straight up or out.",
+      "Drive through the planted heel to lift your hips until they are level.",
+      "Pause at the top, then lower slowly without letting the hips twist."
+    ],
+    "mistake": "Dropping one hip as you lift, which turns it into a lower-back arch."
+  },
+  "Mountain Climbers": {
+    "steps": [
+      "Start in a high plank with your hands under your shoulders and your body in a straight line.",
+      "Drive one knee toward your chest, then switch legs quickly as if running in place.",
+      "Keep your hips level and your core tight throughout."
+    ],
+    "mistake": "Bouncing the hips high into the air, which turns the move into a rushed squat thrust."
+  },
+  "Burpee": {
+    "steps": [
+      "From standing, squat and place your hands on the floor, then jump or step your feet back to a plank.",
+      "Lower your chest to the floor, press back up, and jump or step your feet in under your hips.",
+      "Explode up into a jump with your arms overhead, then land softly and go again."
+    ],
+    "mistake": "Letting the hips sag in the plank, which loads the lower back instead of the legs and core."
+  },
+  "Bear Crawl": {
+    "steps": [
+      "On hands and toes with your knees hovering just off the floor, back flat.",
+      "Move opposite hand and foot forward together in small, controlled steps.",
+      "Keep your hips low and level and your head in line with your spine."
+    ],
+    "mistake": "Pushing the hips up and rocking side to side instead of keeping the back flat."
+  },
+  "Hollow Body Hold": {
+    "steps": [
+      "Lie on your back with your arms overhead and your legs straight, pressing your lower back into the floor.",
+      "Lift your shoulders and legs a few inches off the floor, forming a shallow banana shape.",
+      "Hold while breathing steadily, keeping your lower back glued to the floor."
+    ],
+    "mistake": "Letting the lower back lift off the floor, which means the legs are too low for your core strength."
+  },
+  "V-Up": {
+    "steps": [
+      "Lie on your back with your arms overhead and your legs straight.",
+      "Lift your legs and torso at the same time, reaching your hands toward your toes.",
+      "Lower both back down slowly with control, without letting your back arch."
+    ],
+    "mistake": "Swinging with momentum so the hip flexors do the work instead of the abs."
+  },
+  "Pistol Squat": {
+    "steps": [
+      "Stand on one leg with the other leg extended in front, arms forward for balance.",
+      "Sit back and down on the standing leg as low as you can control, keeping the heel flat.",
+      "Drive through the heel to stand, keeping the knee tracking over the toes."
+    ],
+    "mistake": "Rolling onto the toes or collapsing the knee inward at the bottom."
+  },
+  "Dumbbell Lunge": {
+    "steps": [
+      "Hold a dumbbell in each hand at your sides and stand tall with feet hip-width apart.",
+      "Step forward and lower until both knees are bent about 90 degrees, torso upright.",
+      "Push through the front foot to return, then switch legs."
+    ],
+    "mistake": "Letting the front knee cave inward or the torso lean forward under the load."
+  },
+  "Dumbbell Goblet Squat": {
+    "steps": [
+      "Hold one dumbbell upright against your chest with both hands, elbows pointing down.",
+      "Sit your hips back and down between your knees until your thighs are at least parallel.",
+      "Drive through your whole foot to stand, keeping your chest tall."
+    ],
+    "mistake": "Letting the dumbbell pull your chest forward so the lower back rounds."
+  },
+  "Dumbbell Romanian Deadlift": {
+    "steps": [
+      "Stand tall holding a dumbbell in each hand in front of your thighs, knees slightly bent.",
+      "Push your hips back and slide the dumbbells down your legs with a flat back until you feel a hamstring stretch.",
+      "Drive your hips forward to stand, squeezing your glutes at the top."
+    ],
+    "mistake": "Rounding the lower back or bending the knees too much so it turns into a squat."
+  },
+  "Dumbbell Shoulder Press": {
+    "steps": [
+      "Hold the dumbbells at shoulder height with your palms facing forward and your core braced.",
+      "Press them straight overhead until your arms are almost straight, close to your ears.",
+      "Lower back to shoulder height under control."
+    ],
+    "mistake": "Arching the lower back to push the weight up instead of keeping your ribs down."
+  },
+  "Dumbbell Bicep Curl": {
+    "steps": [
+      "Stand tall with a dumbbell in each hand, palms forward, elbows pinned to your sides.",
+      "Curl the weights up toward your shoulders without moving your upper arms.",
+      "Lower slowly until your arms are fully straight."
+    ],
+    "mistake": "Swinging the torso to heave the weight up, which takes the work off the biceps."
+  },
+  "Dumbbell Tricep Extension": {
+    "steps": [
+      "Hold one dumbbell with both hands overhead, arms straight and elbows close to your ears.",
+      "Bend your elbows to lower the dumbbell behind your head, keeping your upper arms still.",
+      "Straighten your arms back to the top, squeezing your triceps."
+    ],
+    "mistake": "Letting the elbows flare out to the sides, which shifts the load and strains the elbows."
+  },
+  "Dumbbell Bent-Over Row": {
+    "steps": [
+      "Hinge at the hips with a flat back and a dumbbell in each hand, arms hanging straight down.",
+      "Pull the dumbbells toward your hips by driving your elbows back and squeezing your shoulder blades.",
+      "Lower under control until your arms are straight."
+    ],
+    "mistake": "Standing up as you pull, using body momentum instead of the back muscles."
+  },
+  "Dumbbell Chest Press": {
+    "steps": [
+      "Lie on a bench with a dumbbell in each hand over your chest, feet flat and shoulder blades pinched.",
+      "Lower the dumbbells to the sides of your chest with elbows about 45 degrees from your body.",
+      "Press them back up until your arms are straight above your chest."
+    ],
+    "mistake": "Flaring the elbows straight out to the sides, which stresses the shoulders."
+  },
+  "Dumbbell Step-Up": {
+    "steps": [
+      "Hold a dumbbell in each hand and stand facing a sturdy box with one foot fully on top.",
+      "Drive through the top foot to stand up tall without pushing off the back foot.",
+      "Lower slowly under control, then repeat before switching legs."
+    ],
+    "mistake": "Choosing a box so high that the hips twist and the torso leans to compensate."
+  },
+  "Resistance Band Row": {
+    "steps": [
+      "Anchor the band at chest height, hold the ends and step back until there is tension, arms straight.",
+      "Pull the band toward your ribs by driving your elbows back and squeezing your shoulder blades.",
+      "Return slowly to straight arms without letting the band snap you forward."
+    ],
+    "mistake": "Shrugging the shoulders up toward the ears instead of pulling them down and back."
+  },
+  "Resistance Band Squat": {
+    "steps": [
+      "Stand on the band with feet shoulder-width apart and hold the ends at your shoulders.",
+      "Sit your hips back and down until your thighs are at least parallel.",
+      "Drive through your feet to stand against the band's pull."
+    ],
+    "mistake": "Letting the knees collapse inward as the band tension rises on the way up."
+  },
+  "Kettlebell Swing": {
+    "steps": [
+      "Stand with feet a little wider than shoulder-width, kettlebell on the floor in front of you, and hinge to grip it.",
+      "Hike the bell back between your legs, then snap your hips forward to swing it to chest height.",
+      "Let it fall back and hinge again, keeping your back flat and the power in your hips."
+    ],
+    "mistake": "Lifting the bell with the arms and squatting instead of snapping the hips."
+  },
+  "Renegade Row": {
+    "steps": [
+      "Start in a high plank with your hands on two dumbbells and your feet wide for balance.",
+      "Row one dumbbell to your ribs while keeping your hips square to the floor.",
+      "Lower it under control and repeat on the other side."
+    ],
+    "mistake": "Twisting the hips open as you row, which wastes the anti-rotation work for the core."
+  },
+  "Barbell Back Squat": {
+    "steps": [
+      "Bar across your upper back, feet shoulder-width apart, chest up and core braced.",
+      "Sit back and down until your thighs are at least parallel, knees tracking over your toes.",
+      "Drive through your whole foot to stand, keeping your chest up."
+    ],
+    "mistake": "Letting the hips shoot up first so the lower back rounds and the torso falls forward."
+  },
+  "Barbell Front Squat": {
+    "steps": [
+      "Bar rests on your front shoulders with elbows high, feet shoulder-width apart.",
+      "Sit straight down until your thighs are at least parallel, keeping your elbows up.",
+      "Drive up through your feet, keeping your torso as upright as you can."
+    ],
+    "mistake": "Letting the elbows drop, which rolls the bar forward and rounds the upper back."
+  },
+  "Bench Press": {
+    "steps": [
+      "Eyes under the bar, feet flat, shoulder blades pinched together and down.",
+      "Lower the bar to your mid-chest with elbows about 45 degrees from your body.",
+      "Press up and slightly back over your shoulders until your arms are straight."
+    ],
+    "mistake": "Bouncing the bar off the chest or lifting the hips off the bench."
+  },
+  "Incline Bench Press": {
+    "steps": [
+      "Lie on an incline bench with your feet flat, shoulder blades pinched and the bar over your upper chest.",
+      "Lower the bar to your upper chest with elbows about 45 degrees from your body.",
+      "Press up until your arms are straight over your shoulders."
+    ],
+    "mistake": "Setting the bench too steep so the shoulders take over from the upper chest."
+  },
+  "Deadlift": {
+    "steps": [
+      "Bar over mid-foot, hands just outside your legs, back flat and chest up, shoulders over the bar.",
+      "Push the floor away and drag the bar up your legs, keeping it close to your body.",
+      "Stand tall with hips and knees locked, then lower the bar by sending your hips back."
+    ],
+    "mistake": "Rounding the lower back or jerking the bar off the floor instead of pulling the slack out first."
+  },
+  "Romanian Deadlift": {
+    "steps": [
+      "Stand holding the bar at your thighs with a slight knee bend and a flat back.",
+      "Push your hips straight back, sliding the bar down your legs until you feel a deep hamstring stretch.",
+      "Drive your hips forward to stand tall, squeezing your glutes."
+    ],
+    "mistake": "Letting the bar drift away from the legs, which loads the lower back."
+  },
+  "Overhead Press": {
+    "steps": [
+      "Grip the bar just outside your shoulders and hold it at your collarbone, elbows slightly in front.",
+      "Press the bar straight up, moving your head back and then through as the bar passes your forehead.",
+      "Lock out overhead with the bar over your mid-foot, then lower under control."
+    ],
+    "mistake": "Leaning back and turning it into an incline press instead of squeezing the glutes and bracing the core."
+  },
+  "Bent-Over Row": {
+    "steps": [
+      "Hinge at the hips with a flat back, bar hanging at arm's length below your shoulders.",
+      "Pull the bar to your lower ribs by driving your elbows back and squeezing your shoulder blades.",
+      "Lower under control without letting your torso rise."
+    ],
+    "mistake": "Standing up a little with each rep so momentum does the pulling."
+  },
+  "Lat Pulldown": {
+    "steps": [
+      "Sit with your thighs under the pad, grip the bar just wider than your shoulders and lean back slightly.",
+      "Pull the bar to your upper chest by driving your elbows down toward your sides.",
+      "Let the bar rise under control until your arms are fully stretched."
+    ],
+    "mistake": "Leaning far back and yanking the bar down, which turns the pulldown into a row."
+  },
+  "Cable Row": {
+    "steps": [
+      "Sit tall with your knees slightly bent, chest up and arms reaching for the handle.",
+      "Pull the handle to your lower ribs, driving your elbows back and squeezing your shoulder blades.",
+      "Return slowly until your arms are straight without rounding your back."
+    ],
+    "mistake": "Rocking the torso back and forth to move the weight instead of keeping it still."
+  },
+  "Leg Press": {
+    "steps": [
+      "Sit with your back flat against the pad and your feet shoulder-width apart in the middle of the platform.",
+      "Lower the platform until your knees are bent about 90 degrees without your hips rolling up.",
+      "Press through your whole foot until your legs are almost straight, without locking your knees."
+    ],
+    "mistake": "Going so deep that the lower back lifts off the pad and the pelvis tucks under."
+  },
+  "Leg Curl Machine": {
+    "steps": [
+      "Set the pad just above your heels, lying or sitting snugly in the machine.",
+      "Curl your heels toward your glutes by squeezing your hamstrings.",
+      "Lower slowly until your legs are almost straight."
+    ],
+    "mistake": "Lifting the hips off the seat to swing the weight up."
+  },
+  "Leg Extension Machine": {
+    "steps": [
+      "Sit with your back against the pad and the roller just above your ankles.",
+      "Extend your legs until they are straight and squeeze your quads at the top.",
+      "Lower slowly under control rather than dropping the weight."
+    ],
+    "mistake": "Kicking the weight up with momentum instead of a smooth, controlled lift."
+  },
+  "Seated Shoulder Press Machine": {
+    "steps": [
+      "Adjust the seat so the handles start at about shoulder height, back flat against the pad.",
+      "Press the handles overhead until your arms are almost straight.",
+      "Lower slowly back to shoulder height without letting the weight stack crash."
+    ],
+    "mistake": "Setting the seat too low or high and pressing with the elbows behind the body."
+  }
+}

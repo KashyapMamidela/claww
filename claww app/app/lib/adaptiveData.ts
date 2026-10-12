@@ -8,6 +8,7 @@ import { getProfile, getTodaysSleepLog } from './data';
 import { initialState, proteinShare, type Command, type ExerciseState as EngineState, type Readiness } from './engine';
 import { catalogKey, type Catalog, type CatalogEntry, type Checkin, type LoggedSet } from './muscleRecovery';
 import type { PrescribedExercise, SessionOutcome } from './sessionPrescription';
+import { groupSessions, type HistorySession } from './exerciseHistory';
 
 const MISSING_SCHEMA = new Set(['42703', 'PGRST204', '42P01', 'PGRST205']);
 
@@ -313,4 +314,22 @@ export async function getNextTimeDecisions(userId: string, fromIso: string, toIs
     });
   }
   return [...latest.values()];
+}
+
+// ─── Exercise history (guide sheet) ─────────────────────────────────────────
+
+/** The user's last sessions of one exercise, newest first. */
+export async function getExerciseHistory(userId: string, exerciseName: string, limit = 5): Promise<HistorySession[]> {
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('sets, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at')
+    .eq('user_id', userId)
+    .eq('exercise_name', exerciseName)
+    .order('completed_at', { ascending: false })
+    .limit(200);
+  if (error) {
+    warn('Failed to load exercise history', error);
+    return [];
+  }
+  return groupSessions(data ?? [], limit);
 }

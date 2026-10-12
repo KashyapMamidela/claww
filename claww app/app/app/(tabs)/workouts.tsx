@@ -38,6 +38,7 @@ import { computeWeekdayStates } from '../../lib/trainingWeek';
 import { useRenderCount } from '../../lib/perf';
 import { refreshReminders } from '../../lib/reminderSync';
 import { SessionStartFlow } from '../../components/SessionStartFlow';
+import { ExerciseGuideSheet } from '../../components/ExerciseGuideSheet';
 import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
 import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
 import { computeRepRange, startingPrescription } from '../../lib/engine';
@@ -136,6 +137,7 @@ export default function WorkoutsTab() {
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
   const [flowOpen, setFlowOpen] = useState(false);
+  const [guideName, setGuideName] = useState<string | null>(null);
   const [recoveryHints, setRecoveryHints] = useState<Record<string, string>>({});
   const [skipping, setSkipping] = useState(false);
   const [showRegenCard, setShowRegenCard] = useState(false);
@@ -550,7 +552,13 @@ export default function WorkoutsTab() {
                     paddingVertical: 12,
                   }}
                 >
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setGuideName(ex.name)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`${ex.name}: how to do it`}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
+                  >
                     <Icon name="circle" size={20} color="#71717A" />
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{ex.name}</Text>
@@ -558,7 +566,8 @@ export default function WorkoutsTab() {
                         {ex.sets} sets · {ex.reps} reps
                       </Text>
                     </View>
-                  </View>
+                    <Icon name="info" size={16} color="#52525B" />
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
@@ -666,6 +675,7 @@ export default function WorkoutsTab() {
         </View>
       </ScrollView>
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
       <SessionStartFlow
         visible={flowOpen}
         userId={userId}
