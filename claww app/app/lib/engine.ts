@@ -3,3 +3,5 @@
 export * from '../../supabase/functions/_shared/adaptive';
 export { computeRepRange, startingPrescription, deriveAllowedEquipment } from '../../supabase/functions/_shared/planning';
 export type { RepRange, ExerciseRole, StartingPrescription } from '../../supabase/functions/_shared/planning';
+export { computeRecoveryScore, proteinShare } from '../../supabase/functions/_shared/recovery';
+export type { RecoveryResult } from '../../supabase/functions/_shared/recovery';

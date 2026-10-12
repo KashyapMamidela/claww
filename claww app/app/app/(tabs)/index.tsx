@@ -16,6 +16,8 @@ import { ProgressRing } from '../../components/ui/ProgressRing';
 import { SleepRow } from '../../components/SleepRow';
 import { SleepLogModal } from '../../components/SleepLogModal';
 import { WaterRow } from '../../components/WaterRow';
+import { getCatalog, getRecentLoggedSets } from '../../lib/adaptiveData';
+import { lowestMuscle, muscleScores, musclesForExercises } from '../../lib/muscleRecovery';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
@@ -228,7 +230,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
-              : "Unlocks your Recovery Score — a sleep, hydration, and nutrition-based estimate to guide today's training."}
+              : "Unlocks your Recovery Score — a sleep and protein based estimate to guide today's training."}
           </Text>
         </View>
         {!sleepLogged ? (
@@ -276,6 +278,8 @@ function HomePopulated() {
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
   const [suggestedDayIndex, setSuggestedDayIndex] = useState(0);
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
+  // The lowest per-muscle recovery score among today's muscles, when it is worth a mention (V2 PHASE 7.5).
+  const [tiredMuscle, setTiredMuscle] = useState<{ muscle: string; band: string } | null>(null);
   const steps = useTodaySteps();
 
   // xp/streak come from AppState directly — they update live as XP events
@@ -289,7 +293,17 @@ function HomePopulated() {
         const dayEvents = w ? await getWorkoutDayEvents(userId, w.id) : [];
         if (cancelled) return;
         setLatestWorkout(w);
-        setSuggestedDayIndex(w ? getSuggestedDayIndex(w.plan, dayEvents) : 0);
+        const dayIdx = w ? getSuggestedDayIndex(w.plan, dayEvents) : 0;
+        setSuggestedDayIndex(dayIdx);
+        if (w) {
+          const names = (w.plan.days[dayIdx]?.exercises ?? []).map((ex) => ex.name);
+          const [catalog, sets] = await Promise.all([getCatalog(names), getRecentLoggedSets(userId)]);
+          const history = await getCatalog(Array.from(new Set(sets.map((x) => x.exerciseName))));
+          if (cancelled) return;
+          const muscles = musclesForExercises(names, catalog);
+          const low = lowestMuscle(muscleScores(muscles, sets, { ...history, ...catalog }, new Date()), muscles);
+          setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
+        }
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
       });
@@ -344,7 +358,11 @@ function HomePopulated() {
               <Text style={{ color: recoveryColor, fontWeight: '700' }}>
                 {recovery.score} · {recovery.band}
               </Text>{' '}
-              — {recovery.band === 'Low' ? 'take it easy today.' : recovery.band === 'High' ? 'great day to push hard.' : 'a solid day for moderate work.'}
+              {tiredMuscle ? (
+                <>. {tiredMuscle.muscle.charAt(0).toUpperCase() + tiredMuscle.muscle.slice(1)} is still recovering ({tiredMuscle.band.toLowerCase()}).</>
+              ) : (
+                <> — {recovery.band === 'Low' ? 'take it easy today.' : recovery.band === 'High' ? 'great day to push hard.' : 'a solid day for moderate work.'}</>
+              )}
             </>
           ) : (
             'Recovery score not available yet — log a night of sleep to unlock it.'

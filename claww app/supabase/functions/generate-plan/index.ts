@@ -2,7 +2,7 @@ import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON } from '../_shared/groq.ts';
 import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
-import { computeRecoveryScore } from '../_shared/recovery.ts';
+import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
 import { EXPERIENCE_MAX_SETS, applyTrainingWeekdays, computeRepRange, deriveAllowedEquipment, groundPlanInCatalog, type RepRange } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
@@ -283,8 +283,7 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const reason = typeof body?.reason === 'string' ? body.reason : null;
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const [
       { data: profile },
@@ -292,8 +291,7 @@ Deno.serve(async (req: Request) => {
       { data: lastWorkout },
       { data: recentWorkouts },
       { data: latestWorkout },
-      { data: todaysWater },
-      { count: todaysMealCount },
+      { data: recentMeals },
     ] = await Promise.all([
       supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
       supabase
@@ -323,21 +321,12 @@ Deno.serve(async (req: Request) => {
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase.from('water_logs').select('ml').eq('user_id', user.id).gte('logged_at', startOfDay.toISOString()),
-      supabase
-        .from('meal_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .gte('logged_at', startOfDay.toISOString()),
+      supabase.from('meal_logs').select('protein_g').eq('user_id', user.id).gte('logged_at', last24h),
     ]);
 
-    const todaysWaterMl = (todaysWater ?? []).reduce((sum, row) => sum + (row.ml ?? 0), 0);
-    const recovery = computeRecoveryScore(
-      sleepLog,
-      lastWorkout,
-      { waterMl: todaysWaterMl },
-      { loggedMealToday: (todaysMealCount ?? 0) > 0 }
-    );
+    const proteinTarget = (profile?.personalization_profile as { nutritionDefaults?: { protein_g?: number } } | null)?.nutritionDefaults?.protein_g ?? null;
+    const proteinPct = proteinShare(recentMeals, proteinTarget);
+    const recovery = computeRecoveryScore(sleepLog, lastWorkout, proteinPct === null ? null : { proteinPct });
 
     // Cooldown: a double-tap or accidental repeat shouldn't burn another
     // Groq call — just hand back the plan that was just generated. Does NOT

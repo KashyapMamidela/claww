@@ -5,7 +5,7 @@
 
 import { supabase } from './supabase';
 import { getProfile, getTodaysSleepLog } from './data';
-import { initialState, type Command, type ExerciseState as EngineState, type Readiness } from './engine';
+import { initialState, proteinShare, type Command, type ExerciseState as EngineState, type Readiness } from './engine';
 import { catalogKey, type Catalog, type CatalogEntry, type Checkin, type LoggedSet } from './muscleRecovery';
 import type { PrescribedExercise, SessionOutcome } from './sessionPrescription';
 
@@ -202,30 +202,19 @@ export async function getLastWeights(userId: string, names: string[]): Promise<R
 }
 
 /**
- * Last night's sleep hours (today's log) and yesterday's protein as a share
- * of the target. Either is null when unknown: no log, no target, or nothing
- * logged yesterday at all (zero would read as "ate no protein", which is a
- * guess, not data).
+ * Last night's sleep hours (today's log) and protein over the last 24 hours as
+ * a share of the target. Either is null when unknown: no log, no target, or
+ * no meals logged (zero would read as "ate no protein", which is a guess,
+ * not data).
  */
 export async function getRecoveryInputs(userId: string): Promise<{ sleepHours: number | null; proteinPct: number | null }> {
   const [sleep, profile] = await Promise.all([getTodaysSleepLog(userId), getProfile(userId)]);
   const target = profile?.personalization_profile?.nutritionDefaults?.protein_g ?? null;
   let proteinPct: number | null = null;
   if (target && target > 0) {
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    start.setDate(start.getDate() - 1);
-    const end = new Date(start);
-    end.setDate(end.getDate() + 1);
-    const { data, error } = await supabase
-      .from('meal_logs')
-      .select('protein_g')
-      .eq('user_id', userId)
-      .gte('logged_at', start.toISOString())
-      .lt('logged_at', end.toISOString());
-    if (!error && data && data.length > 0) {
-      proteinPct = data.reduce((s, m) => s + (m.protein_g ?? 0), 0) / target;
-    }
+    const since = new Date(Date.now() - 24 * 3_600_000).toISOString();
+    const { data, error } = await supabase.from('meal_logs').select('protein_g').eq('user_id', userId).gte('logged_at', since);
+    if (!error) proteinPct = proteinShare(data, target);
   }
   return { sleepHours: sleep?.hours ?? null, proteinPct };
 }
