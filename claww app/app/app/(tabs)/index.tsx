@@ -13,7 +13,7 @@ import { SectionLabel } from '../../components/ui/SectionLabel';
 import { HomeStatTiles } from '../../components/HomeStatTiles';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
-import { SleepArcDial } from '../../components/SleepArcDial';
+import { SleepRow } from '../../components/SleepRow';
 import { SleepLogModal } from '../../components/SleepLogModal';
 import { WaterRow } from '../../components/WaterRow';
 import { Display } from '../../components/ui/Typography';
@@ -421,7 +421,7 @@ function HomePopulated() {
 
       <WaterRow userId={userId} />
 
-      <SleepArcDial />
+      <SleepRow />
 
       <TouchableOpacity
         activeOpacity={0.85}
