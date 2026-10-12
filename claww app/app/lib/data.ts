@@ -528,55 +528,97 @@ export interface EstimateResult {
 export interface RemainingMacros {
   calories: number;
   protein_g: number;
+  carbs_g: number;
+  fats_g: number;
+}
+
+export type SuggestRefine = 'more_protein' | 'quicker' | 'something_else';
+
+/** One of the (up to) three options the suggest-meal function returns (V2 PHASE 5.2). */
+export interface MealSuggestion extends EstimatedMeal {
+  prep_minutes: number;
+  /** One line written by deterministic code from the numbers. */
+  why: string;
+  bestFit: boolean;
+}
+
+export interface SuggestMealsInput {
+  mealType: MealType;
+  preference: string;
+  dietaryRestrictions: DietaryRestriction[];
+  goal: string | null;
+  cuisines: string[];
+  avoid: string;
+  eatenToday: string[];
+  trainedToday: boolean;
+  remaining?: RemainingMacros;
+  refine?: SuggestRefine;
+}
+
+export interface SuggestMealsResult {
+  options: MealSuggestion[];
+  /** True when the function was unreachable or returned nothing usable and a generic per-meal-type estimate is shown instead. */
+  generic: boolean;
 }
 
 /**
- * Item #24 — "Suggest {meal}" used to route to the exact same screen as
- * "Add {meal}", with no way to say what you actually want. Calls the
- * suggest-meal Edge Function with a free-text preference (optional — empty
- * string means "anything reasonable"), dietary restrictions, and the
- * user's real remaining macro budget for today, so the suggestion is
- * grounded in actual data rather than freeform. Falls back to a generic
- * per-meal-type estimate (same FALLBACK_MEAL_MACROS table estimateMeal
- * uses) if the function isn't reachable — honestly labeled as a generic
- * suggestion, not a personalized one, when that happens.
+ * Asks the suggest-meal Edge Function for three ranked options. Falls back
+ * to one generic per-meal-type estimate (the same table estimateMeal uses),
+ * honestly marked `generic`, if the function is unreachable or fails.
  */
-export async function suggestMeal(
-  mealType: MealType,
-  preference: string,
-  dietaryRestrictions: DietaryRestriction[],
-  remaining?: RemainingMacros
-): Promise<EstimateResult> {
+export async function suggestMeals(input: SuggestMealsInput): Promise<SuggestMealsResult> {
   try {
     const { data, error } = await supabase.functions.invoke('suggest-meal', {
       body: {
-        mealType,
-        preference,
-        dietaryRestrictions,
-        remainingCalories: remaining?.calories,
-        remainingProteinG: remaining?.protein_g,
+        mealType: input.mealType,
+        preference: input.preference,
+        dietaryRestrictions: input.dietaryRestrictions,
+        goal: input.goal ?? '',
+        cuisines: input.cuisines,
+        avoid: input.avoid,
+        eatenToday: input.eatenToday,
+        trainedToday: input.trainedToday,
+        refine: input.refine,
+        remaining: input.remaining,
       },
     });
-    if (!error && data && typeof data.calories === 'number') {
+    if (!error && data && Array.isArray(data.options) && data.options.length > 0) {
       track(AnalyticsEvent.MealEstimated, { generated: true, source: 'suggestion' });
-      return { ok: true, meal: data as EstimatedMeal };
+      return { options: data.options as MealSuggestion[], generic: false };
     }
   } catch {
     // Edge Function not deployed / unreachable — fall through to a generic suggestion.
   }
 
   track(AnalyticsEvent.MealEstimated, { generated: false, source: 'suggestion' });
-  const fallback = FALLBACK_MEAL_MACROS[mealType];
+  const f = FALLBACK_MEAL_MACROS[input.mealType];
   return {
-    ok: true,
-    meal: {
-      description: `${mealType} suggestion`,
-      calories: fallback.calories,
-      protein_g: fallback.protein_g,
-      carbs_g: fallback.carbs_g,
-      fats_g: fallback.fats_g,
-    },
+    options: [
+      {
+        description: `${input.mealType} suggestion`,
+        calories: f.calories,
+        protein_g: f.protein_g,
+        carbs_g: f.carbs_g,
+        fats_g: f.fats_g,
+        prep_minutes: 15,
+        why: 'A typical portion for this meal.',
+        bestFit: true,
+      },
+    ],
+    generic: true,
   };
+}
+
+/** Whether any workout set was logged today (local day) — one input to meal suggestions. */
+export async function didTrainToday(userId: string): Promise<boolean> {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const { count, error } = await supabase
+    .from('workout_logs')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('completed_at', start.toISOString());
+  return !error && (count ?? 0) > 0;
 }
 
 /**
