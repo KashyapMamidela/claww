@@ -12,12 +12,14 @@ export interface BarChartProps {
   goal?: number | null;
   /** Index drawn at full strength (e.g. today); others at lower opacity. Defaults to the last bar. */
   highlightIndex?: number;
+  /** Draw every bar at full strength (e.g. one bar per muscle) instead of dimming all but `highlightIndex`. */
+  allActive?: boolean;
   /** Labels under the bars; an empty string leaves that slot blank. */
   labels?: string[];
 }
 
 /** Simple Skia bar chart with an optional dashed goal line (V2 PHASE 4.2; reused by later chart cards). */
-export function BarChart({ values, color, height = 120, goal = null, highlightIndex, labels }: BarChartProps) {
+export function BarChart({ values, color, height = 120, goal = null, highlightIndex, allActive = false, labels }: BarChartProps) {
   const [width, setWidth] = useState(0);
   const [skiaReady, setSkiaReady] = useState(Platform.OS !== 'web');
   useEffect(() => {
@@ -50,7 +52,7 @@ export function BarChart({ values, color, height = 120, goal = null, highlightIn
                   width={barW}
                   height={h}
                   r={Math.min(4, barW / 2)}
-                  color={i === hi ? color : tint(color, 0.45)}
+                  color={allActive || i === hi ? color : tint(color, 0.45)}
                 />
               );
             })}

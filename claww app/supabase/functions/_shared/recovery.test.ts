@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeRecoveryScore, proteinShare, type WorkoutLogRow } from './recovery.ts';
 
 // V2 PHASE 7.5 rewrote the inputs (decision D7): water and "a meal was
@@ -26,6 +26,16 @@ function workoutLog(overrides: Partial<WorkoutLogRow> & { hoursAgo: number }): W
 }
 
 describe('computeRecoveryScore', () => {
+  // A fixed clock: the band-boundary cases hinge on hours-since-last-session, and a
+  // millisecond of drift between building the log and scoring it can tip 70 into 71.
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-12T12:00:00Z'));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('full sleep, no prior session, protein unknown -> top of the scale, High', () => {
     // sleepScore = min(8/8,1)*40 = 40; no session -> recoveryGap=25, fatiguePenalty=0.
     // protein unknown -> (40 + 25 - 0 + 20) / 85 * 100 = 100
