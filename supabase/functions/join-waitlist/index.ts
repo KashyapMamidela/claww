@@ -26,7 +26,7 @@ function allowedOrigin(origin: string | null) {
   try {
     const { hostname, protocol } = new URL(origin);
     if (hostname === 'localhost' || hostname === '127.0.0.1') return origin;
-    if (protocol === 'https:' && (hostname.endsWith('.vercel.app') || hostname === 'claww.app' || hostname.endsWith('.claww.app'))) return origin;
+    if (protocol === 'https:' && (hostname.endsWith('.vercel.app') || ['claww.me', 'claww.app'].some((d) => hostname === d || hostname.endsWith('.' + d)))) return origin;
     const extra = (Deno.env.get('WAITLIST_ORIGINS') ?? '').split(',').map((s) => s.trim()).filter(Boolean);
     if (extra.includes(origin)) return origin;
   } catch {
