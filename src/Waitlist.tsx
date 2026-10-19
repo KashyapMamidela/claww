@@ -179,7 +179,9 @@ export function Waitlist({ open, onClose, instagram }: { open: boolean; onClose:
             <button type="submit" className="cta wl-submit" disabled={status.kind === 'sending'}>
               {status.kind === 'sending' ? 'Joining…' : 'Join the waitlist'}
             </button>
-            <p className="wl-fine">We only use your details to tell you when CLAWW launches.</p>
+            <p className="wl-fine">
+              We only use your details to tell you when CLAWW launches. <a href="/privacy" target="_blank" rel="noopener">Privacy policy</a>
+            </p>
           </form>
         )}
       </div>

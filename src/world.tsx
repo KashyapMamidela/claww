@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
 import { useGSAP } from '@gsap/react';
+import { Faq } from './faq';
 
 // Everything after the barbell: the rest of the app, shown in its own dark UI.
 // The section grows out of the light page like a phone screen filling the view.
@@ -16,7 +17,7 @@ const MODES = [
 
 function Modes() {
   return (
-    <section className="w-block modes" aria-labelledby="modes-h">
+    <section className="w-block modes" id="features" aria-labelledby="modes-h">
       <div className="w-copy">
         <h2 id="modes-h">Not into lifting? It plans that too.</h2>
         <p className="w-body">
@@ -222,7 +223,7 @@ const DAY = [
 
 function Day() {
   return (
-    <section className="day" aria-labelledby="day-h">
+    <section className="day" id="day" aria-labelledby="day-h">
       <div className="day-intro w-copy">
         <h2 id="day-h">And the rest of your day.</h2>
         <p className="w-body">Food, steps, sleep and water live in the same app as your workouts. No more five apps that don&rsquo;t talk to each other.</p>
@@ -267,7 +268,7 @@ const HEAT = Array.from({ length: 84 }, (_, i) => {
 
 function Tracker() {
   return (
-    <section className="w-block tracker" aria-labelledby="tracker-h">
+    <section className="w-block tracker" id="tracker" aria-labelledby="tracker-h">
       <div className="w-copy">
         <h2 id="tracker-h">The CLAWW Tracker.</h2>
         <p className="w-body">All your progress in one place, as charts you can read at a glance: strength, records, consistency, muscles, steps, sleep and protein.</p>
@@ -354,7 +355,7 @@ const COMPARE: [string, string][] = [
 
 function Compare() {
   return (
-    <section className="w-block compare" aria-labelledby="compare-h">
+    <section className="w-block compare" id="why" aria-labelledby="compare-h">
       <div className="w-copy">
         <h2 id="compare-h">Why CLAWW.</h2>
         <p className="w-body">Most fitness apps track what you did. CLAWW decides what you should do next.</p>
@@ -388,7 +389,7 @@ function Compare() {
 
 function Join({ onJoin, instagram }: { onJoin: () => void; instagram: string }) {
   return (
-    <section className="w-block join" aria-labelledby="join-h">
+    <section className="w-block join" id="join" aria-labelledby="join-h">
       <h2 id="join-h">Coming to Android and iOS.</h2>
       <p className="w-body">Join the waitlist and you&rsquo;ll get one email from us, on launch day. That&rsquo;s it.</p>
       <div className="actions">
@@ -510,6 +511,7 @@ export function World({ onJoin, instagram, footer }: { onJoin: () => void; insta
       <Day />
       <Tracker />
       <Compare />
+      <Faq />
       <Join onJoin={onJoin} instagram={instagram} />
       {footer}
     </div>

@@ -18,7 +18,7 @@ export function startScroll(chapters: HTMLElement[]): () => void {
   let lenis: Lenis | null = null;
   let tick: ((time: number) => void) | null = null;
   if (!reduce) {
-    lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, autoRaf: false });
+    lenis = new Lenis({ lerp: 0.085, wheelMultiplier: 0.9, autoRaf: false, anchors: true });
     lenis.on('scroll', ScrollTrigger.update);
     if (import.meta.env.DEV) (window as unknown as { __lenis: Lenis }).__lenis = lenis;
     tick = (time: number) => lenis!.raf(time * 1000);

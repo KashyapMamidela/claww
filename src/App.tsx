@@ -10,6 +10,7 @@ import { MealFragment, MuscleFragment, PrescriptionFragment, SetFragment } from 
 import Magnet from './vendor/Magnet';
 import { World } from './world';
 import { Waitlist } from './Waitlist';
+import { SiteFooter } from './SiteFooter';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -255,16 +256,7 @@ export default function App() {
       <World
         onJoin={openWaitlist}
         instagram={INSTAGRAM}
-        footer={
-          <footer className="foot">
-            <span>&copy; 2026 CLAWW</span>
-            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-              Instagram
-            </a>
-            <a href="mailto:clawwapp@zohomail.in">clawwapp@zohomail.in</a>
-            <span>Made in India, for everyone who wants to get fit.</span>
-          </footer>
-        }
+        footer={<SiteFooter instagram={INSTAGRAM} onJoin={openWaitlist} />}
       />
 
       <Waitlist open={waitlistOpen} onClose={() => setWaitlistOpen(false)} instagram={INSTAGRAM} />
