@@ -106,9 +106,9 @@ async function positionOf(seq: number) {
 
 type Row = { id: string; seq: number; name: string; email: string; platforms: string[]; created_at?: string };
 
-async function sendConfirmation(row: Row) {
+async function sendConfirmation(row: Row, note?: string) {
   const position = await positionOf(row.seq);
-  const mail = waitlistEmail({ name: row.name, position, platforms: row.platforms, joinedAt: row.created_at });
+  const mail = waitlistEmail({ name: row.name, position, platforms: row.platforms, joinedAt: row.created_at, note });
   try {
     await deliver({ to: row.email, subject: mail.subject, text: mail.text, html: mail.html });
     await supabase.from('waitlist').update({ email_sent_at: new Date().toISOString(), email_error: null }).eq('id', row.id);
@@ -137,7 +137,10 @@ async function sendPending(req: Request) {
   const { data, error } = await q;
   if (error) throw error;
   let sent = 0;
-  for (const row of data as Row[]) if (await sendConfirmation(row)) sent++;
+  const note = all
+    ? 'Your CLAWW waitlist pass, re-sent from our new address. Your place in line hasn’t changed. Add crew@claww.me to your contacts so the launch-day email reaches you.'
+    : undefined;
+  for (const row of data as Row[]) if (await sendConfirmation(row, note)) sent++;
   return respond(req, 200, { pending: data.length, sent });
 }
 

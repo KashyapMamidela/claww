@@ -57,7 +57,7 @@ const FAQ: [string, React.ReactNode][] = [
   [
     'How do I leave the waitlist?',
     <>
-      Reply &ldquo;remove&rdquo; to the email we sent you, or write to <a href="mailto:clawwapp@zohomail.in">clawwapp@zohomail.in</a>. We&rsquo;ll take you off the
+      Reply &ldquo;remove&rdquo; to the email we sent you, or write to <a href="mailto:crew@claww.me">crew@claww.me</a>. We&rsquo;ll take you off the
       list.
     </>,
   ],
@@ -69,7 +69,7 @@ export function Faq() {
       <div className="w-copy">
         <h2 id="faq-h">Questions, answered.</h2>
         <p className="w-body">
-          Anything else? Write to <a href="mailto:clawwapp@zohomail.in">clawwapp@zohomail.in</a> or message us on Instagram.
+          Anything else? Write to <a href="mailto:crew@claww.me">crew@claww.me</a> or message us on Instagram.
         </p>
       </div>
       <div className="faq-list">

@@ -45,7 +45,7 @@ export function SiteFooter({ instagram, onJoin }: { instagram: string; onJoin: (
                 </a>
               </li>
               <li>
-                <a href="mailto:clawwapp@zohomail.in">clawwapp@zohomail.in</a>
+                <a href="mailto:crew@claww.me">crew@claww.me</a>
               </li>
             </ul>
           </div>

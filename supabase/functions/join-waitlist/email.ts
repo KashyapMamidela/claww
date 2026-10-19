@@ -95,7 +95,7 @@ const feature = (color: string, title: string, body: string) => `
 
 /* ---------- the email ---------- */
 
-export function waitlistEmail(opts: { name: string; position: number; platforms: string[]; joinedAt?: string }) {
+export function waitlistEmail(opts: { name: string; position: number; platforms: string[]; joinedAt?: string; note?: string }) {
   const name = opts.name.trim();
   const first = name.split(/\s+/)[0];
   const pos = opts.position.toLocaleString('en-IN');
@@ -106,6 +106,7 @@ export function waitlistEmail(opts: { name: string; position: number; platforms:
   const subject = `${first}, you're in. Your CLAWW waitlist pass (#${pos})`;
 
   const text = [
+    ...(opts.note ? [opts.note, ''] : []),
     `${first}, you're in.`,
     '',
     `You're #${pos} on the CLAWW waitlist. Pass ${passNo}.`,
@@ -157,6 +158,8 @@ export function waitlistEmail(opts: { name: string; position: number; platforms:
       <td align="right" style="font:600 13px ${FONT};color:${C.steel}">Coming to Android and iOS</td>
     </tr></table>
   </td></tr>
+
+  ${opts.note ? `<tr><td style="padding:0 8px 16px;font:500 14px/1.5 ${FONT};color:${C.steel}">${esc(opts.note)}</td></tr>` : ''}
 
   <!-- the pass -->
   <tr><td style="background:${C.card};border-radius:28px;overflow:hidden">
