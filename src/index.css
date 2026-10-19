@@ -1,0 +1,545 @@
+/* CLAWW site. Tokens from DESIGN.md. One family (Archivo) used at different widths;
+   Inter only inside the app fragments, because that is the app's own font. */
+
+:root {
+  --chalk: #e6e9ed;
+  --chalk-deep: #d3d8de;
+  --iron: #1a1d23;
+  --steel: #6f7884;
+  --blue: #2563eb;
+  --engine: #a855f7;
+  --recovery: #2dd4bf;
+  --workouts: #3b82f6;
+  --nutrition: #22c55e;
+
+  --app-bg: #050505;
+  --app-card: #151517;
+  --app-line: rgba(255, 255, 255, 0.08);
+  --app-dim: #8b8b94;
+
+  --col: min(34rem, 44vw);
+  --gutter: clamp(20px, 5vw, 72px);
+
+  color-scheme: light;
+  font-family: 'Archivo', system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--iron);
+  background: var(--chalk);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 45%, #f4f6f8 0%, transparent 70%),
+    var(--chalk);
+}
+
+/* The 3D stage sits behind everything, full screen. */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+.top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px var(--gutter) 34px;
+  pointer-events: none;
+  /* copy scrolls under the header: fade it out instead of letting it collide with the logo */
+  background: linear-gradient(to bottom, var(--chalk) 55%, rgba(230, 233, 237, 0));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--iron);
+  text-decoration: none;
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: 20px;
+  letter-spacing: 0.02em;
+  pointer-events: auto;
+}
+
+.brand .mark {
+  /* the app's white mark, printed in ink: black on chalk */
+  filter: brightness(0);
+  object-fit: contain;
+}
+
+.soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--steel);
+}
+
+.insta {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--iron);
+  pointer-events: auto;
+  transition: background-color 0.15s ease-out, transform 0.15s ease-out;
+}
+
+.insta:hover {
+  background: rgba(26, 29, 35, 0.08);
+}
+
+.insta:active {
+  transform: scale(0.94);
+}
+
+/* A wash of the current plate's colour over the room, cross-faded between chapters. */
+@property --tint {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: #a855f7;
+}
+
+.tint {
+  --tint: #a855f7;
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: multiply;
+  background:
+    radial-gradient(ellipse 55% 60% at 72% 48%, color-mix(in srgb, var(--tint) 22%, transparent), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 10% 110%, color-mix(in srgb, var(--tint) 14%, transparent), transparent 70%);
+}
+
+/* The running load: the page's one persistent number. */
+.load {
+  position: fixed;
+  right: var(--gutter);
+  bottom: 28px;
+  z-index: 3;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.load-num {
+  font-weight: 900;
+  font-stretch: 62%;
+  font-size: clamp(56px, 8vw, 112px);
+  line-height: 0.8;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.load-unit {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--steel);
+}
+
+main {
+  position: relative;
+  z-index: 2;
+}
+
+/* Story column: left aligned, short lines. */
+main > section {
+  min-height: 130vh;
+  padding: 0 var(--gutter);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  max-width: calc(var(--col) + 2 * var(--gutter));
+}
+
+main > section.hero {
+  min-height: 100vh;
+  padding-top: 80px;
+}
+
+h1,
+h2 {
+  margin: 0;
+  font-weight: 900;
+  font-stretch: 125%;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: clamp(52px, 7.4vw, 124px);
+  max-width: 11ch;
+}
+
+h2 {
+  font-size: clamp(40px, 5vw, 80px);
+  max-width: 11ch;
+}
+
+.lede,
+.body {
+  max-width: 34ch;
+  margin: 26px 0 0;
+  font-size: clamp(17px, 1.25vw, 20px);
+  font-stretch: 100%;
+  color: #3d434c;
+}
+
+.body.big {
+  font-size: clamp(24px, 2.2vw, 34px);
+  font-weight: 700;
+  font-stretch: 112%;
+  color: var(--iron);
+  line-height: 1.15;
+}
+
+.hint {
+  margin: 56px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--steel);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hint::before {
+  content: '';
+  width: 36px;
+  height: 2px;
+  background: var(--steel);
+}
+
+/* Chapter marker: the plate that goes on, in its color. A real sequence, so it earns a marker. */
+.marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 22px;
+  font-weight: 800;
+  font-stretch: 75%;
+  font-size: 24px;
+  color: var(--iron);
+}
+
+.marker-disc {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--plate);
+  box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--plate) 70%, #000 30%), inset 0 0 0 9px #cfd5dc;
+}
+
+/* App fragments: the app as it looks, dark and in Inter. */
+.fragment {
+  margin: 40px 0 0;
+  width: min(25rem, 100%);
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: var(--app-bg);
+  color: #fff;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+  box-shadow: 0 30px 60px -20px rgba(26, 29, 35, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.frag-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.frag-title {
+  font-weight: 800;
+}
+
+.frag-big {
+  margin-top: 8px;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.frag-why {
+  margin-top: 10px;
+  color: #c4a5fa;
+  font-size: 14px;
+}
+
+.frag-dim {
+  color: var(--app-dim);
+  font-weight: 500;
+}
+
+.frag-score {
+  color: var(--recovery);
+  font-weight: 800;
+}
+
+.pill {
+  flex: none;
+  padding: 4px 11px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.pill-green {
+  color: var(--nutrition);
+  background: rgba(34, 197, 94, 0.16);
+}
+
+.frag-meter + .frag-meter {
+  margin-top: 12px;
+}
+
+.meter {
+  margin-top: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(45, 212, 191, 0.14);
+}
+
+.meter-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--recovery);
+}
+
+.set-head,
+.set-row {
+  display: grid;
+  grid-template-columns: 34px 1fr 1fr 1fr 36px;
+  align-items: center;
+}
+
+.set-head {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--app-dim);
+  letter-spacing: 0.04em;
+  padding: 0 8px;
+}
+
+.set-row {
+  margin-top: 8px;
+  padding: 10px 8px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 17px;
+}
+
+.set-row.now {
+  background: rgba(59, 130, 246, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+.tick {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--nutrition);
+  color: #050505;
+  font-size: 15px;
+}
+
+.tick.empty {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--workouts);
+}
+
+.done-btn {
+  margin-top: 14px;
+  height: 52px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--workouts);
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.macros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+.macros .green {
+  color: var(--nutrition);
+}
+
+.finale {
+  align-items: flex-start;
+}
+
+.finale h2 {
+  font-size: clamp(80px, 13vw, 220px);
+  font-stretch: 62%;
+  letter-spacing: -0.02em;
+  max-width: none;
+}
+
+.actions {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+}
+
+.cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 26px;
+  border-radius: 999px;
+  color: var(--iron);
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: 17px;
+  text-decoration: none;
+  box-shadow: inset 0 0 0 2px var(--iron);
+  transition: background-color 0.15s ease-out, color 0.15s ease-out, transform 0.12s ease-out;
+}
+
+.cta-ghost:hover {
+  background: var(--iron);
+  color: var(--chalk);
+}
+
+.cta-ghost:active {
+  transform: scale(0.97);
+}
+
+.cta-ghost:focus-visible {
+  border-radius: 999px;
+}
+
+.cta {
+  display: inline-block;
+  padding: 20px 34px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 800;
+  font-stretch: 112%;
+  font-size: 18px;
+  text-decoration: none;
+  box-shadow: 0 18px 40px -12px rgba(37, 99, 235, 0.55);
+}
+
+a:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+
+.cta:focus-visible {
+  border-radius: 999px;
+}
+
+.foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  padding: 40px var(--gutter) 34px;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  color: var(--steel);
+}
+
+.foot a {
+  color: var(--iron);
+  font-weight: 700;
+}
+
+/* Phones: the bar sits behind the copy, so the copy gets a chalk panel to stay readable. */
+@media (max-width: 820px) {
+  :root {
+    --col: 100%;
+  }
+
+  main > section {
+    max-width: none;
+    min-height: 120vh;
+    justify-content: flex-end;
+    padding-bottom: 18vh;
+  }
+
+  main > section.hero {
+    justify-content: flex-end;
+    padding-bottom: 14vh;
+  }
+
+  main > section > * {
+    position: relative;
+  }
+
+  /* The bar lives in the top of the screen; the copy gets a frosted chalk panel so the plates
+     stay visible between and through the panels. */
+  .copy {
+    margin: 0 -14px;
+    padding: 16px 14px 20px;
+    border-radius: 20px;
+    background: rgba(230, 233, 237, 0.82);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .soon {
+    display: none;
+  }
+
+  /* the running load moves up beside the logo, clear of the copy */
+  .load {
+    top: 20px;
+    bottom: auto;
+    gap: 6px;
+  }
+
+  .load-num {
+    font-size: 34px;
+  }
+
+  .load-unit {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
