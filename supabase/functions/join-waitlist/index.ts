@@ -53,7 +53,41 @@ async function sha256(s: string) {
   return Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-const mailConfigured = () => Boolean(Deno.env.get('SMTP_USER') && Deno.env.get('SMTP_PASS'));
+// Resend (from the claww.me domain) when its key is set; otherwise SMTP through the Zoho mailbox.
+const useResend = () => Boolean(Deno.env.get('RESEND_API_KEY'));
+const mailConfigured = () => useResend() || Boolean(Deno.env.get('SMTP_USER') && Deno.env.get('SMTP_PASS'));
+
+type Outgoing = { to: string; subject: string; text: string; html: string };
+
+async function deliver(m: Outgoing) {
+  if (useResend()) {
+    const from = Deno.env.get('MAIL_FROM') ?? 'CLAWW Crew <crew@claww.me>';
+    const replyTo = Deno.env.get('MAIL_REPLY_TO') ?? 'crew@claww.me';
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${Deno.env.get('RESEND_API_KEY')}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        from,
+        to: [m.to],
+        reply_to: replyTo,
+        subject: m.subject,
+        text: m.text,
+        html: m.html,
+        // Mail providers trust senders that offer an easy way out; Gmail also shows its own unsubscribe link.
+        headers: { 'List-Unsubscribe': `<mailto:${replyTo}?subject=remove>` },
+      }),
+    });
+    if (!res.ok) throw new Error(`Resend ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    return;
+  }
+  const user = Deno.env.get('SMTP_USER')!;
+  await transport().sendMail({
+    from: { name: Deno.env.get('MAIL_FROM_NAME') ?? 'CLAWW', address: user },
+    replyTo: user,
+    headers: { 'List-Unsubscribe': `<mailto:${user}?subject=remove>` },
+    ...m,
+  });
+}
 
 function transport() {
   return nodemailer.createTransport({
@@ -75,18 +109,8 @@ type Row = { id: string; seq: number; name: string; email: string; platforms: st
 async function sendConfirmation(row: Row) {
   const position = await positionOf(row.seq);
   const mail = waitlistEmail({ name: row.name, position, platforms: row.platforms, joinedAt: row.created_at });
-  const user = Deno.env.get('SMTP_USER')!;
   try {
-    await transport().sendMail({
-      from: { name: Deno.env.get('MAIL_FROM_NAME') ?? 'CLAWW', address: user },
-      replyTo: user,
-      // Mail providers trust senders that offer a one-click way out; it also shows Gmail's own unsubscribe link.
-      headers: { 'List-Unsubscribe': `<mailto:${user}?subject=remove>` },
-      to: row.email,
-      subject: mail.subject,
-      text: mail.text,
-      html: mail.html,
-    });
+    await deliver({ to: row.email, subject: mail.subject, text: mail.text, html: mail.html });
     await supabase.from('waitlist').update({ email_sent_at: new Date().toISOString(), email_error: null }).eq('id', row.id);
     return true;
   } catch (e) {
@@ -106,12 +130,11 @@ async function sendPending(req: Request) {
   const secret = Deno.env.get('CRON_SECRET');
   if (!secret || req.headers.get('x-cron-secret') !== secret) return respond(req, 401, { error: 'unauthorized' });
   if (!mailConfigured()) return respond(req, 400, { error: 'SMTP secrets are not set' });
-  const { data, error } = await supabase
-    .from('waitlist')
-    .select('id, seq, name, email, platforms, created_at')
-    .is('email_sent_at', null)
-    .order('seq')
-    .limit(40);
+  // ?all=1 re-sends the pass to everyone (used once, when sending moved to claww.me).
+  const all = new URL(req.url).searchParams.get('all') === '1';
+  let q = supabase.from('waitlist').select('id, seq, name, email, platforms, created_at').order('seq').limit(200);
+  if (!all) q = q.is('email_sent_at', null).limit(40);
+  const { data, error } = await q;
   if (error) throw error;
   let sent = 0;
   for (const row of data as Row[]) if (await sendConfirmation(row)) sent++;
