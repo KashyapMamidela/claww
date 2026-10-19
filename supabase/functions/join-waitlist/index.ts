@@ -70,11 +70,11 @@ async function positionOf(seq: number) {
   return count ?? seq;
 }
 
-type Row = { id: string; seq: number; name: string; email: string; platforms: string[] };
+type Row = { id: string; seq: number; name: string; email: string; platforms: string[]; created_at?: string };
 
 async function sendConfirmation(row: Row) {
   const position = await positionOf(row.seq);
-  const mail = waitlistEmail({ name: row.name, position, platforms: row.platforms });
+  const mail = waitlistEmail({ name: row.name, position, platforms: row.platforms, joinedAt: row.created_at });
   const user = Deno.env.get('SMTP_USER')!;
   try {
     await transport().sendMail({
@@ -106,7 +106,7 @@ async function sendPending(req: Request) {
   if (!mailConfigured()) return respond(req, 400, { error: 'SMTP secrets are not set' });
   const { data, error } = await supabase
     .from('waitlist')
-    .select('id, seq, name, email, platforms')
+    .select('id, seq, name, email, platforms, created_at')
     .is('email_sent_at', null)
     .order('seq')
     .limit(40);
@@ -143,7 +143,7 @@ Deno.serve(async (req) => {
     const ipHash = ip ? await sha256(`claww-waitlist:${ip}`) : null;
 
     // Already on the list: show their place again instead of an error.
-    const { data: existing } = await supabase.from('waitlist').select('id, seq, name, email, platforms, email_sent_at').eq('email', email).maybeSingle();
+    const { data: existing } = await supabase.from('waitlist').select('id, seq, name, email, platforms, created_at, email_sent_at').eq('email', email).maybeSingle();
     if (existing) {
       if (!existing.email_sent_at && mailConfigured()) later(sendConfirmation(existing as Row));
       return respond(req, 200, { position: await positionOf(existing.seq), already: true, emailSent: Boolean(existing.email_sent_at) || mailConfigured() });
@@ -158,7 +158,7 @@ Deno.serve(async (req) => {
     const { data: row, error } = await supabase
       .from('waitlist')
       .insert({ name, email, city, platforms, interests, ip_hash: ipHash })
-      .select('id, seq, name, email, platforms')
+      .select('id, seq, name, email, platforms, created_at')
       .single();
     if (error) {
       if (error.code === '23505') return respond(req, 200, { position: 0, already: true, emailSent: false });
