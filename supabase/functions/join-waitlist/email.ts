@@ -144,7 +144,7 @@ export function waitlistEmail(opts: { name: string; position: number; platforms:
 </style>
 </head>
 <body style="margin:0;padding:0;background:${C.page};-webkit-text-size-adjust:100%">
-<div style="display:none;max-height:0;overflow:hidden;opacity:0">You're #${pos} in line. We'll email you once, on launch day.&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;&#847;&zwnj;&nbsp;</div>
+<div style="display:none;max-height:0;overflow:hidden">You're #${pos} in line. We'll email you once, on launch day.</div>
 
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${C.page}">
 <tr><td align="center" style="padding:28px 12px 40px">

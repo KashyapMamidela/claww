@@ -100,7 +100,7 @@ export function Waitlist({ open, onClose, instagram }: { open: boolean; onClose:
             <p className="wl-text">
               {status.emailSent ? (
                 <>
-                  We&rsquo;ve sent a confirmation to <strong>{email}</strong>. If it&rsquo;s not there in a few minutes, check your spam folder.
+                  We&rsquo;ve sent your waitlist pass to <strong>{email}</strong>. Not in your inbox? Check spam, tap <strong>Not spam</strong> and add clawwapp@zohomail.in to your contacts, so the launch-day email reaches you.
                 </>
               ) : (
                 <>

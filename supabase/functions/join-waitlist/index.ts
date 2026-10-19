@@ -80,6 +80,8 @@ async function sendConfirmation(row: Row) {
     await transport().sendMail({
       from: { name: Deno.env.get('MAIL_FROM_NAME') ?? 'CLAWW', address: user },
       replyTo: user,
+      // Mail providers trust senders that offer a one-click way out; it also shows Gmail's own unsubscribe link.
+      headers: { 'List-Unsubscribe': `<mailto:${user}?subject=remove>` },
       to: row.email,
       subject: mail.subject,
       text: mail.text,
