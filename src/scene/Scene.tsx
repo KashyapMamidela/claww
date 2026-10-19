@@ -252,8 +252,15 @@ function Rig() {
 }
 
 export function Scene() {
+  // Once the page covers the stage (the features section is opaque), stop rendering frames.
+  const [live, setLive] = useState(true);
+  useEffect(() => {
+    const onStage = (e: Event) => setLive((e as CustomEvent<boolean>).detail);
+    window.addEventListener('claww:stage', onStage);
+    return () => window.removeEventListener('claww:stage', onStage);
+  }, []);
   return (
-    <Canvas dpr={[1, 2]} camera={{ fov: 30, position: [5.6, 1.5, 6.2], near: 0.1, far: 60 }} gl={{ antialias: true, alpha: true }} aria-hidden>
+    <Canvas frameloop={live ? 'always' : 'never'} dpr={[1, 2]} camera={{ fov: 30, position: [5.6, 1.5, 6.2], near: 0.1, far: 60 }} gl={{ antialias: true, alpha: true }} aria-hidden>
       <ambientLight intensity={0.35} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />
       <directionalLight position={[-5, 2, -3]} intensity={0.35} color="#cfd8ff" />

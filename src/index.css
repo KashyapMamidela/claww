@@ -63,7 +63,59 @@ body {
   padding: 22px var(--gutter) 34px;
   pointer-events: none;
   /* copy scrolls under the header: fade it out instead of letting it collide with the logo */
-  background: linear-gradient(to bottom, var(--chalk) 55%, rgba(230, 233, 237, 0));
+  background: linear-gradient(to bottom, var(--hdr-bg, var(--chalk)) 55%, transparent);
+  transition: color 0.3s ease-out;
+}
+
+.top-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.top-cta {
+  pointer-events: auto;
+  border: 0;
+  cursor: pointer;
+  padding: 11px 18px;
+  border-radius: 999px;
+  background: var(--iron);
+  color: var(--chalk);
+  font: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  transition: background-color 0.3s ease-out, color 0.3s ease-out, transform 0.12s ease-out;
+}
+
+.top-cta:active {
+  transform: scale(0.97);
+}
+
+/* Inside the dark world the header inverts with it. */
+body.is-dark {
+  --hdr-bg: #050505;
+}
+
+body.is-dark .brand,
+body.is-dark .insta {
+  color: #fff;
+}
+
+body.is-dark .brand .mark {
+  filter: brightness(0) invert(1);
+}
+
+body.is-dark .soon {
+  color: var(--app-dim);
+}
+
+body.is-dark .top-cta {
+  background: #fff;
+  color: #050505;
+}
+
+body.is-dark .insta:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .brand {

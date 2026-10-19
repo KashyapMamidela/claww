@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { SplitText } from 'gsap/SplitText';
@@ -8,6 +8,8 @@ import { startScroll } from './scroll';
 import { formatKg, loadAt, PLATES, store } from './story';
 import { MealFragment, MuscleFragment, PrescriptionFragment, SetFragment } from './fragments';
 import Magnet from './vendor/Magnet';
+import { World } from './world';
+import { Waitlist } from './Waitlist';
 
 gsap.registerPlugin(useGSAP, ScrollTrigger, SplitText);
 
@@ -65,6 +67,8 @@ function Marker({ i }: { i: number }) {
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
+  const openWaitlist = () => setWaitlistOpen(true);
 
   useEffect(() => {
     const chapters = Array.from(root.current!.querySelectorAll<HTMLElement>('[data-chapter]'));
@@ -79,7 +83,7 @@ export default function App() {
       // Hero: the headline settles in once, on load. The only motion that isn't driven by the reader.
       const hero = SplitText.create('.hero h1', { type: 'lines', mask: 'lines' });
       gsap.from(hero.lines, { yPercent: 105, duration: 1.1, ease: 'expo.out', stagger: 0.09, delay: 0.15 });
-      gsap.from('.hero .lede, .hero .hint', { opacity: 0, y: 12, duration: 0.9, ease: 'power3.out', delay: 0.55, stagger: 0.08 });
+      gsap.from('.hero .lede, .hero .hero-actions', { opacity: 0, y: 12, duration: 0.9, ease: 'power3.out', delay: 0.55, stagger: 0.08 });
 
       // ...and lifts away, softly blurring, as the first plate comes in.
       gsap.fromTo(
@@ -158,8 +162,7 @@ export default function App() {
       gsap
         .timeline({ scrollTrigger: { trigger: '.finale', start: 'top 75%', end: 'top 25%', scrub: 0.6 } })
         .from(fin.chars, { yPercent: 110, stagger: 0.04, ease: 'none' })
-        .from('.finale .body', { opacity: 0, y: 16, stagger: 0.1, ease: 'none' }, 0.3)
-        .from('.finale .actions', { opacity: 0, y: 24, ease: 'none' }, 0.5);
+        .from('.finale .body', { opacity: 0, y: 16, stagger: 0.1, ease: 'none' }, 0.3);
     },
     { scope: root }
   );
@@ -176,23 +179,34 @@ export default function App() {
           <img className="mark" src="/claww-mark.png" alt="" width={30} height={28} />
           <span>CLAWW</span>
         </a>
-        <span className="soon">
-          Coming to Android
+        <div className="top-right">
+          <span className="soon">Coming to Android and iOS</span>
           <a className="insta" href={INSTAGRAM} target="_blank" rel="noopener noreferrer" aria-label="CLAWW on Instagram">
             <InstagramIcon />
           </a>
-        </span>
+          <button type="button" className="top-cta" onClick={openWaitlist}>
+            Join the waitlist
+          </button>
+        </div>
       </header>
 
       <LoadCounter />
 
       <main id="top">
         <section className="hero" data-chapter>
-          <h1>Stop guessing at the gym.</h1>
-          <p className="lede">CLAWW plans every workout for you and gets a little smarter each time you train. You just show up and lift.</p>
-          <p className="hint">Scroll to load the bar</p>
+          <h1>Stop guessing. Start getting fit.</h1>
+          <p className="lede">
+            CLAWW is one app for your workouts, food, steps and sleep. It plans every day for you and gets a little smarter each time you use it.
+          </p>
+          <div className="hero-actions">
+            <Magnet padding={60} magnetStrength={4} wrapperClassName="cta-wrap">
+              <button type="button" className="cta" onClick={openWaitlist}>
+                Join the waitlist
+              </button>
+            </Magnet>
+            <p className="hint">Or scroll to load the bar</p>
+          </div>
         </section>
-
         <section className="chapter" data-chapter>
           <div className="copy">
             <Marker i={0} />
@@ -233,29 +247,27 @@ export default function App() {
           <div className="copy">
             <h2>62.5 kg.</h2>
             <p className="body big">Stronger every month, and you never had to guess.</p>
-            <p className="body">CLAWW is coming to Android soon. Follow along on Instagram, or get one email on launch day.</p>
-          </div>
-          <div className="actions">
-            <Magnet padding={70} magnetStrength={4} wrapperClassName="cta-wrap">
-              <a className="cta" href="mailto:clawwapp@zohomail.in?subject=Tell%20me%20when%20CLAWW%20launches">
-                Email me at launch
-              </a>
-            </Magnet>
-            <a className="cta-ghost" href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-              <InstagramIcon />
-              Follow @clawwcrew
-            </a>
+            <p className="body">That&rsquo;s the gym. Keep scrolling: CLAWW plans the rest of your day too.</p>
           </div>
         </section>
       </main>
 
-      <footer className="foot">
-        <span>&copy; 2026 CLAWW</span>
-        <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
-          Instagram
-        </a>
-        <span>Made in India, for everyone who lifts.</span>
-      </footer>
+      <World
+        onJoin={openWaitlist}
+        instagram={INSTAGRAM}
+        footer={
+          <footer className="foot">
+            <span>&copy; 2026 CLAWW</span>
+            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer">
+              Instagram
+            </a>
+            <a href="mailto:clawwapp@zohomail.in">clawwapp@zohomail.in</a>
+            <span>Made in India, for everyone who wants to get fit.</span>
+          </footer>
+        }
+      />
+
+      <Waitlist open={waitlistOpen} onClose={() => setWaitlistOpen(false)} instagram={INSTAGRAM} />
     </div>
   );
 }
