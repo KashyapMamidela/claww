@@ -237,7 +237,7 @@ export default function App() {
           </div>
           <div className="actions">
             <Magnet padding={70} magnetStrength={4} wrapperClassName="cta-wrap">
-              <a className="cta" href="mailto:hello@claww.app?subject=Tell%20me%20when%20CLAWW%20launches">
+              <a className="cta" href="mailto:clawwapp@zohomail.in?subject=Tell%20me%20when%20CLAWW%20launches">
                 Email me at launch
               </a>
             </Magnet>
