@@ -3,21 +3,151 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CLAWW · Stop guessing. Start getting fit.</title>
-    <meta name="description" content="CLAWW plans every workout for you and gets smarter each time you train. Coming to Android." />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="CLAWW · Stop guessing. Start getting fit." />
-    <meta property="og:description" content="A workout app that plans every session for you and gets smarter each time you train. Coming to Android." />
-    <meta property="og:image" content="/claww-icon.png" />
-    <meta name="twitter:card" content="summary" />
+    <title>CLAWW: Workout Planner, Calorie Counter and Step Tracker App</title>
+    <meta
+      name="description"
+      content="CLAWW is one fitness app for your workouts, food, steps and sleep. It plans strength, cardio, mobility and yoga sessions, counts calories from a photo of your plate, and adapts after every session. Coming to Android and iOS."
+    />
+    <link rel="canonical" href="https://claww.me/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <meta name="theme-color" content="#e6e9ed" />
+    <meta name="application-name" content="CLAWW" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CLAWW" />
+    <meta property="og:url" content="https://claww.me/" />
+    <meta property="og:title" content="CLAWW: Stop guessing. Start getting fit." />
+    <meta property="og:description" content="One app for your workouts, food, steps and sleep. It plans every day for you and gets smarter each time you train. Join the waitlist." />
+    <meta property="og:image" content="https://claww.me/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="675" />
+    <meta property="og:image:alt" content="CLAWW logo on blue. Lift. Eat. Adapt. Coming soon to Android and iOS." />
+    <meta property="og:locale" content="en_IN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="CLAWW: Stop guessing. Start getting fit." />
+    <meta name="twitter:description" content="One app for your workouts, food, steps and sleep. It plans every day for you and gets smarter each time you train." />
+    <meta name="twitter:image" content="https://claww.me/og.jpg" />
+
     <link rel="icon" type="image/png" href="/claww-icon.png" />
+    <link rel="apple-touch-icon" href="/claww-icon.png" />
+    <link rel="alternate" type="text/plain" title="CLAWW for AI assistants" href="/llms.txt" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+
+    <!-- Structured data: who makes CLAWW, what the app is, and the FAQ, for search engines and AI assistants. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://claww.me/#org",
+            "name": "CLAWW",
+            "url": "https://claww.me/",
+            "logo": "https://claww.me/claww-icon.png",
+            "email": "support@claww.me",
+            "sameAs": ["https://www.instagram.com/clawwcrew"],
+            "foundingLocation": { "@type": "Place", "address": { "@type": "PostalAddress", "addressCountry": "IN" } }
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://claww.me/#website",
+            "url": "https://claww.me/",
+            "name": "CLAWW",
+            "publisher": { "@id": "https://claww.me/#org" },
+            "inLanguage": "en"
+          },
+          {
+            "@type": "MobileApplication",
+            "@id": "https://claww.me/#app",
+            "name": "CLAWW",
+            "url": "https://claww.me/",
+            "image": "https://claww.me/og.jpg",
+            "operatingSystem": "Android, iOS",
+            "applicationCategory": "HealthApplication",
+            "applicationSubCategory": "Fitness",
+            "description": "CLAWW is a fitness app that plans your workouts (strength, cardio, mobility and yoga) and adjusts them after every session, counts calories and protein from a photo of your meal, suggests Indian meals that fit what you have left for the day, tracks steps, sleep and water, and shows your progress in the CLAWW Tracker.",
+            "featureList": [
+              "Workout plans that adapt after every session",
+              "Strength, cardio, mobility and yoga",
+              "Recovery check before each session",
+              "One-tap set logging with a rest timer",
+              "Calories and protein from a photo of your meal",
+              "Daily calorie and macro targets",
+              "Indian meal suggestions",
+              "Step counting with Health Connect",
+              "Sleep and water logging",
+              "Step-by-step form guides for over 180 exercises",
+              "The CLAWW Tracker: strength, personal records, consistency and trends"
+            ],
+            "publisher": { "@id": "https://claww.me/#org" }
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://claww.me/#faq",
+            "mainEntity": [
+              { "@type": "Question", "name": "When does CLAWW launch?", "acceptedAnswer": { "@type": "Answer", "text": "Android comes first, then iOS. Join the waitlist at claww.me and we'll email you once, on the day it's ready for your phone." } },
+              { "@type": "Question", "name": "Is CLAWW free?", "acceptedAnswer": { "@type": "Answer", "text": "Pricing isn't final yet. People on the waitlist will hear about it first." } },
+              { "@type": "Question", "name": "Do I need a gym?", "acceptedAnswer": { "@type": "Answer", "text": "No. CLAWW plans around a full gym, some equipment at home, or just your bodyweight. Yoga and mobility sessions need nothing but a mat." } },
+              { "@type": "Question", "name": "Is CLAWW good for beginners?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. You pick your experience level when you start, every exercise has step-by-step form cues, and CLAWW starts you light and only adds more when you're ready." } },
+              { "@type": "Question", "name": "How does counting calories from a photo work?", "acceptedAnswer": { "@type": "Answer", "text": "Take a photo of your plate or type what you ate. CLAWW estimates the calories, protein, carbs and fat, and you can fix anything before saving." } },
+              { "@type": "Question", "name": "Does CLAWW work with my watch or other apps?", "acceptedAnswer": { "@type": "Answer", "text": "On Android, CLAWW can read your steps and active calories from Health Connect, which collects data from many watches and fitness apps. Without it, your phone counts your steps on its own." } },
+              { "@type": "Question", "name": "Is my data safe?", "acceptedAnswer": { "@type": "Answer", "text": "Your data is tied to your account and only you can see it. Meal photos are private, CLAWW never sells your data, and you can delete your account and everything in it from the app at any time." } }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <style>
+      /* Shown only until the app loads, and to crawlers that don't run JavaScript. Same words as the page. */
+      body { margin: 0; background: #e6e9ed; color: #1a1d23; font-family: 'Archivo', system-ui, sans-serif; }
+      .static { max-width: 44rem; padding: 96px 24px 64px; line-height: 1.55; }
+      .static h1 { font-size: clamp(44px, 7vw, 96px); line-height: 0.95; letter-spacing: -0.03em; margin: 0; }
+      .static h2 { margin: 40px 0 6px; font-size: 22px; }
+      .static p, .static li { color: #3d434c; }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="static">
+        <h1>Stop guessing. Start getting fit.</h1>
+        <p>
+          CLAWW is one app for your workouts, food, steps and sleep. It plans every day for you and gets a little smarter each time you use it. Coming to Android
+          and iOS. <a href="https://claww.me/">Join the waitlist</a>.
+        </p>
+
+        <h2>It knows when you're ready for more</h2>
+        <p>Lift a weight with ease twice, and next time CLAWW adds a little. Struggle, and it waits for you.</p>
+        <h2>Tired today? It listens</h2>
+        <p>Tell it what's sore before you start. It goes easy on those muscles and pushes the fresh ones.</p>
+        <h2>One tap, then back to lifting</h2>
+        <p>Your weights are already filled in. Tap Done, the rest timer starts, and the next set is ready.</p>
+        <h2>Not into lifting? It plans that too</h2>
+        <p>Pick strength, cardio, mobility or yoga, or mix them. CLAWW builds your week around the days and time you have.</p>
+        <h2>And the rest of your day</h2>
+        <ul>
+          <li>Snap your plate: calories, protein, carbs and fat from a photo of your meal.</li>
+          <li>Know what's left today: daily calorie and macro targets for losing fat, building muscle or eating better.</li>
+          <li>Eat for the work you did: Indian meals, like dal, paneer and eggs, that fit what you still need today.</li>
+          <li>Every step counts: your phone counts your steps, no watch needed, with Health Connect on Android.</li>
+          <li>Sleep and water, one tap each.</li>
+          <li>Never wonder how: step-by-step form cues for over 180 exercises.</li>
+        </ul>
+        <h2>The CLAWW Tracker</h2>
+        <p>Strength, personal records, consistency, sets per muscle, steps, sleep and protein, as charts you can read at a glance.</p>
+        <h2>Why CLAWW</h2>
+        <p>
+          Most fitness apps track what you did. CLAWW decides what you should do next: it rewrites your plan after every session and keeps workouts, food, steps,
+          sleep and water in one place.
+        </p>
+        <p>
+          <a href="https://www.instagram.com/clawwcrew">Instagram @clawwcrew</a> · <a href="mailto:support@claww.me">support@claww.me</a> ·
+          <a href="/privacy">Privacy policy</a> · <a href="/terms">Terms of use</a>
+        </p>
+      </main>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
