@@ -11,6 +11,7 @@ import { useAppState } from '../../../lib/appState';
 import { MEDICAL_DISCLAIMER_ACK_LABEL, MEDICAL_DISCLAIMER_BODY } from '../../../lib/medicalDisclaimer';
 import { track, AnalyticsEvent } from '../../../lib/analytics';
 import { notificationsSupported } from '../../../lib/notifications';
+import { invalidateProfile } from '../../../lib/profileStore';
 
 const GENDER_ACCENTS: Record<string, string> = {
   male: '#3B82F6',
@@ -62,6 +63,7 @@ export default function OnboardingReveal() {
             medical_disclaimer_acknowledged_at: new Date().toISOString(),
           })
           .eq('id', user.id);
+        invalidateProfile();
         if (error) console.warn('[Claww] Failed to save onboarding profile:', error.message);
       } else {
         console.warn('[Claww] No authenticated user; skipping profile write until sign-up is wired in.');

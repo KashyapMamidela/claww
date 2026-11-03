@@ -5,6 +5,7 @@ import type { AuthError, Session, User } from '@supabase/supabase-js';
 import { extractInvokeErrorMessage } from './data';
 import { unregisterPushToken } from './pushTokens';
 import { cancelAllReminders } from './notifications';
+import { clearProfileCache } from './profileStore';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types
@@ -162,6 +163,7 @@ export async function signOut(): Promise<{ error: AuthError | null }> {
   await unregisterPushToken();
   await cancelAllReminders().catch(() => {});
   const { error } = await supabase.auth.signOut();
+  clearProfileCache(); // NG PHASE 2: the next account never sees this one's profile
   return { error };
 }
 

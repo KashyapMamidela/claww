@@ -5,6 +5,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, FONT } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
+import { ProfileBasicsCard } from '../../../components/ProfileBasicsCard';
+import { basicsSummary, hasBasics, profileBasics } from '../../../lib/profile';
 
 const G = COLORS.green;
 const TOTAL_STEPS = 6;
@@ -17,6 +19,17 @@ export default function NutritionSetupDetails() {
   const [age, setAge] = useState(params.age ?? '');
 
   const canAdvance = Number(height) > 0 && Number(weight) > 0 && Number(age) > 0;
+  // NG PHASE 2: the entry screen pre-fills these from the profile; when it had all three, show
+  // them instead of asking again. Edit opens the fields; saving the targets saves them back.
+  const fromProfile = profileBasics({
+    height: Number(params.height) || null,
+    weight: Number(params.weight) || null,
+    age: Number(params.age) || null,
+    gender: params.gender || null,
+  });
+  const known = hasBasics(fromProfile, ['heightCm', 'weightKg', 'age']);
+  const [editing, setEditing] = useState(false);
+  const showInputs = !known || editing;
 
   const next = () => {
     if (!canAdvance) return;
@@ -42,7 +55,11 @@ export default function NutritionSetupDetails() {
             We'll calculate a starting point from these, then you can adjust anything before saving.
           </Text>
 
-          <View style={{ flexDirection: 'row', gap: 10 }}>
+          {showInputs ? null : (
+            <ProfileBasicsCard summary={basicsSummary(fromProfile, ['heightCm', 'weightKg', 'age'])} accent={G} onEdit={() => setEditing(true)} />
+          )}
+
+          <View style={{ flexDirection: 'row', gap: 10, display: showInputs ? 'flex' : 'none' }}>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Height (cm)</Text>
               <TextInput
@@ -51,7 +68,7 @@ export default function NutritionSetupDetails() {
                 placeholder="e.g. 175"
                 placeholderTextColor="#52525B"
                 keyboardType="numeric"
-                autoFocus
+                autoFocus={showInputs}
                 style={inputStyle(height.length > 0)}
               />
             </View>
@@ -79,9 +96,11 @@ export default function NutritionSetupDetails() {
               />
             </View>
           </View>
-          <Text style={{ color: COLORS.textFaint, fontSize: 10.5, marginTop: 10, lineHeight: 15, fontFamily: FONT }}>
-            Age matters here because your calorie burn rate changes with it — it's part of the BMR formula we use.
-          </Text>
+          {showInputs ? (
+            <Text style={{ color: COLORS.textFaint, fontSize: 10.5, marginTop: 10, lineHeight: 15, fontFamily: FONT }}>
+              Age matters here because your calorie burn rate changes with it — it's part of the BMR formula we use.
+            </Text>
+          ) : null}
 
           <View style={{ flex: 1 }} />
           <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={!canAdvance} onPress={next}>

@@ -1,6 +1,7 @@
 import type { FoodProfile } from './foodProfile';
 import { suggestedWeekdayIndex } from './trainingWeek';
 import { computeRecoveryScore, proteinShare } from './engine';
+import { invalidateProfile } from './profileStore';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
@@ -102,6 +103,7 @@ export async function getProfile(userId: string): Promise<Profile | null> {
 // shown-then-later-enabled-from-Settings are both valid states.
 export async function setNotificationPromptShown(userId: string): Promise<void> {
   const { error } = await supabase.from('profiles').update({ notification_prompt_shown_at: new Date().toISOString() }).eq('id', userId);
+  invalidateProfile();
   if (error) console.warn('[Claww] Failed to record notification prompt shown:', error.message);
 }
 
@@ -110,6 +112,7 @@ export async function saveReminderSettings(userId: string, reminders: ReminderSe
   const profile = await getProfile(userId);
   const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), reminders };
   const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
   if (error) {
     console.warn('[Claww] Failed to save reminder settings:', error.message);
     return false;
@@ -124,6 +127,7 @@ export async function saveFoodProfile(userId: string, foodProfile: FoodProfile):
     foodProfile: { ...foodProfile, askedAt: foodProfile.askedAt ?? new Date().toISOString() },
   };
   const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
   if (error) {
     console.warn('[Claww] Failed to save food profile:', error.message);
     return false;
@@ -135,6 +139,7 @@ export async function saveStepsGoal(userId: string, stepsGoal: number): Promise<
   const profile = await getProfile(userId);
   const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), stepsGoal };
   const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
   if (error) {
     console.warn('[Claww] Failed to save steps goal:', error.message);
     return false;
@@ -172,12 +177,14 @@ export async function getActivityDays(userId: string, days = 90): Promise<Map<st
 
 export async function setNotificationsEnabled(userId: string, enabled: boolean): Promise<void> {
   const { error } = await supabase.from('profiles').update({ notifications_enabled: enabled }).eq('id', userId);
+  invalidateProfile();
   if (error) console.warn('[Claww] Failed to update notification preference:', error.message);
 }
 
 // Item #31 — same one-time-ever gate as setNotificationPromptShown above.
 export async function setRatingPromptShown(userId: string): Promise<void> {
   const { error } = await supabase.from('profiles').update({ rating_prompt_shown_at: new Date().toISOString() }).eq('id', userId);
+  invalidateProfile();
   if (error) console.warn('[Claww] Failed to record rating prompt shown:', error.message);
 }
 
@@ -228,6 +235,7 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
       personalization_profile: nextPersonalization,
     })
     .eq('id', userId);
+  invalidateProfile();
 
   if (error) {
     console.warn('[Claww] Failed to save workout intake:', error.message);
@@ -236,10 +244,18 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
   return true;
 }
 
+/** Height, weight and age as typed in nutrition setup; saved to the profile with the targets. */
+export interface ProfileBasicsInput {
+  height?: number | null;
+  weight?: number | null;
+  age?: number | null;
+}
+
 export async function saveNutritionTargets(
   userId: string,
   targets: NutritionDefaults,
-  dietaryRestrictions?: DietaryRestriction[]
+  dietaryRestrictions?: DietaryRestriction[],
+  basics?: ProfileBasicsInput
 ): Promise<boolean> {
   const profile = await getProfile(userId);
   const nextPersonalization: PersonalizationProfile = {
@@ -248,10 +264,21 @@ export async function saveNutritionTargets(
     dietaryRestrictions: dietaryRestrictions ?? profile?.personalization_profile?.dietaryRestrictions,
   };
 
+  // NG PHASE 2: the targets were calculated from these, so the profile must hold the same numbers.
+  // Before this, nutrition setup used what was typed but never saved it, and the next setup
+  // pre-filled the old values.
+  const positive = (v: number | null | undefined) => (typeof v === 'number' && v > 0 ? v : undefined);
+  const basicsUpdate = {
+    ...(positive(basics?.height) ? { height: positive(basics?.height) } : {}),
+    ...(positive(basics?.weight) ? { weight: positive(basics?.weight) } : {}),
+    ...(positive(basics?.age) ? { age: Math.round(positive(basics?.age)!) } : {}),
+  };
+
   const { error } = await supabase
     .from('profiles')
-    .update({ personalization_profile: nextPersonalization })
+    .update({ personalization_profile: nextPersonalization, ...basicsUpdate })
     .eq('id', userId);
+  invalidateProfile();
 
   if (error) {
     console.warn('[Claww] Failed to save nutrition targets:', error.message);

@@ -684,3 +684,18 @@ DROP POLICY IF EXISTS "prescription_decisions_own" ON prescription_decisions;
 CREATE POLICY "prescription_decisions_own" ON prescription_decisions
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- NG PHASE 2: one profile. `profiles` is the only source of age, height,
+-- weight and gender; these hold what NG PHASE 5 (workout setup and the plan
+-- tree) asks. All optional; nothing reads them yet, so applying this changes
+-- no behaviour. `injuries` is structured ([{part, severity}]); the free-text
+-- injuries in personalization_profile.workoutDefaults stay until NG PHASE 5.2
+-- replaces the regex filter (build plan 12.1 conflict 5). Covered by the
+-- existing owner-only profiles policy.
+-- ============================================================
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS training_months INT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS session_minutes INT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS injuries JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS activities JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bar_weight_kg NUMERIC DEFAULT 20;
