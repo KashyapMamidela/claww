@@ -385,8 +385,8 @@ Fill these in as they are decided; Claude Code reads this table before the phase
 | What the paid tier includes | NG 15 | Which daily caps stay, which features are paid | | |
 | Live Activity and Android chronometer modules | NG 3.5 | Chosen in that step after checking maintenance | | |
 | Workout modalities in the new setup (conflict 12.1 #6) | NG 5 | Add modality to screen 05 with cardio, mobility and yoga blueprints / keep the modality step | | |
-| Block length (conflict 12.1 #7) | NG 5 | 6 weeks (NG 5.3) / 8 weeks (screens 03, 05, 06) | | |
-| Rest for main lifts (conflict 12.1 #8) | NG 3.2 | 150 s (NG 3.2) / 90 s (screens 07, 08) | | |
+| Block length (conflict 12.1 #7) | NG 5 | 6 weeks (NG 5.3) / 8 weeks (screens 03, 05, 06) | **6 weeks** (week 6 lighter); screens' "of 8" read "of 6" | 2026-11-03 |
+| Rest for main lifts (conflict 12.1 #8) | NG 3.2 | 150 s (NG 3.2) / 90 s (screens 07, 08) | **150 / 90 / 60 s** for main / accessory / isolation, as NG 3.2 says; screens 07 and 08 read 2:30 for bench | 2026-11-03 |
 | Snacks (conflict 12.1 #9) | NG 7 | Logged as extra and suggested as add-ons / a fourth planned meal | | |
 | Jain diet (conflict 12.1 #10) | NG 4 | `jain_ok` flag on foods / remove the chip | | |
 | Budget default (conflict 12.1 #11) | NG 6 | 150 / 250 rule (NG 6) / 200 (screen 13) | | |
