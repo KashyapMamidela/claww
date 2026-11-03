@@ -10,6 +10,7 @@ import { getGenerationUsageToday, getProfile, saveReminderSettings, setNotificat
 import { GENERATION_CAPS } from '../lib/generationCaps';
 import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
+import { getPerfReport, PERF_ENABLED, resetPerfReport, type PerfReport } from '../lib/perf';
 import { refreshReminders } from '../lib/reminderSync';
 import { DEFAULT_REMINDER_SETTINGS, normalizeReminderSettings, type ReminderSettings } from '../lib/reminderPlan';
 import { ReminderSettingsCard } from '../components/ReminderSettingsCard';
@@ -176,6 +177,8 @@ export default function SettingsScreen() {
           </View>
         ) : null}
 
+        {PERF_ENABLED && SHOW_DEV_TOOLS ? <PerfReadout /> : null}
+
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -190,5 +193,44 @@ export default function SettingsScreen() {
         </View>
       </View>
     </ScrollView>
+  );
+}
+
+const msText = (ms: number | null) => (ms === null ? 'none yet' : `${Math.round(ms)} ms`);
+
+/** Speed numbers for the NG PHASE 0.4 baseline, readable on an installed preview APK. */
+function PerfReadout() {
+  const [report, setReport] = useState<PerfReport>(getPerfReport);
+  useFocusEffect(useCallback(() => setReport(getPerfReport()), []));
+  const { setLatency, homeFirstPaintMs } = report;
+  const row = (label: string, value: string) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.fg, fontSize: 12, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{value}</Text>
+    </View>
+  );
+  return (
+    <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 8 }}>
+      <Text style={{ color: COLORS.amber, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>SPEED NUMBERS · NOT IN RELEASE BUILDS</Text>
+      {row('Sets timed', String(setLatency.count))}
+      {row('Tap to next set, median', msText(setLatency.median))}
+      {row('Tap to next set, slowest 10%', msText(setLatency.p90))}
+      {row('Home first paint (this app start)', msText(homeFirstPaintMs))}
+      <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+        <TouchableOpacity activeOpacity={0.8} onPress={() => setReport(getPerfReport())} style={{ flex: 1, height: 38, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Refresh</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {
+            resetPerfReport();
+            setReport(getPerfReport());
+          }}
+          style={{ flex: 1, height: 38, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Reset set timings</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }

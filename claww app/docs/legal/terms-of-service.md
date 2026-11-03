@@ -97,4 +97,4 @@ operating CLAWW is incorporated.]`
 
 ## 12. Contact
 
-`privacy@claww.app` `[FILL IN — real inbox]`
+`privacy@claww.me` `[FILL IN — real inbox]`

@@ -13,7 +13,8 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_SHOW_DEV_TOOLS": "1"
+        "EXPO_PUBLIC_SHOW_DEV_TOOLS": "1",
+        "EXPO_PUBLIC_PERF": "1"
       }
     },
     "production": {

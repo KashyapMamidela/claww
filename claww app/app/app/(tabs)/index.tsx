@@ -23,6 +23,7 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { greetingFor, type Greeting } from '../../lib/greeting';
 import { SLEEP_TARGET_HOURS, sleepRingPct } from '../../lib/sleepTarget';
+import { useFirstPaint } from '../../lib/perf';
 
 function useGreeting(): Greeting {
   const [greeting, setGreeting] = useState(() => greetingFor(new Date()));
@@ -269,6 +270,7 @@ function HomeEmptyState() {
 }
 
 function HomePopulated() {
+  useFirstPaint('home');
   const { userId, userName, recovery, meals, xp, streak, todaySleep } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();

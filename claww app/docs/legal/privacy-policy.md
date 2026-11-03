@@ -20,7 +20,7 @@ Anyone who creates a CLAWW account or uses the app.
 
 **Legal entity:** `[FILL IN — the developer/company name that will appear on
 the Play Console listing]`
-**Contact:** `privacy@claww.app` `[FILL IN — replace with a real, monitored inbox before publishing]`
+**Contact:** `privacy@claww.me` `[FILL IN — replace with a real, monitored inbox before publishing]`
 
 ## What we collect
 
@@ -133,7 +133,7 @@ actual backup retention window]` of deletion.
   type-to-confirm step. This is immediate and irreversible. If you no longer
   have the app installed, see our [account deletion page](./delete-account.html).
 - **Export your data.** `[FILL IN once SHIP PHASE 7.5 ships an in-app export
-  — until then: email privacy@claww.app and we'll send you a copy of
+  — until then: email privacy@claww.me and we'll send you a copy of
   everything tied to your account.]`
 - **Correct your data.** Most profile fields (weight, height, goals, etc.)
   can be edited directly in the app.
@@ -161,4 +161,4 @@ notice mechanism, e.g. a forced acknowledgement screen]`
 ## Contact
 
 Questions about this policy, or a request that isn't covered by an in-app
-option: `privacy@claww.app` `[FILL IN — real inbox]`
+option: `privacy@claww.me` `[FILL IN — real inbox]`

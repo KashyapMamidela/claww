@@ -16,9 +16,11 @@ export function openStoreListing(): void {
   Linking.openURL(url).catch(() => {});
 }
 
-// Same placeholder address used in docs/legal/*.html — swap both together
-// once there's a real, monitored inbox (see SHIP PHASE 7.2's [FILL IN]).
-export const SUPPORT_EMAIL = 'privacy@claww.app';
+// Real, monitored inboxes on claww.me (Zoho aliases of crew@claww.me), the same
+// addresses as the website and docs/legal/*. The old privacy@claww.app placeholder
+// pointed at a domain CLAWW doesn't own, so these emails used to bounce.
+export const SUPPORT_EMAIL = 'support@claww.me';
+export const PRIVACY_EMAIL = 'privacy@claww.me';
 
 export function openSupportEmail(subject: string): void {
   Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(subject)}`).catch(() => {

@@ -91,6 +91,10 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
+-- NG PHASE 0: only the trigger runs this. Supabase grants new functions to anon and
+-- authenticated by default, which exposed it at /rest/v1/rpc/handle_new_user.
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+
 -- ============================================================
 -- TABLE: user_stats
 -- Tracks streaks, levels, and workout counts.
@@ -377,6 +381,8 @@ END;
 $$;
 
 REVOKE ALL ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) FROM PUBLIC;
+-- NG PHASE 0: PUBLIC alone isn't enough on Supabase, which grants anon directly.
+REVOKE ALL ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) FROM anon;
 GRANT EXECUTE ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) TO authenticated;
 
 -- ============================================================

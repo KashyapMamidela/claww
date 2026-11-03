@@ -27,6 +27,8 @@ Don't confuse "phase 2" between these five without checking which one is meant.
 
 ## V2 phases (claww-v2-phased-prompts.md)
 
+**Live state (2026-11-03):** everything below that says "not deployed" or "needs the user: run the SQL / deploy" was done on 2026-10-19 and re-verified read-only on 2026-11-03 (schema, both seeds, the four functions, cron, FCM). What V2 still lacks is the device tests and the merge, tracked in `docs/ng0-checklist.md` (NG PHASE 0).
+
 Standing rules are at the top of `claww-v2-phased-prompts.md`; mockups for every change are in
 `docs/change-plan-v2.html`.
 
@@ -247,3 +249,12 @@ for progression, MacroFactor for nutrition) at the user's request. Two follow-up
   - [ ] 12.2 Closed test, 12 testers × 14 consecutive days. **Calendar-bound — start the moment 9.4 produces a build, run it in parallel with Phases 10 and 11**
   - [ ] 12.3 Store listing (avoid "AI-powered"; lead with bounded programming and real adaptation)
   - [ ] 12.4 Launch checklist + staged rollout
+
+## NG phases (nextgen/claww-nextgen-phased-prompts.md, on `ng/plan`)
+
+- [~] NG PHASE 0 — Stabilise V2, device list, baseline numbers (started 2026-11-03 on `v2/phase-1-quick-fixes`). Typecheck clean, 322/322 tests (4 new).
+  - [x] 0.1 Checklist — `docs/ng0-checklist.md`. Live project re-verified read-only through the Supabase connector: all 54 tables and columns from `schema.sql`, RLS on every public table, 183/183 exercises with metadata and form guides, the four V2 functions ACTIVE, cron job and vault secret present. The Supabase security advisor flagged `handle_new_user()` (callable at `/rest/v1/rpc/`) and `check_and_increment_generation_usage` (callable signed out): the `REVOKE` lines are in `schema.sql`; **applying them live was blocked by Claude Code's safety check, needs the user.**
+  - [x] 0.2 Devices — `docs/device-matrix.md`: A = the user's Android (6 GB), B = iQOO (8 GB), C = iPhone 18 Pro, **not tested** until an Apple Developer account exists (an APK can't run on iOS). No 4 GB phone yet, so B's numbers count as mid-range.
+  - [~] 0.3 Fixes found so far: (1) `lib/perf.ts` also records in preview builds (`EXPO_PUBLIC_PERF=1` in `eas.json`) and shows set latency and Home first paint in Settings > Speed numbers (`lib/perfStats.ts`, 4 tests); (2) Help & Support emailed `privacy@claww.app`, a domain CLAWW doesn't own, so every support email bounced: now `support@claww.me` (`lib/support.ts`), and `docs/legal/*` use `privacy@claww.me`. **Needs the user:** install the new preview APK and walk the device tests in `docs/ng0-checklist.md` section 5.
+  - [ ] 0.4 Baseline — template in `docs/baseline.md`, filled on device B then A.
+  - [ ] 0.5 Merge PR #4 into `main` (the user merges).
