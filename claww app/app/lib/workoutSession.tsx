@@ -34,9 +34,10 @@ import {
   type LastTimeMap,
   type SetRowState,
 } from './sessionPlan';
+import { restSecondsFor } from './engine';
 
-/** Rest between sets, until NG PHASE 3.2 sets it by lift role. Exported for the player's meta line. */
-export const REST_SECONDS = 45;
+/** Rest for an exercise the session knows nothing about (no catalog entry); NG PHASE 3.2 sets rest by role. */
+export const REST_SECONDS = 90;
 
 export type SessionStatus = 'idle' | 'active' | 'resting' | 'completed';
 
@@ -91,6 +92,8 @@ interface WorkoutSessionState {
    * NG PHASE 3.1: also the weight step and rep range the player's steppers and rows use.
    */
   prescriptionFor: (exerciseName: string) => { reason: string; pill: string; incrementKg: number | null; repMin: number; repMax: number } | null;
+  /** Rest after a set of this exercise, in seconds (NG PHASE 3.2). */
+  restSecondsForExercise: (exerciseName: string) => number;
   togglePause: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
@@ -274,6 +277,15 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     [userId, workout, dayIndex, today, clock]
   );
 
+  /** Rest after a set of this exercise, by its catalog role (NG PHASE 3.2). */
+  const restSecondsForExercise = useCallback(
+    (exerciseName: string) => {
+      const entry = prescribed.find((x) => x.name === exerciseName)?.entry;
+      return entry ? restSecondsFor(entry.role, entry.stimulusType) : REST_SECONDS;
+    },
+    [prescribed]
+  );
+
   const logSet = useCallback(
     (exIdxArg?: number, setIdxArg?: number, rir?: number | null) => {
       if (!userId || !workout || !today) return;
@@ -318,10 +330,12 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       } else if (exIdx !== exerciseIndex) {
         setExerciseIndex(exIdx);
       }
-      setClock((c) => (c ? startRest(c, Date.now(), REST_SECONDS) : c));
+      // NG PHASE 3.2: rest by the exercise's role: main 150 s, accessory 90 s, isolation 60 s.
+      const seconds = restSecondsForExercise(exercise.name);
+      setClock((c) => (c ? startRest(c, Date.now(), seconds) : c));
       setStatus('resting');
     },
-    [userId, workout, today, exercises, exerciseIndex, bumpXp, finish, setPlan]
+    [userId, workout, today, exercises, exerciseIndex, bumpXp, finish, setPlan, restSecondsForExercise]
   );
 
   const skipExercise = useCallback(() => {
@@ -404,6 +418,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       sessionId,
       startSession,
       prescriptionFor,
+      restSecondsForExercise,
       togglePause,
       updateSetRow,
       logSet,
@@ -432,6 +447,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       sessionId,
       startSession,
       prescriptionFor,
+      restSecondsForExercise,
       togglePause,
       updateSetRow,
       logSet,

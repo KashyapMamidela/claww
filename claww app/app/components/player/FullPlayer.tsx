@@ -7,7 +7,7 @@ import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-g
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { AREA_COLORS, COLORS, FONT, SURFACES } from '../../lib/theme';
-import { REST_SECONDS, useWorkoutSession } from '../../lib/workoutSession';
+import { useWorkoutSession } from '../../lib/workoutSession';
 import {
   currentSetIndex,
   exerciseProgress,
@@ -30,7 +30,7 @@ import { Button } from '../ui/Button';
 import { Stepper } from '../ui/Stepper';
 import { TickButton } from '../ui/TickButton';
 import { ElapsedClock, KcalText } from './clocks';
-import { RestView } from './RestView';
+import { RestSheet } from './RestView';
 import { FormStrip } from './FormStrip';
 import { ExerciseGuideSheet } from '../ExerciseGuideSheet';
 import { ValuePickerSheet, type PickerKind } from './ValuePickerSheet';
@@ -89,6 +89,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
     previousExercise,
     endSession,
     prescriptionFor,
+    restSecondsForExercise,
   } = useWorkoutSession();
   useSetLatency(`${exerciseIndex}:${setIndex}`);
 
@@ -134,7 +135,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const kgStep = rx?.incrementKg && rx.incrementKg > 0 ? rx.incrementKg : DEFAULT_KG_STEP;
   const muscle = forms[exercise.name]?.primaryMuscle ?? null;
   const plannedReps = repsText(exercise.reps, repMin, repMax);
-  const metaLine = [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${REST_SECONDS} s`].filter(Boolean).join(' · ');
+  const metaLine = [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${restSecondsForExercise(exercise.name)} s`].filter(Boolean).join(' · ');
   const reasonLine = reason || rx?.reason || null;
 
   const currentRow = setIndex >= 0 ? state.rows[setIndex] : null;
@@ -209,12 +210,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             ))}
           </View>
 
-          {status === 'resting' ? (
-            <View style={{ flex: 1, paddingBottom: Math.max(insets.bottom, 16) + 8 }}>
-              <RestView onDemo={setGuideName} />
-            </View>
-          ) : (
-            <>
+          {/* NG PHASE 3.2: rest no longer replaces the screen; the rows stay and the sheet shows the rest. */}
+          <>
               <GestureDetector gesture={swipe}>
                 <Animated.View style={[{ flex: 1 }, contentStyle]}>
                   <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
@@ -338,7 +335,9 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                 }}
               >
                 <View style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.18)' }} />
-                {currentRow ? (
+                {status === 'resting' ? (
+                  <RestSheet />
+                ) : currentRow ? (
                   <>
                     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -393,8 +392,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                   </>
                 ) : null}
               </LinearGradient>
-            </>
-          )}
+          </>
         </View>
 
         {picker && pickerRow ? (
