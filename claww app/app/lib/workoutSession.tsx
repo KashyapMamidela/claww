@@ -35,7 +35,8 @@ import {
   type SetRowState,
 } from './sessionPlan';
 
-const REST_SECONDS = 45;
+/** Rest between sets, until NG PHASE 3.2 sets it by lift role. Exported for the player's meta line. */
+export const REST_SECONDS = 45;
 
 export type SessionStatus = 'idle' | 'active' | 'resting' | 'completed';
 
@@ -85,7 +86,11 @@ interface WorkoutSessionState {
   /** `rx` carries the engine's prescriptions for the day (V2 PHASE 7); without it the plan's own numbers are used. */
   startSession: (workout: WorkoutRow, dayIndex?: number, rx?: { sessionId: string; prescribed: PrescribedExercise[] }) => void;
   /** Today's prescription for an exercise, when the engine made one. */
-  prescriptionFor: (exerciseName: string) => { reason: string; pill: string } | null;
+  /**
+   * Today's engine prescription for an exercise, or null for one the engine doesn't manage.
+   * NG PHASE 3.1: also the weight step and rep range the player's steppers and rows use.
+   */
+  prescriptionFor: (exerciseName: string) => { reason: string; pill: string; incrementKg: number | null; repMin: number; repMax: number } | null;
   togglePause: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
@@ -369,7 +374,13 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     (exerciseName: string) => {
       const p = prescribed.find((x) => x.name === exerciseName);
       if (!p || !p.managed) return null;
-      return { reason: reasonLine(p), pill: commandPill(p.prescription.commands).label };
+      return {
+        reason: reasonLine(p),
+        pill: commandPill(p.prescription.commands).label,
+        incrementKg: p.entry?.loadIncrementKg ?? null,
+        repMin: p.state.repMin,
+        repMax: p.state.repMax,
+      };
     },
     [prescribed]
   );

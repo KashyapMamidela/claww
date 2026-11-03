@@ -1,51 +1,53 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { AREA_COLORS, COLORS, FONT } from '../../lib/theme';
-import { useWorkoutSession } from '../../lib/workoutSession';
-import { currentSetIndex, isExerciseComplete, lastFor, nextExerciseWithWork } from '../../lib/sessionPlan';
+import { AREA_COLORS, COLORS, FONT, SURFACES } from '../../lib/theme';
+import { REST_SECONDS, useWorkoutSession } from '../../lib/workoutSession';
+import {
+  currentSetIndex,
+  exerciseProgress,
+  exerciseVolume,
+  isExerciseComplete,
+  lastFor,
+  nextExerciseWithWork,
+  repsText,
+  rowHint,
+  stepValue,
+  tickTap,
+} from '../../lib/sessionPlan';
 import { markSetTap, useRenderCount, useSetLatency } from '../../lib/perf';
+import { setDone } from '../../lib/haptics';
+import { useAppState } from '../../lib/appState';
+import { useProfile } from '../../lib/profile';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
-import { ElapsedClock } from './clocks';
+import { Button } from '../ui/Button';
+import { Stepper } from '../ui/Stepper';
+import { TickButton } from '../ui/TickButton';
+import { ElapsedClock, KcalText } from './clocks';
 import { RestView } from './RestView';
 import { FormStrip } from './FormStrip';
 import { ExerciseGuideSheet } from '../ExerciseGuideSheet';
 import { ValuePickerSheet, type PickerKind } from './ValuePickerSheet';
 
+// The live player, v3 layout (NG PHASE 3.1, screen 07). Ticking the current set's row logs it
+// exactly as planned; the bottom sheet's steppers change the current set first, then Done
+// logs it. Swipe left to skip an exercise, right to go back (kept from V2 2.3).
+
 const A = COLORS.blue;
-/** V2 PHASE 6.3 adds the column the reps-in-reserve chip saves to; until then the slot stays hidden. */
+/** V2 PHASE 6.3: optional reps-left-in-the-tank chip, saved with the set for the engine. */
 const RIR_CHIP_ENABLED = true;
 const SWIPE_DISTANCE = 90;
 const SWIPE_VELOCITY = 800;
+const DEFAULT_KG_STEP = 2.5;
 
-function formatSet(reps: number, weight: number): string {
-  return weight > 0 ? `${weight}×${reps}` : `${reps}`;
-}
-
-function IconButton({ icon, onPress, label, tint = 'rgba(255,255,255,0.75)' }: { icon: string; onPress: () => void; label: string; tint?: string }) {
-  return (
-    <PressScale onPress={onPress} accessibilityLabel={label} accessibilityRole="button" hitSlop={6}>
-      <View
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 12,
-          backgroundColor: 'rgba(255,255,255,0.07)',
-          borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.12)',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <Icon name={icon} size={17} color={tint} />
-      </View>
-    </PressScale>
-  );
+function setText(weight: number, reps: string): string {
+  return weight > 0 ? `${weight} kg × ${reps}` : `${reps} reps`;
 }
 
 interface PickerTarget {
@@ -61,11 +63,12 @@ export interface FullPlayerProps {
   reason?: string | null;
 }
 
-/** The full-screen set-row player (V2 PHASE 2.3). One tap on Done logs a set that went as planned. */
 export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   useRenderCount('FullPlayer');
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
+  const { userId } = useAppState();
+  const { profile } = useProfile(userId);
   const {
     status,
     workout,
@@ -125,25 +128,34 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const state = plan[exerciseIndex];
   if (!workout || !today || !exercise || !state) return null;
 
+  const rx = prescriptionFor(exercise.name);
+  const repMin = rx?.repMin ?? null;
+  const repMax = rx?.repMax ?? null;
+  const kgStep = rx?.incrementKg && rx.incrementKg > 0 ? rx.incrementKg : DEFAULT_KG_STEP;
+  const muscle = forms[exercise.name]?.primaryMuscle ?? null;
+  const plannedReps = repsText(exercise.reps, repMin, repMax);
+  const metaLine = [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${REST_SECONDS} s`].filter(Boolean).join(' · ');
+  const reasonLine = reason || rx?.reason || null;
+
   const currentRow = setIndex >= 0 ? state.rows[setIndex] : null;
   const exerciseDone = isExerciseComplete(state);
   const upNextIdx = nextExerciseWithWork(plan, exerciseIndex);
   const upNext = upNextIdx >= 0 && upNextIdx !== exerciseIndex ? exercises[upNextIdx] : null;
   const upNextRow = upNextIdx >= 0 ? plan[upNextIdx]?.rows[Math.max(0, currentSetIndex(plan[upNextIdx]))] : null;
+  const showKgStepper = !!currentRow && (currentRow.weight > 0 || currentRow.prescribedWeight > 0 || (rx?.incrementKg ?? 0) > 0);
 
-  const onDone = () => {
+  const logCurrent = () => {
     if (!currentRow) return;
     markSetTap();
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    setDone();
     logSet(undefined, undefined, rir);
     setRir(null);
   };
 
-  const onRowCheck = (s: number) => {
-    markSetTap();
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    logSet(exerciseIndex, s, s === setIndex ? rir : null);
-    if (s === setIndex) setRir(null);
+  // Screen 07: a tick logs that row exactly as planned, current row only (lib/sessionPlan.ts tickTap).
+  const onTick = (s: number) => {
+    if (tickTap(plan, exerciseIndex, s) !== 'log') return;
+    logCurrent();
   };
 
   const pickerRow = picker ? plan[picker.exIdx]?.rows[picker.setIdx] : null;
@@ -151,24 +163,50 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onMinimize} statusBarTranslucent>
-      <GestureHandlerRootView style={{ flex: 1, backgroundColor: '#050505' }}>
-        <View style={{ flex: 1, paddingTop: insets.top + 8 }}>
-          {/* Header */}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16 }}>
-            <IconButton icon="chevron-down" label="Minimize player" onPress={onMinimize} />
+      <GestureHandlerRootView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+        <View style={{ flex: 1, paddingTop: insets.top + 6 }}>
+          {/* Header: close, session, exercise n of N with the elapsed clock, kcal, and the exercise list */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10 }}>
+            <PressScale onPress={onMinimize} accessibilityRole="button" accessibilityLabel="Close the player (the workout keeps running)">
+              <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="x" size={22} color={COLORS.fgGray} strokeWidth={2} />
+              </View>
+            </PressScale>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text numberOfLines={1} style={{ color: '#A1A1AA', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
-                {today.focus} · {exerciseIndex + 1} of {exercises.length}
+              <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
+                {today.focus || today.day}
               </Text>
-              {clock && !isPaused ? (
-                <ElapsedClock clock={clock} style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }} />
-              ) : (
-                <Text style={{ color: COLORS.amber, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Paused</Text>
-              )}
+              <View style={{ flexDirection: 'row' }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
+                  Exercise {exerciseIndex + 1} of {exercises.length} ·{' '}
+                </Text>
+                {clock && !isPaused ? (
+                  <ElapsedClock clock={clock} style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, fontVariant: ['tabular-nums'] }} />
+                ) : (
+                  <Text style={{ color: COLORS.amber, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Paused</Text>
+                )}
+              </View>
             </View>
-            <IconButton icon={isPaused ? 'play' : 'pause'} label={isPaused ? 'Resume' : 'Pause'} onPress={togglePause} />
-            <IconButton icon="layout-grid" label="All exercises" onPress={() => setListOpen(true)} />
-            <IconButton icon="x" label="End workout" onPress={endSession} tint="rgba(255,255,255,0.5)" />
+            {clock ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, height: 34, borderRadius: 12, borderWidth: 1, borderColor: COLORS.blueBorder, backgroundColor: COLORS.blueDim }}>
+                <Icon name="flame" size={14} color="#93C5FD" />
+                <KcalText clock={clock} weightKg={profile?.weight ?? null} style={{ color: '#93C5FD', fontSize: 13, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'] }} />
+              </View>
+            ) : null}
+            <PressScale onPress={() => setListOpen(true)} accessibilityRole="button" accessibilityLabel="All exercises, pause or end the workout">
+              <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="layout-grid" size={19} color={COLORS.fgGray} />
+              </View>
+            </PressScale>
+          </View>
+
+          {/* Segmented progress, one segment per exercise */}
+          <View style={{ flexDirection: 'row', gap: 4, paddingHorizontal: 16, marginTop: 8 }} accessibilityLabel={`Exercise ${exerciseIndex + 1} of ${exercises.length}`}>
+            {exercises.map((ex, i) => (
+              <View key={`${ex.name}-${i}`} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.10)', overflow: 'hidden' }}>
+                <View style={{ width: `${Math.round(exerciseProgress(plan[i]) * 100)}%`, height: '100%', backgroundColor: A }} />
+              </View>
+            ))}
           </View>
 
           {status === 'resting' ? (
@@ -176,173 +214,186 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
               <RestView onDemo={setGuideName} />
             </View>
           ) : (
-          <>
-          <GestureDetector gesture={swipe}>
-            <Animated.View style={[{ flex: 1 }, contentStyle]}>
-              <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 18, paddingBottom: 24, gap: 14 }}>
-                <View>
-                  <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>{exercise.name}</Text>
-                  {reason || prescriptionFor(exercise.name)?.reason ? (
-                    <Text style={{ color: AREA_COLORS.engine, fontSize: 12.5, fontWeight: '600', marginTop: 4, fontFamily: FONT }}>{reason || prescriptionFor(exercise.name)?.reason}</Text>
-                  ) : null}
-                </View>
+            <>
+              <GestureDetector gesture={swipe}>
+                <Animated.View style={[{ flex: 1 }, contentStyle]}>
+                  <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
+                    <View>
+                      <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
+                      {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 12.5, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
+                    </View>
 
-                <FormStrip
-                  form={forms[exercise.name]}
-                  setIndex={Math.max(0, setIndex)}
-                  expanded={lastTimeLoaded && !lastTime[exercise.name]}
-                  onDemo={() => setGuideName(exercise.name)}
-                />
+                    <FormStrip
+                      form={forms[exercise.name]}
+                      setIndex={Math.max(0, setIndex)}
+                      expanded={lastTimeLoaded && !lastTime[exercise.name]}
+                      onDemo={() => setGuideName(exercise.name)}
+                    />
 
-                {/* Set rows */}
-                <View style={{ backgroundColor: '#111113', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' }}>
-                    {['SET', 'LAST', 'KG', 'REPS'].map((h, i) => (
-                      <Text
-                        key={h}
-                        style={{ flex: i === 0 ? 0.6 : 1, color: COLORS.textFaint, fontSize: 10, fontWeight: '800', letterSpacing: 0.7, textAlign: i === 0 ? 'left' : 'center', fontFamily: FONT }}
-                      >
-                        {h}
-                      </Text>
-                    ))}
-                    <View style={{ width: 44 }} />
-                  </View>
-                  {state.rows.map((row, s) => {
-                    const isCurrent = s === setIndex;
-                    const last = lastFor(lastTime, exercise.name, s);
-                    const valueCell = (kind: PickerKind, text: string) => (
-                      <Pressable
-                        disabled={row.done}
-                        onPress={() => setPicker({ kind, exIdx: exerciseIndex, setIdx: s })}
-                        accessibilityRole="button"
-                        accessibilityLabel={`${kind === 'kg' ? 'Weight' : 'Reps'} for set ${s + 1}: ${text}`}
-                        hitSlop={4}
-                        style={{ flex: 1, alignItems: 'center' }}
-                      >
-                        <View
-                          style={{
-                            minWidth: 64,
-                            paddingVertical: 8,
-                            borderRadius: 10,
-                            alignItems: 'center',
-                            backgroundColor: row.done ? 'transparent' : isCurrent ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.05)',
-                          }}
-                        >
-                          <Text style={{ color: row.done ? COLORS.textMuted : '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{text}</Text>
-                        </View>
-                      </Pressable>
-                    );
-                    return (
-                      <View
-                        key={s}
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          paddingHorizontal: 12,
-                          paddingVertical: 8,
-                          backgroundColor: isCurrent ? 'rgba(59,130,246,0.06)' : 'transparent',
-                          borderTopWidth: s === 0 ? 0 : 1,
-                          borderTopColor: 'rgba(255,255,255,0.05)',
-                        }}
-                      >
-                        <Text style={{ flex: 0.6, color: isCurrent ? A : '#A1A1AA', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s + 1}</Text>
-                        <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 13, textAlign: 'center', fontFamily: FONT }}>{last ? formatSet(last.reps, last.weight) : '—'}</Text>
-                        {valueCell('kg', row.weight > 0 ? `${row.weight}` : '—')}
-                        {valueCell('reps', `${row.reps}`)}
-                        <PressScale
-                          disabled={row.done}
-                          onPress={() => onRowCheck(s)}
-                          accessibilityRole="button"
-                          accessibilityLabel={row.done ? `Set ${s + 1} logged` : `Log set ${s + 1}`}
-                          hitSlop={6}
-                        >
+                    {/* Set rows: "Set n", the numbers, a hint, and the tick */}
+                    <View style={{ gap: 8 }}>
+                      {state.rows.map((row, s) => {
+                        const isCurrent = s === setIndex;
+                        const reps = row.done || isCurrent ? `${row.reps}` : plannedReps;
+                        const hint = rowHint(row, isCurrent, repMax);
+                        const tick = row.done ? 'done' : isCurrent ? 'current' : 'pending';
+                        return (
                           <View
+                            key={s}
                             style={{
-                              width: 36,
-                              height: 36,
-                              marginLeft: 8,
-                              borderRadius: 18,
+                              flexDirection: 'row',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              backgroundColor: row.done ? COLORS.green : 'transparent',
-                              borderWidth: row.done ? 0 : 1.5,
-                              borderColor: isCurrent ? A : 'rgba(255,255,255,0.2)',
+                              gap: 10,
+                              minHeight: 64,
+                              paddingLeft: 16,
+                              paddingRight: 8,
+                              borderRadius: 18,
+                              borderWidth: 1,
+                              borderColor: isCurrent ? COLORS.blue : row.done ? COLORS.blueBorder : COLORS.border,
+                              backgroundColor: isCurrent ? 'rgba(59,130,246,0.10)' : row.done ? 'rgba(59,130,246,0.07)' : SURFACES.cardBottom,
+                              boxShadow: isCurrent ? `0px 0px 14px ${COLORS.blue}40` : undefined,
                             }}
                           >
-                            <Icon name="check" size={17} color={row.done ? '#050505' : isCurrent ? A : 'rgba(255,255,255,0.35)'} strokeWidth={3} />
+                            <Text style={{ width: 52, color: row.done || isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Set {s + 1}</Text>
+                            <Pressable
+                              disabled={row.done}
+                              onPress={() => setPicker({ kind: row.weight > 0 ? 'kg' : 'reps', exIdx: exerciseIndex, setIdx: s })}
+                              accessibilityRole="button"
+                              accessibilityLabel={`Set ${s + 1}: ${setText(row.weight, reps)}. Change`}
+                              style={{ flex: 1, minHeight: 44, justifyContent: 'center' }}
+                            >
+                              <Text style={{ color: row.done || isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 19, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+                                {setText(row.weight, reps)}
+                              </Text>
+                            </Pressable>
+                            {hint ? <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{hint}</Text> : null}
+                            <TickButton
+                              state={tick}
+                              onPress={tick === 'current' ? () => onTick(s) : undefined}
+                              accessibilityLabel={row.done ? `Set ${s + 1} logged` : isCurrent ? `Log set ${s + 1} as planned, ${setText(row.weight, reps)}` : `Set ${s + 1}, not yet`}
+                            />
                           </View>
-                        </PressScale>
+                        );
+                      })}
+                    </View>
+
+                    {RIR_CHIP_ENABLED && currentRow ? (
+                      <View style={{ gap: 6 }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>Reps left in the tank · optional</Text>
+                        <View style={{ flexDirection: 'row', gap: 8 }}>
+                          {['0', '1', '2', '3+'].map((v, i) => (
+                            <PressScale
+                              key={v}
+                              style={{ flex: 1 }}
+                              onPress={() => {
+                                Haptics.selectionAsync().catch(() => {});
+                                setRir((cur) => (cur === i ? null : i));
+                              }}
+                              accessibilityRole="button"
+                              accessibilityLabel={`${v} reps left in the tank`}
+                              accessibilityState={{ selected: rir === i }}
+                            >
+                              <View style={{ height: 44, borderRadius: 12, backgroundColor: rir === i ? A : 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text style={{ color: COLORS.fg, fontWeight: '700', fontFamily: FONT }}>{v}</Text>
+                              </View>
+                            </PressScale>
+                          ))}
+                        </View>
                       </View>
-                    );
-                  })}
-                </View>
+                    ) : null}
 
-                {RIR_CHIP_ENABLED ? (
-                  <View style={{ gap: 6 }}>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>Reps left in the tank · optional</Text>
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      {['0', '1', '2', '3+'].map((v, i) => (
-                        <PressScale
-                          key={v}
-                          style={{ flex: 1 }}
-                          onPress={() => {
-                            Haptics.selectionAsync().catch(() => {});
-                            setRir((cur) => (cur === i ? null : i));
-                          }}
-                          accessibilityRole="button"
-                          accessibilityLabel={`${v} reps left in the tank`}
-                          accessibilityState={{ selected: rir === i }}
-                        >
-                          <View style={{ height: 44, borderRadius: 12, backgroundColor: rir === i ? A : 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ color: '#fff', fontWeight: '700', fontFamily: FONT }}>{v}</Text>
-                          </View>
-                        </PressScale>
-                      ))}
-                    </View>
-                  </View>
-                ) : null}
+                    {upNext ? (
+                      <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, minHeight: 48, borderRadius: 14, backgroundColor: SURFACES.cardBottom, borderWidth: 1, borderColor: COLORS.border }}>
+                          <Text style={{ color: COLORS.textFaint, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
+                            {upNext.name}
+                          </Text>
+                          {upNextRow ? (
+                            <Text style={{ color: COLORS.fgGray, fontSize: 12.5, fontFamily: FONT }}>
+                              {upNextRow.weight > 0 ? `${upNextRow.weight} × ${upNextRow.reps}` : `${upNext.sets} × ${upNextRow.reps}`}
+                            </Text>
+                          ) : null}
+                        </View>
+                      </PressScale>
+                    ) : null}
+                  </ScrollView>
+                </Animated.View>
+              </GestureDetector>
 
-                {upNext ? (
-                  <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 14, backgroundColor: '#111113', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-                      <Text style={{ color: COLORS.textFaint, fontSize: 10, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
-                      <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
-                        {upNext.name}
+              {/* Bottom sheet: the current set's steppers and Done, or "Exercise done" with Next */}
+              <LinearGradient
+                colors={[SURFACES.sheetTop, SURFACES.sheetBottom]}
+                style={{
+                  borderTopLeftRadius: 26,
+                  borderTopRightRadius: 26,
+                  borderTopWidth: 1,
+                  borderColor: COLORS.border,
+                  paddingHorizontal: 16,
+                  paddingTop: 10,
+                  paddingBottom: Math.max(insets.bottom, 16) + 4,
+                  gap: 12,
+                  boxShadow: '0px -10px 30px rgba(0,0,0,0.45)',
+                }}
+              >
+                <View style={{ alignSelf: 'center', width: 40, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.18)' }} />
+                {currentRow ? (
+                  <>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
+                        <Text style={{ color: A, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>SET {setIndex + 1} · NOW</Text>
+                      </View>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
+                        tap ✓ above if it went as planned
                       </Text>
-                      {upNextRow ? (
-                        <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontFamily: FONT }}>
-                          {upNextRow.weight > 0 ? `${upNextRow.weight} × ${upNextRow.reps}` : `${upNext.sets} × ${upNextRow.reps}`}
-                        </Text>
-                      ) : null}
                     </View>
-                  </PressScale>
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                      {showKgStepper ? (
+                        <View style={{ flex: 1 }}>
+                          <Stepper
+                            label="Weight"
+                            value={`${currentRow.weight}`}
+                            unit="kg"
+                            onDecrement={() => updateSetRow(exerciseIndex, setIndex, { weight: stepValue(currentRow.weight, -1, kgStep) })}
+                            onIncrement={() => updateSetRow(exerciseIndex, setIndex, { weight: stepValue(currentRow.weight, 1, kgStep) })}
+                            decrementDisabled={currentRow.weight <= 0}
+                          />
+                        </View>
+                      ) : null}
+                      <View style={{ flex: 1 }}>
+                        <Stepper
+                          label="Reps"
+                          value={`${currentRow.reps}`}
+                          unit="reps"
+                          onDecrement={() => updateSetRow(exerciseIndex, setIndex, { reps: stepValue(currentRow.reps, -1, 1, 1) })}
+                          onIncrement={() => updateSetRow(exerciseIndex, setIndex, { reps: stepValue(currentRow.reps, 1, 1, 1) })}
+                          decrementDisabled={currentRow.reps <= 1}
+                        />
+                      </View>
+                    </View>
+                    <Button size="lg" fullWidth accent={A} accentDeep={COLORS.blueDeep} onPress={logCurrent} icon={<Icon name="check" size={18} color="#fff" strokeWidth={3} />}>
+                      {`Done · set ${setIndex + 1}`}
+                    </Button>
+                  </>
+                ) : exerciseDone ? (
+                  <>
+                    <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+                      Exercise done
+                      <Text style={{ color: COLORS.textMuted, fontWeight: '600' }}>
+                        {exerciseVolume(state) > 0 ? ` · ${exerciseVolume(state).toLocaleString('en-IN')} kg volume` : ` · ${state.rows.length} sets`}
+                      </Text>
+                    </Text>
+                    {upNext ? (
+                      <Button size="lg" fullWidth accent={A} accentDeep={COLORS.blueDeep} onPress={() => goToExercise(upNextIdx)} icon={<Icon name="chevron-right" size={18} color="#fff" strokeWidth={2.6} />}>
+                        {`Next · ${upNext.name}`}
+                      </Button>
+                    ) : null}
+                  </>
                 ) : null}
-              </ScrollView>
-            </Animated.View>
-          </GestureDetector>
-
-          {/* Primary action */}
-          <View style={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: Math.max(insets.bottom, 16) + 4, gap: 8 }}>
-            {currentRow ? (
-              <PressScale onPress={onDone} accessibilityRole="button" accessibilityLabel={`Done, ${currentRow.reps} reps${currentRow.weight > 0 ? ` at ${currentRow.weight} kilograms` : ''}`}>
-                <View style={{ height: 64, borderRadius: 20, backgroundColor: A, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
-                  <Icon name="check" size={20} color="#fff" strokeWidth={3} />
-                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', fontFamily: FONT }}>
-                    Done · {currentRow.reps}
-                    {currentRow.weight > 0 ? ` × ${currentRow.weight} kg` : ' reps'}
-                  </Text>
-                </View>
-              </PressScale>
-            ) : exerciseDone && upNextIdx >= 0 ? (
-              <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button">
-                <View style={{ height: 64, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Next exercise</Text>
-                </View>
-              </PressScale>
-            ) : null}
-            <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>Tap a number to change it · swipe left to skip, right to go back</Text>
-          </View>
-          </>
+              </LinearGradient>
+            </>
           )}
         </View>
 
@@ -361,15 +412,44 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
           />
         ) : null}
 
-        {guideName && forms[guideName] ? (
-          <ExerciseGuideSheet name={guideName} form={forms[guideName]} onClose={() => setGuideName(null)} />
-        ) : null}
+        {guideName && forms[guideName] ? <ExerciseGuideSheet name={guideName} form={forms[guideName]} onClose={() => setGuideName(null)} /> : null}
 
         {listOpen ? (
           <Modal visible transparent animationType="fade" onRequestClose={() => setListOpen(false)} statusBarTranslucent>
             <Pressable onPress={() => setListOpen(false)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
-              <Pressable onPress={() => {}} style={{ backgroundColor: COLORS.card, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 16, paddingBottom: 28, gap: 8, maxHeight: '75%' }}>
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', marginBottom: 4, fontFamily: FONT }}>Exercises</Text>
+              <Pressable onPress={() => {}} style={{ backgroundColor: COLORS.card, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 16, paddingBottom: 28, gap: 8, maxHeight: '80%' }}>
+                <View style={{ flexDirection: 'row', gap: 8, marginBottom: 6 }}>
+                  <View style={{ flex: 1 }}>
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      fullWidth
+                      accent={COLORS.amber}
+                      onPress={() => {
+                        togglePause();
+                        setListOpen(false);
+                      }}
+                      icon={<Icon name={isPaused ? 'play' : 'pause'} size={16} color={COLORS.amber} />}
+                    >
+                      {isPaused ? 'Resume' : 'Pause'}
+                    </Button>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Button
+                      variant="ghost"
+                      size="md"
+                      fullWidth
+                      onPress={() => {
+                        setListOpen(false);
+                        endSession();
+                      }}
+                      icon={<Icon name="x" size={16} color={COLORS.fgGray} />}
+                    >
+                      End workout
+                    </Button>
+                  </View>
+                </View>
+                <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', marginBottom: 4, fontFamily: FONT }}>Exercises</Text>
                 <ScrollView contentContainerStyle={{ gap: 6 }}>
                   {exercises.map((ex, i) => {
                     const st = plan[i];
@@ -382,24 +462,15 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                           goToExercise(i);
                           setListOpen(false);
                         }}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${ex.name}, ${st?.skipped ? 'skipped' : `${logged} of ${st?.rows.length ?? ex.sets} sets`}`}
                       >
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            gap: 10,
-                            padding: 12,
-                            borderRadius: 12,
-                            backgroundColor: i === exerciseIndex ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)',
-                          }}
-                        >
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 12, borderRadius: 12, backgroundColor: i === exerciseIndex ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)' }}>
                           <Icon name={done ? 'check-circle-2' : st?.skipped ? 'skip-forward' : 'circle'} size={18} color={done ? COLORS.green : st?.skipped ? '#71717A' : '#A1A1AA'} />
-                          <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
                             {ex.name}
                           </Text>
-                          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
-                            {st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}
-                          </Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}</Text>
                         </View>
                       </PressScale>
                     );
