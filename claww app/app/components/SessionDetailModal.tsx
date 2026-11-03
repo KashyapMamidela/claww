@@ -36,7 +36,7 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
           <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{title}</Text>
           <ScrollView style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
             {rows.length === 0 ? (
-              <Text style={{ color: '#71717A', fontSize: 12.5, fontFamily: FONT }}>No sets were logged for this session.</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>No sets were logged for this session.</Text>
             ) : (
               rows.map((r, i) => {
                 const reps = r.reps_achieved ?? r.reps_prescribed ?? 0;
@@ -53,13 +53,13 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
                       <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT, flex: 1 }} numberOfLines={1}>
                         {r.exercise_name}
                       </Text>
-                      <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{formatTime(r.completed_at)}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{formatTime(r.completed_at)}</Text>
                     </View>
                     <Text style={{ color: '#A1A1AA', fontSize: 12, marginTop: 3, fontFamily: FONT }}>
                       {r.sets !== null ? `Set ${r.sets} · ` : ''}
                       {reps} reps{weight > 0 ? ` × ${weight} kg` : ''}
                       {plannedDiffers ? (
-                        <Text style={{ color: '#52525B' }}>
+                        <Text style={{ color: COLORS.textFaint }}>
                           {`  (planned ${r.reps_prescribed}${(r.weight_prescribed ?? 0) > 0 ? ` × ${r.weight_prescribed} kg` : ''})`}
                         </Text>
                       ) : null}

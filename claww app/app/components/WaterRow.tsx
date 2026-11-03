@@ -83,7 +83,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
           <Icon name="droplets" size={17} color={C} />
           <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
             {litres(total)}
-            <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '600' }}> / {litres(TARGET_ML)}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '600' }}> / {litres(TARGET_ML)}</Text>
           </Text>
           <View style={{ flex: 1, flexDirection: 'row', gap: 3 }}>
             {Array.from({ length: SEGMENTS }, (_, i) => (
@@ -168,13 +168,13 @@ export function WaterRow({ userId }: { userId: string | null }) {
           <WaterWidget onAdded={reload} />
           <View style={{ gap: 6 }}>
             {entries.length === 0 ? (
-              <Text style={{ color: '#71717A', fontSize: 12.5, fontFamily: FONT }}>Nothing logged yet today.</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>Nothing logged yet today.</Text>
             ) : (
               entries.map((e) => (
                 <View key={e.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.04)' }}>
                   <Icon name="droplets" size={14} color={C} />
                   <Text style={{ flex: 1, color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>{e.ml} ml</Text>
-                  <Text style={{ color: '#71717A', fontSize: 12, fontFamily: FONT }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
                     {new Date(e.logged_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                   </Text>
                   <PressScale onPress={() => undo(e)} accessibilityRole="button" accessibilityLabel={`Undo ${e.ml} millilitres`} hitSlop={6}>

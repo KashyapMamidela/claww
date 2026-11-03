@@ -199,7 +199,7 @@ export default function ProfileScreen() {
             </LinearGradient>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>{displayName}</Text>
-              <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>{profile?.email ?? ''} · {tier}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{profile?.email ?? ''} · {tier}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
                 <Badge color={P}>LVL {level}</Badge>
                 <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
@@ -208,7 +208,7 @@ export default function ProfileScreen() {
           </View>
           <View style={{ marginTop: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>XP Progress — Level {level}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10, fontFamily: FONT }}>XP Progress — Level {level}</Text>
               <Text style={{ color: P, fontSize: 10, fontWeight: '600', fontFamily: FONT }}>
                 {xpIntoLevel} / {xpForNextLevel}
               </Text>
@@ -242,7 +242,7 @@ export default function ProfileScreen() {
             >
               <Icon name={s.icon} size={14} color={s.color} />
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
-              <Text style={{ color: '#71717A', fontSize: 9, textAlign: 'center', fontFamily: FONT }}>{s.label}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 9, textAlign: 'center', fontFamily: FONT }}>{s.label}</Text>
             </View>
           ))}
         </View>
@@ -250,7 +250,7 @@ export default function ProfileScreen() {
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
-            <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {achievements.map((b) => (
@@ -292,7 +292,7 @@ export default function ProfileScreen() {
                   padding: 10,
                 }}
               >
-                <Text style={{ color: '#71717A', fontSize: 9.5, fontFamily: FONT }}>{bs.l}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontFamily: FONT }}>{bs.l}</Text>
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', marginTop: 3, fontFamily: FONT }}>{bs.v}</Text>
               </View>
             ))}

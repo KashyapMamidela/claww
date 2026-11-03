@@ -78,7 +78,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
         <Icon name="check-circle-2" size={18} color={COLORS.green} />
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.green, fontSize: 13.5, fontWeight: '800', fontFamily: FONT }}>Completed</Text>
-          <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>{formatWhen(event.createdAt)}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{formatWhen(event.createdAt)}</Text>
         </View>
       </View>
 
@@ -100,15 +100,15 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
               },
             ].map((s) => (
               <View key={s.label} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 9 }}>
-                <Text style={{ color: '#71717A', fontSize: 9, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
                 <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
-                <Text style={{ color: '#52525B', fontSize: 9.5, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
+                <Text style={{ color: COLORS.textFaint, fontSize: 9.5, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
               </View>
             ))}
           </View>
 
           {summary.exercises.length === 0 ? (
-            <Text style={{ color: '#71717A', fontSize: 12, lineHeight: 18, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 18, fontFamily: FONT }}>
               No sets were found for this day's exercises on that date.
             </Text>
           ) : (
@@ -177,7 +177,7 @@ export function SkippedDayCard({ day, event, onDoToday, onKeepToday }: SkippedDa
         <Icon name="x" size={18} color={COLORS.danger} />
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.danger, fontSize: 13.5, fontWeight: '800', fontFamily: FONT }}>Skipped</Text>
-          <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>{formatWhen(event.createdAt)}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{formatWhen(event.createdAt)}</Text>
         </View>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
@@ -221,7 +221,7 @@ export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCa
         <Icon name="x" size={18} color={COLORS.danger} />
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.danger, fontSize: 13.5, fontWeight: '800', fontFamily: FONT }}>Missed</Text>
-          <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>
             {date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })}
           </Text>
         </View>
@@ -237,7 +237,7 @@ export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCa
           Keep today's plan
         </Button>
       </View>
-      <Text style={{ color: '#52525B', fontSize: 11, fontFamily: FONT }}>Either way, {day.day} stays marked as missed.</Text>
+      <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>Either way, {day.day} stays marked as missed.</Text>
     </View>
   );
 }

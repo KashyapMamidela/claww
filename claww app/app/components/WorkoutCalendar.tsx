@@ -56,7 +56,7 @@ function DayCell({ date, event, isToday, size }: DayCellProps) {
       ) : skipped ? (
         <Icon name="x" size={size * 0.36} color={COLORS.amber} strokeWidth={2.5} />
       ) : (
-        <Text style={{ color: isToday ? A : '#52525B', fontSize: size * 0.34, fontWeight: isToday ? '800' : '600', fontFamily: FONT }}>
+        <Text style={{ color: isToday ? A : COLORS.textFaint, fontSize: size * 0.34, fontWeight: isToday ? '800' : '600', fontFamily: FONT }}>
           {date.getDate()}
         </Text>
       )}
@@ -133,7 +133,7 @@ export function WorkoutCalendar() {
             entering={FadeInDown.delay(i * 40).springify().damping(16)}
             style={{ alignItems: 'center', gap: 4 }}
           >
-            <Text style={{ color: '#52525B', fontSize: 9.5, fontWeight: '700', fontFamily: FONT }}>{DAY_LABELS[d.getDay()]}</Text>
+            <Text style={{ color: COLORS.textFaint, fontSize: 9.5, fontWeight: '700', fontFamily: FONT }}>{DAY_LABELS[d.getDay()]}</Text>
             <DayCell date={d} event={eventsByDate.get(toDateKey(d))} isToday={toDateKey(d) === toDateKey(today)} size={38} />
           </Animated.View>
         ))}
@@ -144,7 +144,7 @@ export function WorkoutCalendar() {
           <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontWeight: '700', marginBottom: 10, fontFamily: FONT }}>{monthLabel}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
             {DAY_LABELS.map((l, i) => (
-              <Text key={i} style={{ width: 30, textAlign: 'center', color: '#52525B', fontSize: 9, fontWeight: '700', fontFamily: FONT }}>
+              <Text key={i} style={{ width: 30, textAlign: 'center', color: COLORS.textFaint, fontSize: 9, fontWeight: '700', fontFamily: FONT }}>
                 {l}
               </Text>
             ))}
@@ -163,11 +163,11 @@ export function WorkoutCalendar() {
           <View style={{ flexDirection: 'row', gap: 14, marginTop: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.green }} />
-              <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>{completedThisMonth} completed</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontFamily: FONT }}>{completedThisMonth} completed</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.amber }} />
-              <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>{skippedThisMonth} skipped</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontFamily: FONT }}>{skippedThisMonth} skipped</Text>
             </View>
           </View>
         </View>

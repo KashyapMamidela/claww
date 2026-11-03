@@ -78,7 +78,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
                   >
                     <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{format(kind, v)}</Text>
                     {tag ? (
-                      <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : '#71717A', fontSize: 9.5, fontWeight: '700', fontFamily: FONT }}>
+                      <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : COLORS.textMuted, fontSize: 9.5, fontWeight: '700', fontFamily: FONT }}>
                         {tag.toUpperCase()}
                       </Text>
                     ) : null}
@@ -91,7 +91,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
           <View style={{ alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <WheelColumn items={items.map((v) => format(kind, v))} initialIndex={initialIndex} onChange={(i) => setPending(items[i])} width={110} />
-              <Text style={{ color: '#71717A', fontSize: 14, fontWeight: '700', fontFamily: FONT, marginLeft: 6 }}>{unit}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '700', fontFamily: FONT, marginLeft: 6 }}>{unit}</Text>
             </View>
             <View
               pointerEvents="none"

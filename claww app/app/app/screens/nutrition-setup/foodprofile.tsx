@@ -55,7 +55,7 @@ export default function NutritionSetupFoodProfile() {
         <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           What do you like to eat?
         </Text>
-        <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
           Optional. Meal suggestions will lean toward these and skip what you avoid.
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>

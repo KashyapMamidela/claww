@@ -120,7 +120,7 @@ export default function OnboardingReveal() {
         </Text>
         <Text
           style={{
-            color: '#71717A',
+            color: COLORS.textMuted,
             fontSize: 13,
             marginBottom: 34,
             lineHeight: 20,

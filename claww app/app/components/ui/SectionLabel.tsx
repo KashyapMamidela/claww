@@ -22,7 +22,7 @@ export function SectionLabel({ children, color = '#22C55E', dot = true }: Sectio
           }}
         />
       )}
-      <Text style={{ color, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{children}</Text>
+      <Text style={{ color, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{children}</Text>
     </View>
   );
 }

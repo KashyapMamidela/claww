@@ -116,7 +116,7 @@ export default function NutritionTab() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Set up your nutrition targets</Text>
-              <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>
                 We'll calculate a sample plan for you to customize — showing generic defaults for now.
               </Text>
             </View>
@@ -127,7 +127,7 @@ export default function NutritionTab() {
         {askFoodProfile && (
           <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: G.border, borderRadius: 16, padding: 14, gap: 10 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>What do you like to eat?</Text>
-            <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
               Tell us your cuisines and foods to avoid and meal suggestions will fit you better.
             </Text>
             <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -146,7 +146,7 @@ export default function NutritionTab() {
                 }}
                 style={{ paddingHorizontal: 14, paddingVertical: 8 }}
               >
-                <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -168,12 +168,12 @@ export default function NutritionTab() {
           >
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
               <View>
-                <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>DAILY TARGET</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>DAILY TARGET</Text>
                 <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>
-                  {GOALS.kcal.toLocaleString()} <Text style={{ color: '#71717A', fontSize: 13, fontWeight: '400' }}>kcal</Text>
+                  {GOALS.kcal.toLocaleString()} <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '400' }}>kcal</Text>
                 </Text>
               </View>
-              <Badge color={empty ? '#71717A' : G.bright}>
+              <Badge color={empty ? COLORS.textMuted : G.bright}>
                 {empty ? 'Nothing logged yet' : `${(GOALS.kcal - consumed).toLocaleString()} kcal left`}
               </Badge>
             </View>
@@ -184,16 +184,16 @@ export default function NutritionTab() {
                 trackColor="rgba(255,255,255,0.055)"
                 trackDash={empty ? '3 8' : undefined}
               >
-                <Text style={{ color: empty ? '#52525B' : '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
+                <Text style={{ color: empty ? COLORS.textFaint : '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
                   {consumed.toLocaleString()}
                 </Text>
-                <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>kcal eaten</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 10, fontFamily: FONT }}>kcal eaten</Text>
               </ProgressRing>
               <View style={{ flex: 1, gap: 10 }}>
                 {[
-                  { l: 'Consumed', v: consumed, c: empty ? '#71717A' : G.bright },
-                  { l: 'Burned', v: 0, c: empty ? '#71717A' : COLORS.burgundyText },
-                  { l: 'Net', v: consumed, c: empty ? '#71717A' : '#fff' },
+                  { l: 'Consumed', v: consumed, c: empty ? COLORS.textMuted : G.bright },
+                  { l: 'Burned', v: 0, c: empty ? COLORS.textMuted : COLORS.burgundyText },
+                  { l: 'Net', v: consumed, c: empty ? COLORS.textMuted : '#fff' },
                 ].map((s) => (
                   <View
                     key={s.l}
@@ -206,9 +206,9 @@ export default function NutritionTab() {
                       paddingVertical: 8,
                     }}
                   >
-                    <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>{s.l}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 10, fontFamily: FONT }}>{s.l}</Text>
                     <Text style={{ color: s.c, fontSize: 18, fontWeight: '800', fontFamily: FONT }}>
-                      {s.v.toLocaleString()} <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '400' }}>kcal</Text>
+                      {s.v.toLocaleString()} <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '400' }}>kcal</Text>
                     </Text>
                   </View>
                 ))}
@@ -237,8 +237,8 @@ export default function NutritionTab() {
               <View key={m.label}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
                   <Text style={{ color: '#fff', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>{m.label}</Text>
-                  <Text style={{ color: m.cur > 0 ? m.color : '#71717A', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
-                    {m.cur}g <Text style={{ color: '#71717A', fontWeight: '400' }}>/ {m.goal}g</Text>
+                  <Text style={{ color: m.cur > 0 ? m.color : COLORS.textMuted, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
+                    {m.cur}g <Text style={{ color: COLORS.textMuted, fontWeight: '400' }}>/ {m.goal}g</Text>
                   </Text>
                 </View>
                 <ProgressBar pct={(m.cur / m.goal) * 100} color={m.color} height={6} />
@@ -278,7 +278,7 @@ export default function NutritionTab() {
                 <Icon name="utensils" size={20} color="#71717A" />
               </View>
               <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>No meals logged yet today</Text>
-              <Text style={{ color: '#71717A', fontSize: 11, lineHeight: 16, maxWidth: 220, textAlign: 'center', fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, lineHeight: 16, maxWidth: 220, textAlign: 'center', fontFamily: FONT }}>
                 Tap "Add {nextMeal ?? 'Meal'}" above to start your timeline.
               </Text>
             </View>
@@ -306,7 +306,7 @@ export default function NutritionTab() {
                   <MealThumb photoPath={m.photo_url} mealType={m.meal_type} size={34} />
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{m.meal_type ?? 'Meal'}</Text>
-                    <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontFamily: FONT }}>
                       {new Date(m.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </Text>
                   </View>

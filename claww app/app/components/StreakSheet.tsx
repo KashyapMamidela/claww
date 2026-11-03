@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { AREA_COLORS, FONT, tint } from '../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
 import type { StreakStats } from '../lib/activityMath';
 import { BottomSheet } from './ui/BottomSheet';
 
@@ -28,10 +28,10 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
             { label: 'BEST', value: stats?.best ?? 0 },
           ].map((s) => (
             <View key={s.label} style={{ flex: 1, padding: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.04)' }}>
-              <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
               <Text style={{ color: s.label === 'CURRENT' ? C : '#fff', fontSize: 34, fontWeight: '900', fontFamily: FONT }}>
                 {s.value}
-                <Text style={{ color: '#71717A', fontSize: 13, fontWeight: '600' }}> {s.value === 1 ? 'day' : 'days'}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600' }}> {s.value === 1 ? 'day' : 'days'}</Text>
               </Text>
             </View>
           ))}
@@ -45,7 +45,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
           <View style={{ gap: 6 }}>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {weeks[0].map((d, i) => (
-                <Text key={i} style={{ flex: 1, color: '#52525B', fontSize: 10, textAlign: 'center', fontFamily: FONT }}>
+                <Text key={i} style={{ flex: 1, color: COLORS.textFaint, fontSize: 10, textAlign: 'center', fontFamily: FONT }}>
                   {d.date.toLocaleDateString([], { weekday: 'narrow' })}
                 </Text>
               ))}
@@ -68,7 +68,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                       gap: 3,
                     }}
                   >
-                    <Text style={{ color: d.active ? '#fff' : '#52525B', fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{d.date.getDate()}</Text>
+                    <Text style={{ color: d.active ? '#fff' : COLORS.textFaint, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{d.date.getDate()}</Text>
                     <View style={{ flexDirection: 'row', gap: 2, height: 4 }}>
                       {(['sleep', 'meal', 'workout'] as const).map((k) =>
                         d.reasons[k] ? <View key={k} style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: REASON_COLORS[k] }} /> : null
@@ -82,13 +82,13 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
               {(['sleep', 'meal', 'workout'] as const).map((k) => (
                 <View key={k} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: REASON_COLORS[k] }} />
-                  <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{k === 'meal' ? 'Meal' : k === 'sleep' ? 'Sleep' : 'Workout'}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{k === 'meal' ? 'Meal' : k === 'sleep' ? 'Sleep' : 'Workout'}</Text>
                 </View>
               ))}
             </View>
           </View>
         ) : (
-          <Text style={{ color: '#71717A', fontSize: 12.5, fontFamily: FONT }}>Loading…</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>Loading…</Text>
         )}
       </ScrollView>
     </BottomSheet>

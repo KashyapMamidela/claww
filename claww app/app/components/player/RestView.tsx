@@ -25,7 +25,7 @@ function RestRing() {
   const fraction = restFractionRemaining(clock, now);
   return (
     <ProgressRing size={RING} rings={[{ r: (RING - STROKE) / 2, strokeWidth: STROKE, color: COLORS.blue, pct: fraction * 100 }]} trackColor="rgba(255,255,255,0.07)">
-      <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>{clock.pausedAt !== null ? 'PAUSED' : 'REST'}</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>{clock.pausedAt !== null ? 'PAUSED' : 'REST'}</Text>
       <Text
         accessibilityLiveRegion="polite"
         style={{ color: '#fff', fontSize: 54, fontWeight: '900', letterSpacing: -1.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}
@@ -82,7 +82,7 @@ export function RestView({ onDemo }: { onDemo: (exerciseName: string) => void })
 
       {exercise && nextRow && state ? (
         <View style={{ alignSelf: 'stretch', padding: 16, borderRadius: 16, backgroundColor: '#111113', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', gap: 4 }}>
-          <Text style={{ color: '#71717A', fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>
             NEXT · {switchedExercise ? exercise.name.toUpperCase() + ' · ' : ''}SET {setIndex + 1} OF {state.rows.length}
           </Text>
           <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>

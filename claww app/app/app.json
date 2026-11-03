@@ -54,7 +54,9 @@
               "./assets/fonts/Inter_600SemiBold.ttf",
               "./assets/fonts/Inter_700Bold.ttf",
               "./assets/fonts/Inter_800ExtraBold.ttf",
-              "./assets/fonts/Inter_900Black.ttf"
+              "./assets/fonts/Inter_900Black.ttf",
+              "./assets/fonts/Caveat_500Medium.ttf",
+              "./assets/fonts/Caveat_700Bold.ttf"
             ]
           },
           "android": {
@@ -85,6 +87,19 @@
                   {
                     "path": "./assets/fonts/Inter_900Black.ttf",
                     "weight": 900
+                  }
+                ]
+              },
+              {
+                "fontFamily": "Caveat",
+                "fontDefinitions": [
+                  {
+                    "path": "./assets/fonts/Caveat_500Medium.ttf",
+                    "weight": 500
+                  },
+                  {
+                    "path": "./assets/fonts/Caveat_700Bold.ttf",
+                    "weight": 700
                   }
                 ]
               }

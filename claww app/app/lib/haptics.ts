@@ -1,0 +1,15 @@
+import * as Haptics from 'expo-haptics';
+
+// NG PHASE 1: the only haptics the app uses (build plan section 5.5). One per user action,
+// fired on the same frame as the visual, never as the only feedback.
+//   setDone   light impact: a set logged, "Ate as planned", a usual logged
+//   success   success notification: a personal record, closing the day
+// Everything else stays silent. Failures are ignored: many Android phones have no motor.
+
+export function setDone(): void {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+}
+
+export function success(): void {
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+}

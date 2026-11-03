@@ -59,7 +59,7 @@ export default function NutritionSetupDietary() {
         <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           Dietary restrictions?
         </Text>
-        <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 26, lineHeight: 19, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 26, lineHeight: 19, fontFamily: FONT }}>
           Optional — we'll steer meal suggestions and estimates away from anything that conflicts with these.
         </Text>
 

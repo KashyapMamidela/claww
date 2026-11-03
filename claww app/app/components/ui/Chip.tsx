@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FONT } from '../../lib/theme';
+import { COLORS, FONT, SURFACES } from '../../lib/theme';
 import { PressScale } from './PressScale';
 
 export interface ChipProps {
@@ -18,7 +18,7 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
   const label = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       {icon}
-      <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 12, fontWeight: active ? '700' : '400', fontFamily: FONT }}>
+      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 13, fontWeight: active ? '700' : '500', fontFamily: FONT }}>
         {children}
       </Text>
     </View>
@@ -26,15 +26,16 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
 
   if (active) {
     return (
-      <PressScale onPress={onPress} scaleTo={0.95}>
+      <PressScale onPress={onPress} scaleTo={0.95} accessibilityRole="button" accessibilityState={{ selected: true }}>
         <LinearGradient
           colors={[deep, accent]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
-            paddingHorizontal: 16,
-            paddingVertical: 7,
-            borderRadius: 20,
+            minHeight: 44,
+            justifyContent: 'center',
+            paddingHorizontal: 18,
+            borderRadius: 22,
             borderWidth: 1,
             borderColor: `${accent}78`,
             boxShadow: `0px 2px 6px ${accent}40`,
@@ -46,20 +47,22 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
     );
   }
 
+  // NG PHASE 1: inactive chips are a small Surface (gradient, border), 44 px tall.
   return (
-    <PressScale
-      onPress={onPress}
-      scaleTo={0.95}
-      style={{
-        paddingHorizontal: 16,
-        paddingVertical: 7,
-        borderRadius: 20,
-        backgroundColor: '#151517',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
-      }}
-    >
-      {label}
+    <PressScale onPress={onPress} scaleTo={0.95} accessibilityRole="button" accessibilityState={{ selected: false }}>
+      <LinearGradient
+        colors={[SURFACES.cardTop, SURFACES.cardBottom]}
+        style={{
+          minHeight: 44,
+          justifyContent: 'center',
+          paddingHorizontal: 18,
+          borderRadius: 22,
+          borderWidth: 1,
+          borderColor: COLORS.borderStrong,
+        }}
+      >
+        {label}
+      </LinearGradient>
     </PressScale>
   );
 }

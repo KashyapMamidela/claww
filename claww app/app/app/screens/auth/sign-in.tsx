@@ -86,7 +86,7 @@ export default function SignInScreen() {
           <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
             Welcome back
           </Text>
-          <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
             Sign in to pick up where you left off.
           </Text>
 
@@ -115,7 +115,7 @@ export default function SignInScreen() {
           </Animated.View>
 
           <TouchableOpacity onPress={() => router.push('/screens/auth/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
-            <Text style={{ color: COLORS.fgGrayDim, fontSize: 12.5, fontFamily: FONT }}>Forgot password?</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>Forgot password?</Text>
           </TouchableOpacity>
 
           {error ? (
@@ -132,14 +132,14 @@ export default function SignInScreen() {
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            <Text style={{ color: '#52525B', fontSize: 11, fontFamily: FONT }}>OR</Text>
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>OR</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
           </View>
 
           <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-up')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
-            <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
               New to CLAWW? <Text style={{ color: A, fontWeight: '700' }}>Create an account</Text>
             </Text>
           </TouchableOpacity>

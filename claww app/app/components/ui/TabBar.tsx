@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FONT, TAB_ACCENTS } from '../../lib/theme';
+import { COLORS, FONT, TAB_ACCENTS } from '../../lib/theme';
 import { Icon } from './Icon';
 
 const TAB_META: Record<string, { label: string; icon: string }> = {
@@ -91,7 +91,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
                   fontSize: 9.5,
                   fontFamily: FONT,
                   fontWeight: isActive ? '700' : '400',
-                  color: isActive ? accent : '#71717A',
+                  color: isActive ? accent : COLORS.textMuted,
                 }}
                 numberOfLines={1}
               >

@@ -16,7 +16,7 @@ export default function AuthCallbackScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' }}>
       <ActivityIndicator color={COLORS.fgGray} />
-      <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, marginTop: 16, fontFamily: FONT }}>Signing in…</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 16, fontFamily: FONT }}>Signing in…</Text>
     </SafeAreaView>
   );
 }

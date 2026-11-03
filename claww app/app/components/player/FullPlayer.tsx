@@ -200,7 +200,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     {['SET', 'LAST', 'KG', 'REPS'].map((h, i) => (
                       <Text
                         key={h}
-                        style={{ flex: i === 0 ? 0.6 : 1, color: '#52525B', fontSize: 10, fontWeight: '800', letterSpacing: 0.7, textAlign: i === 0 ? 'left' : 'center', fontFamily: FONT }}
+                        style={{ flex: i === 0 ? 0.6 : 1, color: COLORS.textFaint, fontSize: 10, fontWeight: '800', letterSpacing: 0.7, textAlign: i === 0 ? 'left' : 'center', fontFamily: FONT }}
                       >
                         {h}
                       </Text>
@@ -228,7 +228,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                             backgroundColor: row.done ? 'transparent' : isCurrent ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.05)',
                           }}
                         >
-                          <Text style={{ color: row.done ? '#71717A' : '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{text}</Text>
+                          <Text style={{ color: row.done ? COLORS.textMuted : '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{text}</Text>
                         </View>
                       </Pressable>
                     );
@@ -246,7 +246,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                         }}
                       >
                         <Text style={{ flex: 0.6, color: isCurrent ? A : '#A1A1AA', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s + 1}</Text>
-                        <Text style={{ flex: 1, color: '#71717A', fontSize: 13, textAlign: 'center', fontFamily: FONT }}>{last ? formatSet(last.reps, last.weight) : '—'}</Text>
+                        <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 13, textAlign: 'center', fontFamily: FONT }}>{last ? formatSet(last.reps, last.weight) : '—'}</Text>
                         {valueCell('kg', row.weight > 0 ? `${row.weight}` : '—')}
                         {valueCell('reps', `${row.reps}`)}
                         <PressScale
@@ -279,7 +279,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
                 {RIR_CHIP_ENABLED ? (
                   <View style={{ gap: 6 }}>
-                    <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>Reps left in the tank · optional</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>Reps left in the tank · optional</Text>
                     <View style={{ flexDirection: 'row', gap: 8 }}>
                       {['0', '1', '2', '3+'].map((v, i) => (
                         <PressScale
@@ -305,7 +305,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                 {upNext ? (
                   <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, paddingVertical: 12, borderRadius: 14, backgroundColor: '#111113', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
-                      <Text style={{ color: '#52525B', fontSize: 10, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
+                      <Text style={{ color: COLORS.textFaint, fontSize: 10, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
                       <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
                         {upNext.name}
                       </Text>
@@ -340,7 +340,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                 </View>
               </PressScale>
             ) : null}
-            <Text style={{ color: '#52525B', fontSize: 11, textAlign: 'center', fontFamily: FONT }}>Tap a number to change it · swipe left to skip, right to go back</Text>
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>Tap a number to change it · swipe left to skip, right to go back</Text>
           </View>
           </>
           )}
@@ -397,7 +397,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                           <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
                             {ex.name}
                           </Text>
-                          <Text style={{ color: '#71717A', fontSize: 12, fontFamily: FONT }}>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
                             {st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}
                           </Text>
                         </View>

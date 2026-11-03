@@ -98,7 +98,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
             {/* Reserved for the looping demo clip (V2 PHASE 11 makes them). */}
             <View style={{ height: 150, borderRadius: 16, backgroundColor: '#0B0B0D', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', gap: 6 }} accessibilityLabel="Demo clip placeholder">
               <Icon name="play" size={22} color="#3F3F46" />
-              <Text style={{ color: '#52525B', fontSize: 11.5, fontFamily: FONT }}>Demo clip coming soon</Text>
+              <Text style={{ color: COLORS.textFaint, fontSize: 11.5, fontFamily: FONT }}>Demo clip coming soon</Text>
             </View>
 
             <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -134,7 +134,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
                   ) : null}
                 </>
               ) : (
-                <Text style={{ color: '#71717A', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>No how-to for this exercise yet.</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>No how-to for this exercise yet.</Text>
               )
             ) : null}
 
@@ -151,20 +151,20 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: A }} />
                         <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{capitalize(form.primaryMuscle)}</Text>
-                        <Text style={{ color: '#71717A', fontSize: 12, fontFamily: FONT }}>main muscle</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>main muscle</Text>
                       </View>
                     ) : null}
                     {form.secondaryMuscles.map((m) => (
                       <View key={m} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: tint(A, 0.4) }} />
                         <Text style={{ color: '#D4D4D8', fontSize: 14, fontWeight: '600', fontFamily: FONT }}>{capitalize(m)}</Text>
-                        <Text style={{ color: '#71717A', fontSize: 12, fontFamily: FONT }}>also worked</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>also worked</Text>
                       </View>
                     ))}
                   </View>
                 </>
               ) : (
-                <Text style={{ color: '#71717A', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>No muscle information for this exercise yet.</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>No muscle information for this exercise yet.</Text>
               )
             ) : null}
 
@@ -175,7 +175,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
                   <Skeleton height={64} borderRadius={14} />
                 </View>
               ) : history.length === 0 ? (
-                <Text style={{ color: '#71717A', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
                   You haven't logged this exercise yet. Your last sessions will show up here.
                 </Text>
               ) : (

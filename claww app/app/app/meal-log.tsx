@@ -299,7 +299,7 @@ export default function MealLogScreen() {
         <Text style={{ color: '#fff', fontSize: 20, fontWeight: '900', marginBottom: 6, fontFamily: FONT, textAlign: 'center' }}>
           Logged: {logged.description}
         </Text>
-        <Text style={{ color: '#71717A', fontSize: 12.5, marginBottom: 24, fontFamily: FONT }}>{logged.meal_type ?? mealType}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 12.5, marginBottom: 24, fontFamily: FONT }}>{logged.meal_type ?? mealType}</Text>
 
         <View style={{ flexDirection: 'row', gap: 10, width: '100%', marginBottom: 28 }}>
           {[
@@ -321,7 +321,7 @@ export default function MealLogScreen() {
               }}
             >
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
-              <Text style={{ color: '#71717A', fontSize: 9.5, marginTop: 2, fontFamily: FONT }}>{s.label}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 9.5, marginTop: 2, fontFamily: FONT }}>{s.label}</Text>
             </View>
           ))}
         </View>
@@ -339,7 +339,7 @@ export default function MealLogScreen() {
   if (reviewing) {
     const field = (key: keyof typeof reviewFields, label: string, suffix: string) => (
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#71717A', fontSize: 10.5, marginBottom: 6, fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginBottom: 6, fontFamily: FONT }}>{label}</Text>
         <View
           style={{
             flexDirection: 'row',
@@ -357,7 +357,7 @@ export default function MealLogScreen() {
             keyboardType="number-pad"
             style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '700', fontFamily: FONT, paddingVertical: 12 }}
           />
-          <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{suffix}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{suffix}</Text>
         </View>
       </View>
     );
@@ -376,7 +376,7 @@ export default function MealLogScreen() {
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
-          <Text style={{ color: '#71717A', fontSize: 12, marginBottom: 4, fontFamily: FONT }}>Does this look right? Adjust anything before logging it.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 12, marginBottom: 4, fontFamily: FONT }}>Does this look right? Adjust anything before logging it.</Text>
           <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginBottom: 20, fontFamily: FONT }}>{reviewing.description}</Text>
 
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
@@ -441,7 +441,7 @@ export default function MealLogScreen() {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
         {!photo && !text && photoHistory.length > 0 && (
           <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: '#71717A', fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginBottom: 10, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginBottom: 10, fontFamily: FONT }}>
               EATEN THIS BEFORE?
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
@@ -455,7 +455,7 @@ export default function MealLogScreen() {
                   <Text numberOfLines={1} style={{ color: '#fff', fontSize: 11, fontWeight: '700', marginTop: 5, fontFamily: FONT }}>
                     {row.description}
                   </Text>
-                  <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>{Math.round(row.calories ?? 0)} kcal</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 10, fontFamily: FONT }}>{Math.round(row.calories ?? 0)} kcal</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -568,7 +568,7 @@ export default function MealLogScreen() {
             }}
           />
         )}
-        <Text style={{ color: '#52525B', fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
           {photo
             ? 'CLAWW will read this photo and estimate calories and macros.'
             : 'Portion size, brand, or a rough guess all work — CLAWW fills in the rest.'}
@@ -596,13 +596,13 @@ export default function MealLogScreen() {
               <Text style={{ color: portion === p.value ? G.bright : '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
                 {p.label}
               </Text>
-              <Text style={{ color: portion === p.value ? G.bright : '#71717A', fontSize: 10, marginTop: 1, fontFamily: FONT }}>
+              <Text style={{ color: portion === p.value ? G.bright : COLORS.textMuted, fontSize: 10, marginTop: 1, fontFamily: FONT }}>
                 {p.hint}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
-        <Text style={{ color: '#52525B', fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
           This scales the estimate up or down — pick what matches your plate.
         </Text>
 
@@ -631,7 +631,7 @@ export default function MealLogScreen() {
           <>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 22, marginBottom: 16 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-              <Text style={{ color: '#52525B', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, fontFamily: FONT }}>OR</Text>
+              <Text style={{ color: COLORS.textFaint, fontSize: 10.5, fontWeight: '700', letterSpacing: 0.8, fontFamily: FONT }}>OR</Text>
               <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
             </View>
 

@@ -30,7 +30,7 @@ function MacroPill({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.04)', alignItems: 'center' }}>
       <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
-      <Text style={{ color: '#71717A', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '700', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
     </View>
   );
 }
@@ -79,7 +79,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
 
       {remaining ? (
         <View style={{ gap: 6 }}>
-          <Text style={{ color: '#71717A', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEFT TODAY</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEFT TODAY</Text>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             <MacroPill label="KCAL" value={String(Math.round(remaining.calories))} />
             <MacroPill label="PROTEIN" value={`${Math.round(remaining.protein_g)} g`} />
@@ -139,7 +139,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Icon name="clock" size={12} color="#71717A" />
-                <Text style={{ color: '#71717A', fontSize: 11.5, fontFamily: FONT }}>{o.prep_minutes} min</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>{o.prep_minutes} min</Text>
               </View>
               <Text style={{ color: '#A1A1AA', fontSize: 12, lineHeight: 17, fontFamily: FONT }}>{o.why}</Text>
               <PressScale

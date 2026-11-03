@@ -57,7 +57,9 @@ function RootLayout() {
   // native weight-mapped family. Only web (no config-plugin embedding)
   // still needs it loaded here.
   const [fontsLoaded] = useFonts(
-    Platform.OS === 'web' ? { Inter: require('../assets/fonts/Inter_400Regular.ttf') } : {}
+    Platform.OS === 'web'
+      ? { Inter: require('../assets/fonts/Inter_400Regular.ttf'), Caveat: require('../assets/fonts/Caveat_500Medium.ttf') }
+      : {}
   );
   const [authState, setAuthState] = useState<AuthState>('loading');
   const [introDone, setIntroDone] = useState(false);

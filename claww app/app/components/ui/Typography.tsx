@@ -79,6 +79,6 @@ export const Caption = makeVariant({
   fontWeight: '400',
   letterSpacing: 0.05,
   lineHeight: 15,
-  color: COLORS.fgGrayDim,
+  color: COLORS.textMuted,
   fontFamily: FONT,
 });

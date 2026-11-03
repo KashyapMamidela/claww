@@ -79,7 +79,7 @@ export default function NutritionSetupReview() {
 
         {!sample ? (
           <>
-            <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 19, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 19, fontFamily: FONT }}>
               We'll calculate a starting point from everything you just entered — you can adjust anything before saving.
             </Text>
             <View style={{ flex: 1 }} />
@@ -97,7 +97,7 @@ export default function NutritionSetupReview() {
           </>
         ) : (
           <>
-            <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
               Adjust anything below, then save.
             </Text>
             <View style={{ gap: 10, marginBottom: 22 }}>
@@ -145,7 +145,7 @@ export default function NutritionSetupReview() {
               {saving ? 'Saving…' : 'Save Targets'}
             </Button>
             <TouchableOpacity onPress={() => setSample(null)} style={{ alignSelf: 'center', marginTop: 14 }}>
-              <Text style={{ color: '#71717A', fontSize: 12.5, fontFamily: FONT }}>Recalculate from inputs</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>Recalculate from inputs</Text>
             </TouchableOpacity>
           </>
         )}

@@ -113,7 +113,7 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
               marginTop: 2,
             }}
           >
-            <Text style={{ color: '#71717A', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Close</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AREA_COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getCompletedWorkoutDays, getLevelInfo, getTotalVolume } from '../../lib/data';
 import { loadTrackerData, type TrackerData } from '../../lib/trackerData';
@@ -20,7 +20,8 @@ import { TrackerChartScreen } from '../../components/tracker/TrackerChartScreen'
 // color (AREA_COLORS) goes only on its label and data, and the CLAWW Score
 // stays white because it isn't one area's data. Charts are Skia.
 const W = '#FFFFFF';
-const GD = '#52525B';
+// Tracker's dim grey; used for text (titles, notes), so it must be a readable token (NG PHASE 1).
+const GD = COLORS.textFaint;
 const UNLOCK_AT = 3;
 
 function EmptyData(): TrackerData {
