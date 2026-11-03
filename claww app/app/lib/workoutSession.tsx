@@ -1,12 +1,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { getExerciseForms, getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
+import { getExerciseForms, getLastTimeSets, getProfile, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
 import { newClientId, useSetQueueFlusher } from './setQueueRuntime';
-import { saveSessionOutcomes } from './adaptiveData';
-import { commandPill, localDateKey, reasonLine, sessionOutcomes, type PrescribedExercise } from './sessionPrescription';
+import { getLastWeights, getModalities, saveSessionOutcomes, saveSwap } from './adaptiveData';
+import { catalogKey, type CatalogEntry } from './muscleRecovery';
+import { commandPill, localDateKey, prescribeDay, reasonLine, sessionOutcomes, type PrescribedExercise } from './sessionPrescription';
 import { refreshReminders } from './reminderSync';
 import {
   adjustRest as adjustRestClock,
@@ -34,8 +35,14 @@ import {
   type LastTimeMap,
   type SetRowState,
 } from './sessionPlan';
+import { restSecondsFor } from './engine';
+import { lockActionStep, lockScreenContent } from './lockScreen';
+import { endLiveActivity, syncLiveActivity } from './liveActivity';
+import { isTimedModality, targetMinutes } from './timedExercise';
+import { hideSessionNotification, onSessionNotificationAction, showSessionNotification } from '../modules/claww-session-notification';
 
-const REST_SECONDS = 45;
+/** Rest for an exercise the session knows nothing about (no catalog entry); NG PHASE 3.2 sets rest by role. */
+export const REST_SECONDS = 90;
 
 export type SessionStatus = 'idle' | 'active' | 'resting' | 'completed';
 
@@ -85,7 +92,37 @@ interface WorkoutSessionState {
   /** `rx` carries the engine's prescriptions for the day (V2 PHASE 7); without it the plan's own numbers are used. */
   startSession: (workout: WorkoutRow, dayIndex?: number, rx?: { sessionId: string; prescribed: PrescribedExercise[] }) => void;
   /** Today's prescription for an exercise, when the engine made one. */
-  prescriptionFor: (exerciseName: string) => { reason: string; pill: string } | null;
+  /**
+   * Today's engine prescription for an exercise, or null for one the engine doesn't manage.
+   * NG PHASE 3.1: also the weight step and rep range the player's steppers and rows use.
+   */
+  prescriptionFor: (exerciseName: string) => {
+    reason: string;
+    pill: string;
+    incrementKg: number | null;
+    repMin: number;
+    repMax: number;
+    /** The catalog role ('main' / 'accessory'): main lifts get warm-up sets (NG PHASE 3.3). */
+    role: 'main' | 'accessory' | null;
+    /** Weight the plan had for this exercise before today's recovery check, and today's prescription. Both null for bodyweight. */
+    planWeightKg: number | null;
+    todayWeightKg: number | null;
+  } | null;
+  /** Rest after a set of this exercise, in seconds (NG PHASE 3.2). */
+  restSecondsForExercise: (exerciseName: string) => number;
+  /**
+   * NG PHASE 3.4: swap the exercise at `exIdx` for another from the catalog ("bench taken?"). The slot keeps its
+   * sets and reps; the new exercise starts from its own last weight, or finds one if it is new. Only an exercise
+   * with no set logged yet can be swapped. Resolves false when nothing changed.
+   */
+  swapExercise: (exIdx: number, entry: CatalogEntry) => Promise<boolean>;
+  /** NG PHASE 3.6: catalog modality of an exercise (strength, cardio, mobility, yoga); null until loaded or unknown. */
+  modalityFor: (exerciseName: string) => string | null;
+  /**
+   * NG PHASE 3.6: finishes a timed block (cardio, yoga, mobility) in one go: every set of the exercise is marked
+   * done and ONE log row is written with the time (and distance when entered). No rest follows.
+   */
+  logTimedExercise: (exIdx: number, input: { minutes: number; distanceKm: number | null }) => void;
   togglePause: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
@@ -115,6 +152,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const [lastTime, setLastTime] = useState<LastTimeMap>({});
   const [forms, setForms] = useState<Record<string, ExerciseForm>>({});
   const [lastTimeLoaded, setLastTimeLoaded] = useState(false);
+  const [modalities, setModalities] = useState<Record<string, string>>({});
   const [clock, setClock] = useState<ClockState | null>(null);
   const [lastSummary, setLastSummary] = useState<SessionSummary | null>(null);
   const [lastCompletedSet, setLastCompletedSet] = useState<LastCompletedSet | null>(null);
@@ -214,6 +252,9 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       getExerciseForms(dayExercises.map((ex) => ex.name)).then((f) => {
         if (sessionKey.current === key) setForms(f);
       });
+      getModalities(dayExercises.map((ex) => ex.name)).then((m) => {
+        if (sessionKey.current === key) setModalities(m);
+      });
     },
     [userId, setPlan]
   );
@@ -269,6 +310,106 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     [userId, workout, dayIndex, today, clock]
   );
 
+  const swapExercise = useCallback(
+    async (exIdx: number, entry: CatalogEntry): Promise<boolean> => {
+      if (!workout || !userId) return false;
+      const day = workout.plan.days[dayIndex];
+      const old = day?.exercises[exIdx];
+      const state = planRef.current[exIdx];
+      if (!day || !old || !state || state.rows.some((r) => r.done)) return false;
+      const key = sessionKey.current;
+
+      const lastWeights = await getLastWeights(userId, [entry.name]);
+      if (sessionKey.current !== key) return false;
+      const oldP = prescribedRef.current.find((p) => p.name === old.name);
+      // The slot keeps its sets and reps: the range collapses to the slot's own numbers.
+      const range = oldP?.managed
+        ? { minReps: oldP.state.repMin, maxReps: oldP.state.repMax, minSets: old.sets, maxSets: old.sets }
+        : { minReps: old.reps, maxReps: old.reps, minSets: old.sets, maxSets: old.sets };
+      const [fresh] = prescribeDay({
+        exercises: [{ name: entry.name, exerciseId: entry.id, sets: old.sets, reps: old.reps }],
+        catalog: { [catalogKey(entry.name)]: entry },
+        progress: {},
+        range,
+        muscleScores: {},
+        sleepHours: null,
+        proteinPct: null,
+        lastWeights,
+      });
+
+      const swapped = { ...old, name: entry.name, exerciseId: entry.id };
+      setWorkout({
+        ...workout,
+        plan: { ...workout.plan, days: workout.plan.days.map((d, i) => (i === dayIndex ? { ...d, exercises: d.exercises.map((x, k) => (k === exIdx ? swapped : x)) } : d)) },
+      });
+
+      prescribedRef.current = [...prescribedRef.current.filter((p) => p.name !== old.name), fresh];
+      setPrescribed(prescribedRef.current);
+
+      const weight = fresh.prescription.weightKg ?? lastWeights[entry.name] ?? 0;
+      state.rows.forEach((_, s) => touched.current.add(`${exIdx}:${s}`));
+      setPlan(planRef.current.map((st, i) => (i === exIdx ? { skipped: false, rows: st.rows.map((r) => ({ ...r, reps: old.reps, weight, prescribedWeight: weight })) } : st)));
+
+      getLastTimeSets(userId, [entry.name]).then((map) => {
+        if (sessionKey.current === key) setLastTime((prev) => ({ ...prev, ...map }));
+      });
+      getExerciseForms([entry.name]).then((f) => {
+        if (sessionKey.current === key) setForms((prev) => ({ ...prev, ...f }));
+      });
+      setModalities((prev) => ({ ...prev, [entry.name]: entry.modality }));
+      if (sessionIdRef.current) saveSwap(userId, sessionIdRef.current, old.name, fresh).catch(() => {});
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      return true;
+    },
+    [workout, userId, dayIndex, setPlan]
+  );
+
+  const modalityFor = useCallback((exerciseName: string) => modalities[exerciseName] ?? null, [modalities]);
+
+  const logTimedExercise = useCallback(
+    (exIdx: number, input: { minutes: number; distanceKm: number | null }) => {
+      if (!userId || !workout || !today) return;
+      const exercise = exercises[exIdx];
+      const state = planRef.current[exIdx];
+      if (!exercise || !state || state.rows.every((r) => r.done)) return;
+      let next = planRef.current;
+      state.rows.forEach((r, s) => {
+        if (!r.done) next = markDone(next, exIdx, s);
+      });
+      setPlan(next);
+      bumpXp(5); // one block earns what one set does (see logWorkoutSet)
+      logWorkoutSet(userId, {
+        exerciseName: exercise.name,
+        exerciseId: exercise.exerciseId,
+        setNumber: 1,
+        repsPrescribed: 0,
+        repsAchieved: 0,
+        weightPrescribed: 0,
+        weightAchieved: 0,
+        sessionId: sessionIdRef.current,
+        durationMinutes: input.minutes,
+        distanceKm: input.distanceKm,
+      });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      if (isSessionComplete(next)) {
+        finish(next);
+        return;
+      }
+      const nextIdx = nextExerciseWithWork(next, exIdx);
+      if (nextIdx !== -1) setExerciseIndex(nextIdx);
+    },
+    [userId, workout, today, exercises, bumpXp, finish, setPlan]
+  );
+
+  /** Rest after a set of this exercise, by its catalog role (NG PHASE 3.2). */
+  const restSecondsForExercise = useCallback(
+    (exerciseName: string) => {
+      const entry = prescribed.find((x) => x.name === exerciseName)?.entry;
+      return entry ? restSecondsFor(entry.role, entry.stimulusType) : REST_SECONDS;
+    },
+    [prescribed]
+  );
+
   const logSet = useCallback(
     (exIdxArg?: number, setIdxArg?: number, rir?: number | null) => {
       if (!userId || !workout || !today) return;
@@ -313,10 +454,12 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       } else if (exIdx !== exerciseIndex) {
         setExerciseIndex(exIdx);
       }
-      setClock((c) => (c ? startRest(c, Date.now(), REST_SECONDS) : c));
+      // NG PHASE 3.2: rest by the exercise's role: main 150 s, accessory 90 s, isolation 60 s.
+      const seconds = restSecondsForExercise(exercise.name);
+      setClock((c) => (c ? startRest(c, Date.now(), seconds) : c));
       setStatus('resting');
     },
-    [userId, workout, today, exercises, exerciseIndex, bumpXp, finish, setPlan]
+    [userId, workout, today, exercises, exerciseIndex, bumpXp, finish, setPlan, restSecondsForExercise]
   );
 
   const skipExercise = useCallback(() => {
@@ -369,10 +512,80 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     (exerciseName: string) => {
       const p = prescribed.find((x) => x.name === exerciseName);
       if (!p || !p.managed) return null;
-      return { reason: reasonLine(p), pill: commandPill(p.prescription.commands).label };
+      return {
+        reason: reasonLine(p),
+        pill: commandPill(p.prescription.commands).label,
+        incrementKg: p.entry?.loadIncrementKg ?? null,
+        repMin: p.state.repMin,
+        repMax: p.state.repMax,
+        role: p.entry?.role ?? null,
+        planWeightKg: p.state.next.weightKg,
+        todayWeightKg: p.prescription.weightKg,
+      };
     },
     [prescribed]
   );
+
+  // ── NG PHASE 3.5: the lock-screen notification (Android) ───────────────────────────────────────────
+  // One ongoing notification while a session runs: the current set, or the rest with a countdown the
+  // system draws itself, so it keeps counting with the phone locked. Its Done / Skip buttons run the
+  // same functions as the on-screen buttons.
+  const sessionLabel = today?.focus || today?.day || 'Workout';
+  // The current exercise's target minutes when it is a timed block (cardio, yoga, mobility), else null.
+  const currentExercise = exercises[exerciseIndex];
+  const currentModality = currentExercise ? modalities[currentExercise.name] ?? null : null;
+  const timedMinutesNow = currentExercise && isTimedModality(currentModality) ? targetMinutes(currentModality, currentExercise.sets, currentExercise.reps) : null;
+  useEffect(() => {
+    const ex = exercises[exerciseIndex];
+    const st = plan[exerciseIndex];
+    if (status === 'idle' || !ex || !st) {
+      hideSessionNotification();
+      endLiveActivity();
+      return;
+    }
+    const row = st.rows[setIndex] ?? st.rows[st.rows.length - 1];
+    const c = lockScreenContent({
+      sessionName: sessionLabel,
+      exerciseName: ex.name,
+      setNumber: Math.max(1, (setIndex >= 0 ? setIndex : st.rows.length - 1) + 1),
+      totalSets: st.rows.length,
+      weightKg: row?.weight ?? 0,
+      reps: row?.reps ?? ex.reps,
+      resting: status === 'resting',
+      restEndsAtMs: restEndsAt,
+      paused: isPaused,
+      timedMinutes: timedMinutesNow,
+    });
+    showSessionNotification(c.title, c.text, c.chronometerAtMs, c.countDown, c.actions);
+    syncLiveActivity(c); // iOS, behind LIVE_ACTIVITY_ENABLED
+  }, [status, exercises, exerciseIndex, setIndex, plan, restEndsAt, isPaused, sessionLabel, timedMinutesNow]);
+
+  useEffect(
+    () => () => {
+      hideSessionNotification();
+      endLiveActivity();
+    },
+    []
+  );
+
+  const lockRef = useRef({ status, logSet, skipRest, adjustRest, logTimedExercise, exerciseIndex, timedMinutesNow });
+  lockRef.current = { status, logSet, skipRest, adjustRest, logTimedExercise, exerciseIndex, timedMinutesNow };
+  useEffect(() => {
+    const lastTapAt: Record<string, number> = {};
+    const sub = onSessionNotificationAction((action) => {
+      const { status: st, logSet: logStrength, skipRest: skip, adjustRest: adjust, logTimedExercise: logTimed, exerciseIndex: exI, timedMinutesNow: timedNow } = lockRef.current;
+      // A timed block's Done logs the block as planned, never a strength set.
+      const log = timedNow ? () => logTimed(exI, { minutes: timedNow, distanceKm: null }) : logStrength;
+      const now = Date.now();
+      const step = lockActionStep(action, st === 'resting', lastTapAt, now);
+      if (step === 'ignore') return;
+      lastTapAt[action] = now;
+      if (step === 'skipRest' || step === 'skipRestThenLog') skip();
+      if (step === 'log' || step === 'skipRestThenLog') log();
+      if (step === 'adjustRest') adjust(-15);
+    });
+    return () => sub.remove();
+  }, []);
 
   const value = useMemo<WorkoutSessionState>(
     () => ({
@@ -393,6 +606,10 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       sessionId,
       startSession,
       prescriptionFor,
+      restSecondsForExercise,
+      swapExercise,
+      modalityFor,
+      logTimedExercise,
       togglePause,
       updateSetRow,
       logSet,
@@ -421,6 +638,10 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       sessionId,
       startSession,
       prescriptionFor,
+      restSecondsForExercise,
+      swapExercise,
+      modalityFor,
+      logTimedExercise,
       togglePause,
       updateSetRow,
       logSet,

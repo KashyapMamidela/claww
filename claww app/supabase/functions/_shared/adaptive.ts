@@ -13,6 +13,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const ADAPTIVE_CONFIG = {
+  /**
+   * NG PHASE 3.2: rest between sets by the exercise's role, in seconds (user decision 2026-11-03,
+   * build plan section 10). A blueprint slot may override it later (NG PHASE 5).
+   */
+  rest: { mainSec: 150, accessorySec: 90, isolationSec: 60 },
   performance: {
     /** ratio >= this: hit the target, rep target +1 (D2). */
     repUpAt: 1.0,
@@ -650,4 +655,34 @@ export function decideExercise(
     return { action: 'REPLACE', replacement: pick, reason: `${current.name} swaps to ${pick}: same ${current.primaryMuscle}, same movement.` };
   }
   return { action: 'SUGGEST', replacement: pick, reason: `No progress on ${current.name} for ${ctx.stagnantSessions} sessions. ${pick} trains the same muscle and movement.` };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Rest between sets (NG PHASE 3.2)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type RestRole = 'main' | 'accessory' | 'isolation';
+
+/**
+ * Which rest an exercise gets, from its catalog `role` and `stimulus_type`:
+ * main lifts are main; isolation, isometric, plyometric, conditioning and mobility
+ * work are short; other strength accessories (and anything without catalog data) are accessory.
+ */
+export function restRole(role: string | null | undefined, stimulusType: string | null | undefined): RestRole {
+  if (role === 'main') return 'main';
+  const short = ['isolation', 'isometric', 'plyometric', 'conditioning', 'mobility'];
+  if (stimulusType && short.includes(stimulusType)) return 'isolation';
+  return 'accessory';
+}
+
+export function restSecondsFor(role: string | null | undefined, stimulusType: string | null | undefined): number {
+  const r = ADAPTIVE_CONFIG.rest;
+  switch (restRole(role, stimulusType)) {
+    case 'main':
+      return r.mainSec;
+    case 'isolation':
+      return r.isolationSec;
+    default:
+      return r.accessorySec;
+  }
 }

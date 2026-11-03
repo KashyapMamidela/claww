@@ -208,3 +208,60 @@ export function wheelValues(step: number, max: number): number[] {
   const count = Math.floor(max / step) + 1;
   return Array.from({ length: count }, (_, i) => Math.round(i * step * 100) / 100);
 }
+
+// ─── NG PHASE 3.1: the v3 player (screen 07) ─────────────────────────────────
+
+/**
+ * What a tap on a set row's tick does. Only the current set (the first one not yet logged)
+ * logs, exactly as planned; logged rows and later rows ignore the tap, so a stray tap can't
+ * log sets out of order or twice.
+ */
+export function tickTap(state: ExerciseState[], exIdx: number, setIdx: number): 'log' | 'ignore' {
+  const ex = state[exIdx];
+  if (!ex || ex.skipped) return 'ignore';
+  const row = ex.rows[setIdx];
+  if (!row || row.done) return 'ignore';
+  return setIdx === currentSetIndex(ex) ? 'log' : 'ignore';
+}
+
+/** The short hint at the right of a set row: "now" on the current set, "top of range" on a logged set that reached the top. */
+export function rowHint(row: SetRowState, isCurrent: boolean, repMax: number | null): string {
+  if (isCurrent && !row.done) return 'now';
+  if (row.done && repMax !== null && row.reps >= repMax) return 'top of range';
+  return '';
+}
+
+/** "6–8" when the exercise has a rep range, else the planned reps. */
+export function repsText(reps: number, repMin: number | null, repMax: number | null): string {
+  if (repMin !== null && repMax !== null && repMin < repMax) return `${repMin}–${repMax}`;
+  return `${reps}`;
+}
+
+/** Weight × reps of the logged sets. Bodyweight sets (weight 0) add nothing. */
+export function exerciseVolume(ex: ExerciseState): number {
+  return ex.rows.reduce((v, r) => (r.done ? v + r.weight * r.reps : v), 0);
+}
+
+/** Share of an exercise that's finished (0..1) for the segmented progress bar; skipped counts as finished. */
+export function exerciseProgress(ex: ExerciseState | undefined): number {
+  if (!ex || ex.rows.length === 0) return 0;
+  if (ex.skipped) return 1;
+  return ex.rows.filter((r) => r.done).length / ex.rows.length;
+}
+
+/** A stepper move: value + delta × step, never below `min`, rounded to 0.01 so 62.5 never becomes 62.499999. */
+export function stepValue(value: number, delta: number, step: number, min = 0): number {
+  const s = step > 0 ? step : 1;
+  return Math.max(min, Math.round((value + delta * s) * 100) / 100);
+}
+
+/**
+ * Rough calories for the session so far: resistance training at about 5 METs
+ * (kcal = MET × body kg × hours). Body weight falls back to 70 kg. An estimate for the pill,
+ * not a measurement.
+ */
+export function sessionKcal(elapsedMs: number, weightKg: number | null): number {
+  const kg = weightKg && weightKg > 0 ? weightKg : 70;
+  const hours = Math.max(0, elapsedMs) / 3_600_000;
+  return Math.round(5 * kg * hours);
+}

@@ -89,3 +89,19 @@ describe('sessionClock', () => {
     expect(pause(p, T0 + 50)).toBe(p);
   });
 });
+
+describe('rest ±15 s (NG PHASE 3.2)', () => {
+  it('−15 s with 5 s left ends at zero, never below', () => {
+    let c = startRest(startClock(T0), T0, 150);
+    c = adjustRest(c, T0 + s(145), -15);
+    expect(restRemainingSeconds(c, T0 + s(145))).toBe(0);
+    c = adjustRest(c, T0 + s(145), -15);
+    expect(restRemainingSeconds(c, T0 + s(146))).toBe(0);
+  });
+
+  it('+15 s adds exactly fifteen seconds', () => {
+    let c = startRest(startClock(T0), T0, 150);
+    c = adjustRest(c, T0 + s(10), 15);
+    expect(restRemainingSeconds(c, T0 + s(10))).toBe(155);
+  });
+});

@@ -18,6 +18,9 @@ export interface SetPayload {
   set_number?: number;
   rir?: number | null;
   session_id?: string | null;
+  /** NG PHASE 3.6: a timed block (cardio, yoga, mobility). duration_minutes exists since the ad-hoc sessions; distance_km is new and only sent when the user entered one. */
+  duration_minutes?: number;
+  distance_km?: number;
   /** When the set was actually done on the phone — kept so a late flush doesn't move it to the wrong day. */
   completed_at: string;
 }

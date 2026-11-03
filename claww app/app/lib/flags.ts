@@ -6,3 +6,9 @@
  * V2 rings back (Recovery / Sleep / Nutrition) for one release, then remove this flag and the old path.
  */
 export const RINGS_V1 = false;
+
+/**
+ * NG PHASE 3.5: the iOS Live Activity for a running workout (lib/liveActivity.ts). Off until it has been
+ * built and tried on an iPhone (needs an Apple Developer account and "expo-live-activity" in the app.json plugins).
+ */
+export const LIVE_ACTIVITY_ENABLED = false;

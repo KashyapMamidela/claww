@@ -154,3 +154,24 @@ export function startingPrescription(range: RepRange, role: ExerciseRole | null 
   const sets = Math.min(range.maxSets, Math.max(range.minSets, 3));
   return { repMin, repMax, sets, startReps: Math.floor((repMin + repMax) / 2) };
 }
+
+// Keyword -> exercise-name pattern exclusions. A deliberately simple,
+// best-effort heuristic (not a physiotherapy-grade contraindication
+// database) — flagged to the user in the intake copy as such. Shared by generate-plan and the
+// player's Swap sheet (NG PHASE 3.4); NG PHASE 5.2 replaces it with structured contraindications.
+export const INJURY_EXCLUSIONS: { keywords: string[]; pattern: RegExp }[] = [
+  { keywords: ['knee'], pattern: /squat|lunge|jump/i },
+  { keywords: ['back', 'spine', 'spinal'], pattern: /deadlift|squat|row|good morning/i },
+  { keywords: ['shoulder'], pattern: /overhead press|bench press|push-?up/i },
+  { keywords: ['wrist'], pattern: /push-?up|plank/i },
+  { keywords: ['ankle', 'foot'], pattern: /jump|lunge|run|jog/i },
+  { keywords: ['hip'], pattern: /squat|lunge|deadlift/i },
+];
+
+export function excludeInjuredExercises<T extends { name: string }>(exercises: T[], injuriesText: string | null | undefined): T[] {
+  if (!injuriesText?.trim()) return exercises;
+  const lowered = injuriesText.toLowerCase();
+  const activePatterns = INJURY_EXCLUSIONS.filter((rule) => rule.keywords.some((kw) => lowered.includes(kw))).map((r) => r.pattern);
+  if (activePatterns.length === 0) return exercises;
+  return exercises.filter((ex) => !activePatterns.some((pattern) => pattern.test(ex.name)));
+}

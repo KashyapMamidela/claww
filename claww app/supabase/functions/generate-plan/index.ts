@@ -3,7 +3,7 @@ import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { callGroqJSON } from '../_shared/groq.ts';
 import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
-import { EXPERIENCE_MAX_SETS, applyTrainingWeekdays, computeRepRange, deriveAllowedEquipment, groundPlanInCatalog, type RepRange } from '../_shared/planning.ts';
+import { EXPERIENCE_MAX_SETS, applyTrainingWeekdays, computeRepRange, deriveAllowedEquipment, excludeInjuredExercises, groundPlanInCatalog, type RepRange } from '../_shared/planning.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
@@ -102,26 +102,6 @@ function applyAdjustDirection(range: RepRange, direction: AdjustDirection, expli
   const minReps = Math.max(1, range.minReps + delta);
   const maxReps = Math.max(minReps, range.maxReps + delta);
   return { ...range, minReps, maxReps };
-}
-
-// Keyword -> exercise-name pattern exclusions. A deliberately simple,
-// best-effort heuristic (not a physiotherapy-grade contraindication
-// database) — flagged to the user in the intake copy as such.
-const INJURY_EXCLUSIONS: { keywords: string[]; pattern: RegExp }[] = [
-  { keywords: ['knee'], pattern: /squat|lunge|jump/i },
-  { keywords: ['back', 'spine', 'spinal'], pattern: /deadlift|squat|row|good morning/i },
-  { keywords: ['shoulder'], pattern: /overhead press|bench press|push-?up/i },
-  { keywords: ['wrist'], pattern: /push-?up|plank/i },
-  { keywords: ['ankle', 'foot'], pattern: /jump|lunge|run|jog/i },
-  { keywords: ['hip'], pattern: /squat|lunge|deadlift/i },
-];
-
-function excludeInjuredExercises<T extends { name: string }>(exercises: T[], injuriesText: string | null | undefined): T[] {
-  if (!injuriesText?.trim()) return exercises;
-  const lowered = injuriesText.toLowerCase();
-  const activePatterns = INJURY_EXCLUSIONS.filter((rule) => rule.keywords.some((kw) => lowered.includes(kw))).map((r) => r.pattern);
-  if (activePatterns.length === 0) return exercises;
-  return exercises.filter((ex) => !activePatterns.some((pattern) => pattern.test(ex.name)));
 }
 
 /** Hard-enforces the computed rep range and day count on the model's output, regardless of what it returned. */

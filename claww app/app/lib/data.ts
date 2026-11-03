@@ -84,10 +84,12 @@ export interface Profile {
   notifications_enabled: boolean;
   notification_prompt_shown_at: string | null;
   rating_prompt_shown_at: string | null;
+  /** NG PHASE 2 column; the player's plate math uses it. Null for a profile row written before it existed. */
+  bar_weight_kg?: number | null;
 }
 
 const PROFILE_COLUMNS =
-  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at';
+  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at, bar_weight_kg';
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', userId).maybeSingle();
@@ -764,6 +766,9 @@ export interface WorkoutSetInput {
   /** Reps left in the tank, 0-3 (3 means 3 or more); undefined when the user didn't say. */
   rir?: number | null;
   sessionId?: string | null;
+  /** NG PHASE 3.6: set for a timed block; reps and weight are 0 then. */
+  durationMinutes?: number | null;
+  distanceKm?: number | null;
 }
 
 /** Last session's sets for each of these exercises (most recent calendar day each), for the player's "last time" column and weight prefill. */
@@ -826,6 +831,9 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
     set_number: log.setNumber,
     rir: log.rir ?? null,
     session_id: log.sessionId ?? null,
+    ...(log.durationMinutes ? { duration_minutes: log.durationMinutes } : {}),
+    // Only when entered, so a session without a distance never depends on the new column.
+    ...(log.distanceKm ? { distance_km: log.distanceKm } : {}),
     completed_at: new Date().toISOString(),
   });
   return true;
