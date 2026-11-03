@@ -56,7 +56,7 @@ export default function NutritionSetupReview() {
     if (!sample || !userId) return;
     setSaving(true);
     setError(null);
-    const ok = await saveNutritionTargets(userId, sample, restrictions);
+    const ok = await saveNutritionTargets(userId, sample, restrictions, { height: Number(height), weight: Number(weight), age: Number(age) });
     setSaving(false);
     if (!ok) {
       setError('Could not save your targets — check your connection and try again.');

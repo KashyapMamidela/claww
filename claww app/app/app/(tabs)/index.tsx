@@ -25,6 +25,18 @@ import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { greetingFor, type Greeting } from '../../lib/greeting';
 import { SLEEP_TARGET_HOURS, sleepRingPct } from '../../lib/sleepTarget';
 import { useFirstPaint } from '../../lib/perf';
+import { RINGS_V1 } from '../../lib/flags';
+import {
+  dailyGoalPct as averageRings,
+  isSessionPlannedToday,
+  nutritionNote,
+  nutritionRingPct,
+  nutritionRingPctRaw,
+  recoveryRingPct,
+  workoutRingPct,
+  workoutRow,
+  type WorkoutToday,
+} from '../../lib/dailyGoal';
 
 function useGreeting(): Greeting {
   const [greeting, setGreeting] = useState(() => greetingFor(new Date()));
@@ -283,6 +295,9 @@ function HomePopulated() {
   const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
   // The lowest per-muscle recovery score among today's muscles, when it is worth a mention (V2 PHASE 7.5).
   const [tiredMuscle, setTiredMuscle] = useState<{ muscle: string; band: string } | null>(null);
+  // NG PHASE 2: today's session for the Workout ring, and the usual training time for its note.
+  const [workoutToday, setWorkoutToday] = useState<WorkoutToday>({ planned: false, completed: false, setsDone: 0, setsPlanned: 0 });
+  const [usualTime, setUsualTime] = useState<string | null>(null);
   const steps = useTodaySteps();
 
   // xp/streak come from AppState directly — they update live as XP events
@@ -303,12 +318,22 @@ function HomePopulated() {
           const [catalog, sets] = await Promise.all([getCatalog(names), getRecentLoggedSets(userId)]);
           const history = await getCatalog(Array.from(new Set(sets.map((x) => x.exerciseName))));
           if (cancelled) return;
+          const now = new Date();
+          const sameDay = (iso: string) => new Date(iso).toDateString() === now.toDateString();
+          const day = w.plan.days[dayIdx];
+          setWorkoutToday({
+            planned: isSessionPlannedToday(w.plan.days.map((d) => d.day), now),
+            completed: dayEvents.some((e) => e.status === 'completed' && sameDay(e.createdAt)),
+            setsDone: sets.filter((x) => sameDay(x.completedAt) && names.includes(x.exerciseName)).length,
+            setsPlanned: (day?.exercises ?? []).reduce((n, ex) => n + (Number(ex.sets) || 0), 0),
+          });
           const muscles = musclesForExercises(names, catalog);
           const low = lowestMuscle(muscleScores(muscles, sets, { ...history, ...catalog }, new Date()), muscles);
           setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
         }
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
+        setUsualTime(profile?.personalization_profile?.workoutDefaults?.usualTrainingTime ?? null);
       });
       return () => {
         cancelled = true;
@@ -322,17 +347,24 @@ function HomePopulated() {
   // Unclamped — ProgressRing needs the real value (over 100%) to render the
   // "shadow" overflow arc that shows a day that blew past target, not just
   // a ring that looks identically full whether you hit or tripled it.
-  const nutritionPctRaw = targetKcal > 0 ? (consumedKcal / targetKcal) * 100 : 0;
-  const nutritionPct = Math.min(nutritionPctRaw, 100);
+  const nutritionPctRaw = nutritionRingPctRaw(consumedKcal, targetKcal);
+  const nutritionPct = nutritionRingPct(consumedKcal, targetKcal);
 
   const sleepHours = todaySleep?.hours ?? null;
   const sleepPct = sleepRingPct(sleepHours);
   const recoveryPct = recovery?.score ?? 0;
-  const dailyGoalPct = recovery ? Math.round((recoveryPct + nutritionPct + sleepPct) / 3) : 0;
+  const workoutPct = workoutRingPct(workoutToday);
+  // NG PHASE 2: Workout / Nutrition / Recovery; RINGS_V1 brings back the V2 Recovery / Sleep / Nutrition average.
+  const dailyGoalPct = RINGS_V1
+    ? recovery
+      ? Math.round((recoveryPct + nutritionPct + sleepPct) / 3)
+      : 0
+    : averageRings(workoutPct, nutritionPct, recoveryRingPct(recovery?.score));
 
   const planDays = latestWorkout?.plan.days ?? [];
   const today = planDays[suggestedDayIndex] ?? planDays[0];
   const todayIndex = planDays[suggestedDayIndex] ? suggestedDayIndex : 0;
+  const workoutRowText = workoutRow(workoutToday, today?.focus || today?.day || 'Today\'s session', usualTime);
   const dayOfLabel = `DAY ${todayIndex + 1} OF ${planDays.length}`;
   const planCardLabel = today
     ? /^day \d+$/i.test(today.day.trim())
@@ -393,37 +425,82 @@ function HomePopulated() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
           <ProgressRing
             size={164}
-            rings={[
-              { r: 72, strokeWidth: 7, color: AREA_COLORS.recovery, pct: recoveryPct },
-              { r: 57, strokeWidth: 7, color: AREA_COLORS.sleep, pct: sleepPct },
-              { r: 42, strokeWidth: 7, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
-            ]}
+            rings={
+              RINGS_V1
+                ? [
+                    { r: 72, strokeWidth: 7, color: AREA_COLORS.recovery, pct: recoveryPct },
+                    { r: 57, strokeWidth: 7, color: AREA_COLORS.sleep, pct: sleepPct },
+                    { r: 42, strokeWidth: 7, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
+                  ]
+                : [
+                    { r: 72, strokeWidth: 8, color: AREA_COLORS.workouts, pct: workoutPct },
+                    { r: 57, strokeWidth: 8, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
+                    { r: 42, strokeWidth: 8, color: AREA_COLORS.recovery, pct: recoveryPct },
+                  ]
+            }
             trackColor="rgba(255,255,255,0.055)"
           >
             <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', fontFamily: FONT }}>{dailyGoalPct}%</Text>
             <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily Goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
-            {[
-              { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: AREA_COLORS.recovery },
-              {
-                label: 'Sleep',
-                value: sleepHours !== null ? `${Math.round(sleepHours * 10) / 10}` : '—',
-                sub: `/ ${SLEEP_TARGET_HOURS} h`,
-                pct: sleepPct,
-                color: AREA_COLORS.sleep,
-              },
-              { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: AREA_COLORS.nutrition },
-            ].map((s) => (
+            {(RINGS_V1
+              ? [
+                  { label: 'Recovery', value: recovery ? `${recovery.score}` : '—', sub: '/ 100', pct: recoveryPct, color: AREA_COLORS.recovery, note: null as string | null },
+                  {
+                    label: 'Sleep',
+                    value: sleepHours !== null ? `${Math.round(sleepHours * 10) / 10}` : '—',
+                    sub: `/ ${SLEEP_TARGET_HOURS} h`,
+                    pct: sleepPct,
+                    color: AREA_COLORS.sleep,
+                    note: null as string | null,
+                  },
+                  { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: AREA_COLORS.nutrition, note: null as string | null },
+                ]
+              : [
+                  {
+                    label: 'Workout',
+                    value: workoutRowText.value,
+                    sub: workoutRowText.unit,
+                    pct: workoutPct,
+                    color: AREA_COLORS.workouts,
+                    note: workoutRowText.note as string | null,
+                  },
+                  {
+                    label: 'Nutrition',
+                    value: Math.round(consumedKcal).toLocaleString('en-IN'),
+                    sub: `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
+                    pct: nutritionPct,
+                    color: AREA_COLORS.nutrition,
+                    note: nutritionNote(meals.map((m) => m.meal_type ?? '').filter(Boolean)) as string | null,
+                  },
+                  {
+                    label: 'Recovery',
+                    value: recovery ? `${recovery.score}` : '—',
+                    sub: '/ 100',
+                    pct: recoveryPct,
+                    color: AREA_COLORS.recovery,
+                    note: (sleepHours !== null ? `sleep ${Math.round(sleepHours * 10) / 10} h counts in this` : 'log sleep to sharpen this') as string | null,
+                  },
+                ]
+            ).map((s) => (
               <View key={s.label}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
-                  <Text style={{ fontFamily: FONT }}>
-                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{s.value} </Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                    <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: s.color }} />
+                    <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
+                  </View>
+                  <Text style={{ fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
+                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{s.value} </Text>
                     <Text style={{ color: COLORS.textMuted, fontSize: 11 }}>{s.sub}</Text>
                   </Text>
                 </View>
                 <ProgressBar pct={s.pct} color={s.color} />
+                {s.note ? (
+                  <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 4, fontFamily: FONT }} numberOfLines={1}>
+                    {s.note}
+                  </Text>
+                ) : null}
               </View>
             ))}
           </View>
