@@ -30,6 +30,8 @@ import { Button } from '../ui/Button';
 import { Stepper } from '../ui/Stepper';
 import { TickButton } from '../ui/TickButton';
 import { ElapsedClock, KcalText } from './clocks';
+import { TargetCard } from './TargetCard';
+import { isBarbellLift, targetDiffers, warmupSets } from '../../lib/plateMath';
 import { RestSheet } from './RestView';
 import { FormStrip } from './FormStrip';
 import { ExerciseGuideSheet } from '../ExerciseGuideSheet';
@@ -97,6 +99,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const [listOpen, setListOpen] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
   const [rir, setRir] = useState<number | null>(null);
+  // Warm-up ticks are only a reminder for the lifter: they are never logged as work sets.
+  const [warmDone, setWarmDone] = useState<Record<string, boolean[]>>({});
   const translateX = useSharedValue(0);
 
   const onSwipeLeft = () => {
@@ -136,7 +140,15 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const muscle = forms[exercise.name]?.primaryMuscle ?? null;
   const plannedReps = repsText(exercise.reps, repMin, repMax);
   const metaLine = [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${restSecondsForExercise(exercise.name)} s`].filter(Boolean).join(' · ');
-  const reasonLine = reason || rx?.reason || null;
+  const barbell = isBarbellLift(exercise.name);
+  const barKg = profile?.bar_weight_kg && profile.bar_weight_kg > 0 ? profile.bar_weight_kg : 20;
+  const markShown = !!rx && targetDiffers(rx.planWeightKg, rx.todayWeightKg);
+  // The pen mark carries the engine's reason; without a mark, the reason stays as a line under the meta.
+  const reasonLine = markShown ? null : reason || rx?.reason || null;
+  const workDoneAny = state.rows.some((r) => r.done);
+  const firstWorkKg = state.rows[0]?.weight ?? 0;
+  const warmups = rx?.role === 'main' && !workDoneAny && !state.skipped ? warmupSets(firstWorkKg, barbell ? barKg : 0) : [];
+  const warmTicks = warmDone[exercise.name] ?? [];
 
   const currentRow = setIndex >= 0 ? state.rows[setIndex] : null;
   const exerciseDone = isExerciseComplete(state);
@@ -221,6 +233,21 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 12.5, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
                     </View>
 
+                    {currentRow || markShown ? (
+                      <TargetCard
+                        currentKg={currentRow?.weight ?? firstWorkKg}
+                        planKg={rx?.planWeightKg ?? null}
+                        todayKg={rx?.todayWeightKg ?? null}
+                        note={rx?.pill ?? ''}
+                        reason={reason || rx?.reason || ''}
+                        barKg={barKg}
+                        barbell={barbell}
+                        onUsePlan={() => {
+                          if (rx?.planWeightKg && setIndex >= 0) updateSetRow(exerciseIndex, setIndex, { weight: rx.planWeightKg });
+                        }}
+                      />
+                    ) : null}
+
                     <FormStrip
                       form={forms[exercise.name]}
                       setIndex={Math.max(0, setIndex)}
@@ -230,6 +257,28 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
                     {/* Set rows: "Set n", the numbers, a hint, and the tick */}
                     <View style={{ gap: 8 }}>
+                      {warmups.map((w, i) => {
+                        const done = !!warmTicks[i];
+                        return (
+                          <View
+                            key={`warm-${i}`}
+                            style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, paddingLeft: 16, paddingRight: 8, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, backgroundColor: 'rgba(255,255,255,0.025)', opacity: done ? 0.55 : 0.85 }}
+                          >
+                            <View style={{ width: 52, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.08)', paddingVertical: 3, alignItems: 'center' }}>
+                              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '800', fontFamily: FONT }}>Warm-up</Text>
+                            </View>
+                            <Text style={{ flex: 1, color: COLORS.fgGray, fontSize: 17, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+                              {setText(w.weight, `${w.reps}`)}
+                            </Text>
+                            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{w.pct} %</Text>
+                            <TickButton
+                              state={done ? 'done' : 'pending'}
+                              onPress={() => setWarmDone((m) => ({ ...m, [exercise.name]: Object.assign([...(m[exercise.name] ?? [])], { [i]: true }) }))}
+                              accessibilityLabel={done ? `Warm-up ${i + 1} done` : `Mark warm-up ${i + 1} done, ${setText(w.weight, `${w.reps}`)}. Not logged as a work set`}
+                            />
+                          </View>
+                        );
+                      })}
                       {state.rows.map((row, s) => {
                         const isCurrent = s === setIndex;
                         const reps = row.done || isCurrent ? `${row.reps}` : plannedReps;

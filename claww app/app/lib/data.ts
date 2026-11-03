@@ -84,10 +84,12 @@ export interface Profile {
   notifications_enabled: boolean;
   notification_prompt_shown_at: string | null;
   rating_prompt_shown_at: string | null;
+  /** NG PHASE 2 column; the player's plate math uses it. Null for a profile row written before it existed. */
+  bar_weight_kg?: number | null;
 }
 
 const PROFILE_COLUMNS =
-  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at';
+  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at, bar_weight_kg';
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', userId).maybeSingle();

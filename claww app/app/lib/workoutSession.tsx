@@ -91,7 +91,18 @@ interface WorkoutSessionState {
    * Today's engine prescription for an exercise, or null for one the engine doesn't manage.
    * NG PHASE 3.1: also the weight step and rep range the player's steppers and rows use.
    */
-  prescriptionFor: (exerciseName: string) => { reason: string; pill: string; incrementKg: number | null; repMin: number; repMax: number } | null;
+  prescriptionFor: (exerciseName: string) => {
+    reason: string;
+    pill: string;
+    incrementKg: number | null;
+    repMin: number;
+    repMax: number;
+    /** The catalog role ('main' / 'accessory'): main lifts get warm-up sets (NG PHASE 3.3). */
+    role: 'main' | 'accessory' | null;
+    /** Weight the plan had for this exercise before today's recovery check, and today's prescription. Both null for bodyweight. */
+    planWeightKg: number | null;
+    todayWeightKg: number | null;
+  } | null;
   /** Rest after a set of this exercise, in seconds (NG PHASE 3.2). */
   restSecondsForExercise: (exerciseName: string) => number;
   togglePause: () => void;
@@ -394,6 +405,9 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         incrementKg: p.entry?.loadIncrementKg ?? null,
         repMin: p.state.repMin,
         repMax: p.state.repMax,
+        role: p.entry?.role ?? null,
+        planWeightKg: p.state.next.weightKg,
+        todayWeightKg: p.prescription.weightKg,
       };
     },
     [prescribed]
