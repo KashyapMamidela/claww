@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workout setup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1140px; --glow: rgba(59,130,246,0.16); --acc: #3B82F6; --deep: #1D4ED8; --pen: #FFFFFF">
+<div style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; height: 56px; padding: 0 12px; display: flex; align-items: center; gap: 6px; background: rgba(5,5,5,0.55); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08)"><a href="Main.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><div style="flex: 1; display: flex; flex-direction: column; min-width: 0"><span style="font-size: 15px; font-weight: 800">Build your workout plan</span><span style="font-size: 11px; color: #9A9AA3">Step 3 of 4 · about 1 minute</span></div></div>
+<main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 18px; padding: 72px 16px 24px 16px">
+  <div style="display: flex; gap: 4px"><span style="flex: 1; height: 3px; border-radius: 2px; background: #3B82F6"></span><span style="flex: 1; height: 3px; border-radius: 2px; background: #3B82F6"></span><span style="flex: 1; height: 3px; border-radius: 2px; background: #3B82F6; box-shadow: 0 0 8px #3B82F6"></span><span style="flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.1)"></span></div>
+
+  <div><span class="lbl" style="--c: #3B82F6"><i></i>YOUR GOAL</span>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px"><button onClick="{{g0.pick}}" style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border-radius: 16px; text-align: left; cursor: pointer; color: #FFFFFF; background: {{g0.bg}}; border: 1px solid {{g0.bd}}; box-shadow: {{g0.sh}}"><span style="width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: {{g0.ib}}; color: {{g0.ic}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></span><span style="font-size: 13.5px; font-weight: 800">{{g0.n}}</span><span style="font-size: 11px; color: {{g0.dc}}; margin-top: -6px">{{g0.d}}</span></button><button onClick="{{g1.pick}}" style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border-radius: 16px; text-align: left; cursor: pointer; color: #FFFFFF; background: {{g1.bg}}; border: 1px solid {{g1.bd}}; box-shadow: {{g1.sh}}"><span style="width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: {{g1.ib}}; color: {{g1.ic}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><span style="font-size: 13.5px; font-weight: 800">{{g1.n}}</span><span style="font-size: 11px; color: {{g1.dc}}; margin-top: -6px">{{g1.d}}</span></button><button onClick="{{g2.pick}}" style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border-radius: 16px; text-align: left; cursor: pointer; color: #FFFFFF; background: {{g2.bg}}; border: 1px solid {{g2.bd}}; box-shadow: {{g2.sh}}"><span style="width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: {{g2.ib}}; color: {{g2.ic}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span><span style="font-size: 13.5px; font-weight: 800">{{g2.n}}</span><span style="font-size: 11px; color: {{g2.dc}}; margin-top: -6px">{{g2.d}}</span></button><button onClick="{{g3.pick}}" style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border-radius: 16px; text-align: left; cursor: pointer; color: #FFFFFF; background: {{g3.bg}}; border: 1px solid {{g3.bd}}; box-shadow: {{g3.sh}}"><span style="width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: {{g3.ib}}; color: {{g3.ic}}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span><span style="font-size: 13.5px; font-weight: 800">{{g3.n}}</span><span style="font-size: 11px; color: {{g3.dc}}; margin-top: -6px">{{g3.d}}</span></button></div></div>
+
+  <div><span class="lbl" style="--c: #3B82F6"><i></i>DAYS A WEEK YOU CAN TRAIN</span>
+    <div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 10px">
+      <sc-for list="{{days}}" as="d" hint-placeholder-count="5"><button onClick="{{d.pick}}" class="num" style="height: 52px; border-radius: 14px; font-size: 18px; font-weight: 900; color: {{d.c}}; background: {{d.bg}}; border: 1px solid {{d.bd}}; box-shadow: {{d.sh}}; cursor: pointer">{{d.n}}</button></sc-for>
+    </div></div>
+
+  <div><span class="lbl" style="--c: #3B82F6"><i></i>WHERE YOU TRAIN</span>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px">
+      <sc-for list="{{places}}" as="p" hint-placeholder-count="3"><button onClick="{{p.pick}}" class="chip {{p.cls}}">{{p.n}}</button></sc-for>
+    </div></div>
+
+  <div><span class="lbl" style="--c: #3B82F6"><i></i>HOW LONG HAVE YOU TRAINED?</span>
+    <div class="seg" style="margin-top: 10px">
+      <sc-for list="{{levels}}" as="l" hint-placeholder-count="3"><button onClick="{{l.pick}}" style="height: 34px; background: {{l.bg}}; color: {{l.c}}; box-shadow: {{l.sh}}">{{l.n}}</button></sc-for>
+    </div></div>
+
+  <div><span class="lbl" style="--c: #3B82F6"><i></i>TIME PER SESSION</span>
+    <div class="seg" style="margin-top: 10px"><sc-for list="{{lens}}" as="l" hint-placeholder-count="4"><button onClick="{{l.pick}}" style="background: {{l.bg}}; color: {{l.c}}; box-shadow: {{l.sh}}">{{l.n}}</button></sc-for></div></div>
+
+  <div><span class="lbl" style="--c: #3B82F6"><i></i>ANYTHING THAT HURTS?</span>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px"><sc-for list="{{hurts}}" as="h" hint-placeholder-count="5"><button onClick="{{h.pick}}" class="chip {{h.cls}}">{{h.n}}</button></sc-for></div></div>
+
+  <section class="hero lines" style="padding: 16px; background: linear-gradient(140deg, #0F172A, #1E3A5F 60%, #1D4ED8)">
+    <span class="sheen"></span>
+    <span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: .9px; color: rgba(255,255,255,0.72)">YOUR PLAN</span>
+    <span style="position: relative; display: block; margin-top: 6px; font-size: 21px; font-weight: 900; letter-spacing: -.4px">{{planName}}</span>
+    <span style="position: relative; display: block; margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,0.72)">{{planSub}}</span>
+    <span style="position: relative; display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px">
+      <sc-for list="{{path}}" as="x" hint-placeholder-count="4"><span style="display: flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.85)"><span style="padding: 4px 8px; border-radius: 7px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.16)">{{x.n}}</span><span style="opacity: .5">{{x.sep}}</span></span></sc-for>
+    </span>
+    <span style="position: relative; display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 11px; color: rgba(255,255,255,0.7)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>Picked from trainer-reviewed plans, never generated</span>
+  </section>
+
+  <a href="Workout.dc.html" class="btn btn-lg btn-p" style="width: 100%">Use this plan <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+</main>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1140}}'>
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { goal: 'muscle', days: 4, place: 'Gym', level: '6 mo – 2 yrs', len: 60, hurt: ['Nothing'] }; }
+  renderVals() {
+    const s = this.state;
+    const on = (b) => b
+      ? { bg: 'linear-gradient(150deg, rgba(29,78,216,0.55), rgba(59,130,246,0.25))', bd: 'rgba(96,165,250,0.6)', sh: '0 10px 20px -12px rgba(59,130,246,0.9), inset 0 1px 0 rgba(255,255,255,0.15)', ib: 'rgba(255,255,255,0.16)', ic: '#FFFFFF', dc: 'rgba(255,255,255,0.7)', c: '#FFFFFF' }
+      : { bg: 'linear-gradient(180deg, #1A1A1D, #131315)', bd: 'rgba(255,255,255,0.08)', sh: 'inset 0 1px 0 rgba(255,255,255,0.06)', ib: 'rgba(59,130,246,0.12)', ic: '#3B82F6', dc: '#9A9AA3', c: '#A1A1AA' };
+    const goals = [['muscle', 'Build muscle', 'Look bigger, fuller'], ['fat', 'Lose fat', 'Keep muscle, drop fat'], ['strong', 'Get stronger', 'Lift heavier'], ['fit', 'Stay fit', 'Feel good, move well']]
+      .map(([k, n, d]) => ({ k, n, d, ...on(s.goal === k), pick: () => this.setState({ goal: k }) }));
+    const days = [2, 3, 4, 5, 6].map((n) => ({ n, ...on(s.days === n), pick: () => this.setState({ days: n }) }));
+    const places = ['Gym', 'Home, with dumbbells', 'No equipment'].map((n) => ({ n, cls: s.place === n ? 'chip-on' : '', pick: () => this.setState({ place: n }) }));
+    const levels = ['New', '6 mo – 2 yrs', '2 yrs +'].map((n) => {
+      const b = s.level === n;
+      return { n, bg: b ? 'linear-gradient(135deg, #1D4ED8, #3B82F6)' : 'transparent', c: b ? '#FFFFFF' : '#9A9AA3', sh: b ? '0 2px 8px rgba(59,130,246,0.4)' : 'none', pick: () => this.setState({ level: n }) };
+    });
+    const segOn = (b) => ({ bg: b ? 'linear-gradient(135deg, #1D4ED8, #3B82F6)' : 'transparent', c: b ? '#FFFFFF' : '#9A9AA3', sh: b ? '0 2px 8px rgba(59,130,246,0.4)' : 'none' });
+    const lens = [30, 45, 60, 75].map((n) => ({ n: n + ' min', ...segOn(s.len === n), pick: () => this.setState({ len: n }) }));
+    const flipH = (n) => n === 'Nothing' ? ['Nothing'] : (s.hurt.includes(n) ? (s.hurt.filter((x) => x !== n).length ? s.hurt.filter((x) => x !== n) : ['Nothing']) : [...s.hurt.filter((x) => x !== 'Nothing'), n]);
+    const hurts = ['Nothing', 'Knee', 'Lower back', 'Shoulder', 'Wrist'].map((n) => ({ n, cls: s.hurt.includes(n) ? 'chip-on' : '', pick: () => this.setState({ hurt: flipH(n) }) }));
+    const split = s.days <= 3 ? 'Full body' : s.days === 4 ? 'Upper / Lower' : s.days === 5 ? 'Push / Pull / Legs + Upper / Lower' : 'Push / Pull / Legs × 2';
+    const style = s.place === 'No equipment' ? 'bodyweight' : s.place === 'Gym' ? 'gym' : 'dumbbell';
+    const reps = { muscle: '8–12 reps, progressive', fat: '10–15 reps + short finishers', strong: '3–6 reps on main lifts', fit: 'mixed reps + conditioning' }[s.goal];
+    const goalName = goals.find((g) => g.k === s.goal).n;
+    const path = [goalName, s.days + ' days', s.place.split(',')[0], s.level].map((n, i, a) => ({ n, sep: i < a.length - 1 ? '›' : '' }));
+    return { lens, hurts, g0: goals[0], g1: goals[1], g2: goals[2], g3: goals[3], days, places, levels, path, planName: split + ' · ' + style, planSub: (s.level === 'New' ? '6' : '8') + ' weeks · ' + s.len + ' min · ' + reps + (s.hurt[0] === 'Nothing' ? '' : ' · ' + s.hurt.join(', ').toLowerCase() + '-friendly swaps') };
+  }
+}
+</script>
+</body>
+</html>

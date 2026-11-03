@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workout complete</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 900px; --glow: rgba(59,130,246,0.16); --acc: #3B82F6; --deep: #1D4ED8; --pen: #FFFFFF">
+
+<main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 14px; padding: 22px 16px 20px 16px">
+  <div style="display: flex; justify-content: space-between; align-items: center">
+    <span class="lbl" style="--c: #3B82F6"><i></i>THURSDAY · 6:52 PM</span>
+    <a href="Main.dc.html" aria-label="Close" style="width: 44px; height: 44px; margin: -10px -10px -10px 0; display: flex; align-items: center; justify-content: center; color: #A1A1AA"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></a>
+  </div>
+
+  <section class="hero lines rise" style="padding: 20px; background: linear-gradient(150deg, #0F172A 0%, #1E3A5F 45%, #1D4ED8 100%)">
+    <span class="sheen"></span>
+    <span class="orb" style="width: 220px; height: 220px; right: -80px; top: -90px; background: radial-gradient(circle, rgba(147,197,253,0.35), transparent 65%)"></span>
+    <span style="position: absolute; right: -16px; bottom: -20px; opacity: .13"><svg width="150" height="150" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
+    <span style="position: relative; display: flex; justify-content: space-between; align-items: center">
+      <span style="font-size: 11px; font-weight: 700; letter-spacing: .9px; color: rgba(255,255,255,0.75)">PUSH DAY · COMPLETE</span>
+      <span style="display: flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 8px; background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.45); color: #FCD34D; font-size: 11px; font-weight: 800"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg>+120 CLAWW</span>
+    </span>
+    <h1 style="position: relative; margin: 10px 0 0 0; font-size: 30px; line-height: 32px; font-weight: 900; letter-spacing: -.8px">Strong session,<br>Kashyap.</h1>
+    <div style="position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px">
+      <div style="padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12)"><span class="num" style="display: block; font-size: 20px; font-weight: 900">52 min</span><span style="font-size: 11px; color: rgba(255,255,255,0.65)">time</span></div>
+      <div style="padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12)"><span class="num" style="display: block; font-size: 20px; font-weight: 900">16 sets</span><span style="font-size: 11px; color: rgba(255,255,255,0.65)">all done</span></div>
+      <div style="padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12)"><span class="num" style="display: block; font-size: 20px; font-weight: 900">6,840 kg</span><span style="font-size: 11px; color: rgba(255,255,255,0.65)">volume · +4%</span></div>
+      <div style="padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12)"><span class="num" style="display: block; font-size: 20px; font-weight: 900">412</span><span style="font-size: 11px; color: rgba(255,255,255,0.65)">kcal burned</span></div>
+    </div>
+  </section>
+
+  <section class="tint rise" style="--t: #F59E0B; padding: 14px; animation-delay: .1s">
+    <div style="position: relative; display: flex; align-items: center; gap: 12px">
+      <span class="ico" style="--t: #F59E0B; width: 40px; height: 40px"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>
+      <div style="flex: 1"><span class="t" style="display: block">New best · Incline DB press</span><span class="s">22.5 kg × 10 on all 3 sets</span></div>
+    </div>
+    <div style="position: relative; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.07)">
+      <span class="pen" style="font-size: 19px">next push day: 25 kg ↗</span>
+    </div>
+  </section>
+
+  <section class="card rise" style="padding: 14px; animation-delay: .16s">
+    <span style="position: relative; display: block" class="t">How did that feel?</span>
+    <span class="s" style="position: relative; display: block; margin-top: 2px">This decides how the next session is marked.</span>
+    <div class="seg" style="position: relative; margin-top: 12px">
+      <sc-for list="{{feel}}" as="f" hint-placeholder-count="3"><button onClick="{{f.pick}}" style="background: {{f.bg}}; color: {{f.c}}; box-shadow: {{f.sh}}">{{f.n}}</button></sc-for>
+    </div>
+    <sc-if value="{{reply}}" hint-placeholder-val="{{ true }}">
+      <div class="pen rise" style="position: relative; margin-top: 10px; font-size: 18px; font-weight: 500">{{reply}}</div>
+    </sc-if>
+  </section>
+
+  <section class="tint rise" style="--t: #F472B6; display: flex; align-items: center; gap: 12px; padding: 12px 14px; animation-delay: .2s">
+    <span class="ico" style="--t: #F472B6; width: 38px; height: 38px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>
+    <div style="position: relative; flex: 1"><span class="t" style="display: block">6-day streak</span><span class="s">Plan followed every day since Friday</span></div>
+  </section>
+
+  <div style="display: flex; gap: 10px; margin-top: 2px">
+    <button class="btn btn-s" style="flex: 1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><path d="m16 6-4-4-4 4"/><path d="M12 2v13"/></svg>Share card</button>
+    <a href="Main.dc.html" class="btn btn-p" style="flex: 1.4">Done</a>
+  </div>
+</main>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 900}}'>
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { feel: 'Just right' }; }
+  renderVals() {
+    const replies = { 'Too easy': 'noted, bench gets +2.5 kg sooner', 'Just right': 'perfect, next week climbs as planned', 'Too hard': 'next push day: one set less on flys' };
+    const feel = ['Too easy', 'Just right', 'Too hard'].map((n) => {
+      const on = this.state.feel === n;
+      return { n, bg: on ? 'linear-gradient(135deg, #1D4ED8, #3B82F6)' : 'transparent', c: on ? '#FFFFFF' : '#9A9AA3', sh: on ? '0 2px 8px rgba(59,130,246,0.4)' : 'none', pick: () => this.setState({ feel: n }) };
+    });
+    return { feel, reply: replies[this.state.feel] };
+  }
+}
+</script>
+</body>
+</html>

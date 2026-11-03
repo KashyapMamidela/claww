@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Pen review</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1014px; --glow: rgba(255,255,255,0.06); --acc: #3B82F6; --deep: #1D4ED8; --pen: #FFFFFF">
+<div style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; height: 56px; padding: 0 12px; display: flex; align-items: center; gap: 6px; background: rgba(5,5,5,0.55); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08)"><a href="Main.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #FFFFFF"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></a><div style="flex: 1; display: flex; flex-direction: column; min-width: 0"><span style="font-size: 15px; font-weight: 800">Your week, marked up</span><span style="font-size: 11px; color: #9A9AA3">Sunday 8 Nov · week 3 of 8</span></div></div>
+<main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: 72px 16px 24px 16px">
+  <section class="hero lines" style="padding: 16px; background: linear-gradient(140deg, #0F172A, #18181B 45%, #14532D); --sh: rgba(20,83,45,0.8)">
+    <span class="sheen"></span>
+    <span style="position: absolute; right: -10px; bottom: -16px; opacity: .14"><svg width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg></span>
+    <span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: .9px; color: rgba(255,255,255,0.65)">WEEK 3 IN ONE LINE</span>
+    <span style="position: relative; display: block; margin-top: 6px; font-size: 19px; line-height: 24px; font-weight: 800; letter-spacing: -.3px">4 of 4 sessions, protein hit on 5 days. Next week climbs a little.</span>
+    <span style="position: relative; display: flex; gap: 8px; margin-top: 12px">
+      <span class="num" style="padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.12); font-size: 11px; font-weight: 800">{{kept}} kept</span>
+      <span class="num" style="padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,0.06); font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.7)">{{undone}} undone</span>
+    </span>
+  </section>
+<section class="card" style="padding: 6px 14px 4px 14px; --pen: #FFFFFF"><div style="position: relative; display: flex; justify-content: space-between; align-items: center; padding: 8px 0"><span class="lbl" style="--c: #3B82F6"><i></i>WORKOUTS</span><span class="pen" style="font-size: 17px">{{w.count}}</span></div><sc-for list="{{w.items}}" as="m" hint-placeholder-count="3"><div style="position: relative; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.07); opacity: {{m.op}}"><div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><span style="font-size: 13.5px; font-weight: 700">{{m.item}}</span><span style="font-size: 12.5px; white-space: nowrap"><s style="color: #9A9AA3">{{m.old}}</s> <span class="pen-val" style="font-size: 14.5px; text-decoration: {{m.td}}">{{m.now}}</span></span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 2px"><span class="pen" style="font-size: 16px; font-weight: 500">{{m.note}}</span><div class="seg" style="width: 112px; padding: 2px; flex-shrink: 0"><button onClick="{{m.keep}}" style="height: 26px; font-size: 11px; background: {{m.kb}}; color: {{m.kc}}">Keep</button><button onClick="{{m.undo}}" style="height: 26px; font-size: 11px; background: {{m.ub}}; color: {{m.uc}}">Undo</button></div></div></div></sc-for></section><section class="card" style="padding: 6px 14px 4px 14px; --pen: #FFFFFF"><div style="position: relative; display: flex; justify-content: space-between; align-items: center; padding: 8px 0"><span class="lbl" style="--c: #22C55E"><i></i>NUTRITION</span><span class="pen" style="font-size: 17px">{{n.count}}</span></div><sc-for list="{{n.items}}" as="m" hint-placeholder-count="3"><div style="position: relative; padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.07); opacity: {{m.op}}"><div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px"><span style="font-size: 13.5px; font-weight: 700">{{m.item}}</span><span style="font-size: 12.5px; white-space: nowrap"><s style="color: #9A9AA3">{{m.old}}</s> <span class="pen-val" style="font-size: 14.5px; text-decoration: {{m.td}}">{{m.now}}</span></span></div><div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 2px"><span class="pen" style="font-size: 16px; font-weight: 500">{{m.note}}</span><div class="seg" style="width: 112px; padding: 2px; flex-shrink: 0"><button onClick="{{m.keep}}" style="height: 26px; font-size: 11px; background: {{m.kb}}; color: {{m.kc}}">Keep</button><button onClick="{{m.undo}}" style="height: 26px; font-size: 11px; background: {{m.ub}}; color: {{m.uc}}">Undo</button></div></div></div></sc-for></section>
+  <p class="b" style="margin: 2px 4px 0 4px; font-size: 12px">Undo puts your old plan back for that item. Every mark is made from your own logs, never guessed.</p>
+  <a href="Main.dc.html" class="btn btn-lg btn-i" style="width: 100%">Start week 4</a>
+</main>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 1014}}'>
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { undone: {} }; }
+  renderVals() {
+    const u = this.state.undone;
+    const mk = (m) => {
+      const off = !!u[m.id];
+      return { ...m, op: off ? '0.45' : '1', td: off ? 'line-through' : 'none',
+        kb: off ? 'transparent' : 'rgba(255,255,255,0.14)', kc: off ? '#9A9AA3' : '#FFFFFF',
+        ub: off ? 'rgba(255,255,255,0.14)' : 'transparent', uc: off ? '#FFFFFF' : '#9A9AA3',
+        keep: () => this.setState({ undone: { ...u, [m.id]: false } }), undo: () => this.setState({ undone: { ...u, [m.id]: true } }) };
+    };
+    const w = [
+      { id: 'b', item: 'Bench press', old: '60', now: '62.5 kg', note: 'all reps clean twice' },
+      { id: 'r', item: 'Barbell row', old: '50', now: '52.5 kg', note: 'back is ready' },
+      { id: 's', item: 'Squat', old: '4 sets', now: '3 sets', note: 'knee felt it Friday' }
+    ].map(mk);
+    const n = [
+      { id: 'p', item: 'Snack', old: 'Biscuits', now: 'Curd + peanuts', note: '+11 g protein, same price' },
+      { id: 'd', item: 'Thursday dinner', old: 'Rajma', now: 'Soya pulao', note: 'rajma two days in a row' },
+      { id: 'k', item: 'Calories', old: '2,150', now: '2,250', note: 'weight flat for 3 weeks' }
+    ].map(mk);
+    const all = [...w, ...n];
+    const und = all.filter((m) => u[m.id]).length;
+    return { w: { items: w, count: w.length + ' marks' }, n: { items: n, count: n.length + ' marks' }, kept: all.length - und, undone: und };
+  }
+}
+</script>
+</body>
+</html>

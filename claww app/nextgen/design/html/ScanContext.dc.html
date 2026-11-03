@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Scanner context</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; --glow: rgba(34,197,94,0.13); --acc: #22C55E; --deep: #166534; --pen: #FFFFFF">
+
+<div style="position: absolute; inset: 0 0 auto 0; height: 430px; background: radial-gradient(circle at 51% 40%, #C8873A 0 12%, #9C5F22 22%, #3A3A3F 24%, #55555C 28%, #1E1E21 31%, transparent 32%), radial-gradient(circle at 70% 30%, rgba(255,200,120,0.25), transparent 30%), linear-gradient(180deg, #2B2017, #120D09)"></div>
+<div style="position: absolute; inset: 0 0 auto 0; height: 430px; background: radial-gradient(circle at 46% 37%, rgba(255,240,200,0.35) 0 2%, transparent 3%), radial-gradient(circle at 57% 42%, rgba(255,120,60,0.5) 0 2.5%, transparent 3.5%), radial-gradient(circle at 50% 46%, rgba(120,200,90,0.45) 0 2%, transparent 3%)"></div>
+<div style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; padding: 10px 8px">
+  <a href="MealPlan.dc.html" aria-label="Close" style="width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); color: #FFFFFF"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></a>
+  <span style="padding: 7px 12px; border-radius: 20px; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px); font-size: 12px; font-weight: 700">Lunch · 1:40 PM</span>
+  <span style="width: 44px"></span>
+</div>
+<div style="position: absolute; top: 66px; left: 90px; width: 210px; height: 210px">
+  <span style="position: absolute; left: 0; top: 0; width: 34px; height: 34px; border-left: 3px solid #FFFFFF; border-top: 3px solid #FFFFFF; border-radius: 12px 0 0 0"></span>
+  <span style="position: absolute; right: 0; top: 0; width: 34px; height: 34px; border-right: 3px solid #FFFFFF; border-top: 3px solid #FFFFFF; border-radius: 0 12px 0 0"></span>
+  <span style="position: absolute; left: 0; bottom: 0; width: 34px; height: 34px; border-left: 3px solid #FFFFFF; border-bottom: 3px solid #FFFFFF; border-radius: 0 0 0 12px"></span>
+  <span style="position: absolute; right: 0; bottom: 0; width: 34px; height: 34px; border-right: 3px solid #FFFFFF; border-bottom: 3px solid #FFFFFF; border-radius: 0 0 12px 0"></span>
+  <span class="pulse" style="position: absolute; left: 50%; bottom: -16px; transform: translateX(-50%); white-space: nowrap; padding: 6px 12px; border-radius: 20px; background: rgba(34,197,94,0.9); color: #052E16; font-size: 12px; font-weight: 800; box-shadow: 0 6px 16px rgba(34,197,94,0.5)">Looks like fried rice</span>
+</div>
+
+<section class="card" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; border-radius: 26px 26px 0 0; padding: 10px 16px 24px 16px; display: flex; flex-direction: column; gap: 14px; background: linear-gradient(180deg, #19191C, #0F0F10)">
+  <span style="position: relative; align-self: center; width: 40px; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.18)"></span>
+  <button onClick="{{useLast}}" style="position: relative; display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 8px 12px; border-radius: 14px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: #FFFFFF; text-align: left; cursor: pointer"><span style="flex: 1"><span style="display: block; font-size: 12px; color: #9A9AA3">Last time at Hotel Udupi</span><span style="display: block; font-size: 13.5px; font-weight: 700">Restaurant · heavy oil · regular</span></span><span style="font-size: 13px; font-weight: 800; color: #4ADE80">Use</span></button>
+  <div style="position: relative"><h1 class="h2">Or answer two quick questions</h1><p class="b" style="margin: 4px 0 0 0">Photos can’t see oil or portion. This makes the numbers honest.</p></div>
+  <sc-for list="{{qs}}" as="q" hint-placeholder-count="3">
+    <div style="position: relative"><span class="lbl" style="--c: #22C55E"><i></i>{{q.t}}</span>
+      <div class="seg" style="margin-top: 8px"><sc-for list="{{q.o}}" as="o" hint-placeholder-count="4"><button onClick="{{o.pick}}" style="background: {{o.bg}}; color: {{o.c}}; box-shadow: {{o.sh}}">{{o.n}}</button></sc-for></div>
+    </div>
+  </sc-for>
+  <a href="ScanEdit.dc.html" class="btn btn-lg btn-p" style="position: relative; width: 100%; --acc: #22C55E; --deep: #166534">Check the items <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 390, "height": 844}}'>
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { where: 'Restaurant', oil: 'Heavy', size: 'Regular' }; }
+  renderVals() {
+    const s = this.state;
+    const mk = (key, t, opts) => ({ t, o: opts.map((n) => { const b = s[key] === n; return { n, bg: b ? 'linear-gradient(135deg, #166534, #22C55E)' : 'transparent', c: b ? '#FFFFFF' : '#9A9AA3', sh: b ? '0 2px 8px rgba(34,197,94,0.4)' : 'none', pick: () => this.setState({ [key]: n }) }; }) });
+    return { useLast: () => this.setState({ where: 'Restaurant', oil: 'Heavy', size: 'Regular' }), qs: [mk('where', 'WHERE IS IT FROM?', ['Home', 'Mess', 'Restaurant', 'Street']), mk('oil', 'HOW OILY?', ['Light', 'Normal', 'Heavy']), mk('size', 'PORTION', ['Small', 'Regular', 'Large', 'Shared'])] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1236px; --glow: rgba(255,255,255,0.05); --acc: #3B82F6; --deep: #1D4ED8; --pen: #FFFFFF">
+<header style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; height: 46px; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; background: rgba(5,5,5,0.55); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08)"><div style="display: flex; align-items: center; gap: 8px"><div style="width: 28px; height: 28px; border-radius: 8px; background: #A1A1AA; border: 1px solid rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 4px 10px -4px #A1A1AA"><img src="logo-mark.png" alt="" style="width: 15px; height: 15px; object-fit: contain"></div><span style="font-size: 15px; font-weight: 800; letter-spacing: -0.3px">CLAW<span style="color: #A1A1AA">W</span></span></div><button aria-label="Reminders" style="width: 44px; height: 44px; margin-right: -12px; border: 0; background: transparent; color: #A1A1AA; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></button></header><main class="main">
+<div class="rise" style="display: flex; flex-direction: column">
+  <span class="lbl" style="--c: #22C55E"><i></i>{{label}}</span>
+  <h1 class="disp" style="margin-top: 4px">{{greeting}}</h1>
+  <p class="b" style="margin: 8px 0 0 0">{{coachA}}<span style="color: #FFFFFF; font-weight: 700">{{coachB}}</span>{{coachC}}</p>
+</div>
+
+<a href="{{heroHref}}" class="hero rise" style="display: block; padding: 18px; background: {{heroBg}}; --sh: {{heroSh}}; animation-delay: .06s">
+  <span class="sheen"></span>
+  <span class="orb" style="width: 180px; height: 180px; right: -60px; top: -80px; background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 65%)"></span>
+  <span style="position: absolute; right: -6px; bottom: -18px; opacity: .12"><svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></span>
+  <span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.9px; color: rgba(255,255,255,0.72)">{{actionLabel}}</span>
+  <span style="position: relative; display: block; margin: 6px 0 4px 0; font-size: 20px; font-weight: 900; letter-spacing: -0.4px">{{actionTitle}}</span>
+  <span style="position: relative; display: block; font-size: 11.5px; color: rgba(255,255,255,0.72)">{{actionSub}}</span>
+  <span style="position: relative; display: flex; justify-content: space-between; align-items: center; margin-top: 14px">
+    <span style="display: flex; gap: 6px"><sc-for list="{{heroTags}}" as="g" hint-placeholder-count="2"><span style="padding: 4px 9px; border-radius: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.16); font-size: 11px; font-weight: 700">{{g}}</span></sc-for></span>
+    <span class="btn btn-sm btn-i" style="height: 38px; color: {{heroCtaColor}}">{{actionCta}} <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></span>
+  </span>
+</a>
+
+<section class="card rise" aria-label="Today's pen marks" style="padding: 14px 16px 6px 16px; animation-delay: .12s">
+  <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px">
+    <span class="lbl" style="--c: #FFFFFF"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></svg>MARKED ON YOUR PLAN TODAY</span>
+    <a href="PenReview.dc.html" class="tap" style="display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin: -12px 0; font-size: 12px; font-weight: 700; color: #A1A1AA">This week <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></a>
+  </div>
+  <sc-for list="{{marks}}" as="m" hint-placeholder-count="2"><button onClick="{{m.toggle}}" style="--pen: {{m.pen}}; display: flex; flex-direction: column; gap: 2px; width: 100%; padding: 11px 0 9px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.07); background: transparent; color: #FFFFFF; text-align: left; cursor: pointer"><span style="font-size: 11px; font-weight: 700; letter-spacing: .8px; color: {{m.areaColor}}">{{m.area}}</span><span style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; width: 100%"><span style="font-size: 14px; font-weight: 700">{{m.item}}</span><span style="font-size: 13px; text-align: right"><s style="color: #9A9AA3">{{m.old}}</s> <span class="pen-val" style="font-size: 16px">{{m.now}}</span></span></span><span class="pen" style="align-self: flex-end; font-size: 18px; font-weight: 500">{{m.note}}</span><sc-if value="{{m.open}}" hint-placeholder-val="{{ false }}"><span class="rise" style="display: flex; flex-direction: column; gap: 10px; width: 100%; margin-top: 8px; padding: 12px; border-radius: 14px; background: #0D0D0E; border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 1px 3px rgba(0,0,0,0.6)"><span style="font-size: 12px; line-height: 17px; color: #D4D4D8">{{m.why}}</span><span style="display: flex; gap: 8px"><span class="btn btn-sm" style="background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.22); color: #FFFFFF">Keep the mark</span><span class="btn btn-sm btn-g">Use my old plan</span></span></span></sc-if></button></sc-for>
+</section>
+
+<section class="card dots rise" aria-label="Daily progress" style="padding: 16px 18px; animation-delay: .18s">
+  <div style="position: relative; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px">
+    <span class="t">Daily Progress</span>
+    <span style="display: flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 8px; background: linear-gradient(135deg, rgba(245,158,11,0.22), rgba(245,158,11,0.08)); border: 1px solid rgba(245,158,11,0.32); font-size: 11px; font-weight: 800; color: #F59E0B; box-shadow: 0 4px 12px -6px rgba(245,158,11,0.7)"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8L20 11l-6.1 2.2L12 19l-1.9-5.8L4 11l6.1-2.2z"/></svg>640 CLAWW</span>
+  </div>
+  <div style="position: relative; display: flex; align-items: center; gap: 16px">
+    <div style="position: relative; width: 150px; height: 150px; flex-shrink: 0">
+      <svg width="150" height="150" viewBox="0 0 164 164" aria-hidden="true">
+        <circle cx="82" cy="82" r="72" fill="none" stroke="{{r0t}}" stroke-width="8"></circle>
+        <circle cx="82" cy="82" r="57" fill="none" stroke="{{r1t}}" stroke-width="8"></circle>
+        <circle cx="82" cy="82" r="42" fill="none" stroke="{{r2t}}" stroke-width="8"></circle>
+        <circle class="ring" cx="82" cy="82" r="72" fill="none" stroke="{{r0c}}" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{r0d}}" transform="rotate(-90 82 82)" style="filter: drop-shadow(0 0 4px {{r0c}})"></circle>
+        <circle class="ring" cx="82" cy="82" r="57" fill="none" stroke="{{r1c}}" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{r1d}}" transform="rotate(-90 82 82)" style="animation-delay: .12s; filter: drop-shadow(0 0 4px {{r1c}})"></circle>
+        <circle class="ring" cx="82" cy="82" r="42" fill="none" stroke="{{r2c}}" stroke-width="8" stroke-linecap="round" stroke-dasharray="{{r2d}}" transform="rotate(-90 82 82)" style="animation-delay: .24s; filter: drop-shadow(0 0 4px {{r2c}})"></circle>
+      </svg>
+      <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center"><span class="num" style="font-size: 26px; font-weight: 900">{{goalPct}}</span><span style="font-size: 11px; color: #A1A1AA; margin-top: 2px">Daily Goal</span></div>
+    </div>
+    <div style="flex: 1; display: flex; flex-direction: column; gap: 12px; min-width: 0">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="3">
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px"><span style="display: flex; align-items: center; gap: 5px; font-size: 11px; color: #A1A1AA"><span style="width: 6px; height: 6px; border-radius: 3px; background: {{r.c}}"></span>{{r.name}}</span><span class="num" style="font-size: 12px; font-weight: 700">{{r.val}} <span style="font-size: 11px; font-weight: 400; color: #9A9AA3">{{r.unit}}</span></span></div>
+          <div class="bar" style="--c: {{r.c}}"><b style="width: {{r.pct}}"></b></div>
+          <span style="display: block; margin-top: 4px; font-size: 11px; color: #8A8A93">{{r.note}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.07)">
+    <a href="Tracker.dc.html" class="tint" style="--t: #F59E0B; padding: 10px; border-radius: 14px"><span class="wm" style="color: #F59E0B; right: -8px; bottom: -10px"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></span><span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; color: #F59E0B">STEPS</span><span class="num" style="position: relative; display: block; margin-top: 4px; font-size: 16px; font-weight: 900">6,482</span><span class="bar" style="position: relative; display: block; margin-top: 6px; --c: #F59E0B"><b style="width: 81%"></b></span></a>
+    <a href="Tracker.dc.html" class="tint" style="--t: #FB923C; padding: 10px; border-radius: 14px"><span class="wm" style="color: #FB923C; right: -8px; bottom: -10px"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span><span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; color: #FB923C">BURNED</span><span class="num" style="position: relative; display: block; margin-top: 4px; font-size: 16px; font-weight: 900">{{burned}}</span><span class="bar" style="position: relative; display: block; margin-top: 6px; --c: #FB923C"><b style="width: {{burnPct}}"></b></span></a>
+    <a href="PenReview.dc.html" class="tint" style="--t: #F472B6; padding: 10px; border-radius: 14px"><span class="wm" style="color: #F472B6; right: -8px; bottom: -10px"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span><span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; color: #F472B6">STREAK</span><span class="num" style="position: relative; display: block; margin-top: 4px; font-size: 16px; font-weight: 900">5 days</span><span class="bar" style="position: relative; display: block; margin-top: 6px; --c: #F472B6"><b style="width: 71%"></b></span></a>
+  </div>
+</section>
+
+<section class="tint rise" style="--t: #38BDF8; display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; animation-delay: .24s">
+  <span class="ico" style="--t: #38BDF8; width: 38px; height: 38px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+  <div style="position: relative; flex: 1; min-width: 0">
+    <div style="display: flex; justify-content: space-between; align-items: baseline"><span class="t">Water</span><span class="num" style="font-size: 12px; font-weight: 700">{{waterL}} <span style="font-weight: 400; color: #9A9AA3">/ 3 L</span></span></div>
+    <div style="display: flex; gap: 4px; margin-top: 7px"><sc-for list="{{glasses}}" as="g" hint-placeholder-count="8"><span style="flex: 1; height: 8px; border-radius: 3px; background: {{g}}; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15)"></span></sc-for></div>
+  </div>
+  <button onClick="{{addWater}}" aria-label="Add a glass" class="btn" style="position: relative; width: 44px; height: 44px; padding: 0; border-radius: 13px; background: linear-gradient(135deg, #0369A1, #38BDF8); box-shadow: 0 4px 10px rgba(56,189,248,0.3), inset 0 1px 0 rgba(255,255,255,0.25)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+</section>
+</main><nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; padding: 6px 0 22px 0; background: rgba(9,9,10,0.62); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-top: 1px solid rgba(255,255,255,0.08)"><div style="position: absolute; top: -1px; left: 14px; width: 50px; height: 2px; border-radius: 1px; background: linear-gradient(90deg, transparent, #FFFFFF, transparent); box-shadow: 0 0 10px #FFFFFF"></div><div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr))"><a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; min-height: 44px; color: #FFFFFF; font-size: 11px; font-weight: 700; white-space: nowrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</a><a href="Workout.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; min-height: 44px; color: #9A9AA3; font-size: 11px; font-weight: 500; white-space: nowrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg>Workouts</a><a href="MealPlan.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; min-height: 44px; color: #9A9AA3; font-size: 11px; font-weight: 500; white-space: nowrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.528V3a1 1 0 0 1 1-1h0"/><path d="M18.237 21A15 15 0 0 0 22 11a6 6 0 0 0-10-4.472A6 6 0 0 0 2 11a15.1 15.1 0 0 0 3.763 10 3 3 0 0 0 3.648.648 5.5 5.5 0 0 1 5.178 0A3 3 0 0 0 18.237 21"/></svg>Nutrition</a><a href="Tracker.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; min-height: 44px; color: #9A9AA3; font-size: 11px; font-weight: 500; white-space: nowrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>CLAWW Tracker</a><a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 8px; min-height: 44px; color: #9A9AA3; font-size: 11px; font-weight: 500; white-space: nowrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>More</a></div></nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"moment": {"editor": "enum", "options": ["morning", "evening"], "default": "morning"}, "rings": {"editor": "enum", "options": ["new", "current"], "default": "new"}, "$preview": {"width": 390, "height": 1236}}'>
+
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { open: null, water: 5 }; }
+  renderVals() {
+    const ev = (this.props.moment ?? 'morning') === 'evening';
+    const newRings = (this.props.rings ?? 'new') === 'new';
+    const W = '#FFFFFF', PU = '#FFFFFF';
+    const tg = (id) => () => this.setState({ open: this.state.open === id ? null : id });
+    const raw = ev ? [
+      { id: 'dinner', area: 'NUTRITION · DINNER', pen: PU, item: 'Dinner', old: 'Rajma rice', now: 'Egg bhurji + 2 roti', note: '38 g protein still to go', why: 'Lunch came in short on protein. Three eggs close today’s gap for about ₹25, and you said eggs are always available.' },
+      { id: 'legs', area: 'WORKOUT · THURSDAY', pen: W, item: 'Leg day', old: 'Wed', now: 'Thu', note: 'missed Tuesday, moved it', why: 'You missed Tuesday. Legs move to Thursday so you still get 4 sessions this week without two hard days in a row.' }
+    ] : [
+      { id: 'bench', area: 'WORKOUT · PUSH DAY', pen: W, item: 'Bench press', old: '62.5', now: '60 kg', note: 'short sleep, hold this week', why: 'You slept 6 h 10 min and chest is still recovering (58). Holding 60 kg keeps progress safe; it goes up next session.' },
+      { id: 'row', area: 'WORKOUT · PUSH DAY', pen: W, item: 'Face pulls', old: '3 sets', now: '4 sets', note: 'shoulders are fresh, one more', why: 'Rear delts recovered fully and you hit the top of the rep range twice. One extra set, same weight.' },
+      { id: 'bf', area: 'NUTRITION · BREAKFAST', pen: PU, item: 'Breakfast', old: 'Poha', now: 'Poha + 2 eggs', note: 'protein was short yesterday', why: 'Yesterday ended 31 g under protein. Two boiled eggs with your usual poha fixes most of it before training.' }
+    ];
+    const marks = raw.map((m) => ({ ...m, areaColor: m.area.startsWith('WORKOUT') ? '#60A5FA' : '#4ADE80', open: this.state.open === m.id, toggle: tg(m.id) }));
+    const C = (r, p) => (Math.max(0.01, p) * 2 * Math.PI * r).toFixed(0) + ' 999';
+    let rings, rows, goal;
+    if (newRings) {
+      const wk = ev ? 1 : 0, nu = ev ? 0.74 : 0.19, rc = 0.64;
+      rings = [['#3B82F6', wk], ['#22C55E', nu], ['#2DD4BF', rc]];
+      rows = [
+        { name: 'Workout', c: '#3B82F6', val: ev ? 'Done' : '0 / 1', unit: ev ? '52 min' : 'session', pct: ev ? '100%' : '3%', note: ev ? 'Push day · 14 sets' : 'Push day at 6 pm' },
+        { name: 'Nutrition', c: '#22C55E', val: ev ? '1,590' : '410', unit: '/ 2,150 kcal', pct: ev ? '74%' : '19%', note: ev ? '2 of 3 meals logged' : 'breakfast logged' },
+        { name: 'Recovery', c: '#2DD4BF', val: '64', unit: '/ 100', pct: '64%', note: 'sleep 6.2 h counts in this' }
+      ];
+      goal = ev ? '79%' : '28%';
+    } else {
+      rings = [['#2DD4BF', 0.64], ['#818CF8', 0.77], ['#22C55E', ev ? 0.74 : 0.19]];
+      rows = [
+        { name: 'Recovery', c: '#2DD4BF', val: '64', unit: '/ 100', pct: '64%', note: '' },
+        { name: 'Sleep', c: '#818CF8', val: '6.2', unit: '/ 8 h', pct: '77%', note: '' },
+        { name: 'Nutrition', c: '#22C55E', val: ev ? '1,590' : '410', unit: '/ 2,150 kcal', pct: ev ? '74%' : '19%', note: '' }
+      ];
+      goal = ev ? '81%' : '52%';
+    }
+    const radii = [72, 57, 42];
+    const rv = {};
+    rings.forEach(([c, p], i) => { rv['r' + i + 'c'] = c; rv['r' + i + 'd'] = C(radii[i], p); rv['r' + i + 't'] = c + '1A'; });
+    const water = this.state.water;
+    return {
+      ...rv, marks, rows,
+      goalPct: goal,
+      label: ev ? 'TODAY · 8:30 PM' : 'TODAY · 7:40 AM',
+      greeting: ev ? 'Good evening,\nKashyap.' : 'Good morning,\nKashyap.',
+      coachA: ev ? 'Push day done. ' : 'You slept 6 h 10 min, so ',
+      coachB: ev ? '38 g protein left' : 'today is a little lighter',
+      coachC: ev ? ' for today; your dinner closes it.' : '. Bench holds, shoulders get an extra set.',
+      heroHref: ev ? 'MealPlan.dc.html' : 'Workout.dc.html',
+      heroBg: ev ? 'linear-gradient(135deg, #052E16, #14532D 55%, #166534)' : 'linear-gradient(135deg, #0F172A, #1E3A5F 55%, #1D4ED8)',
+      heroSh: ev ? 'rgba(22,101,52,0.95)' : 'rgba(29,78,216,0.95)',
+      heroCtaColor: ev ? '#166534' : '#1D4ED8',
+      actionLabel: ev ? 'NEXT ON YOUR PLAN · DINNER · 8:45 PM' : 'YOUR PLAN · DAY 3 OF 4 · 6:00 PM',
+      actionTitle: ev ? 'Egg bhurji + 2 roti' : 'Push day',
+      actionSub: ev ? '560 kcal · 36 g protein · about ₹45' : 'Chest, shoulders and triceps · 5 exercises · about 50 min',
+      heroTags: ev ? ['Kettle', 'Mess roti'] : ['Hypertrophy', 'Week 3'],
+      actionCta: ev ? 'Log it' : 'Start',
+      burned: ev ? '612' : '96', burnPct: ev ? '87%' : '14%',
+      waterL: (water * 0.375).toFixed(1).replace('.0', '') + ' L',
+      glasses: Array.from({ length: 8 }, (_, i) => i < water ? '#38BDF8' : 'rgba(255,255,255,0.07)'),
+      addWater: () => this.setState({ water: Math.min(8, water + 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>

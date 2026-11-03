@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Design system</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 860px; height: 940px; --glow: rgba(255,255,255,0.05); --acc: #3B82F6; --deep: #1D4ED8; --pen: #FFFFFF">
+
+<div style="position: relative; z-index: 1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 36px; padding: 40px">
+  <div style="display: flex; flex-direction: column; gap: 24px">
+    <div><span class="lbl" style="--c: #A1A1AA"><i></i>CLAWW DESIGN SYSTEM · NEXT GEN</span><h1 style="margin: 6px 0 0 0; font-size: 34px; font-weight: 900; letter-spacing: -1px">Same app. More depth.</h1><p class="b" style="margin: 6px 0 0 0">Every colour comes from theme.ts. What’s new is the surface: grain, inner light and coloured under-glow.</p></div>
+    <div><span class="t">Grounds</span><div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px"><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #050505; border: 1px solid rgba(255,255,255,0.14)"></div><span style="font-size: 11px; color: #A1A1AA">bg<br><span style="color: #8A8A93">#050505</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #0F0F10; border: 1px solid rgba(255,255,255,0.14)"></div><span style="font-size: 11px; color: #A1A1AA">surface<br><span style="color: #8A8A93">#0F0F10</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #151517; border: 1px solid rgba(255,255,255,0.14)"></div><span style="font-size: 11px; color: #A1A1AA">card<br><span style="color: #8A8A93">#151517</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #A1A1AA; border: 1px solid rgba(255,255,255,0.14)"></div><span style="font-size: 11px; color: #A1A1AA">fgGray<br><span style="color: #8A8A93">#A1A1AA</span></span></div></div></div>
+    <div><span class="t">Area colours · data only</span><div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px"><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #3B82F6; box-shadow: 0 8px 16px -10px #3B82F6"></div><span style="font-size: 11px; color: #A1A1AA">Workouts<br><span style="color: #8A8A93">#3B82F6</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #22C55E; box-shadow: 0 8px 16px -10px #22C55E"></div><span style="font-size: 11px; color: #A1A1AA">Nutrition<br><span style="color: #8A8A93">#22C55E</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #2DD4BF; box-shadow: 0 8px 16px -10px #2DD4BF"></div><span style="font-size: 11px; color: #A1A1AA">Recovery<br><span style="color: #8A8A93">#2DD4BF</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #818CF8; box-shadow: 0 8px 16px -10px #818CF8"></div><span style="font-size: 11px; color: #A1A1AA">Sleep<br><span style="color: #8A8A93">#818CF8</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #F59E0B; box-shadow: 0 8px 16px -10px #F59E0B"></div><span style="font-size: 11px; color: #A1A1AA">Steps<br><span style="color: #8A8A93">#F59E0B</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #FB923C; box-shadow: 0 8px 16px -10px #FB923C"></div><span style="font-size: 11px; color: #A1A1AA">Burned<br><span style="color: #8A8A93">#FB923C</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #F472B6; box-shadow: 0 8px 16px -10px #F472B6"></div><span style="font-size: 11px; color: #A1A1AA">Streak<br><span style="color: #8A8A93">#F472B6</span></span></div><div style="display: flex; flex-direction: column; gap: 5px"><div style="height: 38px; border-radius: 10px; background: #38BDF8; box-shadow: 0 8px 16px -10px #38BDF8"></div><span style="font-size: 11px; color: #A1A1AA">Water<br><span style="color: #8A8A93">#38BDF8</span></span></div></div></div>
+    <div><span class="t">Surfaces</span>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px">
+        <div class="card dots" style="height: 96px; padding: 12px"><span style="position: relative; font-size: 11px; font-weight: 700">Card</span><span style="position: relative; display: block; font-size: 11px; color: #9A9AA3; margin-top: 4px">grain + top light + dot texture</span></div>
+        <div class="tint dots" style="--t: #F59E0B; height: 96px; padding: 12px"><span class="wm" style="color: #F59E0B"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 10 3.8 10 5.5c0 3.11-2 5.66-2 8.68V16a2 2 0 1 1-4 0Z"/><path d="M20 20v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C14.63 6 14 7.8 14 9.5c0 3.11 2 5.66 2 8.68V20a2 2 0 1 0 4 0Z"/><path d="M16 17h4"/><path d="M4 13h4"/></svg></span><span style="position: relative; font-size: 11px; font-weight: 700">Tinted tile</span><span style="position: relative; display: block; font-size: 11px; color: #9A9AA3; margin-top: 4px">area glow + under-glow + watermark</span></div>
+        <div class="hero lines" style="height: 96px; padding: 12px; background: linear-gradient(135deg, #0F172A, #1E3A5F 55%, #1D4ED8)"><span class="sheen"></span><span style="position: relative; font-size: 11px; font-weight: 700">Hero</span><span style="position: relative; display: block; font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 4px">app gradient + lines + sheen</span></div>
+      </div>
+    </div>
+    <div><span class="t">Buttons and chips · from Button.tsx, Chip.tsx</span>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px">
+        <span class="btn btn-p">Primary</span><span class="btn btn-p" style="--acc: #22C55E; --deep: #166534">Primary</span><span class="btn btn-s">Secondary</span><span class="btn btn-g">Ghost</span><span class="btn btn-i">Inverted</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px"><span class="chip chip-on">Active chip</span><span class="chip">Chip</span>
+        <div class="seg" style="width: 220px"><button style="background: linear-gradient(135deg, #1D4ED8, #3B82F6); color: #FFFFFF">Segment</button><button>Two</button><button>Three</button></div></div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 24px">
+    <section class="card" style="padding: 18px">
+      <span class="t" style="position: relative">The Coach’s Pen · one white pen, everywhere</span>
+      <div style="position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px">
+        <div style="padding: 12px; border-radius: 14px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); --pen: #FFFFFF"><span style="font-size: 11px; font-weight: 700; letter-spacing: .8px; color: #3B82F6">WORKOUTS · WHITE</span><div style="margin-top: 6px; font-size: 13px"><s style="color: #9A9AA3">62.5</s> <span class="pen-val" style="font-size: 17px">60 kg</span></div><span class="pen" style="font-size: 17px; font-weight: 500">short sleep, hold</span></div>
+        <div style="padding: 12px; border-radius: 14px; background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25); --pen: #FFFFFF"><span style="font-size: 11px; font-weight: 700; letter-spacing: .8px; color: #22C55E">NUTRITION · WHITE</span><div style="margin-top: 6px; font-size: 13px"><s style="color: #9A9AA3">Rajma</s> <span class="pen-val" style="font-size: 17px">Egg bhurji</span></div><span class="pen" style="font-size: 17px; font-weight: 500">38 g protein to go</span></div>
+      </div>
+      <div style="position: relative; display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 12.5px; line-height: 18px; color: #D4D4D8">
+        <span>One white pen everywhere. The new value is bold Inter with a hand-drawn underline; only the short reason is handwritten, so numbers stay easy to read.</span>
+        <span>Accessibility: text at least 11px, grey text at least #9A9AA3 (4.5:1), every control at least 44px, motion off when the phone asks for reduced motion.</span>
+        <span>Old value struck through in grey; new value and note in Caveat. Tap any mark for the reason and “Use my old plan”.</span>
+        <span>At most 3 new marks a day. Marks draw in once, then stay still.</span>
+      </div>
+    </section>
+    <section class="card" style="padding: 18px">
+      <span class="t" style="position: relative">Daily Progress rings · proposed</span>
+      <div style="position: relative; display: flex; gap: 16px; align-items: center; margin-top: 12px">
+        <svg width="96" height="96" viewBox="0 0 164 164" aria-hidden="true"><circle cx="82" cy="82" r="72" fill="none" stroke="rgba(59,130,246,0.12)" stroke-width="10"></circle><circle cx="82" cy="82" r="57" fill="none" stroke="rgba(34,197,94,0.12)" stroke-width="10"></circle><circle cx="82" cy="82" r="42" fill="none" stroke="rgba(45,212,191,0.12)" stroke-width="10"></circle><circle cx="82" cy="82" r="72" fill="none" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" stroke-dasharray="452 999" transform="rotate(-90 82 82)"></circle><circle cx="82" cy="82" r="57" fill="none" stroke="#22C55E" stroke-width="10" stroke-linecap="round" stroke-dasharray="265 999" transform="rotate(-90 82 82)"></circle><circle cx="82" cy="82" r="42" fill="none" stroke="#2DD4BF" stroke-width="10" stroke-linecap="round" stroke-dasharray="169 999" transform="rotate(-90 82 82)"></circle></svg>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; line-height: 18px; color: #D4D4D8"><span><b style="color: #3B82F6">Workout</b> · did today’s plan</span><span><b style="color: #22C55E">Nutrition</b> · calories and protein</span><span><b style="color: #2DD4BF">Recovery</b> · the one score; sleep feeds it</span><span style="color: #9A9AA3">Sleep stays on the Tracker, so it isn’t counted twice.</span></div>
+      </div>
+    </section>
+    <section class="card" style="padding: 18px">
+      <span class="t" style="position: relative">Motion</span>
+      <p class="b" style="position: relative; margin: 6px 0 0 0">Cards rise in 40 ms apart. Rings fill on open. Pen strokes draw once. Hero cards carry a slow sheen. Taps scale to 0.96 (PressScale).</p>
+    </section>
+  </div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 860, "height": 940}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
