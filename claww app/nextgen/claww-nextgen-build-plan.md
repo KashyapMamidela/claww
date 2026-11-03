@@ -384,6 +384,13 @@ Fill these in as they are decided; Claude Code reads this table before the phase
 | Can users mark their own plan with the pen ("I'll do this Saturday")? | NG 11 | Yes (adds a `source` column to `pen_marks`) / No | | |
 | What the paid tier includes | NG 15 | Which daily caps stay, which features are paid | | |
 | Live Activity and Android chronometer modules | NG 3.5 | Chosen in that step after checking maintenance | | |
+| Workout modalities in the new setup (conflict 12.1 #6) | NG 5 | Add modality to screen 05 with cardio, mobility and yoga blueprints / keep the modality step | | |
+| Block length (conflict 12.1 #7) | NG 5 | 6 weeks (NG 5.3) / 8 weeks (screens 03, 05, 06) | | |
+| Rest for main lifts (conflict 12.1 #8) | NG 3.2 | 150 s (NG 3.2) / 90 s (screens 07, 08) | | |
+| Snacks (conflict 12.1 #9) | NG 7 | Logged as extra and suggested as add-ons / a fourth planned meal | | |
+| Jain diet (conflict 12.1 #10) | NG 4 | `jain_ok` flag on foods / remove the chip | | |
+| Budget default (conflict 12.1 #11) | NG 6 | 150 / 250 rule (NG 6) / 200 (screen 13) | | |
+| Water target (conflict 12.1 #12) | NG 2 | 2 L as today / from body weight | | |
 
 ---
 
@@ -407,8 +414,51 @@ Scored on the same eight areas as section 1.
 
 ## 12. Conflict check results
 
-Paste here what Claude Code reports from the first prompt (conflicts between this plan and the code), and the fix agreed for each.
+From the first prompt, run on 2026-11-03 on `ng/plan` (which contains `v2/phase-1-quick-fixes` at `9d79983`). Checked against the code, `database/schema.sql`, the 20 screen images, and what earlier sessions did to the live project. The live database could not be re-read for this check (the Supabase token used before was revoked), so item 1 is from the session records of 2026-10-19 and must be re-checked read-only in NG 0.1.
 
-| Conflict | Where | Fix | Date |
-| --- | --- | --- | --- |
-| | | | |
+### 12.1 Conflicts with the code today
+
+| # | Conflict | Where | Fix | Date |
+| --- | --- | --- | --- | --- |
+| 1 | Section 3 says no V2 phase is applied live. Out of date: on 2026-10-19 `schema.sql` and both exercise seeds were applied (183 of 183 rows with metadata and guides), `generate-plan`, `compute-recovery`, `suggest-meal` and `send-reminders` were deployed, `CRON_SECRET`, pg_cron, pg_net and the hourly `claww-send-reminders` job were set up, the FCM V1 key was uploaded with `eas credentials`, `google-services.json` was committed (`9d79983`) and an EAS preview APK was built. `CLAUDE.md`'s V2 entries still say "not deployed" too. What is really left: device tests, baseline, merge. | Build plan 3; prompts NG 0.1; `CLAUDE.md` V2 section | NG 0.1 becomes "verify read-only and list what is left", not "do it all". Update the V2 entries in `CLAUDE.md` during NG 0.3. | 2026-11-03 |
+| 2 | New user tables reference `auth.users(id)`; every existing user table references `profiles(id) ON DELETE CASCADE`. | Build plan 7 (`user_resources`, `meal_plan_days`, `scan_corrections`, `pen_marks`) | Use `REFERENCES profiles(id) ON DELETE CASCADE`, as the rest of the schema does. | 2026-11-03 |
+| 3 | `scan_corrections.meal_log_id` is `BIGINT`, but `meal_logs.id` is `UUID`. | Build plan 7 | `meal_log_id UUID REFERENCES meal_logs(id) ON DELETE SET NULL`. | 2026-11-03 |
+| 4 | `profiles.goal` allows only `muscle_gain`, `fat_loss`, `endurance`, `maintenance`, `flexibility`. Screen 05 and the blueprints need "Get stronger" (strength) and "Stay fit" (general fitness). | `schema.sql` line 23; NG 5.1, 5.5 | Idempotent `DROP CONSTRAINT IF EXISTS` + `ADD CONSTRAINT` adding `strength`; map `endurance`, `maintenance`, `flexibility` to general fitness in `pickBlueprint`. | 2026-11-03 |
+| 5 | Injuries are free text today (`personalization_profile.workoutDefaults.injuries`, read by the regex filter in `generate-plan`). NG 2 adds structured `profiles.injuries JSONB`. | `lib/data.ts`; NG 2, 5.2 | NG 2 copies the free text into a notes field and asks the user once to pick body parts; the regex filter stays until NG 5.2 replaces it. | 2026-11-03 |
+| 6 | The app plans strength, cardio, mobility and yoga (modality step, `generate-plan`, and the website claims "it plans yoga and mobility too"). Screen 05 has no modality choice, and the blueprints in NG 5.1 cover only strength by place. | `screens/workout-setup/modality.tsx`; NG 5.1, 5.5; screen 05 | Decide before NG 5: add modality to screen 05 plus mobility, yoga and cardio blueprints, or keep the modality step. Added to the open decisions log. | 2026-11-03 |
+| 7 | Block length: NG 5.3 says 6-week blocks (week 6 lighter); screens 03, 05 and 06 say "8 weeks" and "week 3 of 8". | NG 5.3; screens 03, 05, 06 | Pick one before NG 5 and change the other. | 2026-11-03 |
+| 8 | Rest for main lifts: NG 3.2 says 150 s; screens 07 and 08 show bench press (a main lift) with "rest 90 s" and a 1:30 timer. | NG 3.2; screens 07, 08 | Pick one before NG 3.2. | 2026-11-03 |
+| 9 | "3 meals a day", and `meal_templates` allows only breakfast, lunch and dinner. But the app has four meal types (`meal_logs.meal_type` includes `Snack`; `MEAL_ORDER` in `lib/data.ts`; meal reminders; `suggest-meal`'s Snack share), and screens 03 ("Snack: Biscuits to Curd + peanuts"), 13 ("curd + peanuts as snacks") and 18 ("Snack 5:30 PM, extra") show snacks. | Build plan 2, 7; NG 7, 8; screens 03, 13, 18 | Decide: snacks are logged as `extra` and suggested as add-ons to a meal (keep 3 planned meals), or add `snack` to `meal_templates`. Either way keep `Snack` valid in `meal_logs`. | 2026-11-03 |
+| 10 | Screen 11 offers "Jain"; `foods.diet` allows only `veg`, `egg`, `nonveg`, `vegan`. Jain also excludes onion, garlic and root vegetables, which no column describes. | Build plan 7; NG 4, 6; screen 11 | Add `jain_ok BOOLEAN` to `foods` and filter on it, or remove the chip. | 2026-11-03 |
+| 11 | Budget default: NG 6 says ₹150 for mess or tiffin, else ₹250; screen 13 shows ₹200 for "Mess + eating out". | NG 6; screen 13 | Pick the rule; make the screen and `resourceDefaults` agree. | 2026-11-03 |
+| 12 | Water target: the app uses 2 L everywhere (`WATER_TARGET_ML = 2000` in `WaterWidget.tsx` and `reminderSync.ts`, 8 × 250 ml segments); screens 01, 02 and 04 show 3 L. | V2 4.3; screens 01, 02, 04 | Keep 2 L, or compute a target from body weight in `lib/profile.ts` (NG 2) and use it everywhere. | 2026-11-03 |
+| 13 | Screens 05, 06 and 13 say "Picked from trainer-reviewed plans", "trainer reviewed", "Built from nutritionist-reviewed meal templates". Section 8 says no such claim until the review table is filled, and every blueprint and food row ships `reviewed: false`. | Build plan 8; screens 05, 06, 13 | Show the line only when the blueprint or template has `reviewed_by`; otherwise "Picked from set plans, never generated". | 2026-11-03 |
+| 14 | Screen 20's pen text says the new value and note are in Caveat; the decision table (section 2) says the new value is bold Inter and only the note is Caveat (as screens 01 to 15 show). | Screen 20 | Follow section 2; correct the text on the design board. | 2026-11-03 |
+| 15 | The screens need data that section 7 has no table for: a body-weight log (04, weight with a 4-week trend), logged activities (04 and 06, "Cricket, 45 min"; `profiles.activities` only lists sports the user plays), session feel (10, "How did that feel?", fed to `evaluateSession`, which today takes per-set RIR only), and the streak's "exam week" toggle (NG 12). | Build plan 7; NG 12, 13 | Add `body_weights`, `activity_logs` and a session RPE (column on `workout_day_events` or a `workout_sessions` table) in the phases that use them, with RLS, export and deletion. | 2026-11-03 |
+| 16 | Screen 04 shows recovery factors sleep, training load and resting HR, and sleep stages. `computeRecoveryScore` uses sleep, time since the last session, last-session load and protein (no heart rate), and Health Connect reads only steps and active calories today. | `_shared/recovery.ts`; `lib/steps.ts`; NG 13; screen 04 | Screen 04 is the wearable case. NG 13 must also design the no-watch card (sleep, load, protein) and show protein as a factor. | 2026-11-03 |
+| 17 | `user_resources.avoid` duplicates the avoid list already in `personalization_profile.foodProfile` (V2 5.1), which NG 6 says not to ask again. | Build plan 7; NG 6 | Drop `avoid` from `user_resources`; read `foodProfile`. | 2026-11-03 |
+| 18 | `lib/perf.ts` only records in `__DEV__`. Dev builds run unoptimised JavaScript, so NG 0.4's baseline and NG 3's "under 100 ms on device B" can't be measured on a realistic build. | `lib/perf.ts`; NG 0.4, 3 | In NG 0.3, also enable the markers when `EXPO_PUBLIC_PERF=1`, set it in the `preview` EAS profile, and measure on a preview APK. | 2026-11-03 |
+| 19 | `CLAUDE.md` still calls `claww-ship-roadmap.md` "the active roadmap" next to the new active NG plan. NG absorbs SHIP 10.1, 10.3, 10.5 and parts of 12. | `CLAUDE.md` Roadmaps | Relabel the ship roadmap "superseded where an NG phase covers it" (the user's call; not changed in this step). | 2026-11-03 |
+| 20 | Standing rule 7 updates `docs/legal/data-safety.md` only. The published privacy policy is now `https://claww.me/privacy` (the `website` branch, contacts privacy@ and support@claww.me), while `docs/legal/*` still uses placeholder `claww.app` addresses. | Prompts section 1 rule 7; `docs/legal/` | Rule 7 should also update the website's `public/privacy.html`; replace the `claww.app` placeholders in `docs/legal/` with the claww.me addresses during NG 0. | 2026-11-03 |
+
+### 12.2 What NG PHASE 0 still needs from the user
+
+1. **Device A:** your phone's model, Android version and RAM, for `docs/device-matrix.md`.
+2. **Device B:** a low-end Android (4 GB RAM, Android 12 or 13, Redmi or Realme class), borrowed for the device tests and baseline.
+3. **Device C:** an iPhone, or a yes to "iOS not tested" for now.
+4. **Supabase access again**, so live state can be verified read-only and fixes deployed: run `npx supabase login` once on your computer (nothing pasted in chat).
+5. **A new preview APK** after the perf flag change (item 18): `eas build --profile preview --platform android` from `claww app/app`, installed on A and B. EAS is already logged in on this computer.
+6. **Health Connect** installed and permitted on A and B (steps test), and notifications allowed during onboarding (Android 13+ prompt).
+7. **About two hours** to walk the V2 device tests with me and send pass/fail with screenshots.
+8. **Before any outside tester signs in with Google:** publish the Google OAuth consent screen (SHIP 8.4, still in Testing mode).
+9. **Decisions** on conflicts 6, 7, 8, 9, 11 and 12 aren't needed for NG 0, but are needed before NG 3, 5, 6 and 7. They are listed in the open decisions log (section 10).
+
+### 12.3 The order of the user steps in NG PHASE 0
+
+1. Send device A's details, and say whether B and C are available (0.2).
+2. Run `npx supabase login` on your computer; I verify the live database and functions read-only and mark what is already done in `docs/ng0-checklist.md` (0.1).
+3. I add the perf flag on `v2/phase-1-quick-fixes`; you run (or let me run) the preview build and install the APK on A, then B (0.3).
+4. Turn on Health Connect permissions and allow notifications during onboarding on both phones.
+5. Walk the device tests in `CLAUDE.md` in order, V2 PHASE 1 to 9, on A; repeat on B for the rings, the player, reminders and the airplane-mode set queue. Check first: Skia rings in the release build, Add exercise → info → guide (nested modals), the set queue after the schema, the 2-minute test reminder with the phone locked. Send pass/fail and screenshots; I fix failures on the same branch and you re-test them (0.3).
+6. Record the baseline on B, then A: 20 sets for set latency, taps for one planned set, Home cold start, a meal by text and by photo with a stopwatch, nutrition setup time, Workouts scroll (0.4).
+7. Read the PR #4 body (checklist, device results, baseline) and merge `v2/phase-1-quick-fixes` into `main` yourself (0.5). NG PHASE 1 starts after that.
