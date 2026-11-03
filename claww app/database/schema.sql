@@ -702,3 +702,10 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS session_minutes INT;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS injuries JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS activities JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bar_weight_kg NUMERIC DEFAULT 20;
+
+-- ============================================================
+-- NG PHASE 3.6: distance for timed blocks (a run, a ride, a walk). Optional;
+-- the app only sends it when the user entered one, so nothing depends on it
+-- until a distance is logged. Covered by the existing owner-only workout_logs policy.
+-- ============================================================
+ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS distance_km FLOAT;

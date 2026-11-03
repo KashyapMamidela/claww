@@ -91,6 +91,17 @@ export async function getSwapPool(primaryMuscle: string, movementPattern: string
   return ((data ?? []) as CatalogRow[]).map((r) => toEntry(r, {}));
 }
 
+/** Modality (strength, cardio, mobility, yoga) of each exercise name, so the player knows which ones are done against a clock. */
+export async function getModalities(names: string[]): Promise<Record<string, string>> {
+  if (names.length === 0) return {};
+  const { data, error } = await supabase.from('exercises').select('name, modality').in('name', names);
+  if (error) {
+    warn('Failed to load exercise modalities', error);
+    return {};
+  }
+  return Object.fromEntries((data ?? []).map((r) => [r.name as string, r.modality as string]));
+}
+
 // ─── exercise_progress ──────────────────────────────────────────────────────
 
 interface ProgressRow {

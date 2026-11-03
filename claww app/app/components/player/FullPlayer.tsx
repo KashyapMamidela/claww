@@ -32,6 +32,8 @@ import { TickButton } from '../ui/TickButton';
 import { ElapsedClock, KcalText } from './clocks';
 import { TargetCard } from './TargetCard';
 import { SwapSheet } from './SwapSheet';
+import { TimedBlock } from './TimedBlock';
+import { isTimedModality, targetMinutes, usesDistance } from '../../lib/timedExercise';
 import { Chip } from '../ui/Chip';
 import { isBarbellLift, targetDiffers, warmupSets } from '../../lib/plateMath';
 import { RestSheet } from './RestView';
@@ -95,6 +97,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
     prescriptionFor,
     restSecondsForExercise,
     swapExercise,
+    modalityFor,
+    logTimedExercise,
   } = useWorkoutSession();
   useSetLatency(`${exerciseIndex}:${setIndex}`);
 
@@ -143,7 +147,13 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const kgStep = rx?.incrementKg && rx.incrementKg > 0 ? rx.incrementKg : DEFAULT_KG_STEP;
   const muscle = forms[exercise.name]?.primaryMuscle ?? null;
   const plannedReps = repsText(exercise.reps, repMin, repMax);
-  const metaLine = [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${restSecondsForExercise(exercise.name)} s`].filter(Boolean).join(' · ');
+  // NG PHASE 3.6: cardio, yoga and mobility are done against a clock, not in sets of reps.
+  const modality = modalityFor(exercise.name);
+  const timed = isTimedModality(modality);
+  const timedTarget = timed ? targetMinutes(modality, exercise.sets, exercise.reps) : 0;
+  const metaLine = timed
+    ? [muscle, `${timedTarget} min`, modality === 'cardio' ? 'cardio' : modality].filter(Boolean).join(' · ')
+    : [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${restSecondsForExercise(exercise.name)} s`].filter(Boolean).join(' · ');
   const barbell = isBarbellLift(exercise.name);
   const barKg = profile?.bar_weight_kg && profile.bar_weight_kg > 0 ? profile.bar_weight_kg : 20;
   const markShown = !!rx && targetDiffers(rx.planWeightKg, rx.todayWeightKg);
@@ -244,13 +254,32 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                           How to
                         </Chip>
                       ) : null}
-                      {!workDoneAny && !state.skipped ? (
+                      {!timed && !workDoneAny && !state.skipped ? (
                         <Chip accent={A} icon={<Icon name="repeat" size={13} color={COLORS.fgGray} />} onPress={() => setSwapOpen(true)}>
                           Swap · equipment taken?
                         </Chip>
                       ) : null}
                     </View>
 
+                    <FormStrip
+                      form={forms[exercise.name]}
+                      setIndex={Math.max(0, setIndex)}
+                      expanded={lastTimeLoaded && !lastTime[exercise.name]}
+                      onDemo={() => setGuideName(exercise.name)}
+                    />
+
+                    {timed ? (
+                      state.rows.every((r) => r.done) ? null : (
+                        <TimedBlock
+                          key={`${exerciseIndex}-${exercise.name}`}
+                          exerciseName={exercise.name}
+                          targetMinutes={timedTarget}
+                          withDistance={usesDistance(exercise.name)}
+                          onDone={(input) => logTimedExercise(exerciseIndex, input)}
+                        />
+                      )
+                    ) : (
+                      <>
                     {currentRow || markShown ? (
                       <TargetCard
                         currentKg={currentRow?.weight ?? firstWorkKg}
@@ -266,12 +295,6 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       />
                     ) : null}
 
-                    <FormStrip
-                      form={forms[exercise.name]}
-                      setIndex={Math.max(0, setIndex)}
-                      expanded={lastTimeLoaded && !lastTime[exercise.name]}
-                      onDemo={() => setGuideName(exercise.name)}
-                    />
 
                     {/* Set rows: "Set n", the numbers, a hint, and the tick */}
                     <View style={{ gap: 8 }}>
@@ -366,6 +389,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                         </View>
                       </View>
                     ) : null}
+                      </>
+                    )}
 
                     {upNext ? (
                       <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
@@ -387,6 +412,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
               </GestureDetector>
 
               {/* Bottom sheet: the current set's steppers and Done, or "Exercise done" with Next */}
+              {timed && !exerciseDone ? null : (
               <LinearGradient
                 colors={[SURFACES.sheetTop, SURFACES.sheetBottom]}
                 style={{
@@ -459,6 +485,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                   </>
                 ) : null}
               </LinearGradient>
+              )}
           </>
         </View>
 

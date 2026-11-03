@@ -766,6 +766,9 @@ export interface WorkoutSetInput {
   /** Reps left in the tank, 0-3 (3 means 3 or more); undefined when the user didn't say. */
   rir?: number | null;
   sessionId?: string | null;
+  /** NG PHASE 3.6: set for a timed block; reps and weight are 0 then. */
+  durationMinutes?: number | null;
+  distanceKm?: number | null;
 }
 
 /** Last session's sets for each of these exercises (most recent calendar day each), for the player's "last time" column and weight prefill. */
@@ -828,6 +831,9 @@ export async function logWorkoutSet(userId: string, log: WorkoutSetInput): Promi
     set_number: log.setNumber,
     rir: log.rir ?? null,
     session_id: log.sessionId ?? null,
+    ...(log.durationMinutes ? { duration_minutes: log.durationMinutes } : {}),
+    // Only when entered, so a session without a distance never depends on the new column.
+    ...(log.distanceKm ? { distance_km: log.distanceKm } : {}),
     completed_at: new Date().toISOString(),
   });
   return true;
