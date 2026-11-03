@@ -1,5 +1,5 @@
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
-import { computeRecoveryScore } from '../_shared/recovery.ts';
+import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
 
@@ -12,10 +12,9 @@ Deno.serve(async (req: Request) => {
     const supabase = userClientFromRequest(req);
     const user = await requireUser(supabase);
 
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
+    const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    const [{ data: sleepLog }, { data: workoutLog }, { data: todaysWater }, { count: todaysMealCount }] = await Promise.all([
+    const [{ data: sleepLog }, { data: workoutLog }, { data: profile }, { data: recentMeals }] = await Promise.all([
       supabase
         .from('sleep_logs')
         .select('hours, bedtime, wake_time, logged_at')
@@ -30,21 +29,13 @@ Deno.serve(async (req: Request) => {
         .order('completed_at', { ascending: false })
         .limit(1)
         .maybeSingle(),
-      supabase.from('water_logs').select('ml').eq('user_id', user.id).gte('logged_at', startOfDay.toISOString()),
-      supabase
-        .from('meal_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .gte('logged_at', startOfDay.toISOString()),
+      supabase.from('profiles').select('personalization_profile').eq('id', user.id).maybeSingle(),
+      supabase.from('meal_logs').select('protein_g').eq('user_id', user.id).gte('logged_at', last24h),
     ]);
 
-    const todaysWaterMl = (todaysWater ?? []).reduce((sum, row) => sum + (row.ml ?? 0), 0);
-    const result = computeRecoveryScore(
-      sleepLog,
-      workoutLog,
-      { waterMl: todaysWaterMl },
-      { loggedMealToday: (todaysMealCount ?? 0) > 0 }
-    );
+    const target = (profile?.personalization_profile as { nutritionDefaults?: { protein_g?: number } } | null)?.nutritionDefaults?.protein_g ?? null;
+    const pct = proteinShare(recentMeals, target);
+    const result = computeRecoveryScore(sleepLog, workoutLog, pct === null ? null : { proteinPct: pct });
 
     return new Response(JSON.stringify(result), { headers: jsonHeaders });
   } catch (error) {

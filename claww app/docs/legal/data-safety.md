@@ -114,7 +114,14 @@ need its own entries.
 
 ## Device or other IDs
 
-**Not collected** by the app directly. Standard infrastructure-level logging
+| Data type | Collected | Shared | Required / Optional | Purpose | Where in the code |
+|---|---|---|---|---|---|
+| Device or other IDs | **Yes — the device's Expo push token** (V2 PHASE 3.4), plus the device time zone, only when the user turns reminders on | With Expo's push service, which relays to Firebase Cloud Messaging / Apple Push Notification service to deliver the notification `[DECISION NEEDED]` on whether Play treats this as "shared" or as a service provider | Optional (reminders are off unless the user turns them on) | App functionality (reminders) | `app/lib/pushTokens.ts`, `push_tokens` and `push_sends` tables, `supabase/functions/send-reminders` |
+
+The token is deleted on sign-out, when Expo reports it's no longer valid,
+and with the account. No advertising ID is collected.
+
+Beyond that, standard infrastructure-level logging
 (e.g. IP addresses in Supabase/Groq request logs) is outside the app's own
 data collection and governed by those providers' own policies — `[DECISION
 NEEDED]` on whether Play expects this disclosed regardless.

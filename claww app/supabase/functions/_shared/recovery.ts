@@ -9,24 +9,15 @@ export interface WorkoutLogRow {
   completed_at: string;
 }
 
-/** Today's total logged water, in ml — real data.ts getTodaysWaterMl() output, not fabricated. */
-export interface HydrationInfo {
-  waterMl: number;
-}
-
-/** Whether ANY meal was logged today — a presence signal ("are you tracking
- * intake at all"), not a claim about nutritional quality, which nothing in
- * this app can honestly assess. */
-export interface NutritionInfo {
-  loggedMealToday: boolean;
+/** Protein eaten over the last 24 hours as a share of the user's target (1 = hit it). Only passed when it is actually known. */
+export interface ProteinInfo {
+  proteinPct: number;
 }
 
 export interface RecoveryResult {
   score: number;
   band: 'Low' | 'Moderate' | 'High';
 }
-
-const WATER_TARGET_ML = 2000; // matches WaterWidget.tsx's own target
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -45,37 +36,30 @@ function estimateSessionIntensity(workoutLog: WorkoutLogRow | null): number {
 }
 
 /**
- * Extended per a direct request to cover the cofounder's fuller definition
- * of recovery ("getting enough sleep, eating nutritious food, staying
- * hydrated, taking rest days, doing light activity") — the pre-existing
- * formula covered sleep and rest-days-since-last-session only. Hydration
- * and a nutrition-logging signal are added as real, DB-backed terms, same
- * "don't trust the model, ground it" posture as generate-plan's own
- * thresholds. Light activity (steps/walking) is deliberately NOT added —
- * step data lives only on-device (lib/steps.ts, Health Connect/Core
- * Motion), nothing persists it server-side for this Edge Function to read,
- * so adding a term for it would mean fabricating a number. Revisit if
- * steps ever get written to the DB.
+ * Whole-body recovery (V2 PHASE 7.5, decision D7). Water and "a meal was
+ * logged" no longer count: the inputs are sleep, protein against target,
+ * time since the last session and how hard that session was.
  *
  * recovery_score = clamp(sleep_score + recovery_gap - fatigue_penalty
- *                        + hydration_score + nutrition_score + 20, 0, 100)
- *   sleep_score     = min(sleep_hours / 8, 1) * 35
+ *                        + protein_score + 20, 0, 100)
+ *   sleep_score     = min(sleep_hours / 8, 1) * 40
  *   recovery_gap    = min(hours_since_last_session / 24, 1) * 25 (25 if no prior session)
  *   fatigue_penalty = last_session_intensity * 3
- *   hydration_score = min(water_ml_today / 2000, 1) * 10
- *   nutrition_score = logged_meal_today ? 10 : 0
+ *   protein_score   = min(protein_pct, 1) * 15
  *
- * Ceiling check: 35+25+10+10+20 = 100 (perfect everything, zero fatigue).
- * Floor check: 0+0-30+0+0+20 = -10 -> clamps to 0 (max fatigue, nothing else).
+ * Ceiling check: 40+25+15+20 = 100. Floor: 0+0-30+0+20 = -10 -> clamps to 0.
+ *
+ * Protein is left out, not guessed, when it is unknown (no target set, or
+ * nothing logged in the last 24 h): the other terms are then scaled by their
+ * own ceiling of 85, so the score is still out of 100.
  */
 export function computeRecoveryScore(
   sleepLog: SleepLogRow | null,
   workoutLog: WorkoutLogRow | null,
-  hydration?: HydrationInfo | null,
-  nutrition?: NutritionInfo | null
+  protein?: ProteinInfo | null
 ): RecoveryResult {
   const sleepHours = sleepLog?.hours ?? 0;
-  const sleepScore = Math.min(sleepHours / 8, 1) * 35;
+  const sleepScore = Math.min(sleepHours / 8, 1) * 40;
 
   let recoveryGap = 25; // no prior session on record -> full recovery credit
   if (workoutLog?.completed_at) {
@@ -85,11 +69,25 @@ export function computeRecoveryScore(
   }
 
   const fatiguePenalty = estimateSessionIntensity(workoutLog) * 3;
-  const hydrationScore = Math.min(Math.max(hydration?.waterMl ?? 0, 0) / WATER_TARGET_ML, 1) * 10;
-  const nutritionScore = nutrition?.loggedMealToday ? 10 : 0;
 
-  const score = clamp(sleepScore + recoveryGap - fatiguePenalty + hydrationScore + nutritionScore + 20, 0, 100);
+  let score: number;
+  if (protein && Number.isFinite(protein.proteinPct)) {
+    const proteinScore = Math.min(Math.max(protein.proteinPct, 0), 1) * 15;
+    score = clamp(sleepScore + recoveryGap - fatiguePenalty + proteinScore + 20, 0, 100);
+  } else {
+    score = clamp(((sleepScore + recoveryGap - fatiguePenalty + 20) / 85) * 100, 0, 100);
+  }
   const band: RecoveryResult['band'] = score < 40 ? 'Low' : score <= 70 ? 'Moderate' : 'High';
 
   return { score: Math.round(score), band };
+}
+
+/**
+ * Protein over the last 24 h as a share of the target, or null when it cannot
+ * be known: no target, or no meals logged (zero would read as "ate no protein",
+ * which is a guess, not data).
+ */
+export function proteinShare(meals: { protein_g: number | null }[] | null | undefined, targetG: number | null | undefined): number | null {
+  if (!targetG || targetG <= 0 || !meals || meals.length === 0) return null;
+  return meals.reduce((sum, m) => sum + (m.protein_g ?? 0), 0) / targetG;
 }

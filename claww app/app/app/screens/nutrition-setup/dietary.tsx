@@ -9,7 +9,7 @@ import { Chip } from '../../../components/ui/Chip';
 import type { DietaryRestriction } from '../../../lib/data';
 
 const G = COLORS.green;
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
 
 const OPTIONS: { value: DietaryRestriction; label: string }[] = [
   { value: 'vegetarian', label: 'Vegetarian' },
@@ -43,7 +43,7 @@ export default function NutritionSetupDietary() {
 
   const next = () => {
     router.push({
-      pathname: '/screens/nutrition-setup/review',
+      pathname: '/screens/nutrition-setup/foodprofile',
       params: { ...params, dietaryRestrictions: dietaryRestrictions.join(',') },
     });
   };

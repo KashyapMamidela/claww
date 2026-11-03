@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { COLORS, FONT } from '../lib/theme';
-import { requestNotificationPermission, scheduleDefaultReminders } from '../lib/notifications';
+import { requestNotificationPermission } from '../lib/notifications';
+import { refreshReminders } from '../lib/reminderSync';
 import { setNotificationPromptShown, setNotificationsEnabled } from '../lib/data';
 import { Icon } from './ui/Icon';
 
@@ -11,8 +12,10 @@ export interface NotificationPromptCardProps {
 }
 
 /**
- * SHIP PHASE 8.3 — the soft-ask, shown once after a user's first completed
- * workout (see workout-complete.tsx), before the real OS permission dialog.
+ * SHIP PHASE 8.3 — the soft-ask after a user's first completed workout (see
+ * workout-complete.tsx), before the real OS permission dialog. Since V2
+ * PHASE 3.2 the main ask is at the end of onboarding; this card only shows
+ * to users who chose "Not now" there.
  * "Not now" and "Enable" both permanently record that the prompt was shown
  * (notification_prompt_shown_at) so it never appears again — re-enabling
  * later is Settings' job, not a second ask here.
@@ -24,8 +27,8 @@ export function NotificationPromptCard({ userId, onDismiss }: NotificationPrompt
     setLoading(true);
     const granted = await requestNotificationPermission();
     if (granted) {
-      await scheduleDefaultReminders();
       await setNotificationsEnabled(userId, true);
+      await refreshReminders(userId).catch(() => {});
     }
     await setNotificationPromptShown(userId);
     setLoading(false);

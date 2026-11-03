@@ -1,3 +1,7 @@
 # Supabase CLI local cache/session state — machine-specific, never commit.
 supabase/.temp/
 **/supabase/.temp/
+
+# Showreel renders (hundreds of MB) and its packages: keep them out of git and EAS build uploads.
+claww app/showreel/out/
+claww app/showreel/node_modules/

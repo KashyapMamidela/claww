@@ -7,8 +7,10 @@ import { TabBar } from '../../components/ui/TabBar';
 import { LiveWorkoutPlayer } from '../../components/LiveWorkoutPlayer';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { TAB_ACCENTS } from '../../lib/theme';
+import { useRenderCount } from '../../lib/perf';
 
 export default function TabsLayout() {
+  useRenderCount('TabsLayout');
   const pathname = usePathname();
   const router = useRouter();
   const insets = useSafeAreaInsets();

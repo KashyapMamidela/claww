@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabase';
+import { refreshReminders } from './reminderSync';
 import {
   estimateMeal,
   estimateMealFromPhoto,
@@ -155,6 +156,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         setRecovery(await getRecoveryScore(userId));
         bumpXp(10); // matches awardXp(userId, 10, 'sleep_logged') in insertSleepLog
         getActivityStreak(userId).then(setStreak);
+        refreshReminders(userId).catch(() => {}); // drops today's sleep reminder
       }
     },
     [userId, bumpXp]
@@ -178,6 +180,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         setMeals((m) => [...m, inserted]);
         bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in saveMeal
         getActivityStreak(userId).then(setStreak);
+        refreshReminders(userId).catch(() => {}); // drops today's reminder for this meal
       }
       return inserted;
     },

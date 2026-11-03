@@ -7,11 +7,20 @@ import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Chip } from '../../../components/ui/Chip';
 import type { SplitPreference } from '../../../lib/data';
+import { defaultWeekdays, sortWeekdays, trainingDaysPerWeek } from '../../../lib/trainingWeek';
 
 const A = COLORS.blue;
 const TOTAL_STEPS = 8;
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+const TIME_OPTIONS: { value: string; label: string }[] = [
+  { value: '', label: 'No fixed time' },
+  { value: '07:00', label: 'Morning' },
+  { value: '12:30', label: 'Midday' },
+  { value: '18:00', label: 'Evening' },
+  { value: '20:30', label: 'Night' },
+];
 
 const SPLIT_OPTIONS: { value: SplitPreference; label: string }[] = [
   { value: 'auto', label: 'Let CLAWW Choose' },
@@ -21,13 +30,11 @@ const SPLIT_OPTIONS: { value: SplitPreference; label: string }[] = [
 ];
 
 /**
- * Previously the app only ever asked a days-per-week COUNT (via activity
- * level) and let the LLM pick whatever split it wanted — a real gap the
- * cofounder flagged twice (no weekday picker, no way to reject a split
- * before generation). Both are optional here: skipping this screen
- * (leaving no days selected) falls back to the old activity-based day
- * count exactly as before, so nobody who liked the old flow is forced
- * into a new one.
+ * Which weekdays the user trains. The selection starts from the days per
+ * week CLAWW would have used anyway (from experience and activity level), so
+ * accepting it changes nothing about how many days the plan has; the user
+ * can move the days, and an optional usual time is saved too (V2 PHASE 6.1).
+ * Clearing every day falls back to the old "Day 1, Day 2" plan.
  */
 export default function WorkoutSetupSchedule() {
   const router = useRouter();
@@ -40,7 +47,10 @@ export default function WorkoutSetupSchedule() {
     experienceLevel: string;
     activityLevel: string;
   }>();
-  const [trainingDays, setTrainingDays] = useState<string[]>([]);
+  const [trainingDays, setTrainingDays] = useState<string[]>(() =>
+    defaultWeekdays(trainingDaysPerWeek(experienceLevel ?? null, activityLevel ?? null, null))
+  );
+  const [usualTime, setUsualTime] = useState('');
   const [split, setSplit] = useState<SplitPreference>('auto');
 
   const toggleDay = (day: string) => {
@@ -58,7 +68,8 @@ export default function WorkoutSetupSchedule() {
         goal,
         experienceLevel,
         activityLevel,
-        trainingDays: trainingDays.join(','),
+        trainingDays: sortWeekdays(trainingDays).join(','),
+        usualTrainingTime: usualTime,
         splitPreference: split,
       },
     });
@@ -76,14 +87,25 @@ export default function WorkoutSetupSchedule() {
           Which days work for you?
         </Text>
         <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
-          Optional — pick your actual free days and your plan lands exactly there. Skip it and CLAWW picks a
-          day count from your activity level instead.
+          We started you on a sensible spread. Move the days to match your week and your plan lands exactly there.
+          Clear them all and CLAWW uses plain Day 1, Day 2 instead.
         </Text>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {WEEKDAYS.map((day) => (
             <Chip key={day} active={trainingDays.includes(day)} accent={A} accentDeep={COLORS.blueDeep} onPress={() => toggleDay(day)}>
               {day.slice(0, 3)}
+            </Chip>
+          ))}
+        </View>
+
+        <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
+          USUAL TIME · OPTIONAL
+        </Text>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+          {TIME_OPTIONS.map((opt) => (
+            <Chip key={opt.label} active={usualTime === opt.value} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setUsualTime(opt.value)}>
+              {opt.label}
             </Chip>
           ))}
         </View>

@@ -1,0 +1,1051 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CLAWW Change Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: sticky change index on the left (desktop), one reading column on the right; phone mockups sit in rows inside the column. Single dark look, same world as the app. */
+:root{
+  --bg:#08090A; --panel:#101113; --panel2:#16171A; --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.16);
+  --fg:#EDEEF0; --fg2:#A9ACB3; --fg3:#6E727B;
+  --blue:#3B82F6; --green:#22C55E; --red:#EF4444; --amber:#F59E0B; --purple:#A855F7; --indigo:#818CF8;
+  --doc:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --app:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--doc);font-size:16px;line-height:1.6;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:40px 80px;display:grid;grid-template-columns:220px minmax(0,1fr);gap:48px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);gap:24px;padding-inline:16px}}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 24px);align-self:start;font-size:13px;line-height:1.45}
+@media (max-width:900px){nav.toc{position:static}}
+.toc h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--fg3);margin:18px 0 8px;font-weight:600}
+.toc a{display:flex;gap:8px;color:var(--fg2);text-decoration:none;padding:3px 0}
+.toc a:hover,.toc a:focus-visible{color:var(--fg)}
+.toc a b{font-family:var(--mono);font-weight:600;color:var(--fg3);min-width:22px;font-size:12px}
+@media (max-width:900px){.toc .grp{display:flex;flex-wrap:wrap;gap:4px 14px}}
+main{min-width:0}
+header.top .eyebrow{font-family:var(--mono);font-size:12px;color:var(--fg3);letter-spacing:.04em}
+h1{font-size:clamp(34px,5vw,52px);line-height:1.04;letter-spacing:-.035em;margin:10px 0 14px;font-weight:800;text-wrap:balance}
+h2{font-size:28px;letter-spacing:-.025em;line-height:1.15;margin:0 0 6px;font-weight:700;text-wrap:balance}
+h3{font-size:19px;letter-spacing:-.01em;margin:0;font-weight:650;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+p{margin:0 0 12px;max-width:68ch}
+.lede{color:var(--fg2);font-size:18px;max-width:62ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font-family:var(--mono);font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:3px 10px;color:var(--fg2)}
+section.sec{border-top:1px solid var(--line);margin-top:56px;padding-top:28px}
+.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.sec-sub{color:var(--fg2);margin-bottom:24px}
+.change{margin-top:34px}
+.num{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--fg3);border:1px solid var(--line2);border-radius:6px;padding:1px 7px}
+.tag{font-family:var(--mono);font-size:11px;border-radius:5px;padding:2px 7px;letter-spacing:.02em}
+.t-fix{background:rgba(239,68,68,.14);color:#FCA5A5}.t-new{background:rgba(59,130,246,.15);color:#93C5FD}.t-re{background:rgba(168,85,247,.15);color:#D8B4FE}.t-keep{background:rgba(255,255,255,.08);color:var(--fg2)}.t-found{background:rgba(245,158,11,.14);color:#FCD34D}
+.change .body{margin-top:10px}
+.now{color:var(--fg2);font-size:15px;border-left:2px solid var(--line2);padding-left:12px;margin:10px 0 14px}
+.now b{color:var(--fg);font-weight:600}
+ul.flow,ol.flow{margin:6px 0 12px;padding-left:20px;max-width:68ch}
+ul.flow li,ol.flow li{margin:4px 0}
+.mono{font-family:var(--mono);font-size:.88em}
+.shots{display:flex;flex-wrap:wrap;gap:26px;margin:20px 0 6px;align-items:flex-start}
+figure{margin:0;display:flex;flex-direction:column;gap:10px;width:272px;max-width:100%}
+figcaption{font-size:13px;color:var(--fg2);line-height:1.45}
+figcaption b{color:var(--fg);font-weight:600;display:block;margin-bottom:2px}
+.callout{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:14px 0;max-width:72ch}
+.callout h5{margin:0 0 6px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);font-weight:600}
+.tbl{overflow-x:auto;margin:12px 0 16px;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg3);font-weight:600;background:var(--panel)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pipe{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:16px 0}
+.pipe .st{flex:1 1 150px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.pipe .st small{display:block;font-family:var(--mono);color:var(--fg3);font-size:11px}
+.pipe .st b{display:block;font-size:15px;margin:2px 0 4px}
+.pipe .st span{font-size:13px;color:var(--fg2);line-height:1.4;display:block}
+.formula{font-family:var(--mono);font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:nowrap;margin:10px 0 14px}
+.decisions{counter-reset:d;display:grid;gap:10px;margin:14px 0}
+.dec{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 10px}
+.dec::before{counter-increment:d;content:"D" counter(d);font-family:var(--mono);font-size:12px;color:var(--fg3);padding-top:2px}
+.dec p{margin:0;font-size:15px}
+.dec .def{grid-column:2;font-size:14px;color:var(--fg2)}
+.dec .def b{color:#86EFAC;font-weight:600}
+.phases{display:grid;gap:10px;margin:14px 0}
+.ph{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.ph .k{font-family:var(--mono);font-size:12px;color:var(--fg3)}
+.ph b{display:block;margin-bottom:2px}
+.ph span{font-size:14px;color:var(--fg2)}
+.idx{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;margin:22px 0 0}
+.idx a{display:flex;gap:10px;align-items:baseline;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg);text-decoration:none;font-size:14px;line-height:1.35}
+.idx a:hover,.idx a:focus-visible{border-color:var(--line2)}
+.idx a .num{flex:none}
+a{color:#93C5FD}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ───────── Phone mockups (CLAWW tokens from lib/theme.ts) ───────── */
+.phone{width:272px;max-width:100%;background:#050505;border:1px solid rgba(255,255,255,.16);border-radius:36px;padding:10px;box-shadow:0 30px 60px -30px rgba(0,0,0,.9),inset 0 0 0 4px #0b0b0c;font-family:var(--app);color:#fff;position:relative;overflow:hidden}
+.scr{border-radius:28px;background:#050505;overflow:hidden;position:relative;min-height:520px;display:flex;flex-direction:column}
+.sb{display:flex;justify-content:space-between;align-items:center;padding:10px 18px 4px;font-size:11px;font-weight:600;color:#fff}
+.sb i{width:64px;height:18px;background:#000;border-radius:12px;display:block;border:1px solid #111}
+.hdr{display:flex;justify-content:space-between;align-items:center;padding:6px 16px 8px;font-size:15px;font-weight:800;letter-spacing:-.02em}
+.hdr small{font-size:10px;font-weight:600;color:rgba(255,255,255,.45);letter-spacing:.08em}
+.cnt{padding:0 12px 12px;display:flex;flex-direction:column;gap:9px;flex:1}
+.card{background:#151517;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:12px}
+.lbl{font-size:8.5px;font-weight:700;letter-spacing:.11em;color:rgba(255,255,255,.45);text-transform:uppercase}
+.big{font-size:22px;font-weight:900;letter-spacing:-.04em;line-height:1.05}
+.sm{font-size:10px;color:rgba(255,255,255,.55);line-height:1.35}
+.row{display:flex;gap:8px;align-items:center}
+.between{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.tabbar{display:flex;justify-content:space-around;padding:8px 6px 12px;border-top:1px solid rgba(255,255,255,.08);background:rgba(10,10,11,.92);font-size:8.5px;color:rgba(255,255,255,.4);font-weight:600}
+.tabbar span{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabbar span::before{content:"";width:16px;height:16px;border-radius:5px;border:1.5px solid currentColor;opacity:.8}
+.tabbar .on{color:#fff}
+.btn{border-radius:12px;padding:9px 10px;text-align:center;font-size:11px;font-weight:800;letter-spacing:-.01em}
+.bar{height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:4px}
+.pill{border-radius:999px;font-size:9px;font-weight:700;padding:3px 8px;display:inline-flex;gap:4px;align-items:center}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#121214;border-top:1px solid rgba(255,255,255,.14);border-radius:22px 22px 0 0;padding:8px 14px 16px;box-shadow:0 -20px 40px rgba(0,0,0,.6)}
+.grab{width:34px;height:4px;border-radius:3px;background:rgba(255,255,255,.22);margin:2px auto 10px}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.seg{display:flex;gap:4px}
+.seg span{flex:1;text-align:center;font-size:10px;font-weight:700;padding:6px 0;border-radius:8px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)}
+.ico{width:14px;height:14px;flex:none}
+.muted{color:rgba(255,255,255,.45)}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c-3 4-6 7.2-6 10.5A6 6 0 0 0 18 13.5C18 10.2 15 7 12 3Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M5 19l1.5-1.5M17.5 6.5 19 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5-11-6.5Z" fill="currentColor"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3s5 4.5 5 9.5a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3 1-5.5 1-8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-shoe" viewBox="0 0 24 24"><path d="M3 16h17a1 1 0 0 0 1-1c0-2-2-3-4-3.5L13 10 11 6H7L5 8 3 8v8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 12h12" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="wrap">
+<nav class="toc" aria-label="Contents">
+  <h4>Overview</h4>
+  <div class="grp"><a href="#index"><b>·</b>All changes</a><a href="#how"><b>·</b>How the app works after</a></div>
+  <h4>Home</h4>
+  <div class="grp"><a href="#c1"><b>01</b>Greeting by time</a><a href="#c2"><b>02</b>Steps, Burned, Streak</a><a href="#c3"><b>03</b>Water</a><a href="#c4"><b>04</b>Sleep card</a><a href="#c14"><b>14</b>Plan card day</a><a href="#c15"><b>15</b>Sleep ring</a></div>
+  <h4>Workouts</h4>
+  <div class="grp"><a href="#c5"><b>05</b>Past day status</a><a href="#c6"><b>06</b>Exercise how-to</a><a href="#c7"><b>07</b>Manual add</a><a href="#c8"><b>08</b>Calendar</a><a href="#c16"><b>16</b>Workout player</a><a href="#c17"><b>17</b>Reminders</a></div>
+  <h4>Nutrition</h4>
+  <div class="grp"><a href="#c9"><b>09</b>Setup preferences</a><a href="#c10"><b>10</b>Meal photo</a><a href="#c11"><b>11</b>Meal suggestion</a></div>
+  <h4>Tracker</h4>
+  <div class="grp"><a href="#c12"><b>12</b>Full redesign</a></div>
+  <h4>Engine</h4>
+  <div class="grp"><a href="#c13"><b>13</b>Adaptive system</a><a href="#compare"><b>·</b>Old vs new</a></div>
+  <h4>Next</h4>
+  <div class="grp"><a href="#review"><b>·</b>Review: cut, delayed, market</a><a href="#decisions"><b>·</b>Decisions to confirm</a><a href="#phases"><b>·</b>Build phases</a></div>
+</nav>
+
+<main>
+<header class="top">
+  <div class="eyebrow">CLAWW · change plan v1 · 10 Oct 2026</div>
+  <h1>Every change, and how CLAWW works after it</h1>
+  <p class="lede">This collects the 15 changes you dictated, plus 2 bugs found while reading the code, and the new adaptive system from the two co-founder PDFs. Every screen below is a mockup built from the current app's colors, type and card style. Point at any change by its number when you want something different.</p>
+  <div class="meta"><span class="chip">based on commit 9f3e387 · 25 Sep</span><span class="chip">updated after review · 10 Oct</span><span class="chip">Expo SDK 54 · Supabase · Groq</span><span class="chip">17 changes · 10 build phases · v2 after review</span></div>
+</header>
+
+<section class="sec" id="index">
+  <h2>All changes at a glance</h2>
+  <p class="sec-sub">The tags show what kind of work each one is. <span class="tag t-fix">FIX</span> means a bug, <span class="tag t-re">REDESIGN</span> a new look for something that exists, <span class="tag t-new">NEW</span> a new feature, and <span class="tag t-found">FOUND</span> a bug found in the code that you didn't mention.</p>
+  <div class="idx">
+    <a href="#c1"><span class="num">01</span>Greeting follows the time of day <span class="tag t-fix">FIX</span></a>
+    <a href="#c2"><span class="num">02</span>Steps, Burned, Streak open detail cards with graphs <span class="tag t-re">REDESIGN</span></a>
+    <a href="#c3"><span class="num">03</span>Water becomes a slim one-line widget <span class="tag t-re">REDESIGN</span></a>
+    <a href="#c4"><span class="num">04</span>Sleep card without emojis, half the height <span class="tag t-re">REDESIGN</span></a>
+    <a href="#c5"><span class="num">05</span>Past days show Completed or Missed, not Begin <span class="tag t-fix">FIX</span></a>
+    <a href="#c6"><span class="num">06</span>How-to for every exercise: steps and muscles now, video later <span class="tag t-new">NEW</span></a>
+    <a href="#c7"><span class="num">07</span>Manually added exercises get computed sets and reps <span class="tag t-fix">FIX</span></a>
+    <a href="#c8"><span class="num">08</span>Calendar stays as it is <span class="tag t-keep">KEEP</span></a>
+    <a href="#c9"><span class="num">09</span>Setup preferences reach meal suggestions <span class="tag t-fix">FIX</span></a>
+    <a href="#c10"><span class="num">10</span>Tapping a logged meal shows its photo <span class="tag t-fix">FIX</span></a>
+    <a href="#c11"><span class="num">11</span>Better "Suggest breakfast" <span class="tag t-re">REDESIGN</span></a>
+    <a href="#c12"><span class="num">12</span>Tracker rebuilt, color-coded charts <span class="tag t-re">REDESIGN</span></a>
+    <a href="#c13"><span class="num">13</span>New adaptive system (two PDFs) <span class="tag t-new">NEW</span></a>
+    <a href="#c14"><span class="num">14</span>Home plan card always shows Day 1 <span class="tag t-found">FOUND</span></a>
+    <a href="#c15"><span class="num">15</span>Home sleep ring repeats the recovery score <span class="tag t-found">FOUND</span></a>
+    <a href="#c16"><span class="num">16</span>Workout player rebuilt for speed <span class="tag t-re">REDESIGN</span></a>
+    <a href="#c17"><span class="num">17</span>Reminders that actually arrive <span class="tag t-fix">FIX</span></a>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <h2>How the app works after these changes</h2>
+  <p>A normal day looks like this. You open CLAWW and Home greets you for the actual time of day. The top card shows recovery, sleep and nutrition. Under it are three small tiles for steps, calories burned and streak, and each one opens its own card with a graph. Water and sleep each take one slim row instead of two large cards.</p>
+  <p>When you go to Workouts, the day pills show what already happened this week: a check for completed days, a cross for missed ones, a dot for today. Tapping a past day shows what you did or that you missed it. Tapping today shows your prescription. That prescription is now worked out fresh when you start the session, from your last logs and from how recovered each muscle is, so it isn't frozen inside the plan. Before you start, CLAWW asks two quick questions about the muscles you're training today: how sore they are and how strong they feel. During the session each set has an optional effort chip (reps left in the tank). When you finish, the engine decides the next weight, reps and sets for each exercise and shows you why. The workout player itself becomes a full-screen set list where finishing a set is one tap, and the rest timer keeps running on the lock screen.</p>
+  <p>Reminders actually arrive. They are tied to your real training days and times, and they stay quiet when you have already done the thing: no "Log lunch" after you logged lunch.</p>
+  <p>In Nutrition, meal suggestions use your goal, dietary restrictions, food preferences and all four remaining macros, and give three options to choose from. Tapping any logged meal shows the photo you took. The Tracker becomes a performance page, color-coded by area, with strength trends, weekly volume per muscle, a muscle recovery map and a consistency heatmap.</p>
+</section>
+
+<!-- ═════════════ HOME ═════════════ -->
+<section class="sec" id="home">
+  <div class="sec-head"><span class="dot" style="background:#fff"></span><h2>Home</h2></div>
+  <p class="sec-sub">Changes 01–04, plus the two bugs found (14, 15). The Daily Progress card stays. Everything under it becomes tighter.</p>
+
+  <div class="shots">
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>21:40</span><i></i><span>100%</span></div>
+        <div class="cnt" style="padding-top:6px">
+          <div><div class="lbl">Friday · 10 Oct</div>
+            <div style="font-size:21px;font-weight:900;letter-spacing:-.04em;line-height:1.1;margin-top:4px">Good evening,<br>Kashyap.</div>
+            <div class="sm" style="margin-top:4px">Recovery 72 · High. Chest is still recovering.</div></div>
+          <div class="card row" style="gap:12px">
+            <svg viewBox="0 0 80 80" width="78" height="78" aria-hidden="true"><circle cx="40" cy="40" r="34" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/><circle cx="40" cy="40" r="34" fill="none" stroke="#2DD4BF" stroke-width="7" stroke-linecap="round" stroke-dasharray="154 214" transform="rotate(-90 40 40)"/><circle cx="40" cy="40" r="25" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/><circle cx="40" cy="40" r="25" fill="none" stroke="#818CF8" stroke-width="7" stroke-linecap="round" stroke-dasharray="141 157" transform="rotate(-90 40 40)"/><circle cx="40" cy="40" r="16" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/><circle cx="40" cy="40" r="16" fill="none" stroke="#22C55E" stroke-width="7" stroke-linecap="round" stroke-dasharray="70 100" transform="rotate(-90 40 40)"/></svg>
+            <div style="flex:1;display:flex;flex-direction:column;gap:6px">
+              <div class="between sm"><span style="color:#2DD4BF">Recovery</span><b style="color:#fff">72</b></div>
+              <div class="between sm"><span style="color:#818CF8">Sleep</span><b style="color:#fff">7h 12m</b></div>
+              <div class="between sm"><span style="color:#22C55E">Nutrition</span><b style="color:#fff">70%</b></div>
+            </div>
+          </div>
+          <div class="row" style="gap:6px">
+            <div class="card" style="flex:1;min-width:0;padding:8px"><div class="row" style="gap:4px;color:#F59E0B"><svg class="ico" style="width:11px;height:11px"><use href="#i-shoe"/></svg><span class="lbl" style="color:inherit">Steps</span></div><div style="font-size:15px;font-weight:900;margin-top:3px">6,482</div><div class="bar" style="height:3px;margin-top:5px"><i style="width:81%;background:#F59E0B"></i></div></div>
+            <div class="card" style="flex:1;min-width:0;padding:8px"><div class="row" style="gap:4px;color:#FB923C"><svg class="ico" style="width:11px;height:11px"><use href="#i-flame"/></svg><span class="lbl" style="color:inherit">Burned</span></div><div style="font-size:15px;font-weight:900;margin-top:3px">412</div><div class="sm" style="font-size:8.5px">kcal active</div></div>
+            <div class="card" style="flex:1;min-width:0;padding:8px"><div class="row" style="gap:4px;color:#F472B6"><svg class="ico" style="width:11px;height:11px"><use href="#i-bolt"/></svg><span class="lbl" style="color:inherit">Streak</span></div><div style="font-size:15px;font-weight:900;margin-top:3px">5 <span class="sm">days</span></div><div class="row" style="gap:2px;margin-top:4px"><i style="flex:1;height:4px;border-radius:2px;background:#F472B6"></i><i style="flex:1;height:4px;border-radius:2px;background:#F472B6"></i><i style="flex:1;height:4px;border-radius:2px;background:#F472B6"></i><i style="flex:1;height:4px;border-radius:2px;background:#F472B6"></i><i style="flex:1;height:4px;border-radius:2px;background:#F472B6"></i><i style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.12)"></i><i style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,.12)"></i></div></div>
+          </div>
+          <div class="card row" style="padding:9px 10px;gap:9px">
+            <svg class="ico" style="color:#38BDF8"><use href="#i-drop"/></svg>
+            <div style="flex:1"><div class="between"><span style="font-size:11px;font-weight:700">1.25 <span class="muted">/ 2 L</span></span><span class="sm" style="font-size:9px">5 of 8 glasses</span></div>
+              <div class="row" style="gap:3px;margin-top:5px"><i style="flex:1;height:5px;border-radius:3px;background:#38BDF8"></i><i style="flex:1;height:5px;border-radius:3px;background:#38BDF8"></i><i style="flex:1;height:5px;border-radius:3px;background:#38BDF8"></i><i style="flex:1;height:5px;border-radius:3px;background:#38BDF8"></i><i style="flex:1;height:5px;border-radius:3px;background:#38BDF8"></i><i style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.1)"></i><i style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.1)"></i><i style="flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.1)"></i></div></div>
+            <span style="width:26px;height:26px;border-radius:9px;background:rgba(56,189,248,.16);color:#38BDF8;display:grid;place-items:center"><svg class="ico" style="width:12px;height:12px"><use href="#i-plus"/></svg></span>
+          </div>
+          <div class="card row" style="padding:9px 10px;gap:9px">
+            <svg class="ico" style="color:#818CF8"><use href="#i-moon"/></svg>
+            <div style="flex:1"><div style="font-size:11px;font-weight:700">7h 12m <span style="color:#818CF8">· Good</span></div><div class="sm" style="font-size:9px">23:48 → 07:00</div></div>
+            <svg width="54" height="22" viewBox="0 0 54 22" aria-hidden="true"><g fill="#818CF8"><rect x="0" y="8" width="5" height="14" rx="1.5" opacity=".45"/><rect x="8" y="5" width="5" height="17" rx="1.5" opacity=".45"/><rect x="16" y="11" width="5" height="11" rx="1.5" opacity=".45"/><rect x="24" y="4" width="5" height="18" rx="1.5" opacity=".45"/><rect x="32" y="9" width="5" height="13" rx="1.5" opacity=".45"/><rect x="40" y="6" width="5" height="16" rx="1.5" opacity=".45"/><rect x="48" y="3" width="5" height="19" rx="1.5"/></g></svg>
+          </div>
+          <div class="card" style="background:linear-gradient(135deg,#1E3A8A,#1D4ED8 70%);border-color:rgba(147,197,253,.25)">
+            <div class="lbl" style="color:rgba(255,255,255,.7)">Your plan · Day 3 of 4</div>
+            <div style="font-size:15px;font-weight:900;margin-top:3px">Push · Chest, Shoulders</div>
+            <div class="sm" style="color:rgba(255,255,255,.7)">5 exercises · about 45 min</div>
+          </div>
+        </div>
+        <div class="tabbar"><span class="on">Home</span><span>Workouts</span><span>Nutrition</span><span>Tracker</span><span>More</span></div>
+      </div></div>
+      <figcaption><b>Home after changes 01–04 and 14</b>Greeting matches the clock. The three tiles are smaller and each shows a hint of its graph. Water and sleep take one row each. The plan card shows the day you're actually on.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>21:40</span><i></i><span>100%</span></div>
+        <div class="cnt" style="padding-top:6px;opacity:.35">
+          <div style="font-size:21px;font-weight:900;letter-spacing:-.04em;line-height:1.1">Good evening,<br>Kashyap.</div>
+          <div class="card" style="height:90px"></div>
+        </div>
+        <div class="dim"></div>
+        <div class="sheet" style="top:62px">
+          <div class="grab"></div>
+          <div class="between"><div class="row" style="gap:6px;color:#F59E0B"><svg class="ico"><use href="#i-shoe"/></svg><b style="font-size:13px;color:#fff">Steps</b></div><span class="seg" style="width:118px"><span style="background:#F59E0B;color:#000">Day</span><span>Week</span><span>Month</span></span></div>
+          <div class="row" style="gap:14px;margin-top:12px">
+            <svg viewBox="0 0 100 100" width="92" height="92" aria-hidden="true"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(245,158,11,.14)" stroke-width="11"/><circle cx="50" cy="50" r="42" fill="none" stroke="#F59E0B" stroke-width="11" stroke-linecap="round" stroke-dasharray="214 264" transform="rotate(-90 50 50)"/><text x="50" y="49" text-anchor="middle" fill="#fff" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="18">6,482</text><text x="50" y="63" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Inter, Helvetica, Arial, sans-serif" font-size="8.5">of 8,000</text></svg>
+            <div style="display:flex;flex-direction:column;gap:7px">
+              <div><div class="lbl">Distance</div><div style="font-size:14px;font-weight:800">4.6 km</div></div>
+              <div><div class="lbl">From steps</div><div style="font-size:14px;font-weight:800">238 kcal</div></div>
+              <div><div class="lbl">To goal</div><div style="font-size:14px;font-weight:800">1,518</div></div>
+            </div>
+          </div>
+          <div class="lbl" style="margin-top:14px">By hour</div>
+          <svg viewBox="0 0 240 70" width="100%" aria-hidden="true" style="margin-top:4px">
+            <line x1="0" y1="60" x2="240" y2="60" stroke="rgba(255,255,255,.1)"/>
+            <g fill="#F59E0B">
+              <rect x="4" y="58" width="7" height="2" rx="1"/><rect x="14" y="58" width="7" height="2" rx="1"/><rect x="24" y="52" width="7" height="8" rx="2"/><rect x="34" y="30" width="7" height="30" rx="2"/><rect x="44" y="40" width="7" height="20" rx="2"/><rect x="54" y="48" width="7" height="12" rx="2"/><rect x="64" y="44" width="7" height="16" rx="2"/><rect x="74" y="22" width="7" height="38" rx="2"/><rect x="84" y="46" width="7" height="14" rx="2"/><rect x="94" y="50" width="7" height="10" rx="2"/><rect x="104" y="36" width="7" height="24" rx="2"/><rect x="114" y="10" width="7" height="50" rx="2"/><rect x="124" y="28" width="7" height="32" rx="2"/><rect x="134" y="50" width="7" height="10" rx="2"/>
+            </g>
+            <g fill="rgba(255,255,255,.08)"><rect x="144" y="56" width="7" height="4" rx="1"/><rect x="154" y="56" width="7" height="4" rx="1"/><rect x="164" y="56" width="7" height="4" rx="1"/><rect x="174" y="56" width="7" height="4" rx="1"/><rect x="184" y="56" width="7" height="4" rx="1"/><rect x="194" y="56" width="7" height="4" rx="1"/><rect x="204" y="56" width="7" height="4" rx="1"/><rect x="214" y="56" width="7" height="4" rx="1"/></g>
+            <g fill="rgba(255,255,255,.4)" font-family="Inter, Helvetica, Arial, sans-serif" font-size="7"><text x="2" y="69">6am</text><text x="70" y="69">12pm</text><text x="140" y="69">6pm</text><text x="210" y="69">12am</text></g>
+          </svg>
+          <div class="lbl" style="margin-top:10px">Last 7 days</div>
+          <svg viewBox="0 0 240 64" width="100%" aria-hidden="true" style="margin-top:4px">
+            <line x1="0" y1="14" x2="240" y2="14" stroke="#F59E0B" stroke-dasharray="3 4" opacity=".55"/>
+            <text x="238" y="11" text-anchor="end" fill="rgba(245,158,11,.8)" font-family="Inter, Helvetica, Arial, sans-serif" font-size="7">goal 8,000</text>
+            <g><rect x="8" y="20" width="22" height="34" rx="5" fill="rgba(245,158,11,.4)"/><rect x="42" y="12" width="22" height="42" rx="5" fill="#F59E0B"/><rect x="76" y="28" width="22" height="26" rx="5" fill="rgba(245,158,11,.4)"/><rect x="110" y="10" width="22" height="44" rx="5" fill="#F59E0B"/><rect x="144" y="32" width="22" height="22" rx="5" fill="rgba(245,158,11,.4)"/><rect x="178" y="13" width="22" height="41" rx="5" fill="#F59E0B"/><rect x="212" y="21" width="22" height="33" rx="5" fill="rgba(245,158,11,.4)" stroke="#F59E0B"/></g>
+            <g fill="rgba(255,255,255,.45)" font-family="Inter, Helvetica, Arial, sans-serif" font-size="7" text-anchor="middle"><text x="19" y="63">S</text><text x="53" y="63">M</text><text x="87" y="63">T</text><text x="121" y="63">W</text><text x="155" y="63">T</text><text x="189" y="63">F</text><text x="223" y="63">S</text></g>
+          </svg>
+          <div class="sm" style="margin-top:6px">Goal hit 3 of 7 days. Your best stretch is weekdays 12–1pm.</div>
+        </div>
+      </div></div>
+      <figcaption><b>Steps detail card (change 02)</b>Rises as an elevated sheet. The top is an Apple-Fitness-style ring against your goal, then hourly bars for today and a 7-day chart with a dashed goal line. Day, Week and Month switch the range.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>21:40</span><i></i><span>100%</span></div>
+        <div class="dim" style="background:rgba(0,0,0,.4)"></div>
+        <div class="sheet" style="top:62px">
+          <div class="grab"></div>
+          
+          <div class="row" style="gap:6px;color:#F472B6"><svg class="ico"><use href="#i-bolt"/></svg><b style="font-size:13px;color:#fff">Streak</b><span class="sm" style="margin-left:auto">best 9</span></div>
+          <div class="big" style="margin-top:6px">5 <span class="sm">days in a row</span></div>
+          <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px">
+            <i style="aspect-ratio:1;border-radius:4px;background:rgba(244,114,182,.25)"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.07)"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(244,114,182,.25)"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.07)"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.07)"></i>
+            <i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.07)"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(244,114,182,.25)"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i>
+            <i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6"></i><i style="aspect-ratio:1;border-radius:4px;background:#F472B6;outline:1.5px solid #fff;outline-offset:1px"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.04)"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.04)"></i><i style="aspect-ratio:1;border-radius:4px;background:rgba(255,255,255,.04)"></i>
+          </div>
+          <div class="sm" style="margin-top:6px">Bright = workout logged · faint = meals or sleep only</div>
+        </div>
+      </div></div>
+      <figcaption><b>Streak detail card (change 02)</b>Current and best streak, and a 3-week grid of which days counted. Burned has no detail card; it stays a number on its tile.</figcaption>
+    </figure>
+  </div>
+
+  <div class="change" id="c1">
+    <h3><span class="num">01</span>Greeting follows the time of day <span class="tag t-fix">FIX</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> the text is hardcoded to "Good morning" (Home screen, line 325), so it says morning at midnight.</div>
+      <p>The greeting is picked from the phone's local time: <span class="mono">05:00–11:59</span> Good morning, <span class="mono">12:00–16:59</span> Good afternoon, <span class="mono">17:00–21:59</span> Good evening, <span class="mono">22:00–04:59</span> Good night. The text updates when the app returns from the background, so it's never stale. The line under it becomes useful too. It names your recovery band and, once the adaptive system is in, the muscle that most needs attention.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c2">
+    <h3><span class="num">02</span>Steps, Burned and Streak open detail cards <span class="tag t-re">REDESIGN</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> three equal tiles showing only a number. Only Steps is tappable, and only to install Health Connect.</div>
+      <p>The tiles get smaller and each shows a hint of its graph: a progress line for steps, a kcal label for burned, a 7-segment week for streak. Steps and Streak each open their own elevated sheet that slides up over Home and closes with a swipe down.</p>
+      <ul class="flow">
+        <li><b>Steps</b> (Apple Fitness style): ring against the daily goal (8,000 by default, editable), distance, calories from steps, hourly bars for today, and Day/Week/Month bars with a dashed goal line. Data comes from Health Connect as it does now. If Health Connect isn't installed, the sheet explains what it unlocks and has the install button.</li>
+        <li><b>Burned</b>: stays a small number on its tile, with no detail card. Calorie burn estimated from a phone is rough, and a big chart of it invites distrust (cut in review).</li>
+        <li><b>Streak</b>: current and best streak, and a 3-week grid that shows which days counted and why.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="change" id="c3">
+    <h3><span class="num">03</span>Water becomes a slim one-line widget <span class="tag t-re">REDESIGN</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> even in compact mode it draws a bottle plus two buttons, about 90 px tall.</div>
+      <p>One 48 px row. It has a drop icon, litres against the target, and 8 small segments, one per 250 ml glass. Tap <b>+</b> to add a glass. Long-press <b>+</b> for 500 ml, 1 L or a custom amount. Tap the row to open today's water log, where you can undo an entry. The bottle with presets moves into that sheet, so nothing is lost.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c4">
+    <h3><span class="num">04</span>Sleep card without emojis, half the height <span class="tag t-re">REDESIGN</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> a large card with an arc, emoji tiles for bedtime and wake-up, a score out of 100 and a full-width log button.</div>
+      <p>One row matching the water row. It shows a moon icon, hours slept with a quality word (Good, Fair, Short), bed and wake times as plain text, and a 7-night mini bar chart where last night is the brightest bar. Tap to edit. The existing time-wheel modal opens unchanged. If last night isn't logged, the row says "Log last night's sleep" in indigo and the whole row is the button. The score out of 100 is removed from this card, because sleep now feeds recovery instead of competing with it (see change 15).</p>
+    </div>
+  </div>
+
+  <div class="change" id="c14">
+    <h3><span class="num">14</span>Home plan card always shows Day 1 <span class="tag t-found">FOUND</span></h3>
+    <div class="body">
+      <p>The card reads <span class="mono">plan.days[0]</span>, so it shows the first day of the plan even when Workouts is suggesting Day 3. It will use the same suggested day as Workouts, and tapping it goes straight to that day.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c15">
+    <h3><span class="num">15</span>Home sleep ring repeats the recovery score <span class="tag t-found">FOUND</span></h3>
+    <div class="body">
+      <p>The middle "sleep" ring in Daily Progress is computed from the recovery score, so it always matches the outer ring. It will show hours slept against an 8-hour target, which is what the label says.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ WORKOUTS ═════════════ -->
+<section class="sec" id="workouts">
+  <div class="sec-head"><span class="dot" style="background:var(--blue)"></span><h2>Workouts</h2></div>
+  <p class="sec-sub">Changes 05–08. Today is Thursday in these mockups. Tuesday was a plan day.</p>
+
+  <div class="shots">
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:05</span><i></i><span>82%</span></div>
+        <div class="hdr"><span>Workouts</span><small>WEEK 2</small></div>
+        <div class="cnt">
+          <div class="row" style="gap:5px">
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35)"><div style="font-size:8px;color:rgba(255,255,255,.5);font-weight:700">MON</div><svg class="ico" style="color:#22C55E;width:12px;height:12px;margin-top:2px"><use href="#i-check"/></svg></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:#3B82F6;border:1px solid #3B82F6"><div style="font-size:8px;color:#fff;font-weight:700">TUE</div><svg class="ico" style="color:#fff;width:12px;height:12px;margin-top:2px"><use href="#i-check"/></svg></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:rgba(255,255,255,.35);font-weight:700">WED</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">rest</div></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;border:1.5px solid #3B82F6"><div style="font-size:8px;color:#93C5FD;font-weight:700">THU</div><div style="width:6px;height:6px;border-radius:3px;background:#3B82F6;margin:5px auto 2px"></div></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:rgba(255,255,255,.35);font-weight:700">SAT</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">·</div></div>
+          </div>
+          <div class="card" style="border-color:rgba(34,197,94,.3)">
+            <div class="between"><span class="pill" style="background:rgba(34,197,94,.14);color:#4ADE80"><svg class="ico" style="width:10px;height:10px"><use href="#i-check"/></svg>Completed</span><span class="sm">Tue 7 Oct · 18:20</span></div>
+            <div style="font-size:16px;font-weight:900;margin-top:8px;letter-spacing:-.02em">Pull · Back, Biceps</div>
+            <div class="row" style="gap:14px;margin-top:8px">
+              <div><div class="lbl">Time</div><div style="font-size:13px;font-weight:800">46 min</div></div>
+              <div><div class="lbl">Volume</div><div style="font-size:13px;font-weight:800">5,840 kg</div></div>
+              <div><div class="lbl">Sets</div><div style="font-size:13px;font-weight:800">15/15</div></div>
+            </div>
+          </div>
+          <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+            <div class="between"><span style="font-size:11px;font-weight:700">Lat Pulldown</span><span class="sm">3 × 10 @ 50 kg</span></div>
+            <div class="between"><span style="font-size:11px;font-weight:700">Seated Cable Row</span><span class="sm">3 × 10,10,9 @ 45</span></div>
+            <div class="between"><span style="font-size:11px;font-weight:700">DB Bicep Curl</span><span class="sm">3 × 12 @ 10 kg</span></div>
+            <div class="between"><span style="font-size:11px;font-weight:700">Face Pull</span><span class="sm">3 × 15 @ 20 kg</span></div>
+          </div>
+          <div class="card" style="padding:10px 12px"><div class="lbl">What changed for next time</div><div class="sm" style="margin-top:4px;color:rgba(255,255,255,.75)">Lat Pulldown hit the top of its range twice. Next Pull day starts at 52.5 kg × 8.</div></div>
+          <div class="btn" style="border:1px solid rgba(255,255,255,.14);color:#fff">View full session</div>
+        </div>
+        <div class="tabbar"><span>Home</span><span class="on">Workouts</span><span>Nutrition</span><span>Tracker</span><span>More</span></div>
+      </div></div>
+      <figcaption><b>Tapping a completed day</b>The pill shows a check. The day opens a summary of what you actually did, set by set, and what the engine changed because of it. There is no Begin button.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:05</span><i></i><span>82%</span></div>
+        <div class="hdr"><span>Workouts</span><small>WEEK 2</small></div>
+        <div class="cnt">
+          <div class="row" style="gap:5px">
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35)"><div style="font-size:8px;color:rgba(255,255,255,.5);font-weight:700">MON</div><svg class="ico" style="color:#22C55E;width:12px;height:12px;margin-top:2px"><use href="#i-check"/></svg></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:#EF4444;border:1px solid #EF4444"><div style="font-size:8px;color:#fff;font-weight:700">TUE</div><svg class="ico" style="color:#fff;width:12px;height:12px;margin-top:2px"><use href="#i-x"/></svg></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:rgba(255,255,255,.35);font-weight:700">WED</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">rest</div></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;border:1.5px solid #3B82F6"><div style="font-size:8px;color:#93C5FD;font-weight:700">THU</div><div style="width:6px;height:6px;border-radius:3px;background:#3B82F6;margin:5px auto 2px"></div></div>
+            <div style="flex:1;text-align:center;padding:6px 0;border-radius:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)"><div style="font-size:8px;color:rgba(255,255,255,.35);font-weight:700">SAT</div><div style="font-size:9px;color:rgba(255,255,255,.3);margin-top:2px">·</div></div>
+          </div>
+          <div class="card" style="border-color:rgba(239,68,68,.3)">
+            <div class="between"><span class="pill" style="background:rgba(239,68,68,.14);color:#FCA5A5"><svg class="ico" style="width:10px;height:10px"><use href="#i-x"/></svg>Missed</span><span class="sm">Tue 7 Oct</span></div>
+            <div style="font-size:16px;font-weight:900;margin-top:8px;letter-spacing:-.02em">Pull · Back, Biceps</div>
+            <div class="sm" style="margin-top:6px">5 exercises · about 45 min. Nothing was logged for this day.</div>
+          </div>
+          <div class="card" style="padding:10px 12px">
+            <div class="lbl">Back and biceps</div>
+            <div class="sm" style="margin-top:4px;color:rgba(255,255,255,.75)">Last trained 6 days ago. Recovery 96 · Excellent. You can do this today instead of Push.</div>
+          </div>
+          <div class="btn" style="background:#3B82F6;color:#fff">Do Pull today instead</div>
+          <div class="btn" style="border:1px solid rgba(255,255,255,.14);color:#fff">Keep today's Push</div>
+          <div class="sm" style="text-align:center;margin-top:2px">Either way, Tuesday stays marked as missed.</div>
+        </div>
+        <div class="tabbar"><span>Home</span><span class="on">Workouts</span><span>Nutrition</span><span>Tracker</span><span>More</span></div>
+      </div></div>
+      <figcaption><b>Tapping a missed day</b>The pill shows a cross. The day says Missed and offers a choice: swap it into today, or keep the plan. It never pretends you can still "begin" Tuesday.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:05</span><i></i><span>82%</span></div>
+        <div style="height:150px;margin:0 10px;border-radius:18px;background:radial-gradient(120% 90% at 50% 30%,#1b2433,#0b0d12 70%);position:relative;display:grid;place-items:center;border:1px solid rgba(255,255,255,.08)">
+          <svg viewBox="0 0 120 100" width="150" aria-hidden="true"><g stroke="rgba(147,197,253,.85)" stroke-width="5" stroke-linecap="round" fill="none"><line x1="14" y1="72" x2="106" y2="72"/><circle cx="34" cy="58" r="7" fill="rgba(147,197,253,.85)" stroke="none"/><path d="M40 62 L72 66 L88 72"/><path d="M52 63 L56 44"/><path d="M58 64 L60 46"/><line x1="30" y1="40" x2="86" y2="40" stroke="#fff"/></g><rect x="22" y="34" width="6" height="12" rx="2" fill="#fff"/><rect x="88" y="34" width="6" height="12" rx="2" fill="#fff"/></svg>
+          <span style="position:absolute;width:38px;height:38px;border-radius:19px;background:rgba(0,0,0,.55);display:grid;place-items:center;border:1px solid rgba(255,255,255,.25)"><svg class="ico" style="color:#fff"><use href="#i-play"/></svg></span>
+          <span class="pill" style="position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff">0:12 loop</span>
+          <span class="pill" style="position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff">Side · Front</span>
+        </div>
+        <div class="cnt" style="padding-top:10px">
+          <div><div style="font-size:16px;font-weight:900;letter-spacing:-.02em">Barbell Bench Press</div><div class="sm">Horizontal push · Barbell · Compound</div></div>
+          <div class="seg"><span style="background:#3B82F6;color:#fff">How to</span><span>Muscles</span><span>History</span></div>
+          <div class="card" style="padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+            <div class="row" style="gap:8px;align-items:flex-start"><b style="font-size:10px;color:#93C5FD;font-family:var(--mono)">1</b><span class="sm" style="color:rgba(255,255,255,.8)">Eyes under the bar, feet flat, shoulder blades pinched.</span></div>
+            <div class="row" style="gap:8px;align-items:flex-start"><b style="font-size:10px;color:#93C5FD;font-family:var(--mono)">2</b><span class="sm" style="color:rgba(255,255,255,.8)">Lower to mid-chest, elbows about 45° from your body.</span></div>
+            <div class="row" style="gap:8px;align-items:flex-start"><b style="font-size:10px;color:#93C5FD;font-family:var(--mono)">3</b><span class="sm" style="color:rgba(255,255,255,.8)">Press up and slightly back over the shoulders.</span></div>
+          </div>
+          <div class="card" style="padding:10px 12px"><div class="lbl" style="color:#FCA5A5">Common mistake</div><div class="sm" style="margin-top:3px;color:rgba(255,255,255,.75)">Bouncing the bar off the chest.</div></div>
+          <div class="row" style="gap:6px"><span class="pill" style="background:rgba(59,130,246,.16);color:#93C5FD">Chest · primary</span><span class="pill" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.7)">Triceps</span><span class="pill" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.7)">Front delts</span></div>
+        </div>
+      </div></div>
+      <figcaption><b>Exercise how-to (change 06)</b>The video area arrives in version 2; version 1 shows the steps, mistake and muscles. Tap any exercise name, in the plan, the picker or mid-session, to open this sheet. A looping demo with two camera angles sits on top, then 3 numbered steps, one common mistake and the muscles worked.</figcaption>
+    </figure>
+  </div>
+
+  <div class="change" id="c5">
+    <h3><span class="num">05</span>Past days show Completed or Missed, not Begin <span class="tag t-fix">FIX</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> the database already records each day as completed or skipped (<span class="mono">workout_day_events</span>), but Workouts only uses those records to pick the suggested day. The pills and the Begin button ignore them.</div>
+      <p>Each day pill gets a state: completed (green check), skipped or missed (red cross), today (blue dot), upcoming (plain) and rest (dimmed). The button under a day depends on that state.</p>
+      <ul class="flow">
+        <li><b>Completed</b>: session summary with sets as performed, and the adaptive changes it caused. Button: View full session.</li>
+        <li><b>Skipped</b> (you tapped Skip) or <b>Missed</b> (the date passed with nothing logged): what the day was, how recovered those muscles are now, and two choices. Do it today instead, or keep today's plan.</li>
+        <li><b>Today</b>: the computed prescription and Begin Workout.</li>
+        <li><b>Upcoming</b>: a preview, labelled as a preview. You can still start it early from a menu.</li>
+      </ul>
+      <p>Completed and skipped work with today's data. Missed needs plan days tied to real weekdays, because "Day 1, Day 2" plans have no dates to miss. See decision D13.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c6">
+    <h3><span class="num">06</span>How-to video for every exercise <span class="tag t-new">NEW</span></h3>
+    <div class="body">
+      <p>Version 1, built now: each of the 183 catalog exercises gets 3 numbered form steps, one common mistake, and its primary and secondary muscles, written by us and reviewed, never generated. This costs almost nothing and reuses the catalog fields the adaptive system needs anyway. Version 2, later: a short looping demo clip (8–15 s, front and side angle) in the space at the top of the sheet, stored in Supabase Storage and cached on the phone.</p>
+      <div class="callout"><h5>Photos, video or 3D</h5><p style="margin:0">Video is the right second step, after the text guidance ships. A licensed exercise-video pack or commissioned clips can cover all 183 exercises at a known cost, and it shows real movement, which photos can't. Interactive 3D models cost several times more per exercise and add a heavy 3D renderer to the app. A good later upgrade is a 3D muscle map for the Muscles tab, which also serves the recovery map in the Tracker. Which media source to use is decision D14.</p></div>
+    </div>
+  </div>
+
+  <div class="change" id="c7">
+    <h3><span class="num">07</span>Manually added exercises get computed sets and reps <span class="tag t-fix">FIX</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> to your question, no. Adding an exercise from the picker writes a fixed <span class="mono">3 sets × 10 reps</span> into the plan, with no AI and no adaptation.</div>
+      <p>An added exercise gets the same numbers the plan's own exercises get. Its rep range comes from your goal, experience and age, and sets come from your recovery. A compound lift added on a strength plan gets something like 3 × 6–8. An isolation lift gets 3 × 10–12. The model still never computes numbers, so this needs no AI call and is instant.</p>
+      <p>From its first session the exercise is part of the adaptive system like every other one. The first session counts as a calibration session: you pick a weight you can do for the target reps with about 2 left in the tank, and the engine takes over from there. The picker also shows a hint when the exercise overlaps a muscle that is already low on recovery today.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c8">
+    <h3><span class="num">08</span>Calendar stays as it is <span class="tag t-keep">KEEP</span></h3>
+    <div class="body"><p>No change to the workout calendar. It already reads the same completed and skipped records, so its colors will now agree with the day pills.</p></div>
+  </div>
+</section>
+
+<section class="sec" id="player">
+  <div class="sec-head"><span class="dot" style="background:var(--blue)"></span><h2>Workout player and reminders</h2></div>
+  <p class="sec-sub">Changes 16 and 17, added after review.</p>
+
+  <div class="shots">
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:26</span><i></i><span>78%</span></div>
+        <div class="between" style="padding:4px 14px 6px"><span class="sm">Push · 2 of 4</span><span style="font-family:var(--mono);font-size:11px;font-weight:600">18:42</span></div>
+        <div class="cnt">
+          <div><div style="font-size:17px;font-weight:900;letter-spacing:-.02em">Barbell Bench Press</div><div class="sm"><span style="color:#4ADE80">Weight up</span> · 2 sessions at top of range</div></div>
+          <div class="card" style="padding:6px 8px">
+            <div style="display:grid;grid-template-columns:22px 1fr 1fr 1fr 28px;gap:4px;font-size:8px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,.4);padding:4px 2px">
+              <span>SET</span><span>LAST</span><span>KG</span><span>REPS</span><span></span></div>
+            <div style="display:grid;grid-template-columns:22px 1fr 1fr 1fr 28px;gap:4px;align-items:center;font-size:12px;font-weight:800;padding:7px 2px;border-radius:8px;background:rgba(34,197,94,.08)">
+              <span class="muted">1</span><span class="sm">60×10</span><span>62.5</span><span>6</span><span style="width:24px;height:24px;border-radius:7px;background:#22C55E;display:grid;place-items:center"><svg class="ico" style="width:12px;height:12px;color:#04130A"><use href="#i-check"/></svg></span></div>
+            <div style="display:grid;grid-template-columns:22px 1fr 1fr 1fr 28px;gap:4px;align-items:center;font-size:12px;font-weight:800;padding:7px 2px;border-radius:8px;background:rgba(59,130,246,.14);outline:1px solid rgba(59,130,246,.5)">
+              <span style="color:#93C5FD">2</span><span class="sm">60×10</span><span style="background:rgba(255,255,255,.08);border-radius:6px;padding:2px 4px">62.5</span><span style="background:rgba(255,255,255,.08);border-radius:6px;padding:2px 4px">6</span><span style="width:24px;height:24px;border-radius:7px;border:1.5px solid rgba(255,255,255,.3)"></span></div>
+            <div style="display:grid;grid-template-columns:22px 1fr 1fr 1fr 28px;gap:4px;align-items:center;font-size:12px;font-weight:800;padding:7px 2px;color:rgba(255,255,255,.45)">
+              <span>3</span><span class="sm">60×10</span><span>62.5</span><span>6</span><span style="width:24px;height:24px;border-radius:7px;border:1.5px solid rgba(255,255,255,.15)"></span></div>
+          </div>
+          <div class="lbl">Reps left in the tank · optional</div>
+          <div class="seg"><span>0</span><span>1</span><span style="background:#A855F7;color:#fff">2</span><span>3+</span></div>
+          <div class="btn" style="background:#3B82F6;color:#fff;padding:14px;font-size:13px">Done · 6 × 62.5 kg</div>
+          <div class="sm" style="text-align:center">Tap a number to change it · swipe left to skip</div>
+          <div class="card" style="padding:9px 11px;margin-top:auto"><div class="between"><span class="sm">Up next</span><span style="font-size:11px;font-weight:800">Overhead Press · 35 × 9</span></div></div>
+        </div>
+      </div></div>
+      <figcaption><b>Logging a set (change 16)</b>All sets of the exercise are visible as rows, prefilled from today's prescription, with last time's numbers beside them. One tap on Done logs the set and starts rest.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:27</span><i></i><span>78%</span></div>
+        <div class="between" style="padding:4px 14px 6px"><span class="sm">Push · 2 of 4</span><span style="font-family:var(--mono);font-size:11px;font-weight:600">19:31</span></div>
+        <div class="cnt" style="align-items:center">
+          <div class="lbl" style="margin-top:10px">Rest</div>
+          <svg viewBox="0 0 160 160" width="170" height="170" aria-hidden="true"><circle cx="80" cy="80" r="66" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/><circle cx="80" cy="80" r="66" fill="none" stroke="#3B82F6" stroke-width="10" stroke-linecap="round" stroke-dasharray="290 415" transform="rotate(-90 80 80)"/><text x="80" y="88" text-anchor="middle" fill="#fff" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="34">1:24</text><text x="80" y="106" text-anchor="middle" fill="rgba(255,255,255,.5)" font-family="Inter, Helvetica, Arial, sans-serif" font-size="9">of 2:00</text></svg>
+          <div class="row" style="gap:8px;width:100%"><div class="btn" style="flex:1;border:1px solid rgba(255,255,255,.14)">−15 s</div><div class="btn" style="flex:1;border:1px solid rgba(255,255,255,.14)">+15 s</div><div class="btn" style="flex:1;background:rgba(255,255,255,.1)">Skip</div></div>
+          <div class="card" style="width:100%;padding:10px 12px"><div class="lbl">Next · set 3 of 3</div><div style="font-size:15px;font-weight:900;margin-top:2px">62.5 kg × 6</div><div class="sm">Set 2: 6 reps, 2 left. On target.</div></div>
+          <div class="card" style="width:100%;padding:9px 11px;background:#1b1c20"><div class="row" style="gap:8px"><span style="width:22px;height:22px;border-radius:6px;background:#3B82F6;display:grid;place-items:center;font-size:9px;font-weight:900">C</span><div><div style="font-size:10px;font-weight:800">CLAWW · Rest 1:24</div><div class="sm" style="font-size:9px">Lock screen and notification shade</div></div></div></div>
+        </div>
+      </div></div>
+      <figcaption><b>Resting (change 16)</b>A big ring you can read from the bench, ±15 s, and the next set's numbers. The timer also shows on the lock screen and buzzes when rest ends, even with the app closed.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr" style="background:radial-gradient(120% 70% at 50% 0%,#1d2540,#050505 70%)">
+        <div class="sb"><span></span><i></i><span>91%</span></div>
+        <div style="text-align:center;margin-top:8px"><div style="font-size:42px;font-weight:300;letter-spacing:-.02em">17:45</div><div class="sm">Thursday, 9 October</div></div>
+        <div class="cnt" style="margin-top:14px">
+          <div style="background:rgba(30,30,34,.85);border-radius:16px;padding:10px 12px">
+            <div class="between"><span class="row" style="gap:6px"><span style="width:16px;height:16px;border-radius:5px;background:#3B82F6"></span><span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.6)">CLAWW</span></span><span class="sm" style="font-size:9px">now</span></div>
+            <div style="font-size:11.5px;font-weight:800;margin-top:5px">Push day at 18:30</div>
+            <div class="sm" style="color:rgba(255,255,255,.75)">Bench goes up to 62.5 kg today. About 45 min.</div>
+          </div>
+          <div style="background:rgba(30,30,34,.85);border-radius:16px;padding:10px 12px">
+            <div class="between"><span class="row" style="gap:6px"><span style="width:16px;height:16px;border-radius:5px;background:#22C55E"></span><span style="font-size:9px;font-weight:700;color:rgba(255,255,255,.6)">CLAWW</span></span><span class="sm" style="font-size:9px">13:30</span></div>
+            <div style="font-size:11.5px;font-weight:800;margin-top:5px">Lunch not logged yet</div>
+            <div class="sm" style="color:rgba(255,255,255,.75)">You need 96 g more protein today.</div>
+          </div>
+        </div>
+        <div class="card" style="margin:auto 12px 14px;padding:10px 12px">
+          <div class="lbl">Reminders · in Settings</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px">
+            <div class="between"><span style="font-size:10.5px;font-weight:700">Workout</span><span class="sm">45 min before · training days</span></div>
+            <div class="between"><span style="font-size:10.5px;font-weight:700">Meals</span><span class="sm">only if not logged</span></div>
+            <div class="between"><span style="font-size:10.5px;font-weight:700">Sleep log</span><span class="sm">at wake-up + 30 min</span></div>
+            <div class="between"><span style="font-size:10.5px;font-weight:700">Water</span><span class="sm">off</span></div>
+          </div>
+        </div>
+      </div></div>
+      <figcaption><b>Reminders (change 17)</b>Specific to your day: the workout reminder names today's session and its one big change. Meal reminders only fire if that meal isn't logged. Each type has its own time and on/off switch.</figcaption>
+    </figure>
+  </div>
+
+  <div class="change" id="c16">
+    <h3><span class="num">16</span>Workout player rebuilt for speed <span class="tag t-re">REDESIGN</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> the player is a small bar at the bottom of the screen. Each set takes two taps (Finish Set, then Confirm Set), and changing reps or weight means tapping 24 px arrows one rep or 2.5 kg at a time. The rest timer re-renders the whole player every second.</div>
+      <p>The player opens full screen and is built around one rule: a set that went as planned takes one tap.</p>
+      <ul class="flow">
+        <li><b>Set rows.</b> Every set of the current exercise is a row, prefilled with today's prescription and showing last time's numbers. Done logs the set with those numbers instantly; saving happens in the background and never blocks the screen.</li>
+        <li><b>Fast edits.</b> Tap a number to get a quick picker (common values one tap away, then a wheel), instead of stepping one at a time. Changing set 1's weight carries forward to the remaining sets.</li>
+        <li><b>Effort chip.</b> The optional reps-left chip sits on the same screen, so it adds no extra step.</li>
+        <li><b>Rest.</b> A big readable ring with −15 s, +15 s and Skip, next set's numbers, and a lock-screen timer that buzzes when rest ends.</li>
+        <li><b>Moving around.</b> Swipe left to skip an exercise, swipe right to go back, a list button to jump to any exercise, and Up next always visible. Minimize to a slim bar to check something else in the app.</li>
+        <li><b>Smoothness.</b> The timer runs in its own small component so the rest of the screen doesn't redraw every second, with haptics on Done and when rest ends. Target: under 100 ms from tap to the next set on a mid-range Android phone.</li>
+        <li><b>Never lose a session.</b> Sets are saved on the phone first and synced when the network is back, which also covers gyms with bad signal.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="change" id="c17">
+    <h3><span class="num">17</span>Reminders that actually arrive <span class="tag t-fix">FIX</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> there are three fixed local reminders (workout 18:00, lunch 13:00, sleep 22:00). They are only scheduled after you accept a prompt that appears once after your first finished workout, or after you flip the switch in Settings. They fire every day whether or not you trained or logged. No Android notification channel is created, there is no server push at all, and nothing reschedules them after an app update or a phone restart.</div>
+      <p>Fixing this has two parts.</p>
+      <ul class="flow">
+        <li><b>Make local reminders reliable:</b> create a proper Android channel, ask for permission at a sensible moment (end of onboarding, with a clear reason), reschedule every time the app opens, and test on a real Android phone (Expo Go can't test this properly).</li>
+        <li><b>Make them smart:</b> the workout reminder fires before your actual training time on your actual training days and names today's session. Meal and sleep reminders are cancelled for the day once you log. Each type gets its own time and switch in Settings.</li>
+        <li><b>Add real push for things the phone can't know:</b> phone push tokens are saved to Supabase, and a scheduled Edge Function sends messages like a missed-day nudge the next morning or a streak about to break. These use Expo's push service, so no separate Firebase code is needed beyond the Android setup.</li>
+        <li>No more than 2 notifications a day in total. Sending more is the quickest way to get them switched off.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ NUTRITION ═════════════ -->
+<section class="sec" id="nutrition">
+  <div class="sec-head"><span class="dot" style="background:var(--green)"></span><h2>Nutrition</h2></div>
+  <p class="sec-sub">Changes 09–11.</p>
+
+  <div class="shots">
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>13:22</span><i></i><span>64%</span></div>
+        <div class="dim" style="background:rgba(0,0,0,.45)"></div>
+        <div class="sheet" style="top:52px;padding:0 0 14px">
+          <div style="height:170px;border-radius:22px 22px 0 0;background:radial-gradient(60% 55% at 50% 55%,#e9d7b0 0 34%,#c99b4f 35% 45%,#7a4e1f 46% 54%,transparent 55%),radial-gradient(30% 22% at 30% 40%,#3f7a2c 0 60%,transparent 61%),radial-gradient(18% 16% at 68% 38%,#e86a2c 0 70%,transparent 71%),linear-gradient(160deg,#3a2a1e,#1c140f);position:relative">
+            <div class="grab" style="position:absolute;top:8px;left:0;right:0;background:rgba(255,255,255,.5)"></div>
+            <span class="pill" style="position:absolute;left:12px;bottom:10px;background:rgba(0,0,0,.6);color:#fff">Your photo · 13:05</span>
+          </div>
+          <div style="padding:12px 14px 0;display:flex;flex-direction:column;gap:10px">
+            <div><div class="lbl" style="color:#4ADE80">Lunch</div><div style="font-size:15px;font-weight:900;letter-spacing:-.02em;margin-top:2px">Chicken biryani with raita</div><div class="sm">Estimated from photo · portion: regular</div></div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+              <div class="card" style="padding:7px;text-align:center"><div style="font-size:13px;font-weight:900">640</div><div class="sm" style="font-size:8px">kcal</div></div>
+              <div class="card" style="padding:7px;text-align:center"><div style="font-size:13px;font-weight:900;color:#4ADE80">32g</div><div class="sm" style="font-size:8px">protein</div></div>
+              <div class="card" style="padding:7px;text-align:center"><div style="font-size:13px;font-weight:900">78g</div><div class="sm" style="font-size:8px">carbs</div></div>
+              <div class="card" style="padding:7px;text-align:center"><div style="font-size:13px;font-weight:900;color:#F87171">21g</div><div class="sm" style="font-size:8px">fats</div></div>
+            </div>
+            <div class="row" style="gap:6px"><div class="btn" style="flex:1;border:1px solid rgba(255,255,255,.14)">Edit</div><div class="btn" style="flex:1;background:#22C55E;color:#04130A">Log again</div></div>
+          </div>
+        </div>
+      </div></div>
+      <figcaption><b>Tapping a meal in the timeline (change 10)</b>The photo fills the top of the sheet. Below it are the meal type, description, how it was estimated, the four macros, and Edit and Log again. Meals logged by text show a plain header with no empty photo space.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>08:10</span><i></i><span>97%</span></div>
+        <div class="hdr"><span>Suggest breakfast</span><small>SAT</small></div>
+        <div class="cnt">
+          <div class="card" style="padding:9px 11px"><div class="lbl">You have left today</div><div class="row" style="gap:10px;margin-top:4px;font-size:11px;font-weight:800"><span>2,140 kcal</span><span style="color:#4ADE80">128g P</span><span>240g C</span><span style="color:#F87171">62g F</span></div><div class="sm" style="margin-top:3px">Vegetarian · South Indian · no mushrooms</div></div>
+          <div class="card" style="border-color:rgba(34,197,94,.35)">
+            <div class="between"><b style="font-size:12px">Paneer besan chilla, mint chutney</b><span class="pill" style="background:rgba(34,197,94,.15);color:#4ADE80">Best fit</span></div>
+            <div class="row" style="gap:8px;margin-top:5px;font-size:10px;font-weight:700"><span>520 kcal</span><span style="color:#4ADE80">34g P</span><span class="muted">48g C · 20g F</span></div>
+            <div class="sm" style="margin-top:5px">Covers a quarter of today's protein. 15 min.</div>
+          </div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Ragi dosa with sambar</b><span class="sm">20 min</span></div>
+            <div class="row" style="gap:8px;margin-top:5px;font-size:10px;font-weight:700"><span>460 kcal</span><span style="color:#4ADE80">18g P</span><span class="muted">70g C · 11g F</span></div>
+          </div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Greek yogurt, oats, banana</b><span class="sm">5 min</span></div>
+            <div class="row" style="gap:8px;margin-top:5px;font-size:10px;font-weight:700"><span>430 kcal</span><span style="color:#4ADE80">27g P</span><span class="muted">60g C · 8g F</span></div>
+          </div>
+          <div class="row" style="gap:5px;flex-wrap:wrap"><span class="pill" style="background:rgba(255,255,255,.07);color:#fff">More protein</span><span class="pill" style="background:rgba(255,255,255,.07);color:#fff">Quicker</span><span class="pill" style="background:rgba(255,255,255,.07);color:#fff">Something else</span></div>
+          <div class="btn" style="background:#22C55E;color:#04130A;margin-top:auto">Log paneer chilla</div>
+        </div>
+      </div></div>
+      <figcaption><b>Meal suggestion (changes 09 and 11)</b>Three options instead of one, each with its macros and prep time. The top line shows what's left today and which setup preferences are in use. Refine chips ask again without typing. Logging is one tap.</figcaption>
+    </figure>
+  </div>
+
+  <div class="change" id="c9">
+    <h3><span class="num">09</span>Setup preferences reach meal suggestions <span class="tag t-fix">FIX</span></h3>
+    <div class="body">
+      <div class="now"><b>What the code shows:</b> workout generation does read setup: training days, split, workout types, injuries and activity level all go into generate-plan. The gap is on the nutrition side. "Suggest breakfast" only sends your dietary restrictions plus remaining calories and protein. It doesn't know your goal or remaining carbs and fats. It doesn't know what you've already eaten today. Setup never asks about cuisine or foods you dislike, so those can't be used at all.</div>
+      <p>The suggestion request will carry a full food profile: goal (fat loss, muscle gain, maintain), dietary restrictions, all four remaining macros, meals already logged today (so it doesn't repeat lunch at dinner), and two new optional setup answers: preferred cuisines and foods to avoid. Both can be edited later in Profile, and existing users are asked once, on their next visit to Nutrition. Restrictions stay hard rules. Every suggestion is checked against them after generation, as today.</p>
+      <p>Your note mentioned "generating the workout" while talking about nutrition. If you also saw a workout plan ignore a setup answer, tell me which one (for example, it trained on a day you didn't pick), because generate-plan does receive those fields. See D15.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c10">
+    <h3><span class="num">10</span>Tapping a logged meal shows its photo <span class="tag t-fix">FIX</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> photos are already saved privately (<span class="mono">meal_logs.photo_url</span> in the meal-photos bucket) and are reused in the "Eaten this before?" strip, but the meal detail sheet shows an emoji instead.</div>
+      <p>The detail sheet loads a short-lived signed link to the photo and shows it full width. Timeline rows also get a small round thumbnail in place of the meal emoji. Meals without a photo get a simple icon for their meal type, with no emoji anywhere in Nutrition.</p>
+    </div>
+  </div>
+
+  <div class="change" id="c11">
+    <h3><span class="num">11</span>Better "Suggest breakfast" <span class="tag t-re">REDESIGN</span></h3>
+    <div class="body">
+      <ul class="flow">
+        <li>Three options ranked by how well they fit your remaining macros, instead of one.</li>
+        <li>Each option shows its macros, prep time and one line on why it fits. The "why" is written from the computed numbers; the model never invents numbers.</li>
+        <li>Refine chips: More protein, Quicker, Something else. Free text is still there for "I have eggs and rice".</li>
+        <li>One-tap log puts the meal straight into the timeline with an estimated tag, editable like any other meal.</li>
+        <li>On a day you trained, the suggestion leans toward protein and carbs after the session.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ TRACKER ═════════════ -->
+<section class="sec" id="tracker">
+  <div class="sec-head"><span class="dot" style="background:conic-gradient(#3B82F6 0 25%,#22C55E 0 50%,#2DD4BF 0 75%,#818CF8 0)"></span><h2>Tracker</h2></div>
+  <p class="sec-sub">Change 12. Built after the adaptive system, so the charts open with real data. Cards stay black; every chart takes the color of the area it comes from, the same color it has everywhere else in the app.</p>
+
+  <div class="shots">
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>20:00</span><i></i><span>55%</span></div>
+        <div class="hdr"><span>Tracker</span><small>OCT</small></div>
+        <div class="cnt">
+          <div class="card between">
+            <div><div class="lbl">CLAWW Score</div><div class="big" style="font-size:26px">640</div><div class="sm">Level 7 · 60 XP to Level 8</div></div>
+            <svg viewBox="0 0 60 60" width="56" height="56" aria-hidden="true"><circle cx="30" cy="30" r="24" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle cx="30" cy="30" r="24" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-dasharray="96.5 151" transform="rotate(-90 30 30)"/></svg>
+          </div>
+          <div class="card">
+            <div class="between"><span class="lbl" style="color:#60A5FA">Strength · est. 1-rep max</span><span class="sm">8 wk</span></div>
+            <div class="row" style="gap:5px;margin-top:6px"><span class="pill" style="background:#3B82F6;color:#fff">Bench</span><span class="pill" style="background:rgba(255,255,255,.07);color:#fff">Squat</span><span class="pill" style="background:rgba(255,255,255,.07);color:#fff">Row</span></div>
+            <svg viewBox="0 0 230 80" width="100%" aria-hidden="true" style="margin-top:6px">
+              <g stroke="rgba(255,255,255,.06)"><line x1="0" y1="10" x2="230" y2="10"/><line x1="0" y1="40" x2="230" y2="40"/><line x1="0" y1="70" x2="230" y2="70"/></g>
+              <g fill="rgba(255,255,255,.4)" font-family="Inter, Helvetica, Arial, sans-serif" font-size="7"><text x="0" y="8">80</text><text x="0" y="38">70</text><text x="0" y="68">60</text></g>
+              <path d="M16 64 L46 58 L76 58 L106 49 L136 46 L166 37 L196 31 L224 22 L224 72 L16 72 Z" fill="rgba(59,130,246,.16)"/>
+              <path d="M16 64 L46 58 L76 58 L106 49 L136 46 L166 37 L196 31 L224 22" fill="none" stroke="#3B82F6" stroke-width="2"/>
+              <circle cx="224" cy="22" r="3.5" fill="#3B82F6" stroke="#fff" stroke-width="1.5"/>
+            </svg>
+            <div class="between"><span class="sm">Now <b style="color:#fff">76 kg</b></span><span class="sm">+14 kg since Aug</span></div>
+          </div>
+          <div class="card">
+            <div class="between"><span class="lbl" style="color:#2DD4BF">Muscle recovery</span><span class="sm">estimated</span></div>
+            <div style="display:flex;flex-direction:column;gap:5px;margin-top:7px">
+              <div class="row" style="gap:6px"><span class="sm" style="width:52px">Chest</span><div class="bar" style="flex:1"><i style="width:65%;background:rgba(45,212,191,.7)"></i></div><span style="font-size:10px;font-weight:800;width:20px;text-align:right">65</span></div>
+              <div class="row" style="gap:6px"><span class="sm" style="width:52px">Back</span><div class="bar" style="flex:1"><i style="width:96%;background:#2DD4BF"></i></div><span style="font-size:10px;font-weight:800;width:20px;text-align:right">96</span></div>
+              <div class="row" style="gap:6px"><span class="sm" style="width:52px">Quads</span><div class="bar" style="flex:1"><i style="width:44%;background:rgba(45,212,191,.4)"></i></div><span style="font-size:10px;font-weight:800;width:20px;text-align:right">44</span></div>
+              <div class="row" style="gap:6px"><span class="sm" style="width:52px">Shoulders</span><div class="bar" style="flex:1"><i style="width:81%;background:rgba(45,212,191,.85)"></i></div><span style="font-size:10px;font-weight:800;width:20px;text-align:right">81</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="between"><span class="lbl" style="color:#60A5FA">Weekly sets per muscle</span><span class="sm">this week</span></div>
+            <svg viewBox="0 0 230 58" width="100%" aria-hidden="true" style="margin-top:6px">
+              <g font-family="Inter, Helvetica, Arial, sans-serif" font-size="7" fill="rgba(255,255,255,.5)"><text x="0" y="9">Chest</text><text x="0" y="23">Back</text><text x="0" y="37">Legs</text><text x="0" y="51">Arms</text></g>
+              <g fill="#3B82F6"><rect x="44" y="3" width="120" height="8" rx="3"/><rect x="44" y="17" width="150" height="8" rx="3"/><rect x="44" y="31" width="66" height="8" rx="3" opacity=".55"/><rect x="44" y="45" width="96" height="8" rx="3" opacity=".8"/></g>
+              <line x1="179" y1="0" x2="179" y2="56" stroke="rgba(255,255,255,.35)" stroke-dasharray="2 3"/>
+              <text x="182" y="56" font-family="Inter, Helvetica, Arial, sans-serif" font-size="6.5" fill="rgba(255,255,255,.5)">10 sets</text>
+            </svg>
+          </div>
+          <div class="card">
+            <div class="between"><span class="lbl" style="color:#60A5FA">Consistency · 12 weeks</span><span class="sm">31 sessions</span></div>
+            <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-top:7px">
+              <i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(255,255,255,.12)"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(59,130,246,.5)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(59,130,246,.5)"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(255,255,255,.12)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(59,130,246,.5)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i>
+              <i style="aspect-ratio:1;border-radius:2px;background:rgba(59,130,246,.5)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(255,255,255,.12)"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(59,130,246,.5)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(59,130,246,.5)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:rgba(255,255,255,.12)"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i><i style="aspect-ratio:1;border-radius:2px;background:#3B82F6"></i>
+            </div>
+          </div>
+        </div>
+        <div class="tabbar"><span>Home</span><span>Workouts</span><span>Nutrition</span><span class="on">Tracker</span><span>More</span></div>
+      </div></div>
+      <figcaption><b>Tracker, unlocked (change 12)</b>Score stays white (it belongs to CLAWW, not one area). Strength, weekly sets and consistency are workout data, so they are blue. Muscle recovery is teal.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>20:00</span><i></i><span>55%</span></div>
+        <div class="hdr"><span>Tracker</span><small>OCT</small></div>
+        <div class="cnt">
+          <div class="card">
+            <div class="lbl" style="color:#60A5FA">Personal records</div>
+            <div style="display:flex;flex-direction:column;gap:7px;margin-top:7px">
+              <div class="between"><span style="font-size:11px;font-weight:700">Bench Press</span><span style="font-size:11px;font-weight:800;color:#93C5FD">65 kg × 6 <span class="sm">· 3 Oct</span></span></div>
+              <div class="between"><span style="font-size:11px;font-weight:700">Back Squat</span><span style="font-size:11px;font-weight:800;color:#93C5FD">90 kg × 5 <span class="sm">· 30 Sep</span></span></div>
+              <div class="between"><span style="font-size:11px;font-weight:700">Pull-up</span><span style="font-size:11px;font-weight:800;color:#93C5FD">BW × 9 <span class="sm">· 7 Oct</span></span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="between"><span class="lbl" style="color:#F59E0B">Steps · 7 days</span><span class="lbl" style="color:#FB923C">Burned</span></div>
+            <div class="row" style="gap:3px;margin-top:8px;align-items:flex-end;height:36px">
+              <i style="flex:1;height:62%;background:rgba(245,158,11,.45);border-radius:3px"></i><i style="flex:1;height:96%;background:#F59E0B;border-radius:3px"></i><i style="flex:1;height:48%;background:rgba(245,158,11,.45);border-radius:3px"></i><i style="flex:1;height:100%;background:#F59E0B;border-radius:3px"></i><i style="flex:1;height:40%;background:rgba(245,158,11,.45);border-radius:3px"></i><i style="flex:1;height:94%;background:#F59E0B;border-radius:3px"></i><i style="flex:1;height:72%;background:rgba(245,158,11,.45);border-radius:3px"></i>
+            </div>
+            <div class="between sm" style="margin-top:5px"><span>Avg 7,240 steps · goal hit 3/7</span><span style="color:#FDBA74">2,610 kcal</span></div>
+          </div>
+          <div class="card">
+            <div class="between"><span class="lbl" style="color:#4ADE80">Nutrition · 7 days</span></div>
+            <div class="row" style="gap:3px;margin-top:8px;align-items:flex-end;height:44px">
+              <i style="flex:1;height:70%;background:#22C55E;border-radius:3px"></i><i style="flex:1;height:92%;background:#22C55E;border-radius:3px"></i><i style="flex:1;height:40%;background:rgba(34,197,94,.35);border-radius:3px"></i><i style="flex:1;height:100%;background:#22C55E;border-radius:3px"></i><i style="flex:1;height:84%;background:#22C55E;border-radius:3px"></i><i style="flex:1;height:55%;background:rgba(34,197,94,.35);border-radius:3px"></i><i style="flex:1;height:76%;background:#22C55E;border-radius:3px"></i>
+            </div>
+            <div class="sm" style="margin-top:5px">Protein target hit 5 of 7 days · avg 2,180 kcal</div>
+          </div>
+          <div class="card">
+            <div class="lbl" style="color:#A5B4FC">Sleep · 7 nights</div>
+            <div class="row" style="gap:3px;margin-top:8px;align-items:flex-end;height:36px">
+              <i style="flex:1;height:80%;background:#818CF8;border-radius:3px"></i><i style="flex:1;height:66%;background:rgba(129,140,248,.35);border-radius:3px"></i><i style="flex:1;height:88%;background:#818CF8;border-radius:3px"></i><i style="flex:1;height:90%;background:#818CF8;border-radius:3px"></i><i style="flex:1;height:58%;background:rgba(129,140,248,.35);border-radius:3px"></i><i style="flex:1;height:84%;background:#818CF8;border-radius:3px"></i><i style="flex:1;height:90%;background:#818CF8;border-radius:3px"></i>
+            </div>
+            <div class="sm" style="margin-top:5px">Avg 7h 02m · 2 nights under 6.5 h</div>
+          </div>
+          <div class="card" style="border-color:rgba(168,85,247,.3)"><div class="lbl" style="color:#C084FC">CLAWW insight</div><div class="sm" style="margin-top:4px;color:rgba(255,255,255,.8)">Leg volume is under target for the second week. Quads are at 44, so Friday adds sets for hamstrings and glutes, not quads.</div></div>
+        </div>
+        <div class="tabbar"><span>Home</span><span>Workouts</span><span>Nutrition</span><span class="on">Tracker</span><span>More</span></div>
+      </div></div>
+      <figcaption><b>Tracker, further down</b>Personal records in blue, the insight in purple, steps in amber with burned in orange, nutrition in green, sleep in indigo.</figcaption>
+    </figure>
+  </div>
+
+  <div class="change" id="c12">
+    <h3><span class="num">12</span>Tracker rebuilt, color-coded charts <span class="tag t-re">REDESIGN</span></h3>
+    <div class="body">
+      <div class="now"><b>Now:</b> a CLAWW Score ring, four number tiles, three goal percentages, an all-time volume number and a 7-day nutrition summary. There are no charts over time.</div>
+      <p>Every chart uses its area's color from the CLAWW color map below. A color always means the same thing on every screen, so a teal bar is always recovery and a green bar is always nutrition. Cards stay black with white text. Color goes only on the data itself: lines, bars, rings and section labels. The CLAWW Score stays white because it isn't one area's data.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Color</th><th>Area</th><th>Used for</th></tr></thead>
+        <tbody>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#3B82F6;vertical-align:-2px"></span> <span class="mono">#3B82F6</span> blue</td><td>Workouts</td><td>Strength trend, weekly sets, consistency grid, personal records, Workouts tab</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#22C55E;vertical-align:-2px"></span> <span class="mono">#22C55E</span> green</td><td>Nutrition</td><td>Calories, protein, meals, nutrition adherence (fats keep their red <span class="mono">#EF4444</span> inside macro charts only)</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#2DD4BF;vertical-align:-2px"></span> <span class="mono">#2DD4BF</span> teal</td><td>Recovery</td><td>Recovery ring on Home, muscle recovery map, pre-session check results. New color, replacing the blue recovery ring so it no longer clashes with Workouts.</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#818CF8;vertical-align:-2px"></span> <span class="mono">#818CF8</span> indigo</td><td>Sleep</td><td>Sleep ring, sleep row, sleep chart</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F59E0B;vertical-align:-2px"></span> <span class="mono">#F59E0B</span> amber</td><td>Steps</td><td>Steps tile, steps sheet, steps chart</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#FB923C;vertical-align:-2px"></span> <span class="mono">#FB923C</span> orange</td><td>Burned</td><td>Active calories tile, sheet and chart. Moved off red so it doesn't read as fats.</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F472B6;vertical-align:-2px"></span> <span class="mono">#F472B6</span> pink</td><td>Streak</td><td>Streak tile and grid. Moved off purple, which belongs to the engine.</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#38BDF8;vertical-align:-2px"></span> <span class="mono">#38BDF8</span> sky</td><td>Water</td><td>Water row and log</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#A855F7;vertical-align:-2px"></span> <span class="mono">#A855F7</span> purple</td><td>CLAWW engine</td><td>Insights, engine decisions, "why this changed" lines</td></tr>
+          <tr><td><span style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F59E0B;vertical-align:-2px;outline:1px solid #fff"></span> <span class="mono">#F59E0B</span> amber</td><td>More / Profile</td><td>Unchanged tab accent. Shares amber with steps; only one appears per screen.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Every card answers a question about progress: am I getting stronger (estimated 1-rep max per lift over 8 weeks), which muscles are ready (recovery map), am I doing enough work per muscle (weekly sets against a target), and am I consistent (12-week grid). The engine's decisions show up where they matter, next to each exercise in Workouts, not as a count here (cut in review). Each card opens a full-screen chart with Week, Month and All ranges. The lock stays: the Tracker opens after 3 workout days, and before that the locked view shows these same cards as faint previews with "Unlocks after 3 workout days".</p>
+      <p>Charts are drawn with Skia, the same library as the Home rings, so they animate smoothly without adding a chart package.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ ADAPTIVE ═════════════ -->
+<section class="sec" id="c13">
+  <div class="sec-head"><span class="dot" style="background:var(--purple)"></span><h2>13 · The new adaptive system</h2></div>
+  <p class="sec-sub">Built from the two co-founder PDFs: "Adaptive System Thresholds and Commands" and "Muscle Recovery Score". The plan still decides the split and the exercises. The engine decides each exercise's weight, reps and sets every session, from what actually happened.</p>
+
+  <h3 style="margin-top:8px">The big change: numbers are worked out per session</h3>
+  <p style="margin-top:8px">Today, sets and reps are fixed when the plan is generated and only change if you regenerate. In the new system the plan stores each exercise's rep range and starting point. When you tap Begin, CLAWW computes today's prescription for every exercise from your logs and recovery. When you finish, it saves the decision and the reason. All of this is plain math in a shared module; the model never computes a number.</p>
+
+  <h3 style="margin-top:22px">The decision flow</h3>
+  <div class="pipe">
+    <div class="st"><small>1</small><b>Performance</b><span>How did the last session go? Reps achieved against the target, every set.</span></div>
+    <div class="st"><small>2</small><b>Recovery</b><span>Is the body ready? Whole-body (sleep, protein) and per-muscle score.</span></div>
+    <div class="st"><small>3</small><b>Overload</b><span>Which single thing goes up next: reps, weight or sets. Recovery can block it.</span></div>
+    <div class="st"><small>4</small><b>Exercise</b><span>Keep it, replace it, or suggest a harder variation.</span></div>
+    <div class="st" style="border-color:rgba(168,85,247,.45)"><small>→</small><b>Prescription</b><span>Today's weight × reps × sets, with a one-line reason.</span></div>
+  </div>
+
+  <h3 style="margin-top:22px">1 · Performance</h3>
+  <p style="margin-top:8px">Each exercise has a rep range (for example 6–10) and a current rep target inside it. Performance is total reps achieved divided by target × sets.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Result</th><th>Meaning</th><th>Next session</th></tr></thead>
+    <tbody>
+      <tr><td class="n">Max reps on every set</td><td>Top of range</td><td>Counts toward a weight increase. Two sessions in a row → weight up, reps back to the bottom of the range.</td></tr>
+      <tr><td class="n">≥ 100%</td><td>Hit the target</td><td>Rep target +1</td></tr>
+      <tr><td class="n">85–99%</td><td>Close</td><td>Hold</td></tr>
+      <tr><td class="n">70–84%</td><td>Struggled</td><td>Rep target −1</td></tr>
+      <tr><td class="n">&lt; 70%</td><td>Too heavy</td><td>Weight down</td></tr>
+      <tr><td class="n">2 failures in a row</td><td>Stalling</td><td>Weight down 5% (deload)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Weight steps: +2.5 kg for barbell and machine lifts, +1 to 2 kg for dumbbell and isolation lifts. Sets: +1 after repeated success with good recovery, −1 after repeated decline. Bodyweight exercises climb reps to the top of the range, then the engine suggests a harder variation.</p>
+
+  <h3 style="margin-top:22px">2 · Recovery, in two layers</h3>
+  <p style="margin-top:8px"><b>Whole-body</b> (PDF 1) uses sleep, protein as a percentage of target, and fatigue.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>State</th><th>Sleep</th><th>Protein</th><th>Fatigue</th><th>Command</th></tr></thead>
+    <tbody>
+      <tr><td>Good</td><td class="n">≥ 7 h</td><td class="n">≥ 90%</td><td>Low</td><td>Allow full demand</td></tr>
+      <tr><td>Moderate</td><td class="n">6–6.9 h</td><td class="n">75–89%</td><td>Moderate</td><td>Hold</td></tr>
+      <tr><td>Poor</td><td class="n">&lt; 6 h</td><td class="n">&lt; 75%</td><td>High</td><td>Reduce</td></tr>
+      <tr><td>Several poor</td><td colspan="3">two or more of the above in Poor</td><td>Reduce and block progression</td></tr>
+    </tbody>
+  </table></div>
+  <p><b>Per muscle</b> (PDF 2) gives each major muscle its own Estimated Muscle Recovery score out of 100:</p>
+  <div class="formula">Recovery = Fatigue × 0.40 + Time × 0.25 + Soreness × 0.20 + Readiness × 0.15</div>
+  <div class="tbl"><table>
+    <thead><tr><th>Part</th><th>Where it comes from</th><th>Scale</th></tr></thead>
+    <tbody>
+      <tr><td>Fatigue · 40%</td><td>Automatic, from your last sessions: effective sets for that muscle, how close to failure (RIR), and the exercise's stimulus type</td><td>0–100, 100 = fully fresh</td></tr>
+      <tr><td>Time · 25%</td><td>Automatic, hours since that muscle was last trained</td><td class="n">&lt;24h 20 · 24–48 50 · 48–72 75 · 72–96 90 · 96+ 100</td></tr>
+      <tr><td>Soreness · 20%</td><td>You, 0–5, asked before the session</td><td class="n">0→100 · 1→90 · 2→75 · 3→55 · 4→30 · 5→10</td></tr>
+      <tr><td>Readiness · 15%</td><td>You, five choices, asked before the session</td><td class="n">Strong 100 · Normal 85 · Slightly weak 65 · Weak 40 · Very weak 20</td></tr>
+    </tbody>
+  </table></div>
+  <p>The PDF's own example: Fatigue 55, Time 75, Soreness 75, Readiness 85 gives 65.25, so <b>Chest 65 · Moderate</b>. Bands: 85–100 Excellent, 70–84 Good, 50–69 Moderate, 30–49 Low, 0–29 Very low. Each score carries a confidence level, which drops when inputs are missing (no RIR logged, check-in skipped) instead of the engine inventing values. Per the PDF, recovery can change sets, reps and intensity but never changes the split you chose. The same score is used on Home, in the Tracker, in insights and in the engine.</p>
+
+  <h3 style="margin-top:22px">3 · Progressive overload</h3>
+  <p style="margin-top:8px">Only one thing goes up at a time, in this order: reps climb to the top of the range, then weight goes up and reps rebuild from the bottom, and only after repeated cycles does volume (sets) go up. Poor whole-body recovery, or a Low or Very low muscle score, blocks progression for that day: you keep last session's numbers, and the reason says why.</p>
+
+  <h3 style="margin-top:22px">4 · Exercise intelligence</h3>
+  <p style="margin-top:8px">Each exercise is kept, replaced or given a suggested variation. A replacement is triggered by missing equipment, "I can't do this", discomfort, dislike, or a plateau (no progress for several sessions). A replacement must keep the same primary muscle, movement pattern, role (main lift or accessory) and fit your equipment. This needs extra fields in the exercise catalog, described under "What changes underneath" below.</p>
+
+  <h3 style="margin-top:22px">What you see in the app</h3>
+  <div class="shots">
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:10</span><i></i><span>80%</span></div>
+        <div class="hdr"><span>Before you start</span><small>PUSH</small></div>
+        <div class="cnt">
+          <div class="sm">Two quick questions per muscle trained today. Takes 10 seconds.</div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Chest</b><span class="sm">trained 2 days ago</span></div>
+            <div class="lbl" style="margin-top:8px">Soreness</div>
+            <div class="seg" style="margin-top:4px"><span>0</span><span>1</span><span style="background:#A855F7;color:#fff">2</span><span>3</span><span>4</span><span>5</span></div>
+            <div class="lbl" style="margin-top:8px">How strong does it feel</div>
+            <div class="row" style="gap:4px;margin-top:4px;flex-wrap:wrap"><span class="pill" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)">Strong</span><span class="pill" style="background:#A855F7;color:#fff">Normal</span><span class="pill" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)">Slightly weak</span><span class="pill" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)">Weak</span></div>
+          </div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Shoulders</b><span class="sm">trained 4 days ago</span></div>
+            <div class="lbl" style="margin-top:8px">Soreness</div>
+            <div class="seg" style="margin-top:4px"><span style="background:#A855F7;color:#fff">0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+            <div class="lbl" style="margin-top:8px">How strong does it feel</div>
+            <div class="row" style="gap:4px;margin-top:4px;flex-wrap:wrap"><span class="pill" style="background:#A855F7;color:#fff">Strong</span><span class="pill" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)">Normal</span><span class="pill" style="background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)">Slightly weak</span></div>
+          </div>
+          <div class="card" style="padding:9px 12px"><div class="between"><b style="font-size:12px">Triceps</b><span class="sm">tap to answer</span></div></div>
+          <div class="row" style="gap:6px;margin-top:auto"><div class="btn" style="flex:1;border:1px solid rgba(255,255,255,.14)">Skip</div><div class="btn" style="flex:2;background:#3B82F6;color:#fff">See today's plan</div></div>
+        </div>
+      </div></div>
+      <figcaption><b>Step 1 · Pre-session check</b>Asked once, only for muscles in today's session. Skipping is allowed; the scores just carry lower confidence.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:11</span><i></i><span>80%</span></div>
+        <div class="hdr"><span>Today · Push</span><small>4 EXERCISES</small></div>
+        <div class="cnt">
+          <div class="row" style="gap:5px;flex-wrap:wrap"><span class="pill" style="background:rgba(45,212,191,.16);color:#5EEAD4">Chest 65 · Moderate</span><span class="pill" style="background:rgba(45,212,191,.28);color:#99F6E4">Shoulders 88</span><span class="pill" style="background:rgba(45,212,191,.08);color:#2DD4BF;outline:1px dashed rgba(45,212,191,.5)">Triceps 44 · Low</span></div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Barbell Bench Press</b><span class="pill" style="background:rgba(34,197,94,.15);color:#4ADE80"><svg class="ico" style="width:9px;height:9px"><use href="#i-arrow"/></svg>Weight</span></div>
+            <div style="font-size:17px;font-weight:900;margin-top:4px;letter-spacing:-.02em">62.5 kg <span class="muted" style="font-size:12px">× 6 × 3</span></div>
+            <div class="sm">Top of range two sessions running (60 × 10).</div>
+          </div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Overhead Press</b><span class="pill" style="background:rgba(34,197,94,.15);color:#4ADE80"><svg class="ico" style="width:9px;height:9px"><use href="#i-arrow"/></svg>Reps</span></div>
+            <div style="font-size:17px;font-weight:900;margin-top:4px;letter-spacing:-.02em">35 kg <span class="muted" style="font-size:12px">× 9 × 3</span></div>
+            <div class="sm">Hit 8 on every set last time.</div>
+          </div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Incline DB Press</b><span class="pill" style="background:rgba(255,255,255,.08);color:#fff"><svg class="ico" style="width:9px;height:9px"><use href="#i-pause"/></svg>Hold</span></div>
+            <div style="font-size:17px;font-weight:900;margin-top:4px;letter-spacing:-.02em">20 kg <span class="muted" style="font-size:12px">× 10 × 3</span></div>
+            <div class="sm">Chest is Moderate today, so no progression.</div>
+          </div>
+          <div class="card">
+            <div class="between"><b style="font-size:12px">Tricep Dips</b><span class="pill" style="background:rgba(239,68,68,.14);color:#FCA5A5"><svg class="ico" style="width:9px;height:9px"><use href="#i-down"/></svg>Sets</span></div>
+            <div style="font-size:17px;font-weight:900;margin-top:4px;letter-spacing:-.02em">BW <span class="muted" style="font-size:12px">× 10 × 2</span></div>
+            <div class="sm">Triceps recovery is Low. 3 sets → 2.</div>
+          </div>
+          <div class="btn" style="background:#3B82F6;color:#fff;margin-top:auto">Begin Workout</div>
+        </div>
+      </div></div>
+      <figcaption><b>Step 2 · Today's prescription</b>Every exercise shows what changed and why, in one line. The muscle scores at the top explain the holds and cuts.</figcaption>
+    </figure>
+
+    <figure>
+      <div class="phone"><div class="scr">
+        <div class="sb"><span>18:24</span><i></i><span>78%</span></div>
+        <div class="hdr"><span>Bench Press</span><small>SET 2 OF 3</small></div>
+        <div class="cnt">
+          <div class="card" style="text-align:center;padding:14px">
+            <div class="lbl">Target</div>
+            <div style="font-size:30px;font-weight:900;letter-spacing:-.04em;margin-top:2px">6 <span class="muted" style="font-size:14px">reps @ 62.5 kg</span></div>
+          </div>
+          <div class="card">
+            <div class="lbl">Reps done</div>
+            <div class="between" style="margin-top:6px">
+              <span style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.07);display:grid;place-items:center;font-size:18px;font-weight:800">−</span>
+              <span style="font-size:32px;font-weight:900">6</span>
+              <span style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,.07);display:grid;place-items:center;font-size:18px;font-weight:800">+</span>
+            </div>
+            <div class="lbl" style="margin-top:12px">Reps left in the tank <span style="text-transform:none;letter-spacing:0;font-weight:500">(optional)</span></div>
+            <div class="seg" style="margin-top:5px"><span>0</span><span style="background:#A855F7;color:#fff">1</span><span>2</span><span>3+</span></div>
+          </div>
+          <div class="sm">Set 1: 6 reps, 2 left.</div>
+          <div class="btn" style="background:#3B82F6;color:#fff;margin-top:auto">Confirm set</div>
+          <div class="sm" style="text-align:center">Rest timer starts after confirm</div>
+        </div>
+      </div></div>
+      <figcaption><b>Step 3 · Logging a set</b>The confirm card adds one optional chip: how many more reps you could have done. It feeds the fatigue part of muscle recovery.</figcaption>
+    </figure>
+  </div>
+
+  <h3 style="margin-top:22px">Worked example · bench press over five sessions</h3>
+  <p style="margin-top:8px">Range 6–10, 3 sets. Recovery is Good every day except session 5.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Session</th><th>Prescribed</th><th>Did</th><th>Result</th><th>Engine decision</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td class="n">60 kg × 8 × 3</td><td class="n">8, 8, 8</td><td class="n">100%</td><td>Rep target 8 → 9</td></tr>
+      <tr><td class="n">2</td><td class="n">60 kg × 9 × 3</td><td class="n">9, 9, 7</td><td class="n">93%</td><td>Hold</td></tr>
+      <tr><td class="n">3</td><td class="n">60 kg × 9 × 3</td><td class="n">10, 10, 10</td><td class="n">top of range</td><td>Rep target 10, top counter 1 of 2</td></tr>
+      <tr><td class="n">4</td><td class="n">60 kg × 10 × 3</td><td class="n">10, 10, 10</td><td class="n">top, 2nd time</td><td>Weight 60 → 62.5 kg, reps back to 6</td></tr>
+      <tr><td class="n">5</td><td class="n">62.5 kg × 6 × 3</td><td class="n">—</td><td class="n">slept 5.5 h, chest 48</td><td>Progression blocked; same numbers and 1 set fewer for today only</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 style="margin-top:22px">What changes underneath</h3>
+  <ul class="flow">
+    <li><b>Exercise catalog</b>: each of the 183 exercises gets a primary muscle, secondary muscles, movement pattern, role (main or accessory), whether it's loadable, a stimulus type, possible harder and easier variations, form steps and a media link. I draft these; your co-founder reviews them.</li>
+    <li><b>Set logs</b>: add set number, RIR and session id to <span class="mono">workout_logs</span>. Prescribed and achieved reps and weight are already there.</li>
+    <li><b>New table for current state</b>: one row per user per exercise, holding the rep target, working weight, sets, and the success and failure counters.</li>
+    <li><b>New table for check-ins</b>: soreness and readiness per muscle per session.</li>
+    <li><b>New table for decisions</b>: every prescription with its reason, which feeds the Workouts summary and the Tracker counts.</li>
+    <li><b>One shared engine module</b>, used by the app and the Edge Functions, with unit tests for every threshold in the PDFs.</li>
+    <li>The old whole-body recovery formula stops using water and "a meal was logged". Water stays a habit on Home but no longer moves recovery.</li>
+  </ul>
+</section>
+
+<section class="sec" id="compare">
+  <h2>Old system and new system, in short</h2>
+  <p>Today CLAWW adapts only when a plan is generated or regenerated. It looks at one recovery score made from sleep, rest time, a rough fatigue estimate, water and whether a meal was logged, and moves the maximum sets by one. It looks at the last ten sets and moves reps by two if you were well under or over. The regenerate reasons (too hard, too easy, wrong focus) shift reps by three or change the split. Between regenerations the numbers never move, weight is never prescribed, and the plan doesn't know which muscle is tired.</p>
+  <p>The new system adapts every session, per exercise. It tracks a rep target and working weight for each exercise and moves exactly one of reps, weight or sets based on what you actually lifted. It also gives each muscle its own recovery score from training load, time, soreness and readiness. Whole-body sleep and protein can hold or reduce the session, a single tired muscle only affects its own exercises, and every change comes with a reason you can read. Exercises can also be swapped for a like-for-like replacement when needed. The plan and split stay yours throughout.</p>
+</section>
+
+<section class="sec" id="review">
+  <h2>Review: what's in, what's cut, where it fits</h2>
+  <p class="sec-sub">Agreed on 10 Oct. The plan above already reflects these choices.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Verdict</th><th>Changes</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Build first</td><td>13 adaptive system (simple version first), 16 player, 17 reminders, quick fixes 1, 5, 7, 10, 14, 15, Indian meal suggestions 9 and 11, compact rows 3 and 4</td><td>The engine is the product. The player and reminders are daily pain. The fixes are cheap and the bugs make the app look broken.</td></tr>
+      <tr><td>Build, but later</td><td>12 Tracker (after the engine has data), 2 Steps card, pre-session soreness check (skippable)</td><td>Charts with no data look empty. Steps needs Apple Health for iPhone users. Extra questions risk friction.</td></tr>
+      <tr><td>Cut or deferred</td><td>3D models, Burned detail card, engine decision counts in Tracker. Exercise video moves to version 2.</td><td>Cost far above value; phone calorie estimates are too rough to chart; nobody would miss the counts.</td></tr>
+    </tbody>
+  </table></div>
+  <h3 style="margin-top:18px">Market fit</h3>
+  <p style="margin-top:8px">The Indian fitness app market was about USD 521 million in 2025, with growth forecast near 19% a year to 2034. Indian users are price-sensitive: the same report suggests ₹99–199 a month in smaller cities and ₹499–999 in big ones. The big local players each own a different lane: HealthifyMe nutrition, cult.fit classes and gyms, Fittr human coaching. Global apps already do adaptive lifting: Fitbod models per-muscle recovery from $12.99 a month, and Alpha Progression and Dr. Muscle adjust per set using reps left in the tank. So the engine alone isn't new. The open space is the combination: adaptive lifting plus Indian food, at Indian prices, for students and young people who lift at a gym.</p>
+  <p>Three gaps follow from that and are added as the last build phase: Telugu and Hindi in the app, an affordable price tier, and checking photo estimates against real Indian meals before marketing them.</p>
+</section>
+
+<section class="sec" id="decisions">
+  <h2>Decisions to confirm</h2>
+  <p class="sec-sub">I'll build with the green default unless you or your co-founder change it. Reply with the number, for example "D3: +5 kg for squat".</p>
+  <div class="decisions">
+    <div class="dec"><p>How performance % is measured.</p><div class="def"><b>Default:</b> against the current rep target inside the range. "Top" means max reps on every set.</div></div>
+    <div class="dec"><p>The thresholds below target.</p><div class="def"><b>Default:</b> under 70% weight down, 70–84% rep target down, 85–99% hold.</div></div>
+    <div class="dec"><p>Weight step size.</p><div class="def"><b>Default:</b> +2.5 kg barbell and machine, +1 to 2 kg dumbbell and isolation.</div></div>
+    <div class="dec"><p>Deload size after two failures.</p><div class="def"><b>Default:</b> −5%, rounded to the nearest 2.5 kg.</div></div>
+    <div class="dec"><p>What counts as a separate exposure for "two in a row".</p><div class="def"><b>Default:</b> the same exercise on a different calendar day.</div></div>
+    <div class="dec"><p>Bodyweight exercises.</p><div class="def"><b>Default:</b> reps climb to the top of the range, then a harder variation is suggested.</div></div>
+    <div class="dec"><p>Two recovery layers.</p><div class="def"><b>Default:</b> whole-body (sleep and protein) plus per-muscle. Water and "meal logged" leave recovery.</div></div>
+    <div class="dec"><p>Where PDF 1's fatigue level comes from.</p><div class="def"><b>Default:</b> from the muscle score. 70+ low, 50–69 moderate, under 50 high.</div></div>
+    <div class="dec"><p>RIR input.</p><div class="def"><b>Default:</b> optional one-tap chip (0, 1, 2, 3+) on each set. Missing RIR lowers confidence.</div></div>
+    <div class="dec"><p>When soreness and readiness are asked.</p><div class="def"><b>Default:</b> once before the session, only for muscles trained that day.</div></div>
+    <div class="dec"><p>Time-since-training bands.</p><div class="def"><b>Default:</b> under 24 h 20, 24–48 50, 48–72 75, 72–96 90, 96 h+ 100.</div></div>
+    <div class="dec"><p>Who fills the catalog fields, and how fatigue points are scored.</p><div class="def"><b>Default:</b> I draft muscles, patterns, roles, variations and a fatigue-points table; your co-founder reviews. PDF 2 doesn't give the fatigue numbers.</div></div>
+    <div class="dec"><p>Should every plan use real weekdays (Mon, Thu…) instead of "Day 1, Day 2"?</p><div class="def"><b>Default:</b> yes. Without dates, change 05 can show completed and skipped but never "missed".</div></div>
+    <div class="dec"><p>Exercise media source for change 06.</p><div class="def"><b>Default:</b> authored form steps and muscles first; looping video from a licensed pack later; no 3D models.</div></div>
+    <div class="dec"><p>Change 09: did a workout plan also ignore a setup answer?</p><div class="def"><b>Default:</b> fix meal suggestions as described and add cuisine and foods-to-avoid to setup. Workout generation stays as is unless you name the field it ignored.</div></div>
+    <div class="dec"><p>Weight up after one or two top-of-range sessions?</p><div class="def"><b>Default:</b> two. PDF 1 states both rules, and two is the safer reading.</div></div>
+  </div>
+</section>
+
+<section class="sec" id="phases">
+  <h2>Build phases</h2>
+  <p class="sec-sub">Each phase is one branch and one pull request, tested on a real phone before it merges. The exact Claude Code prompts are in the repo at <span class="mono">claww app/claww-v2-phased-prompts.md</span>. Phases are called V2 PHASE N so they don't get mixed up with the older roadmaps.</p>
+  <div class="phases">
+    <div class="ph"><span class="k">V2 · 1</span><div><b>Quick fixes</b><span>01 greeting, 05 completed and skipped states, 10 meal photo, 14 plan card day, 15 sleep ring. No database changes.</span></div></div>
+    <div class="ph"><span class="k">V2 · 2</span><div><b>Workout player</b><span>16: full-screen set rows, one-tap Done, quick pickers, rest ring, lock-screen timer, offline set queue.</span></div></div>
+    <div class="ph"><span class="k">V2 · 3</span><div><b>Reminders</b><span>17: reliable local reminders, smart cancelling, per-type settings, then real push with saved tokens and a scheduled Edge Function.</span></div></div>
+    <div class="ph"><span class="k">V2 · 4</span><div><b>Home and colors</b><span>Color map in the theme file, 02 Steps and Streak cards, 03 water row, 04 sleep row.</span></div></div>
+    <div class="ph"><span class="k">V2 · 5</span><div><b>Nutrition</b><span>09 food profile and two setup questions, 11 three-option suggestions with refine chips.</span></div></div>
+    <div class="ph"><span class="k">V2 · 6</span><div><b>Weekdays and engine foundation</b><span>Plans on real weekdays (D13), catalog fields, new tables, the engine module and its tests.</span></div></div>
+    <div class="ph"><span class="k">V2 · 7</span><div><b>Adaptive in the app</b><span>Per-session prescriptions with reasons, effort chip wired in, 07 manual add, missed days, per-muscle recovery and the skippable pre-session check.</span></div></div>
+    <div class="ph"><span class="k">V2 · 8</span><div><b>Exercise how-to v1</b><span>06: authored form steps, common mistake and muscles for all 183 exercises.</span></div></div>
+    <div class="ph"><span class="k">V2 · 9</span><div><b>Tracker</b><span>12: color-coded redesign, once phases 6–7 have produced real data.</span></div></div>
+    <div class="ph"><span class="k">V2 · 10</span><div><b>Market fit</b><span>Telugu and Hindi, a ₹99–199 price tier, checking Indian meal photo estimates, exercise video v2.</span></div></div>
+  </div>
+</section>
+</main>
+</div>
+
+</html>

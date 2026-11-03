@@ -1,9 +1,9 @@
-import React from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Image, Modal, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS, FONT } from '../lib/theme';
 import type { MealLogRow } from '../lib/data';
-
-const MEAL_ICON: Record<string, string> = { Breakfast: '🥣', Lunch: '🥗', Snack: '🍎', Dinner: '🍽️' };
+import { Icon } from './ui/Icon';
+import { mealTypeIcon, useSignedMealPhoto } from './MealPhoto';
 
 export interface MealDetailModalProps {
   meal: MealLogRow | null;
@@ -13,8 +13,13 @@ export interface MealDetailModalProps {
 /** Tapping a Meal Timeline row previously did nothing — this shows the same
  * fields already stored on the row (no new data needed), matching the
  * post-log confirmation screen meal-log.tsx already shows once right after
- * saving. */
+ * saving. When the meal was logged from a photo, the photo leads the sheet. */
 export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
+  const photoUrl = useSignedMealPhoto(meal?.photo_url);
+  const [photoFailed, setPhotoFailed] = useState(false);
+  useEffect(() => setPhotoFailed(false), [photoUrl]);
+  const showPhoto = !!photoUrl && !photoFailed;
+
   return (
     <Modal visible={!!meal} transparent animationType="fade" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -26,25 +31,34 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
             borderWidth: 1,
             borderColor: COLORS.border,
             borderRadius: 18,
-            padding: 20,
-            gap: 14,
+            overflow: 'hidden',
           }}
         >
+          {meal && showPhoto ? (
+            <Image
+              source={{ uri: photoUrl }}
+              onError={() => setPhotoFailed(true)}
+              style={{ width: '100%', aspectRatio: 4 / 3, backgroundColor: COLORS.greenGlow }}
+              resizeMode="cover"
+            />
+          ) : null}
           {meal && (
-            <>
+            <View style={{ padding: 20, gap: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <View
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    backgroundColor: 'rgba(34,197,94,0.11)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Text style={{ fontSize: 18 }}>{MEAL_ICON[meal.meal_type ?? ''] ?? '🍽️'}</Text>
-                </View>
+                {!showPhoto ? (
+                  <View
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 10,
+                      backgroundColor: COLORS.greenGlow,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Icon name={mealTypeIcon(meal.meal_type)} size={19} color={COLORS.green} />
+                  </View>
+                ) : null}
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{meal.meal_type ?? 'Meal'}</Text>
                   <Text style={{ color: '#71717A', fontSize: 11.5, fontFamily: FONT }}>
@@ -94,7 +108,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
               >
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Close</Text>
               </TouchableOpacity>
-            </>
+            </View>
           )}
         </View>
       </View>

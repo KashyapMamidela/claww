@@ -6,9 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
-import { getGenerationUsageToday, getProfile, setNotificationsEnabled } from '../lib/data';
+import { getGenerationUsageToday, getProfile, saveReminderSettings, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
-import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleDefaultReminders } from '../lib/notifications';
+import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
+import { SHOW_DEV_TOOLS } from '../lib/devTools';
+import { getPerfReport, PERF_ENABLED, resetPerfReport, type PerfReport } from '../lib/perf';
+import { refreshReminders } from '../lib/reminderSync';
+import { DEFAULT_REMINDER_SETTINGS, normalizeReminderSettings, type ReminderSettings } from '../lib/reminderPlan';
+import { ReminderSettingsCard } from '../components/ReminderSettingsCard';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 
@@ -27,6 +32,8 @@ export default function SettingsScreen() {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [notificationsBusy, setNotificationsBusy] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
+  const [testStatus, setTestStatus] = useState<string | null>(null);
+  const [reminderSettings, setReminderSettings] = useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
 
   useFocusEffect(
     useCallback(() => {
@@ -36,6 +43,7 @@ export default function SettingsScreen() {
         if (cancelled) return;
         setUsage(u);
         setNotificationsOn(profile?.notifications_enabled ?? false);
+        setReminderSettings(normalizeReminderSettings(profile?.personalization_profile?.reminders));
       });
       return () => {
         cancelled = true;
@@ -54,15 +62,22 @@ export default function SettingsScreen() {
         setNotificationsBusy(false);
         return;
       }
-      await scheduleDefaultReminders();
       await setNotificationsEnabled(userId, true);
       setNotificationsOn(true);
+      await refreshReminders(userId).catch(() => {});
     } else {
       await cancelAllReminders();
       await setNotificationsEnabled(userId, false);
       setNotificationsOn(false);
     }
     setNotificationsBusy(false);
+  };
+
+  const handleReminderSettings = async (next: ReminderSettings) => {
+    if (!userId) return;
+    setReminderSettings(next);
+    await saveReminderSettings(userId, next);
+    refreshReminders(userId).catch(() => {});
   };
 
   const rows = [
@@ -128,10 +143,15 @@ export default function SettingsScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Reminders</Text>
-                <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, and sleep nudges</Text>
+                <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
               </View>
               <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
+            {notificationsOn ? (
+              <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 4 }}>
+                <ReminderSettingsCard settings={reminderSettings} disabled={notificationsBusy} onChange={handleReminderSettings} />
+              </View>
+            ) : null}
             {permissionDenied ? (
               <Text style={{ color: COLORS.danger, fontSize: 11, marginTop: 10, fontFamily: FONT }}>
                 Notifications are blocked for CLAWW in your device settings — enable them there first.
@@ -139,6 +159,25 @@ export default function SettingsScreen() {
             ) : null}
           </View>
         ) : null}
+
+        {notificationsSupported && SHOW_DEV_TOOLS ? (
+          <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
+            <Text style={{ color: COLORS.amber, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>TEST TOOLS · NOT IN RELEASE BUILDS</Text>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={async () => {
+                const ok = await scheduleTestReminder(2);
+                setTestStatus(ok ? 'Test reminder set for 2 minutes from now. Lock the phone and wait.' : 'Notifications are blocked for CLAWW.');
+              }}
+              style={{ height: 42, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Send a test reminder in 2 minutes</Text>
+            </TouchableOpacity>
+            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontFamily: FONT }}>{testStatus}</Text> : null}
+          </View>
+        ) : null}
+
+        {PERF_ENABLED && SHOW_DEV_TOOLS ? <PerfReadout /> : null}
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
           <TouchableOpacity
@@ -154,5 +193,44 @@ export default function SettingsScreen() {
         </View>
       </View>
     </ScrollView>
+  );
+}
+
+const msText = (ms: number | null) => (ms === null ? 'none yet' : `${Math.round(ms)} ms`);
+
+/** Speed numbers for the NG PHASE 0.4 baseline, readable on an installed preview APK. */
+function PerfReadout() {
+  const [report, setReport] = useState<PerfReport>(getPerfReport);
+  useFocusEffect(useCallback(() => setReport(getPerfReport()), []));
+  const { setLatency, homeFirstPaintMs } = report;
+  const row = (label: string, value: string) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+      <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.fg, fontSize: 12, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{value}</Text>
+    </View>
+  );
+  return (
+    <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 8 }}>
+      <Text style={{ color: COLORS.amber, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>SPEED NUMBERS · NOT IN RELEASE BUILDS</Text>
+      {row('Sets timed', String(setLatency.count))}
+      {row('Tap to next set, median', msText(setLatency.median))}
+      {row('Tap to next set, slowest 10%', msText(setLatency.p90))}
+      {row('Home first paint (this app start)', msText(homeFirstPaintMs))}
+      <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+        <TouchableOpacity activeOpacity={0.8} onPress={() => setReport(getPerfReport())} style={{ flex: 1, height: 38, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Refresh</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {
+            resetPerfReport();
+            setReport(getPerfReport());
+          }}
+          style={{ flex: 1, height: 38, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Reset set timings</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }

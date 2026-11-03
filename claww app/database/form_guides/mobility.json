@@ -1,0 +1,338 @@
+{
+  "Hip Flexor Stretch": {
+    "steps": [
+      "Kneel on one knee with the other foot forward, and tuck your tailbone under.",
+      "Gently shift your hips forward until you feel a stretch at the front of the back-leg hip.",
+      "Hold while breathing slowly, then switch sides."
+    ],
+    "mistake": "Arching the lower back instead of tucking the pelvis, which moves the stretch out of the hip."
+  },
+  "Cat-Cow Stretch": {
+    "steps": [
+      "On hands and knees with your hands under your shoulders and knees under your hips.",
+      "Inhale and drop your belly while lifting your chest and tailbone, as in the cow.",
+      "Exhale and round your spine up toward the ceiling, tucking your chin, as in the cat."
+    ],
+    "mistake": "Rushing through the movement instead of moving one vertebra at a time with each breath."
+  },
+  "World's Greatest Stretch": {
+    "steps": [
+      "Step into a deep lunge and place both hands inside your front foot.",
+      "Rotate your torso toward the front knee and reach that arm up to the ceiling.",
+      "Return your hand to the floor, straighten the front leg, then switch sides."
+    ],
+    "mistake": "Letting the back knee drop and the chest collapse, which loses the hip and spine opening."
+  },
+  "Ankle Mobility Drill": {
+    "steps": [
+      "Stand facing a wall with one foot a few inches away, toes pointing forward.",
+      "Drive your knee forward over your toes toward the wall while keeping your heel on the floor.",
+      "Return, then move your foot farther back as the range improves."
+    ],
+    "mistake": "Letting the heel lift off the ground, which hides the ankle tightness you are trying to fix."
+  },
+  "Hamstring Stretch": {
+    "steps": [
+      "Sit or stand and extend one leg in front with the heel down and the toes up.",
+      "Hinge forward from your hips with a flat back until you feel a stretch along the back of the thigh.",
+      "Hold while breathing slowly, then switch legs."
+    ],
+    "mistake": "Rounding the back to reach the toes, which stretches the spine rather than the hamstring."
+  },
+  "Quad Stretch": {
+    "steps": [
+      "Stand tall, holding a wall for balance, and bend one knee to bring your heel toward your glutes.",
+      "Hold your ankle and keep your knees close together, pushing your hip slightly forward.",
+      "Hold while breathing slowly, then switch legs."
+    ],
+    "mistake": "Letting the knee drift forward or the lower back arch, which loses the stretch in the thigh."
+  },
+  "Calf Stretch": {
+    "steps": [
+      "Stand facing a wall with your hands on it, one foot back with the heel on the floor.",
+      "Keep the back leg straight and lean forward until you feel the stretch in the calf.",
+      "Hold while breathing slowly, then switch legs."
+    ],
+    "mistake": "Letting the back heel lift or the foot turn out, which takes the stretch off the calf."
+  },
+  "Shoulder Circles": {
+    "steps": [
+      "Stand tall with your arms relaxed by your sides.",
+      "Roll your shoulders up, back and down in slow, large circles.",
+      "Reverse the direction after a few reps."
+    ],
+    "mistake": "Making small, quick circles, which only wiggle the shoulders instead of using the full range."
+  },
+  "Arm Circles": {
+    "steps": [
+      "Stand tall with your arms out to the sides at shoulder height.",
+      "Draw small circles with your hands, gradually making them larger.",
+      "Reverse the direction after a set number of circles."
+    ],
+    "mistake": "Shrugging the shoulders toward the ears while the arms circle."
+  },
+  "Neck Rolls": {
+    "steps": [
+      "Sit or stand tall with your shoulders relaxed.",
+      "Slowly drop your chin to your chest, then roll your ear toward one shoulder.",
+      "Continue in a gentle half circle, then repeat on the other side."
+    ],
+    "mistake": "Rolling the head backward in a full circle, which compresses the back of the neck."
+  },
+  "Thoracic Spine Rotation": {
+    "steps": [
+      "On hands and knees, place one hand behind your head.",
+      "Rotate that elbow down toward the opposite arm, then open it up toward the ceiling.",
+      "Follow the elbow with your eyes and repeat, then switch sides."
+    ],
+    "mistake": "Twisting from the lower back instead of keeping the hips still and rotating through the upper back."
+  },
+  "Hip Circles": {
+    "steps": [
+      "Stand on one leg, holding a wall for balance, and lift the other knee to hip height.",
+      "Draw slow, large circles with the knee, rotating at the hip.",
+      "Reverse the direction, then switch legs."
+    ],
+    "mistake": "Leaning the whole body to swing the leg instead of moving only from the hip."
+  },
+  "Leg Swings": {
+    "steps": [
+      "Stand next to a wall for balance and swing one leg forward and back in a controlled motion.",
+      "Keep your torso tall, gradually swinging a little higher each time.",
+      "Switch to side-to-side swings across your body, then change legs."
+    ],
+    "mistake": "Swinging with force and arching the back instead of building range gradually."
+  },
+  "Walking Knee Hugs": {
+    "steps": [
+      "Stand tall and step forward, pulling one knee up to your chest with both hands.",
+      "Squeeze for a second while you rise slightly onto the toes of the other foot.",
+      "Release, step forward and repeat on the other leg."
+    ],
+    "mistake": "Rounding the back to bring the chest to the knee instead of lifting the knee up."
+  },
+  "Walking Quad Stretch": {
+    "steps": [
+      "Stand tall and bend one knee to hold your ankle behind you, keeping your knees together.",
+      "Push your hip forward slightly and hold for a second.",
+      "Release, step forward and repeat on the other leg."
+    ],
+    "mistake": "Leaning forward or letting the knee flare out to the side, which loses the stretch."
+  },
+  "Inchworm": {
+    "steps": [
+      "Stand tall, then bend forward and place your hands on the floor in front of your feet.",
+      "Walk your hands out to a plank, keeping your legs as straight as you can.",
+      "Walk your feet toward your hands in small steps, then stand up."
+    ],
+    "mistake": "Bending the knees a lot and rushing, which skips the hamstring stretch."
+  },
+  "Scorpion Stretch": {
+    "steps": [
+      "Lie face down with your arms out to the sides.",
+      "Lift one leg and swing it across your body toward the opposite hand, rotating your hips.",
+      "Return, then repeat on the other side, keeping your shoulders on the floor."
+    ],
+    "mistake": "Letting the shoulders lift off the floor as the leg crosses over."
+  },
+  "Figure-Four Stretch": {
+    "steps": [
+      "Lie on your back with your knees bent and cross one ankle over the opposite knee.",
+      "Thread your hands behind the bottom thigh and pull it toward your chest.",
+      "Hold while keeping your head and shoulders relaxed, then switch sides."
+    ],
+    "mistake": "Letting the crossed knee fall in or lifting the head off the floor to pull harder."
+  },
+  "Butterfly Stretch": {
+    "steps": [
+      "Sit tall with the soles of your feet together and your knees dropped out to the sides.",
+      "Hold your feet and lean forward from your hips with a flat back.",
+      "Hold while breathing slowly and let the knees relax toward the floor."
+    ],
+    "mistake": "Pressing the knees down with your hands, which strains the inner knee."
+  },
+  "Seated Forward Fold": {
+    "steps": [
+      "Sit with your legs straight in front of you and your toes pointing up.",
+      "Hinge forward from your hips and reach toward your feet with a long spine.",
+      "Hold where you feel a stretch along the back of your legs, breathing slowly."
+    ],
+    "mistake": "Rounding the upper back to reach farther, which shifts the stretch away from the hamstrings."
+  },
+  "Standing Side Bend": {
+    "steps": [
+      "Stand tall with your feet hip-width apart and one arm reaching overhead.",
+      "Bend sideways from your waist, keeping your hips still.",
+      "Return to center and repeat on the other side."
+    ],
+    "mistake": "Leaning forward or twisting as you bend, which loses the stretch along the side."
+  },
+  "Wrist Mobility Drill": {
+    "steps": [
+      "On hands and knees with your fingers pointing forward, shift your weight gently back and forth.",
+      "Turn your hands so the fingers point sideways, then back, shifting gently each time.",
+      "Move within a comfortable range and stop if anything pinches."
+    ],
+    "mistake": "Forcing weight onto the wrists too fast instead of easing in gradually."
+  },
+  "90/90 Hip Stretch": {
+    "steps": [
+      "Sit on the floor with your front leg bent 90 degrees in front and your back leg bent 90 degrees to the side.",
+      "Sit tall, then lean your chest over the front shin until you feel a stretch in the outer hip.",
+      "Hold, then rotate to switch sides."
+    ],
+    "mistake": "Leaning back on your hands to get comfortable, which removes the stretch."
+  },
+  "Deep Squat Hold": {
+    "steps": [
+      "Stand with your feet slightly wider than your shoulders and toes turned out.",
+      "Sit down as low as you can with your heels down and chest up.",
+      "Press your elbows against your knees and hold, breathing slowly."
+    ],
+    "mistake": "Letting the heels lift or the back round, which means you are past your current range."
+  },
+  "Spiderman Lunge": {
+    "steps": [
+      "Start in a high plank, then step one foot outside your hand.",
+      "Sink your hips toward the floor and press your knee out with your elbow.",
+      "Return to plank and switch sides."
+    ],
+    "mistake": "Letting the back hip sag, which loses the plank position."
+  },
+  "Cossack Squat": {
+    "steps": [
+      "Stand with your feet wide and your toes turned out slightly.",
+      "Shift your weight to one side and sit down into that leg while the other leg stays straight.",
+      "Push back up through the heel, shift across to the other side and repeat."
+    ],
+    "mistake": "Letting the heel of the working leg lift as you sit, which strains the knee."
+  },
+  "Windmill Stretch": {
+    "steps": [
+      "Stand with your feet wide, one arm reaching overhead and the other hanging.",
+      "Hinge to the side, sliding the lower hand down your leg while watching the upper hand.",
+      "Return to standing and repeat, then switch sides."
+    ],
+    "mistake": "Bending forward at the waist instead of hinging from the hip."
+  },
+  "Lat Stretch": {
+    "steps": [
+      "Hold a stable support at about hip height and sit your hips back.",
+      "Drop your chest between your arms until you feel a stretch down the side of your back.",
+      "Hold, breathing into the stretch, then step out of it slowly."
+    ],
+    "mistake": "Arching the lower back instead of keeping the spine long."
+  },
+  "Chest Opener Stretch": {
+    "steps": [
+      "Stand tall and clasp your hands behind your back.",
+      "Straighten your arms and lift them gently away from your body as you open your chest.",
+      "Hold while breathing slowly and keeping your ribs down."
+    ],
+    "mistake": "Pushing the ribs forward and arching the lower back to lift the arms higher."
+  },
+  "Groin Stretch": {
+    "steps": [
+      "Sit with your legs wide apart and your toes pointing up.",
+      "Hinge forward from your hips with a long spine until you feel the stretch along the inner thighs.",
+      "Hold while breathing slowly."
+    ],
+    "mistake": "Rounding the back and dropping the chin to the chest instead of hinging at the hips."
+  },
+  "Piriformis Stretch": {
+    "steps": [
+      "Sit on the floor with one leg bent in front and the other crossed over it.",
+      "Hug the crossed knee toward your opposite shoulder with a long spine.",
+      "Hold while breathing slowly, then switch sides."
+    ],
+    "mistake": "Twisting the spine to pull harder instead of keeping the hips square."
+  },
+  "IT Band Stretch": {
+    "steps": [
+      "Stand with one leg crossed behind the other and reach the same-side arm overhead.",
+      "Lean away from the back leg, pushing that hip out to the side.",
+      "Hold while breathing slowly, then switch sides."
+    ],
+    "mistake": "Leaning forward instead of straight to the side, which skips the outer hip and thigh."
+  },
+  "Foam Rolling": {
+    "steps": [
+      "Place the foam roller under the muscle you want to release, supporting your weight with your hands.",
+      "Roll slowly over the muscle, pausing for a few seconds on tender spots.",
+      "Keep breathing and avoid rolling directly over joints or bones."
+    ],
+    "mistake": "Rolling quickly back and forth instead of working slowly and pausing on tight spots."
+  },
+  "Resistance Band Shoulder Mobility": {
+    "steps": [
+      "Hold a light band in front of you with both hands, wider than your shoulders.",
+      "Raise your arms overhead and then back behind you as far as is comfortable, keeping your arms straight.",
+      "Reverse to the start and move the hands closer together as the range improves."
+    ],
+    "mistake": "Arching the lower back to get the band behind you instead of widening the grip."
+  },
+  "Yoga Strap Hamstring Stretch": {
+    "steps": [
+      "Lie on your back and loop a strap around the ball of one foot.",
+      "Raise that leg toward the ceiling, keeping it as straight as is comfortable.",
+      "Hold with a gentle pull on the strap while breathing slowly, then switch legs."
+    ],
+    "mistake": "Letting the lower back lift off the floor or the other knee bend."
+  },
+  "Foam Roller Thoracic Extension": {
+    "steps": [
+      "Lie with the foam roller across your upper back and your hands behind your head.",
+      "Lower your upper back back over the roller, gently opening the chest.",
+      "Move the roller up or down a few inches and repeat."
+    ],
+    "mistake": "Letting the ribs flare and the lower back arch instead of keeping the core lightly braced."
+  },
+  "Massage Ball Foot Rolling": {
+    "steps": [
+      "Stand or sit with a massage ball under your foot.",
+      "Roll slowly from the heel to the ball of the foot, pausing on tender spots.",
+      "Apply moderate pressure and breathe, then switch feet."
+    ],
+    "mistake": "Pressing so hard that you tense up, which defeats the release."
+  },
+  "Band-Assisted Hip Opener": {
+    "steps": [
+      "Loop a band around a sturdy anchor and the top of your thigh, then step away to tension it.",
+      "Get into a lunge or kneeling position facing away from the anchor.",
+      "Let the band pull your hip back and sit into the stretch, breathing slowly."
+    ],
+    "mistake": "Letting the band pull the hip forward instead of staying tall and tucking the pelvis."
+  },
+  "Foam Roller IT Band Release": {
+    "steps": [
+      "Lie on your side with the foam roller under the outer thigh.",
+      "Roll slowly from just above the knee to the hip, supporting yourself with your arms.",
+      "Pause on tender spots, breathing steadily, then switch legs."
+    ],
+    "mistake": "Rolling directly over the outside of the knee, which is a bony joint."
+  },
+  "Lacrosse Ball Glute Release": {
+    "steps": [
+      "Sit on the floor with a lacrosse ball under one glute.",
+      "Cross that ankle over the opposite knee and lean into the ball.",
+      "Roll slowly over tender spots, breathing steadily, then switch sides."
+    ],
+    "mistake": "Rolling the ball onto the lower back or the tailbone instead of the glute muscle."
+  },
+  "Assisted Stretch Machine": {
+    "steps": [
+      "Set the machine for the stretch you want and adjust the pad to fit your body.",
+      "Move slowly into the stretch until you feel a gentle pull, not pain.",
+      "Hold while breathing slowly and release before you switch."
+    ],
+    "mistake": "Forcing the range with the machine's help beyond what the muscle is ready for."
+  },
+  "Pool Walking Mobility": {
+    "steps": [
+      "Wade into waist-deep water and walk forward with an upright posture.",
+      "Add side steps, high knees and leg swings, moving with slow, wide motions.",
+      "Let the water support you and keep the movements smooth."
+    ],
+    "mistake": "Hunching over or rushing the movements, which wastes the chance to move through full range."
+  }
+}

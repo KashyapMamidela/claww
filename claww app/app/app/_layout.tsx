@@ -14,12 +14,18 @@ import { WorkoutSessionProvider } from '../lib/workoutSession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
 import { notificationsSupported, type ReminderType } from '../lib/notifications';
+import { refreshReminders } from '../lib/reminderSync';
 import { SplashIntro } from '../components/SplashIntro';
 import { initSentry } from '../lib/sentry';
 import { initAnalytics, identify, resetAnalytics } from '../lib/analytics';
+import { ensureSkiaWebLoaded } from '../lib/skiaWeb';
 
 initSentry();
 initAnalytics();
+// Kicks off the web CanvasKit load as early as possible; ProgressRing
+// itself awaits the same cached promise before mounting its <Canvas>, so
+// this is just a head start, not the only place it's requested.
+ensureSkiaWebLoaded();
 
 // SHIP PHASE 8.3 — where a tapped reminder actually takes the user. Kept
 // next to the notification scheduling itself only because both files agree
@@ -29,6 +35,7 @@ const REMINDER_ROUTES: Record<ReminderType, string> = {
   workout: '/(tabs)/workouts',
   meal: '/meal-log',
   sleep: '/(tabs)',
+  water: '/(tabs)/nutrition',
 };
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -65,6 +72,9 @@ function RootLayout() {
     // A trigger normally creates this row on sign-up (see schema.sql); this
     // is a defensive no-op fallback in case that trigger isn't installed yet.
     await ensureProfileRow(session.user);
+    // Put reminders back on every start (V2 PHASE 3.1) — fire-and-forget,
+    // never blocks getting into the app.
+    refreshReminders(session.user.id).catch(() => {});
     const complete = await isOnboardingComplete(session.user.id);
     setAuthState(complete ? 'app' : 'onboarding');
   }, []);
