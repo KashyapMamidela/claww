@@ -201,12 +201,12 @@ export default function WorkoutCompleteScreen() {
               >
                 <Icon name={s.icon} size={15} color={A} />
               </View>
-              <Text style={{ color: '#71717A', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.5, marginBottom: 3, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '700', letterSpacing: 0.5, marginBottom: 3, fontFamily: FONT }}>
                 {s.label}
               </Text>
               <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>
                 {s.value}
-                {s.sub ? <Text style={{ color: '#71717A', fontSize: 11, fontWeight: '400', letterSpacing: 0 }}> {s.sub}</Text> : null}
+                {s.sub ? <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '400', letterSpacing: 0 }}> {s.sub}</Text> : null}
               </Text>
             </View>
           ))}

@@ -206,7 +206,7 @@ export function SessionStartFlow({ visible, userId, workout, dayIndex, onClose, 
           <>
             <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 16, gap: 14 }}>
               <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>How do your muscles feel?</Text>
-              <Text style={{ color: '#71717A', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
                 Two quick questions for the muscles you train today. It takes about 10 seconds, and you can skip it.
               </Text>
               {bundle.muscles.map((m) => {
@@ -215,7 +215,7 @@ export function SessionStartFlow({ visible, userId, workout, dayIndex, onClose, 
                   <View key={m} style={{ padding: 14, borderRadius: 16, backgroundColor: COLORS.card, borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', gap: 10 }}>
                     <View>
                       <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{cap(m)}</Text>
-                      <Text style={{ color: '#71717A', fontSize: 11.5, marginTop: 1, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 11.5, marginTop: 1, fontFamily: FONT }}>
                         {trainedAgoLabel(scores[m]?.hoursSinceTrained ?? null)}
                       </Text>
                     </View>

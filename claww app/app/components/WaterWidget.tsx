@@ -173,8 +173,8 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Water</Text>
-          <Text style={{ color: '#71717A', fontSize: 11, marginTop: 2, fontFamily: FONT }}>
-            {formatMl(waterMl)} <Text style={{ color: '#52525B' }}>/ {formatMl(WATER_TARGET_ML)}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>
+            {formatMl(waterMl)} <Text style={{ color: COLORS.textFaint }}>/ {formatMl(WATER_TARGET_ML)}</Text>
           </Text>
           <View style={{ flexDirection: 'row', gap: 6, marginTop: 7 }}>
             {[TAP_ADD_ML, 500].map((p) => (
@@ -227,7 +227,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
             paddingVertical: 3,
           }}
         >
-          <Text style={{ color: waterMl > 0 ? WATER : '#71717A', fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
+          <Text style={{ color: waterMl > 0 ? WATER : COLORS.textMuted, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
             {formatMl(waterMl)} / {formatMl(WATER_TARGET_ML)}
           </Text>
         </View>
@@ -244,7 +244,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
           >
             {popLabel}
           </Animated.Text>
-          <Text style={{ color: '#52525B', fontSize: 9.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>Tap to add</Text>
+          <Text style={{ color: COLORS.textFaint, fontSize: 9.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>Tap to add</Text>
         </TouchableOpacity>
 
         <View style={{ flex: 1, gap: 8 }}>
@@ -310,7 +310,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
             </View>
           ) : (
             <TouchableOpacity activeOpacity={0.8} onPress={() => setCustomOpen(true)} style={{ alignSelf: 'flex-start' }}>
-              <Text style={{ color: '#71717A', fontSize: 11.5, fontWeight: '600', fontFamily: FONT }}>+ Custom amount</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontWeight: '600', fontFamily: FONT }}>+ Custom amount</Text>
             </TouchableOpacity>
           )}
         </View>

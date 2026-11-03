@@ -98,7 +98,7 @@ function WorkoutsEmptyState() {
           <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 8, fontFamily: FONT }}>
             Your training plan lives here
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 13, lineHeight: 20, maxWidth: 280, textAlign: 'center', fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 20, maxWidth: 280, textAlign: 'center', fontFamily: FONT }}>
             CLAWW builds a personalised plan from your profile and recovery — exercises, sets, and rest all tuned to you, updating as
             you log more days.
           </Text>
@@ -386,7 +386,7 @@ export default function WorkoutsTab() {
             >
               <Icon name="wand-2" size={22} color={A} />
               <Text style={{ color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
-              <Text style={{ color: '#71717A', fontSize: 11.5, fontFamily: FONT }}>Usually takes a few seconds</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>Usually takes a few seconds</Text>
             </View>
           ) : showRegenCard ? (
             <View
@@ -437,13 +437,13 @@ export default function WorkoutsTab() {
                 }}
                 style={{ alignSelf: 'flex-start' }}
               >
-                <Text style={{ color: '#71717A', fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
               </TouchableOpacity>
             </View>
           ) : null}
 
           <View>
-            <Text style={{ color: '#71717A', fontSize: 10.5, fontWeight: '700', letterSpacing: 0.7, marginBottom: 8, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontWeight: '700', letterSpacing: 0.7, marginBottom: 8, fontFamily: FONT }}>
               PICK A DAY {isSuggested ? '· SUGGESTED IS HIGHLIGHTED' : ''}
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 7 }}>
@@ -526,9 +526,9 @@ export default function WorkoutsTab() {
                     paddingVertical: 10,
                   }}
                 >
-                  <Text style={{ color: '#71717A', fontSize: 9, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
                   <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
-                  <Text style={{ color: '#52525B', fontSize: 9.5, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
+                  <Text style={{ color: COLORS.textFaint, fontSize: 9.5, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
                 </View>
               ))}
             </View>
@@ -562,7 +562,7 @@ export default function WorkoutsTab() {
                     <Icon name="circle" size={20} color="#71717A" />
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{ex.name}</Text>
-                      <Text style={{ color: '#71717A', fontSize: 11, marginTop: 2, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>
                         {ex.sets} sets · {ex.reps} reps
                       </Text>
                     </View>
@@ -593,7 +593,7 @@ export default function WorkoutsTab() {
           </View>
 
           {workout.plan.notes ? (
-            <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11.5, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
               {workout.plan.notes}
             </Text>
           ) : null}
@@ -628,7 +628,7 @@ export default function WorkoutsTab() {
                 Begin Workout
               </Button>
               <TouchableOpacity activeOpacity={0.8} onPress={handleSkip} disabled={skipping} style={{ alignSelf: 'center', paddingVertical: 4 }}>
-                <Text style={{ color: '#71717A', fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>
                   {skipping ? 'Skipping…' : "Not today — skip this workout"}
                 </Text>
               </TouchableOpacity>

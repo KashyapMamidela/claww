@@ -32,7 +32,7 @@ export default function OnboardingName() {
           <Text style={{ color: '#fff', fontSize: 32, fontWeight: '900', letterSpacing: -0.7, lineHeight: 35, fontFamily: FONT }}>
             What should{'\n'}we <Text style={{ color: A }}>call you?</Text>
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 20, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 20, fontFamily: FONT }}>
             First name only — CLAWW uses it to personalize everything from here on.
           </Text>
           <TextInput

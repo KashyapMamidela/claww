@@ -118,7 +118,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
 
           {step === 'modality' ? (
             <>
-              <Text style={{ color: '#71717A', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
                 Something outside today's plan — an extra lift or a run. Counts toward your streak and stats like anything else.
               </Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>

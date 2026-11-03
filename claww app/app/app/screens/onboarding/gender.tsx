@@ -37,7 +37,7 @@ export default function OnboardingGender() {
         <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -0.6, lineHeight: 33, fontFamily: FONT }}>
           How do you identify?
         </Text>
-        <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 30, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 30, fontFamily: FONT }}>
           Tunes recovery and calorie targets to you.
         </Text>
 

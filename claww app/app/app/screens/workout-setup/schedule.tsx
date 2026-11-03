@@ -86,7 +86,7 @@ export default function WorkoutSetupSchedule() {
         <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           Which days work for you?
         </Text>
-        <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
           We started you on a sensible spread. Move the days to match your week and your plan lands exactly there.
           Clear them all and CLAWW uses plain Day 1, Day 2 instead.
         </Text>
@@ -99,7 +99,7 @@ export default function WorkoutSetupSchedule() {
           ))}
         </View>
 
-        <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
           USUAL TIME · OPTIONAL
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -110,7 +110,7 @@ export default function WorkoutSetupSchedule() {
           ))}
         </View>
 
-        <Text style={{ color: '#71717A', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
           PREFERRED SPLIT
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>

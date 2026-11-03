@@ -170,7 +170,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
                   }}
                 >
                   <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', fontFamily: FONT }}>{hours.toFixed(1)}h</Text>
-                  <Text style={{ color: COLORS.fgGrayDim, fontSize: 12, fontFamily: FONT }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
                     {timeValueToLabel(bedtime)} → {timeValueToLabel(wake)}
                   </Text>
                   <Text style={{ color: q.color, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{q.label}</Text>
@@ -179,7 +179,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             </>
           ) : (
             <View style={{ height: 220, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.fgGrayDim, fontSize: 12, fontFamily: FONT }}>Loading…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Loading…</Text>
             </View>
           )}
 

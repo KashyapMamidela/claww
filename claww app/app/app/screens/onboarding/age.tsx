@@ -69,7 +69,7 @@ export default function OnboardingAge() {
             >
               {age}
             </Text>
-            <Text style={{ color: '#71717A', fontSize: 16, fontWeight: '700', marginBottom: 14, fontFamily: FONT }}>yrs</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 16, fontWeight: '700', marginBottom: 14, fontFamily: FONT }}>yrs</Text>
           </View>
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>

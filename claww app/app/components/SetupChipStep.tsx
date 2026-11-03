@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { FONT } from '../lib/theme';
+import { COLORS, FONT } from '../lib/theme';
 import { OnboardingTopBar } from './OnboardingTopBar';
 
 export interface SetupChipStepProps<T extends string> {
@@ -48,7 +48,7 @@ export function SetupChipStep<T extends string>({
           {title}
         </Text>
         {subtitle ? (
-          <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, lineHeight: 19, fontFamily: FONT }}>{subtitle}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, lineHeight: 19, fontFamily: FONT }}>{subtitle}</Text>
         ) : null}
 
         <View style={{ marginTop: 26, gap: 12 }}>

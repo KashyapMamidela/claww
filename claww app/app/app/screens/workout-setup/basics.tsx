@@ -33,7 +33,7 @@ export default function WorkoutSetupBasics() {
           <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
             Height & weight?
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 19, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 30, lineHeight: 19, fontFamily: FONT }}>
             A few details so CLAWW can build a plan that actually fits you — this feeds generation directly, and only exercises
             from our catalog are ever used.
           </Text>

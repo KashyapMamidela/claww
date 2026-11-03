@@ -14,6 +14,18 @@ export const COLORS = {
   fgGray: '#A1A1AA',
   fgGrayDim: '#71717A',
   fgGrayDimmer: '#52525B',
+  // NG PHASE 1: readable greys for text (4.5:1 or better on card and bg; lib/contrast.test.ts).
+  // fgGrayDim / fgGrayDimmer stay only for icons, borders and inactive tab icons, never text.
+  textMuted: '#9A9AA3',
+  textFaint: '#8A8A93',
+
+  // NG PHASE 1: the Coach's Pen is one white pen everywhere.
+  pen: '#FFFFFF',
+
+  // NG PHASE 1: food ratings. Poor is grey on purpose, never red.
+  ratingGood: '#4ADE80',
+  ratingOkay: '#FBBF24',
+  ratingPoor: '#C4C4CC',
 
   // Borders
   border: 'rgba(255,255,255,0.08)',
@@ -78,6 +90,8 @@ export const COLORS = {
 };
 
 export const FONT = 'Inter';
+/** NG PHASE 1: Caveat, only for the Coach's Pen notes (the one-line handwritten reason). */
+export const FONT_HAND = 'Caveat';
 
 // AppHeader/TabBar float over scrollable content now (real translucent
 // material needs something behind it to blur) — these are their own
@@ -128,3 +142,19 @@ export function tint(hex: string, opacity: number): string {
   const n = parseInt(m[1], 16);
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${opacity})`;
 }
+
+/**
+ * NG PHASE 1: the textured surfaces (build plan section 5.3). Gradients run top to bottom
+ * unless a component says otherwise.
+ */
+export const SURFACES = {
+  cardTop: '#1A1A1D',
+  cardBottom: '#131315',
+  cardBorder: 'rgba(255,255,255,0.09)',
+  topLight: 'rgba(255,255,255,0.07)',
+  well: '#0B0B0C',
+  sheetTop: '#1A1A1D',
+  sheetBottom: '#0F0F10',
+  heroBlue: ['#0F172A', '#1E3A5F', '#1D4ED8'] as const,
+  heroGreen: ['#052E16', '#14532D', '#166534'] as const,
+} as const;

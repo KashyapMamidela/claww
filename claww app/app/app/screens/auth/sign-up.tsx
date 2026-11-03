@@ -83,7 +83,7 @@ export default function SignUpScreen() {
         <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center', marginBottom: 8, fontFamily: FONT }}>
           Check your email
         </Text>
-        <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, textAlign: 'center', lineHeight: 20, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, textAlign: 'center', lineHeight: 20, fontFamily: FONT }}>
           We sent a confirmation link to {email.trim()}. Tap it, then come back and sign in.
         </Text>
         <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-in')} style={{ marginTop: 24 }}>
@@ -114,7 +114,7 @@ export default function SignUpScreen() {
           <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
             Create your account
           </Text>
-          <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
             Takes a minute — you'll set up your profile next.
           </Text>
 
@@ -156,14 +156,14 @@ export default function SignUpScreen() {
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            <Text style={{ color: '#52525B', fontSize: 11, fontFamily: FONT }}>OR</Text>
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>OR</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
           </View>
 
           <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-in')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
-            <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
               Already have an account? <Text style={{ color: A, fontWeight: '700' }}>Sign in</Text>
             </Text>
           </TouchableOpacity>

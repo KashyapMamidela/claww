@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, Text, View } from 'react-native';
-import { AREA_COLORS, FONT, tint } from '../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
 import { dailyRanges, hourlyRanges, stepsToKm } from '../lib/activityMath';
 import { estimateCaloriesFromSteps, getStepsInRanges, openHealthConnectInstall, type StepsResult } from '../lib/steps';
 import { BottomSheet } from './ui/BottomSheet';
@@ -28,7 +28,7 @@ function Segment({ value, onChange }: { value: Range; onChange: (r: Range) => vo
       {(['day', 'week', 'month'] as Range[]).map((r) => (
         <PressScale key={r} onPress={() => onChange(r)} style={{ flex: 1 }} accessibilityRole="button" accessibilityState={{ selected: value === r }}>
           <View style={{ height: 32, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: value === r ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
-            <Text style={{ color: value === r ? '#fff' : '#71717A', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{r[0].toUpperCase() + r.slice(1)}</Text>
+            <Text style={{ color: value === r ? '#fff' : COLORS.textMuted, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{r[0].toUpperCase() + r.slice(1)}</Text>
           </View>
         </PressScale>
       ))}
@@ -87,7 +87,7 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
                 </View>
               </PressScale>
             ) : (
-              <Text style={{ color: '#71717A', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
                 Allow Motion & Fitness for CLAWW in the Settings app, then come back here.
               </Text>
             )}
@@ -97,7 +97,7 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
             <View style={{ alignItems: 'center', gap: 12 }}>
               <ProgressRing size={190} rings={[{ r: 82, strokeWidth: 16, color: C, pct: goal > 0 ? (steps.steps / goal) * 100 : 0 }]} trackColor={tint(C, 0.15)}>
                 <Text style={{ color: '#fff', fontSize: 32, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{steps.steps.toLocaleString()}</Text>
-                <Text style={{ color: '#71717A', fontSize: 11.5, fontFamily: FONT }}>of {goal.toLocaleString()}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>of {goal.toLocaleString()}</Text>
               </ProgressRing>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {GOAL_CHOICES.map((g) => (
@@ -116,9 +116,9 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
                 { label: 'CALORIES', value: `${kcal} kcal`, sub: steps.caloriesBurned !== null ? 'active, from Health Connect' : 'estimated from steps' },
               ].map((s) => (
                 <View key={s.label} style={{ flex: 1, padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)' }}>
-                  <Text style={{ color: '#71717A', fontSize: 9.5, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
                   <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
-                  <Text style={{ color: '#52525B', fontSize: 10, fontFamily: FONT }}>{s.sub}</Text>
+                  <Text style={{ color: COLORS.textFaint, fontSize: 10, fontFamily: FONT }}>{s.sub}</Text>
                 </View>
               ))}
             </View>
@@ -127,10 +127,10 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
             {series[range] ? (
               <BarChart values={series[range] as number[]} color={C} goal={range === 'day' ? null : goal} labels={labels[range]} height={130} />
             ) : (
-              <Text style={{ color: '#71717A', fontSize: 12.5, fontFamily: FONT }}>Loading…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>Loading…</Text>
             )}
             {range !== 'day' ? (
-              <Text style={{ color: '#52525B', fontSize: 10.5, fontFamily: FONT }}>Dashed line: your {goal.toLocaleString()}-step goal.</Text>
+              <Text style={{ color: COLORS.textFaint, fontSize: 10.5, fontFamily: FONT }}>Dashed line: your {goal.toLocaleString()}-step goal.</Text>
             ) : null}
           </>
         )}

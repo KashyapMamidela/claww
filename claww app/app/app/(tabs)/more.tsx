@@ -94,7 +94,7 @@ export default function MoreTab() {
       >
         <View>
           <Display>More</Display>
-          <Text style={{ color: '#71717A', fontSize: 12, marginTop: 4, fontFamily: FONT }}>Settings, profile & more features</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 4, fontFamily: FONT }}>Settings, profile & more features</Text>
         </View>
 
         <TouchableOpacity
@@ -124,7 +124,7 @@ export default function MoreTab() {
           </LinearGradient>
           <View style={{ flex: 1 }}>
             <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{displayName}</Text>
-            <Text style={{ color: '#71717A', fontSize: 11, marginTop: 1, fontFamily: FONT }}>{tier}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{tier}</Text>
             <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
               <Badge color={COLORS.amber}>LVL {level}</Badge>
               <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
@@ -136,7 +136,7 @@ export default function MoreTab() {
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
-            <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
             {preview.map((b, i) => (
@@ -173,7 +173,7 @@ export default function MoreTab() {
 
         {sections.map((section) => (
           <View key={section.title}>
-            <Text style={{ color: '#71717A', fontSize: 9.5, fontWeight: '700', letterSpacing: 1, marginBottom: 6, paddingLeft: 2, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '700', letterSpacing: 1, marginBottom: 6, paddingLeft: 2, fontFamily: FONT }}>
               {section.title}
             </Text>
             <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
@@ -208,7 +208,7 @@ export default function MoreTab() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{row.label}</Text>
-                    <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>{row.sub}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>{row.sub}</Text>
                   </View>
                   <Icon name="chevron-right" size={15} color="#71717A" />
                 </TouchableOpacity>
@@ -238,8 +238,8 @@ export default function MoreTab() {
         </View>
 
         <View style={{ alignItems: 'center', marginTop: 4 }}>
-          <Text style={{ color: '#71717A', fontSize: 10.5, fontFamily: FONT }}>CLAWW · v{appVersion} · Built with 💙</Text>
-          <Text style={{ color: '#71717A', fontSize: 10, marginTop: 3, fontFamily: FONT }}>© 2026 CLAWW. All rights reserved.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontFamily: FONT }}>CLAWW · v{appVersion} · Built with 💙</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 10, marginTop: 3, fontFamily: FONT }}>© 2026 CLAWW. All rights reserved.</Text>
         </View>
       </View>
     </ScrollView>

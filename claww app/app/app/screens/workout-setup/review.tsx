@@ -92,7 +92,7 @@ export default function WorkoutSetupReview() {
           <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
             Any injuries or limitations?
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
             Optional — we'll steer your plan away from exercises that stress these areas.
           </Text>
 
@@ -117,7 +117,7 @@ export default function WorkoutSetupReview() {
               fontFamily: FONT,
             }}
           />
-          <Text style={{ color: '#52525B', fontSize: 10.5, marginTop: 8, lineHeight: 15, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textFaint, fontSize: 10.5, marginTop: 8, lineHeight: 15, fontFamily: FONT }}>
             This isn't medical advice — check with a doctor or physical therapist for anything serious.
           </Text>
 

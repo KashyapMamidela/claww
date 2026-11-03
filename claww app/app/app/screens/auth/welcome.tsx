@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
     fontFamily: FONT,
     fontSize: 13,
     fontWeight: '400',
-    color: COLORS.fgGrayDim,
+    color: COLORS.textMuted,
     textAlign: 'center',
     lineHeight: 20,
     maxWidth: 300,
@@ -242,5 +242,5 @@ const styles = StyleSheet.create({
   logInButton: { marginTop: 10 },
 
   bottomTrustContainer: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 20, opacity: 0.8 },
-  bottomTrustText: { fontFamily: FONT, fontSize: 10.5, fontWeight: '600', color: COLORS.fgGrayDim },
+  bottomTrustText: { fontFamily: FONT, fontSize: 10.5, fontWeight: '600', color: COLORS.textMuted },
 });

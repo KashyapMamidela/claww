@@ -1,12 +1,13 @@
 import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { AREA_COLORS, FONT, tint } from '../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
 import { getActivityDays, getProfile, saveStepsGoal } from '../lib/data';
 import { DEFAULT_STEPS_GOAL, lastSevenDays, streakStats, type StreakStats } from '../lib/activityMath';
 import { estimateCaloriesFromSteps, type StepsResult } from '../lib/steps';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
+import { TintTile } from './ui/TintTile';
 import { StepsSheet } from './StepsSheet';
 import { StreakSheet } from './StreakSheet';
 
@@ -28,17 +29,20 @@ function Tile({
   a11y: string;
 }) {
   const body = (
-    <View style={{ flex: 1, backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, gap: 6 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-        <Icon name={icon} size={12} color={color} />
-        <Text style={{ color, fontSize: 10, fontWeight: '800', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
-        {onPress ? <Icon name="chevron-right" size={11} color="#52525B" /> : null}
+    // NG PHASE 1: each tile is a TintTile in its area's colour (glow, tinted border, watermark).
+    <TintTile color={color} watermark={icon} padding={11} radius={16} style={{ flex: 1 }}>
+      <View style={{ gap: 6 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+          <Icon name={icon} size={12} color={color} />
+          <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
+          {onPress ? <Icon name="chevron-right" size={11} color="#52525B" /> : null}
+        </View>
+        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1}>
+          {value}
+        </Text>
+        {children}
       </View>
-      <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1}>
-        {value}
-      </Text>
-      {children}
-    </View>
+    </TintTile>
   );
   if (!onPress) return <View style={{ flex: 1 }} accessibilityLabel={a11y}>{body}</View>;
   return (
@@ -114,12 +118,12 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
               <View style={{ height: '100%', width: `${pct}%`, backgroundColor: AREA_COLORS.steps, borderRadius: 2 }} />
             </View>
           ) : (
-            <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>{steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}</Text>
           )}
         </Tile>
 
         <Tile icon="flame" color={AREA_COLORS.burned} label="BURNED" value={burned !== null ? burned.toLocaleString() : '—'} a11y={`Burned ${burned ?? 'unknown'} kilocalories`}>
-          <Text style={{ color: '#71717A', fontSize: 10, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>
             {burned === null ? 'not tracked yet' : steps.caloriesBurned !== null ? 'kcal active' : 'kcal est.'}
           </Text>
         </Tile>

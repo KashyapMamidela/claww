@@ -91,7 +91,7 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
           </Text>
 
           <View>
-            <Text style={{ color: '#71717A', fontSize: 11, marginBottom: 6, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6, fontFamily: FONT }}>
               Type <Text style={{ color: '#fff', fontWeight: '700' }}>DELETE</Text> to confirm
             </Text>
             <TextInput

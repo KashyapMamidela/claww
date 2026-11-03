@@ -94,7 +94,7 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
       <Animated.Text
         style={{
           marginTop: 8,
-          color: '#71717A',
+          color: COLORS.textMuted,
           fontSize: 12.5,
           fontWeight: '600',
           letterSpacing: 0.4,

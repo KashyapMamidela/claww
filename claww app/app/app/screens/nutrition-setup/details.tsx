@@ -38,13 +38,13 @@ export default function NutritionSetupDetails() {
           <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
             Your details
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 13, marginTop: 10, marginBottom: 26, lineHeight: 19, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 26, lineHeight: 19, fontFamily: FONT }}>
             We'll calculate a starting point from these, then you can adjust anything before saving.
           </Text>
 
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={{ color: '#71717A', fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Height (cm)</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Height (cm)</Text>
               <TextInput
                 value={height}
                 onChangeText={setHeight}
@@ -56,7 +56,7 @@ export default function NutritionSetupDetails() {
               />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={{ color: '#71717A', fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Weight (kg)</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Weight (kg)</Text>
               <TextInput
                 value={weight}
                 onChangeText={setWeight}
@@ -67,7 +67,7 @@ export default function NutritionSetupDetails() {
               />
             </View>
             <View style={{ flex: 0.7, minWidth: 0 }}>
-              <Text style={{ color: '#71717A', fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Age (yrs)</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginBottom: 6, marginLeft: 2, fontFamily: FONT }}>Age (yrs)</Text>
               <TextInput
                 value={age}
                 onChangeText={setAge}
@@ -79,7 +79,7 @@ export default function NutritionSetupDetails() {
               />
             </View>
           </View>
-          <Text style={{ color: '#52525B', fontSize: 10.5, marginTop: 10, lineHeight: 15, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textFaint, fontSize: 10.5, marginTop: 10, lineHeight: 15, fontFamily: FONT }}>
             Age matters here because your calorie burn rate changes with it — it's part of the BMR formula we use.
           </Text>
 

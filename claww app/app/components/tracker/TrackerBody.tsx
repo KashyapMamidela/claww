@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { AREA_COLORS, FONT, tint } from '../../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint } from '../../lib/theme';
 import type { TrackerData } from '../../lib/trackerData';
 import { MAJOR_MUSCLES } from '../../lib/muscleRecovery';
 import {
@@ -165,7 +165,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
                 </Text>
                 <Text style={{ color: BLUE, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>
                   {r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `BW × ${r.reps}`}
-                  <Text style={{ color: '#71717A', fontWeight: '500' }}>{`  ${new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}`}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}>{`  ${new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}`}</Text>
                 </Text>
               </View>
             ))}
@@ -185,7 +185,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
             {burned !== null ? (
               <Text style={{ color: AREA_COLORS.burned, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
                 BURNED · about {burned.toLocaleString()} kcal this week
-                <Text style={{ color: '#71717A', fontWeight: '500' }}> (estimate from steps)</Text>
+                <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}> (estimate from steps)</Text>
               </Text>
             ) : null}
           </>

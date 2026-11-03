@@ -11,6 +11,7 @@ import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
 import { HomeStatTiles } from '../../components/HomeStatTiles';
+import { Surface } from '../../components/ui/Surface';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { SleepRow } from '../../components/SleepRow';
@@ -139,7 +140,7 @@ function HomeEmptyState() {
         <Display style={{ marginTop: 4 }}>
           Welcome,{'\n'}{userName || 'there'}.
         </Display>
-        <Text style={{ color: '#71717A', fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
           No recovery score yet — <Text style={{ color: COLORS.indigo, fontWeight: '700' }}>log tonight's sleep</Text> to unlock one.
         </Text>
       </View>
@@ -176,7 +177,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', marginBottom: 4, fontFamily: FONT }}>
             Nothing logged yet — that's normal
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 12.5, lineHeight: 19, maxWidth: 260, textAlign: 'center', fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 12.5, lineHeight: 19, maxWidth: 260, textAlign: 'center', fontFamily: FONT }}>
             Generate a plan built around your onboarding answers and today's progress ring starts filling in.
           </Text>
         </View>
@@ -228,7 +229,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginBottom: 2, fontFamily: FONT }}>
             {sleepLogged ? 'Recovery is calculating…' : "Log tonight's sleep"}
           </Text>
-          <Text style={{ color: '#71717A', fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
               : "Unlocks your Recovery Score — a sleep and protein based estimate to guide today's training."}
@@ -353,7 +354,7 @@ function HomePopulated() {
         <Display style={{ marginTop: 4 }}>
           {greeting},{'\n'}{userName || 'there'}.
         </Display>
-        <Text style={{ color: '#71717A', fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
           {recovery ? (
             <>
               Recovery score{' '}
@@ -372,16 +373,8 @@ function HomePopulated() {
         </Text>
       </View>
 
-      <View
-        style={{
-          backgroundColor: '#151517',
-          borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.14)',
-          borderRadius: 20,
-          paddingHorizontal: 18,
-          paddingVertical: 16,
-        }}
-      >
+      {/* NG PHASE 1: the first real use of Surface (grain, top light, soft shadow). Data unchanged. */}
+      <Surface padding={17}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Daily Progress</Text>
           <View
@@ -394,7 +387,7 @@ function HomePopulated() {
               paddingVertical: 3,
             }}
           >
-            <Text style={{ fontSize: 10, fontWeight: '700', color: COLORS.amber, fontFamily: FONT }}>✦ {xp} CLAWW</Text>
+            <Text style={{ fontSize: 11, fontWeight: '700', color: COLORS.amber, fontFamily: FONT }}>✦ {xp} CLAWW</Text>
           </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
@@ -408,7 +401,7 @@ function HomePopulated() {
             trackColor="rgba(255,255,255,0.055)"
           >
             <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', fontFamily: FONT }}>{dailyGoalPct}%</Text>
-            <Text style={{ color: '#A1A1AA', fontSize: 9.5, marginTop: 3, fontFamily: FONT }}>Daily Goal</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily Goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
             {[
@@ -424,10 +417,10 @@ function HomePopulated() {
             ].map((s) => (
               <View key={s.label}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
-                  <Text style={{ color: '#A1A1AA', fontSize: 10.5, fontFamily: FONT }}>{s.label}</Text>
+                  <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
                   <Text style={{ fontFamily: FONT }}>
                     <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700' }}>{s.value} </Text>
-                    <Text style={{ color: '#71717A', fontSize: 10 }}>{s.sub}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 11 }}>{s.sub}</Text>
                   </Text>
                 </View>
                 <ProgressBar pct={s.pct} color={s.color} />
@@ -435,7 +428,7 @@ function HomePopulated() {
             ))}
           </View>
         </View>
-      </View>
+      </Surface>
 
       <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 

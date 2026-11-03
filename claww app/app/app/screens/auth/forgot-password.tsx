@@ -76,7 +76,7 @@ export default function ForgotPasswordScreen() {
               <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Check your email
               </Text>
-              <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
                 If an account exists for {email.trim()}, a reset link is on its way.
               </Text>
               <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-in')} style={{ marginTop: 24 }}>
@@ -88,7 +88,7 @@ export default function ForgotPasswordScreen() {
               <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Reset your password
               </Text>
-              <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
                 Enter the email on your account and we'll send a reset link.
               </Text>
               <TextInput

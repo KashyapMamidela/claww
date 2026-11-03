@@ -110,7 +110,7 @@ export default function SettingsScreen() {
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT, marginBottom: 4 }}>Today's generation usage</Text>
-          <Text style={{ color: '#71717A', fontSize: 11, fontFamily: FONT, marginBottom: 14 }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT, marginBottom: 14 }}>
             Resets at midnight. Hitting a limit means try again tomorrow.
           </Text>
           {rows.map((r, i) => (
@@ -143,7 +143,7 @@ export default function SettingsScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Reminders</Text>
-                <Text style={{ color: '#71717A', fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
               </View>
               <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
@@ -178,6 +178,17 @@ export default function SettingsScreen() {
         ) : null}
 
         {PERF_ENABLED && SHOW_DEV_TOOLS ? <PerfReadout /> : null}
+
+        {SHOW_DEV_TOOLS ? (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => router.push('/dev/design')}
+            accessibilityRole="button"
+            style={{ minHeight: 44, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', backgroundColor: '#151517', alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}
+          >
+            <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Design system gallery</Text>
+          </TouchableOpacity>
+        ) : null}
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
           <TouchableOpacity

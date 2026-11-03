@@ -49,7 +49,7 @@ export default function AboutScreen() {
         <View style={{ alignItems: 'center', paddingVertical: 24, gap: 10 }}>
           <Image source={require('../assets/logo-mark.png')} style={{ width: 56, height: 56 }} resizeMode="contain" />
           <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>CLAWW</Text>
-          <Text style={{ color: '#71717A', fontSize: 12, fontFamily: FONT }}>{getAppVersionLabel()}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{getAppVersionLabel()}</Text>
         </View>
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16 }}>
@@ -60,7 +60,7 @@ export default function AboutScreen() {
           </Text>
         </View>
 
-        <Text style={{ color: '#52525B', fontSize: 10.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 10.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
           © 2026 CLAWW. All rights reserved.
         </Text>
       </View>

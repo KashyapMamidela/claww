@@ -63,14 +63,14 @@ export default function ResetPasswordScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
           {linkState === 'checking' ? (
-            <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, textAlign: 'center', fontFamily: FONT }}>Verifying your link…</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, textAlign: 'center', fontFamily: FONT }}>Verifying your link…</Text>
           ) : linkState === 'invalid' ? (
             <View style={{ alignItems: 'center' }}>
               <Icon name="alert-triangle" size={30} color={COLORS.danger} />
               <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginTop: 16, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 This link has expired
               </Text>
-              <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
                 Password reset links only work once and expire quickly. Request a new one from the sign-in screen.
               </Text>
               <Button
@@ -102,7 +102,7 @@ export default function ResetPasswordScreen() {
               <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Set a new password
               </Text>
-              <Text style={{ color: COLORS.fgGrayDim, fontSize: 13, marginBottom: 28, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, fontFamily: FONT, textAlign: 'center' }}>
                 Min. 6 characters.
               </Text>
               <View style={{ gap: 12 }}>
