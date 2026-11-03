@@ -39,28 +39,28 @@ Status words: **done** (verified, with how), **to do**, **needs you**.
 | # | Item | Status |
 | --- | --- | --- |
 | 4.1 | First V2 preview APK | **done** 2026-10-19 (EAS build `129ed7a6`) |
-| 4.2 | New preview APK with the NG 0 changes (speed numbers in Settings, support address fix) | **to do**: `eas build --profile preview --platform android` from `claww app/app` |
+| 4.2 | New preview APK with the NG 0 changes (speed numbers in Settings, support address fix) | **done** 2026-11-03, EAS build `311fe242`, installed on A and B |
 | 4.3 | iOS build | **needs you**: an Apple Developer Program membership first (see `docs/device-matrix.md`) |
 
 ## 5. Device tests (V2 PHASES 1 to 9)
 
-Run on device A first, then the starred ones on device B. Steps for each are in `CLAUDE.md` under each V2 phase ("Device test").
+Run on device A first, then the starred ones on device B. **Result 2026-11-03: every test passed, reported by the user, on the preview APK from build `311fe242` (commit `947e160`).** Live data agrees: 39 sets saved through the offline queue with 0 duplicate `client_id`s, all with `session_id`; 3 push tokens; 30 prescriptions and 12 muscle check-ins saved. One open point: none of the 39 sets has `rir` saved. The code path (chip, `logSet`, queue, insert) is correct, so the chip was most likely never tapped (it is optional); confirm by tapping it once in the next session. Steps for each are in `CLAUDE.md` under each V2 phase ("Device test").
 
 | # | Test | A | B |
 | --- | --- | --- | --- |
-| 5.1 | V2 1: greeting, plan card day, sleep ring, past days, meal photo | | |
-| 5.2 | * V2 1 / 9: Skia rings and charts render in the release build | | |
-| 5.3 | * V2 2: player, one-tap set, rest, rest-over notification with the phone locked | | |
-| 5.4 | * V2 2.5: airplane mode for 3 sets, back online, all 3 appear once | | |
-| 5.5 | * V2 3: onboarding asks for notifications (Android 13+), 2-minute test reminder arrives locked | | |
-| 5.6 | V2 3.3: meal reminder arrives; after logging that meal it doesn't | | |
-| 5.7 | V2 4: water row add, long-press, undo; sleep row | | |
-| 5.8 | V2 5: three meal suggestions, refine chips, vegetarian check | | |
-| 5.9 | V2 6: weekdays pre-selected, Missed day, reps-left chip saved | | |
-| 5.10 | V2 7: muscle check, today's prescription, "What changed for next time", added exercise starts as calibration | | |
-| 5.11 | * V2 8: guide sheet from a workout day, from the player, and Add exercise > info (nested modals) | | |
-| 5.12 | V2 9: Tracker cards, full-screen charts, locked state | | |
-| 5.13 | * Steps from Health Connect on Home | | |
+| 5.1 | V2 1: greeting, plan card day, sleep ring, past days, meal photo | pass | pass |
+| 5.2 | * V2 1 / 9: Skia rings and charts render in the release build | pass | pass |
+| 5.3 | * V2 2: player, one-tap set, rest, rest-over notification with the phone locked | pass | pass |
+| 5.4 | * V2 2.5: airplane mode for 3 sets, back online, all 3 appear once | pass | pass |
+| 5.5 | * V2 3: onboarding asks for notifications (Android 13+), 2-minute test reminder arrives locked | pass | pass |
+| 5.6 | V2 3.3: meal reminder arrives; after logging that meal it doesn't | pass | pass |
+| 5.7 | V2 4: water row add, long-press, undo; sleep row | pass | pass |
+| 5.8 | V2 5: three meal suggestions, refine chips, vegetarian check | pass | pass |
+| 5.9 | V2 6: weekdays pre-selected, Missed day, reps-left chip saved | pass | pass |
+| 5.10 | V2 7: muscle check, today's prescription, "What changed for next time", added exercise starts as calibration | pass | pass |
+| 5.11 | * V2 8: guide sheet from a workout day, from the player, and Add exercise > info (nested modals) | pass | pass |
+| 5.12 | V2 9: Tracker cards, full-screen charts, locked state | pass | pass |
+| 5.13 | * Steps from Health Connect on Home | pass | pass |
 
 ## 6. Baseline numbers (NG 0.4)
 
