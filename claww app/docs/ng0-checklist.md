@@ -13,16 +13,9 @@ Status words: **done** (verified, with how), **to do**, **needs you**.
 | 1.1 | `database/schema.sql` applied live (every V2 table and column) | **done**, applied 2026-10-19; re-verified 2026-11-03 read-only through the Supabase connector: all 54 tables and `ADD COLUMN` entries in `schema.sql` exist live, and row-level security is on for every public table |
 | 1.2 | `database/seed_exercise_metadata.sql` | **done**, 183 of 183 exercises have `primary_muscle` (verified 2026-11-03) |
 | 1.3 | `database/seed_exercise_form_guides.sql` | **done**, 183 of 183 exercises have `form_steps` (verified 2026-11-03) |
-| 1.4 | Lock down two `SECURITY DEFINER` functions the Supabase security advisor flagged: `handle_new_user()` was callable by anyone at `/rest/v1/rpc/handle_new_user`, and `check_and_increment_generation_usage` by signed-out users | **needs you**: the `REVOKE` lines are in `schema.sql` (NG PHASE 0 comments). Applying them live was blocked by Claude Code's safety check, so either allow it once or run the two lines below in the Supabase SQL editor |
+| 1.4 | Lock down two `SECURITY DEFINER` functions the Supabase security advisor flagged: `handle_new_user()` was callable by anyone at `/rest/v1/rpc/handle_new_user`, and `check_and_increment_generation_usage` by signed-out users | **done** 2026-11-03: the `REVOKE` lines in `schema.sql` applied live with your go-ahead; verified that `anon` can call neither and the advisor no longer lists them. Signed-in users keep `check_and_increment_generation_usage` on purpose (the functions call it as the user; calling it directly only uses up your own daily cap) |
 | 1.5 | Turn on leaked-password protection (Supabase advisor) | **needs you**: Supabase dashboard > Authentication > Providers > Email (or Attack Protection) > "Prevent use of leaked passwords". It may need a paid plan; skip if it does |
 | 1.6 | Advisor notes left as they are | `waitlist` has RLS with no policies on purpose (only the `join-waitlist` function writes it); `pg_net` sits in the `public` schema, low risk, moving it could break the cron call |
-
-SQL for 1.4 (both lines are idempotent):
-
-```sql
-REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
-REVOKE ALL ON FUNCTION public.check_and_increment_generation_usage(TEXT, INT) FROM anon;
-```
 
 ## 2. Edge Functions and secrets
 
