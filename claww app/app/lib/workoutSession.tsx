@@ -1,12 +1,13 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { getExerciseForms, getLastTimeSets, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
+import { getExerciseForms, getLastTimeSets, getProfile, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
 import { newClientId, useSetQueueFlusher } from './setQueueRuntime';
-import { saveSessionOutcomes } from './adaptiveData';
-import { commandPill, localDateKey, reasonLine, sessionOutcomes, type PrescribedExercise } from './sessionPrescription';
+import { getLastWeights, saveSessionOutcomes, saveSwap } from './adaptiveData';
+import { catalogKey, type CatalogEntry } from './muscleRecovery';
+import { commandPill, localDateKey, prescribeDay, reasonLine, sessionOutcomes, type PrescribedExercise } from './sessionPrescription';
 import { refreshReminders } from './reminderSync';
 import {
   adjustRest as adjustRestClock,
@@ -105,6 +106,12 @@ interface WorkoutSessionState {
   } | null;
   /** Rest after a set of this exercise, in seconds (NG PHASE 3.2). */
   restSecondsForExercise: (exerciseName: string) => number;
+  /**
+   * NG PHASE 3.4: swap the exercise at `exIdx` for another from the catalog ("bench taken?"). The slot keeps its
+   * sets and reps; the new exercise starts from its own last weight, or finds one if it is new. Only an exercise
+   * with no set logged yet can be swapped. Resolves false when nothing changed.
+   */
+  swapExercise: (exIdx: number, entry: CatalogEntry) => Promise<boolean>;
   togglePause: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
@@ -288,6 +295,59 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     [userId, workout, dayIndex, today, clock]
   );
 
+  const swapExercise = useCallback(
+    async (exIdx: number, entry: CatalogEntry): Promise<boolean> => {
+      if (!workout || !userId) return false;
+      const day = workout.plan.days[dayIndex];
+      const old = day?.exercises[exIdx];
+      const state = planRef.current[exIdx];
+      if (!day || !old || !state || state.rows.some((r) => r.done)) return false;
+      const key = sessionKey.current;
+
+      const lastWeights = await getLastWeights(userId, [entry.name]);
+      if (sessionKey.current !== key) return false;
+      const oldP = prescribedRef.current.find((p) => p.name === old.name);
+      // The slot keeps its sets and reps: the range collapses to the slot's own numbers.
+      const range = oldP?.managed
+        ? { minReps: oldP.state.repMin, maxReps: oldP.state.repMax, minSets: old.sets, maxSets: old.sets }
+        : { minReps: old.reps, maxReps: old.reps, minSets: old.sets, maxSets: old.sets };
+      const [fresh] = prescribeDay({
+        exercises: [{ name: entry.name, exerciseId: entry.id, sets: old.sets, reps: old.reps }],
+        catalog: { [catalogKey(entry.name)]: entry },
+        progress: {},
+        range,
+        muscleScores: {},
+        sleepHours: null,
+        proteinPct: null,
+        lastWeights,
+      });
+
+      const swapped = { ...old, name: entry.name, exerciseId: entry.id };
+      setWorkout({
+        ...workout,
+        plan: { ...workout.plan, days: workout.plan.days.map((d, i) => (i === dayIndex ? { ...d, exercises: d.exercises.map((x, k) => (k === exIdx ? swapped : x)) } : d)) },
+      });
+
+      prescribedRef.current = [...prescribedRef.current.filter((p) => p.name !== old.name), fresh];
+      setPrescribed(prescribedRef.current);
+
+      const weight = fresh.prescription.weightKg ?? lastWeights[entry.name] ?? 0;
+      state.rows.forEach((_, s) => touched.current.add(`${exIdx}:${s}`));
+      setPlan(planRef.current.map((st, i) => (i === exIdx ? { skipped: false, rows: st.rows.map((r) => ({ ...r, reps: old.reps, weight, prescribedWeight: weight })) } : st)));
+
+      getLastTimeSets(userId, [entry.name]).then((map) => {
+        if (sessionKey.current === key) setLastTime((prev) => ({ ...prev, ...map }));
+      });
+      getExerciseForms([entry.name]).then((f) => {
+        if (sessionKey.current === key) setForms((prev) => ({ ...prev, ...f }));
+      });
+      if (sessionIdRef.current) saveSwap(userId, sessionIdRef.current, old.name, fresh).catch(() => {});
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      return true;
+    },
+    [workout, userId, dayIndex, setPlan]
+  );
+
   /** Rest after a set of this exercise, by its catalog role (NG PHASE 3.2). */
   const restSecondsForExercise = useCallback(
     (exerciseName: string) => {
@@ -433,6 +493,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       startSession,
       prescriptionFor,
       restSecondsForExercise,
+      swapExercise,
       togglePause,
       updateSetRow,
       logSet,
@@ -462,6 +523,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       startSession,
       prescriptionFor,
       restSecondsForExercise,
+      swapExercise,
       togglePause,
       updateSetRow,
       logSet,

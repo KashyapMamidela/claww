@@ -665,6 +665,9 @@ CREATE INDEX IF NOT EXISTS prescription_decisions_user_idx ON prescription_decis
 ALTER TABLE prescription_decisions ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'prescribed';
 ALTER TABLE prescription_decisions DROP CONSTRAINT IF EXISTS prescription_decisions_phase_check;
 ALTER TABLE prescription_decisions ADD CONSTRAINT prescription_decisions_phase_check CHECK (phase IN ('prescribed', 'result'));
+-- NG PHASE 3.4: 'swapped' = the player's Swap replaced an exercise mid-session. Re-run to widen the constraint.
+ALTER TABLE prescription_decisions DROP CONSTRAINT IF EXISTS prescription_decisions_phase_check;
+ALTER TABLE prescription_decisions ADD CONSTRAINT prescription_decisions_phase_check CHECK (phase IN ('prescribed', 'result', 'swapped'));
 
 ALTER TABLE exercise_progress       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE muscle_checkins         ENABLE ROW LEVEL SECURITY;

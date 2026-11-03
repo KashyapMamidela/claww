@@ -73,6 +73,24 @@ export async function getCatalog(names: string[]): Promise<Catalog> {
   return Object.fromEntries(rows.map((r) => [catalogKey(r.name), toEntry(r, namesById)]));
 }
 
+/**
+ * Strength exercises with this primary muscle and movement pattern, for the player's Swap sheet
+ * (NG PHASE 3.4). The filtering by equipment, injuries and today's session is `swapCandidates`.
+ */
+export async function getSwapPool(primaryMuscle: string, movementPattern: string): Promise<CatalogEntry[]> {
+  const { data, error } = await supabase
+    .from('exercises')
+    .select(CATALOG_COLUMNS)
+    .eq('modality', 'strength')
+    .eq('primary_muscle', primaryMuscle)
+    .eq('movement_pattern', movementPattern);
+  if (error) {
+    warn('Failed to load swap candidates', error);
+    return [];
+  }
+  return ((data ?? []) as CatalogRow[]).map((r) => toEntry(r, {}));
+}
+
 // ─── exercise_progress ──────────────────────────────────────────────────────
 
 interface ProgressRow {
@@ -332,4 +350,28 @@ export async function getExerciseHistory(userId: string, exerciseName: string, l
     return [];
   }
   return groupSessions(data ?? [], limit);
+}
+
+/**
+ * Records a swap (NG PHASE 3.4): the exercise now in the slot, what it starts from, and what it replaced.
+ * Needs the 'swapped' phase in schema.sql; until that constraint is applied the insert is refused and
+ * the swap itself is unaffected (the new exercise's sets are still logged and evaluated by name).
+ */
+export async function saveSwap(userId: string, sessionId: string, replacedName: string, now: PrescribedExercise): Promise<boolean> {
+  const { error } = await supabase.from('prescription_decisions').insert({
+    user_id: userId,
+    session_id: sessionId,
+    exercise_name: now.name,
+    prescribed_weight: now.prescription.weightKg,
+    prescribed_reps: now.prescription.reps,
+    prescribed_sets: now.prescription.sets,
+    commands: now.prescription.commands,
+    reason: `Swapped in for ${replacedName}.`,
+    phase: 'swapped',
+  });
+  if (error) {
+    warn('Failed to save the swap', error);
+    return false;
+  }
+  return true;
 }

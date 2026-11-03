@@ -31,6 +31,8 @@ import { Stepper } from '../ui/Stepper';
 import { TickButton } from '../ui/TickButton';
 import { ElapsedClock, KcalText } from './clocks';
 import { TargetCard } from './TargetCard';
+import { SwapSheet } from './SwapSheet';
+import { Chip } from '../ui/Chip';
 import { isBarbellLift, targetDiffers, warmupSets } from '../../lib/plateMath';
 import { RestSheet } from './RestView';
 import { FormStrip } from './FormStrip';
@@ -92,12 +94,14 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
     endSession,
     prescriptionFor,
     restSecondsForExercise,
+    swapExercise,
   } = useWorkoutSession();
   useSetLatency(`${exerciseIndex}:${setIndex}`);
 
   const [picker, setPicker] = useState<PickerTarget | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
+  const [swapOpen, setSwapOpen] = useState(false);
   const [rir, setRir] = useState<number | null>(null);
   // Warm-up ticks are only a reminder for the lifter: they are never logged as work sets.
   const [warmDone, setWarmDone] = useState<Record<string, boolean[]>>({});
@@ -231,6 +235,20 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
                       {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 12.5, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
+                    </View>
+
+                    {/* NG PHASE 3.4: How to opens the exercise guide; Swap replaces the exercise, until a set is logged. */}
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                      {forms[exercise.name] ? (
+                        <Chip accent={A} icon={<Icon name="play" size={13} color={COLORS.fgGray} />} onPress={() => setGuideName(exercise.name)}>
+                          How to
+                        </Chip>
+                      ) : null}
+                      {!workDoneAny && !state.skipped ? (
+                        <Chip accent={A} icon={<Icon name="repeat" size={13} color={COLORS.fgGray} />} onPress={() => setSwapOpen(true)}>
+                          Swap · equipment taken?
+                        </Chip>
+                      ) : null}
                     </View>
 
                     {currentRow || markShown ? (
@@ -458,6 +476,21 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             onClose={() => setPicker(null)}
           />
         ) : null}
+
+        <SwapSheet
+          visible={swapOpen}
+          exerciseName={exercise.name}
+          todayNames={exercises.map((x) => x.name)}
+          onClose={() => setSwapOpen(false)}
+          onPick={(entry) => {
+            setSwapOpen(false);
+            setWarmDone((m) => {
+              const { [exercise.name]: _dropped, ...rest } = m;
+              return rest;
+            });
+            swapExercise(exerciseIndex, entry);
+          }}
+        />
 
         {guideName && forms[guideName] ? <ExerciseGuideSheet name={guideName} form={forms[guideName]} onClose={() => setGuideName(null)} /> : null}
 
