@@ -1,1 +1,541 @@
 dish,item,grams
+Roti,"Wheat flour, atta",32
+Roti,Water,8
+Roti with ghee,"Wheat flour, atta",32
+Roti with ghee,Ghee,5
+Roti with ghee,Water,8
+"Paratha, plain","Wheat flour, atta",50
+"Paratha, plain","Oil, sunflower",6
+"Paratha, plain",Water,14
+Aloo paratha,"Wheat flour, atta",50
+Aloo paratha,Potato,40
+Aloo paratha,"Oil, sunflower",7
+Aloo paratha,Green chilli,2
+Aloo paratha,Salt,1
+Aloo paratha,Water,10
+Puri,"Wheat flour, atta",22
+Puri,"Oil, sunflower",5
+Puri,Water,3
+Naan,Maida,55
+Naan,"Curd, plain",10
+Naan,Sugar,2
+Naan,"Oil, sunflower",4
+Naan,Salt,1
+Naan,Water,18
+Jowar roti,"Jowar, sorghum",35
+Jowar roti,Water,10
+Bajra roti,"Bajra, pearl millet",35
+Bajra roti,Water,10
+"Rice, cooked","Rice, white, raw",50
+"Rice, cooked",Water,100
+Curd rice,"Rice, white, raw",40
+Curd rice,"Curd, plain",70
+Curd rice,"Oil, groundnut",3
+Curd rice,Mustard seeds,1
+Curd rice,Salt,1
+Curd rice,Water,65
+Jeera rice,"Rice, white, raw",50
+Jeera rice,Ghee,4
+Jeera rice,Cumin seeds,2
+Jeera rice,Salt,1
+Jeera rice,Water,93
+Lemon rice,"Rice, white, raw",50
+Lemon rice,"Oil, groundnut",5
+Lemon rice,"Peanuts, raw",8
+Lemon rice,Mustard seeds,1
+Lemon rice,Turmeric powder,0.5
+Lemon rice,Lemon juice,10
+Lemon rice,Salt,1
+Lemon rice,Water,74.5
+Tamarind rice,"Rice, white, raw",50
+Tamarind rice,"Oil, groundnut",6
+Tamarind rice,"Peanuts, raw",8
+Tamarind rice,Tamarind,10
+Tamarind rice,Mustard seeds,1
+Tamarind rice,Red chilli powder,1
+Tamarind rice,Salt,1
+Tamarind rice,Water,73
+Vegetable pulao,"Rice, white, raw",80
+Vegetable pulao,"Oil, sunflower",8
+Vegetable pulao,Onion,30
+Vegetable pulao,Carrot,20
+Vegetable pulao,"Green peas, raw",20
+Vegetable pulao,Green beans,20
+Vegetable pulao,Curry powder,2
+Vegetable pulao,Salt,2
+Vegetable pulao,Water,118
+Chicken biryani,"Rice, white, raw",90
+Chicken biryani,"Chicken thigh with skin, raw",110
+Chicken biryani,"Oil, sunflower",12
+Chicken biryani,Ghee,5
+Chicken biryani,Onion,40
+Chicken biryani,"Curd, plain",25
+Chicken biryani,Tomato,25
+Chicken biryani,Ginger,4
+Chicken biryani,Garlic,4
+Chicken biryani,Curry powder,3
+Chicken biryani,Red chilli powder,2
+Chicken biryani,Salt,3
+Chicken biryani,Water,27
+Vegetable biryani,"Rice, white, raw",90
+Vegetable biryani,"Oil, sunflower",12
+Vegetable biryani,Ghee,4
+Vegetable biryani,Onion,40
+Vegetable biryani,Carrot,25
+Vegetable biryani,"Green peas, raw",25
+Vegetable biryani,Green beans,25
+Vegetable biryani,"Curd, plain",25
+Vegetable biryani,Curry powder,3
+Vegetable biryani,Salt,3
+Vegetable biryani,Water,78
+Egg biryani,"Rice, white, raw",90
+Egg biryani,"Egg, whole",100
+Egg biryani,"Oil, sunflower",12
+Egg biryani,Ghee,4
+Egg biryani,Onion,40
+Egg biryani,"Curd, plain",20
+Egg biryani,Curry powder,3
+Egg biryani,Salt,3
+Egg biryani,Water,58
+Chicken fried rice,"Rice, white, raw",75
+Chicken fried rice,"Chicken breast, raw",70
+Chicken fried rice,"Egg, whole",25
+Chicken fried rice,"Oil, sunflower",8
+Chicken fried rice,Onion,20
+Chicken fried rice,Carrot,15
+Chicken fried rice,Green beans,15
+Chicken fried rice,Soy sauce,5
+Chicken fried rice,Black pepper,0.5
+Chicken fried rice,Salt,1
+Chicken fried rice,Water,65.5
+Egg fried rice,"Rice, white, raw",75
+Egg fried rice,"Egg, whole",50
+Egg fried rice,"Oil, sunflower",8
+Egg fried rice,Onion,20
+Egg fried rice,Carrot,15
+Egg fried rice,Green beans,15
+Egg fried rice,Soy sauce,5
+Egg fried rice,Salt,1
+Egg fried rice,Water,91
+Vegetable fried rice,"Rice, white, raw",75
+Vegetable fried rice,"Oil, sunflower",8
+Vegetable fried rice,Onion,20
+Vegetable fried rice,Carrot,20
+Vegetable fried rice,Green beans,20
+Vegetable fried rice,Cabbage,20
+Vegetable fried rice,Soy sauce,5
+Vegetable fried rice,Salt,1
+Vegetable fried rice,Water,111
+"Hakka noodles, veg","Chinese noodles, dry",70
+"Hakka noodles, veg","Oil, sunflower",10
+"Hakka noodles, veg",Cabbage,30
+"Hakka noodles, veg",Carrot,20
+"Hakka noodles, veg","Capsicum, green",20
+"Hakka noodles, veg",Onion,20
+"Hakka noodles, veg",Soy sauce,6
+"Hakka noodles, veg",Salt,1
+"Hakka noodles, veg",Water,73
+Khichdi,"Rice, white, raw",35
+Khichdi,"Moong dal, raw",20
+Khichdi,Ghee,5
+Khichdi,Cumin seeds,1
+Khichdi,Turmeric powder,0.5
+Khichdi,Salt,1.5
+Khichdi,Water,137
+Dal tadka,"Toor dal, raw",25
+Dal tadka,"Oil, sunflower",4
+Dal tadka,Onion,15
+Dal tadka,Tomato,20
+Dal tadka,Garlic,2
+Dal tadka,Cumin seeds,0.5
+Dal tadka,Turmeric powder,0.5
+Dal tadka,Red chilli powder,0.5
+Dal tadka,Salt,1
+Dal tadka,Water,81.5
+Moong dal,"Moong dal, raw",25
+Moong dal,"Oil, sunflower",4
+Moong dal,Cumin seeds,0.5
+Moong dal,Turmeric powder,0.5
+Moong dal,Tomato,15
+Moong dal,Salt,1
+Moong dal,Water,104
+Masoor dal,"Masoor dal, raw",25
+Masoor dal,"Oil, sunflower",4
+Masoor dal,Onion,10
+Masoor dal,Tomato,15
+Masoor dal,Turmeric powder,0.5
+Masoor dal,Salt,1
+Masoor dal,Water,94.5
+Palak dal,"Toor dal, raw",22
+Palak dal,Spinach,30
+Palak dal,"Oil, sunflower",4
+Palak dal,Garlic,2
+Palak dal,Turmeric powder,0.5
+Palak dal,Salt,1
+Palak dal,Water,90.5
+Sambar,"Toor dal, raw",20
+Sambar,Tomato,20
+Sambar,Onion,15
+Sambar,"Brinjal, eggplant",15
+Sambar,Tamarind,4
+Sambar,"Oil, groundnut",3
+Sambar,Mustard seeds,0.5
+Sambar,Curry powder,1.5
+Sambar,Turmeric powder,0.5
+Sambar,Salt,1
+Sambar,Water,69.5
+Rasam,"Toor dal, raw",6
+Rasam,Tomato,25
+Rasam,Tamarind,4
+Rasam,"Oil, groundnut",2
+Rasam,Mustard seeds,0.5
+Rasam,Black pepper,0.5
+Rasam,Cumin seeds,0.5
+Rasam,Salt,1
+Rasam,Water,110.5
+Rajma masala,"Rajma, kidney beans raw",30
+Rajma masala,Onion,25
+Rajma masala,Tomato,30
+Rajma masala,"Oil, sunflower",6
+Rajma masala,Ginger,2
+Rajma masala,Garlic,2
+Rajma masala,Curry powder,2
+Rajma masala,Salt,1
+Rajma masala,Water,52
+Chole masala,"Chana, chickpeas raw",35
+Chole masala,Onion,25
+Chole masala,Tomato,30
+Chole masala,"Oil, sunflower",6
+Chole masala,Ginger,2
+Chole masala,Garlic,2
+Chole masala,Curry powder,2
+Chole masala,Salt,1
+Chole masala,Water,47
+Dal makhani,"Urad dal, raw",25
+Dal makhani,"Rajma, kidney beans raw",5
+Dal makhani,Butter,8
+Dal makhani,Onion,15
+Dal makhani,Tomato,25
+Dal makhani,"Milk, whole",10
+Dal makhani,Curry powder,1.5
+Dal makhani,Salt,1
+Dal makhani,Water,59.5
+Lobia curry,"Lobia, black-eyed peas raw",30
+Lobia curry,Onion,20
+Lobia curry,Tomato,25
+Lobia curry,"Oil, sunflower",5
+Lobia curry,Curry powder,1.5
+Lobia curry,Salt,1
+Lobia curry,Water,67.5
+"Sundal, chana","Chana, chickpeas raw",35
+"Sundal, chana","Coconut, fresh",8
+"Sundal, chana","Oil, groundnut",3
+"Sundal, chana",Mustard seeds,0.5
+"Sundal, chana",Salt,1
+"Sundal, chana",Water,72.5
+Sprouts salad,Moong sprouts,100
+Sprouts salad,Onion,15
+Sprouts salad,Tomato,15
+Sprouts salad,Cucumber,10
+Sprouts salad,Lemon juice,5
+Sprouts salad,Salt,1
+Sprouts salad,Water,4
+Soya chunks curry,"Soya chunks, dry",30
+Soya chunks curry,Onion,25
+Soya chunks curry,Tomato,30
+Soya chunks curry,"Oil, sunflower",6
+Soya chunks curry,Curry powder,2
+Soya chunks curry,Salt,1
+Soya chunks curry,Water,56
+Soya chunks fry,"Soya chunks, dry",30
+Soya chunks fry,"Oil, sunflower",6
+Soya chunks fry,Onion,20
+Soya chunks fry,Green chilli,3
+Soya chunks fry,Curry powder,1.5
+Soya chunks fry,Salt,1
+Soya chunks fry,Water,38.5
+Kadhi,"Curd, plain",60
+Kadhi,"Besan, gram flour",12
+Kadhi,"Oil, sunflower",4
+Kadhi,Turmeric powder,0.5
+Kadhi,Mustard seeds,0.5
+Kadhi,Salt,1
+Kadhi,Water,72
+Aloo gobi,Potato,50
+Aloo gobi,Cauliflower,60
+Aloo gobi,Onion,15
+Aloo gobi,"Oil, sunflower",7
+Aloo gobi,Turmeric powder,0.5
+Aloo gobi,Curry powder,1.5
+Aloo gobi,Salt,1
+Aloo gobi,Water,15
+Aloo sabzi,Potato,100
+Aloo sabzi,"Oil, sunflower",7
+Aloo sabzi,Cumin seeds,0.5
+Aloo sabzi,Turmeric powder,0.5
+Aloo sabzi,Salt,1
+Aloo sabzi,Water,11
+Bhindi fry,"Okra, bhindi",100
+Bhindi fry,"Oil, sunflower",7
+Bhindi fry,Onion,15
+Bhindi fry,Curry powder,1
+Bhindi fry,Salt,1
+Baingan bharta,"Brinjal, eggplant",120
+Baingan bharta,Onion,20
+Baingan bharta,Tomato,20
+Baingan bharta,"Oil, sunflower",7
+Baingan bharta,Curry powder,1
+Baingan bharta,Salt,1
+Cabbage poriyal,Cabbage,100
+Cabbage poriyal,"Coconut, fresh",8
+Cabbage poriyal,"Oil, groundnut",4
+Cabbage poriyal,Mustard seeds,0.5
+Cabbage poriyal,Green chilli,2
+Cabbage poriyal,Salt,1
+Cabbage poriyal,Water,0.5
+Beans poriyal,Green beans,100
+Beans poriyal,"Coconut, fresh",8
+Beans poriyal,"Oil, groundnut",4
+Beans poriyal,Mustard seeds,0.5
+Beans poriyal,Salt,1
+Beans poriyal,Water,0.5
+Mixed vegetable curry,Carrot,25
+Mixed vegetable curry,Green beans,25
+Mixed vegetable curry,"Green peas, raw",20
+Mixed vegetable curry,Potato,25
+Mixed vegetable curry,Onion,15
+Mixed vegetable curry,"Coconut, fresh",10
+Mixed vegetable curry,"Oil, sunflower",6
+Mixed vegetable curry,Curry powder,2
+Mixed vegetable curry,Salt,1
+Mixed vegetable curry,Water,21
+"Palak, spinach sabzi",Spinach,100
+"Palak, spinach sabzi","Oil, sunflower",5
+"Palak, spinach sabzi",Garlic,2
+"Palak, spinach sabzi",Onion,10
+"Palak, spinach sabzi",Salt,1
+"Palak, spinach sabzi",Water,2
+Tomato curry,Tomato,120
+Tomato curry,"Oil, groundnut",5
+Tomato curry,Onion,15
+Tomato curry,Red chilli powder,1
+Tomato curry,Turmeric powder,0.5
+Tomato curry,Salt,1
+Tomato curry,Water,7.5
+Pumpkin sabzi,Pumpkin,100
+Pumpkin sabzi,"Oil, sunflower",5
+Pumpkin sabzi,Mustard seeds,0.5
+Pumpkin sabzi,Salt,1
+Pumpkin sabzi,Water,13.5
+Coconut chutney,"Coconut, fresh",15
+Coconut chutney,Green chilli,2
+Coconut chutney,"Oil, groundnut",1
+Coconut chutney,Mustard seeds,0.3
+Coconut chutney,Salt,0.5
+Coconut chutney,Water,11.2
+Peanut chutney,"Peanuts, raw",12
+Peanut chutney,Green chilli,2
+Peanut chutney,Tamarind,2
+Peanut chutney,"Oil, groundnut",2
+Peanut chutney,Salt,0.5
+Peanut chutney,Water,11.5
+Raita,"Curd, plain",100
+Raita,Cucumber,15
+Raita,Onion,5
+Raita,Cumin seeds,0.3
+Raita,Salt,0.7
+Egg bhurji,"Egg, whole",100
+Egg bhurji,Onion,25
+Egg bhurji,Tomato,20
+Egg bhurji,"Oil, sunflower",5
+Egg bhurji,Green chilli,2
+Egg bhurji,Turmeric powder,0.5
+Egg bhurji,Salt,1
+Egg bhurji,Water,0.5
+Omelette,"Egg, whole",100
+Omelette,"Oil, sunflower",5
+Omelette,Onion,10
+Omelette,Green chilli,2
+Omelette,Salt,1
+Omelette,Water,2
+Egg curry,"Egg, whole",100
+Egg curry,Onion,40
+Egg curry,Tomato,40
+Egg curry,"Oil, sunflower",8
+Egg curry,Ginger,2
+Egg curry,Garlic,2
+Egg curry,Curry powder,2
+Egg curry,Salt,1.5
+Egg curry,Water,24.5
+Boiled eggs,"Egg, whole",50
+Chicken curry,"Chicken thigh with skin, raw",120
+Chicken curry,Onion,40
+Chicken curry,Tomato,40
+Chicken curry,"Oil, sunflower",10
+Chicken curry,"Curd, plain",10
+Chicken curry,Ginger,3
+Chicken curry,Garlic,3
+Chicken curry,Curry powder,3
+Chicken curry,Red chilli powder,2
+Chicken curry,Salt,2
+Chicken fry,"Chicken thigh with skin, raw",130
+Chicken fry,"Oil, sunflower",12
+Chicken fry,"Besan, gram flour",6
+Chicken fry,Ginger,3
+Chicken fry,Garlic,3
+Chicken fry,Red chilli powder,2
+Chicken fry,Salt,1.5
+Chicken fry,Water,0.5
+Grilled chicken breast,"Chicken breast, raw",150
+Grilled chicken breast,"Curd, plain",15
+Grilled chicken breast,"Oil, sunflower",4
+Grilled chicken breast,Red chilli powder,1
+Grilled chicken breast,Salt,1.5
+Grilled chicken breast,Water,0.5
+Fish curry,"Fish, carp (rohu), raw",110
+Fish curry,Onion,30
+Fish curry,Tomato,30
+Fish curry,"Oil, groundnut",8
+Fish curry,Tamarind,6
+Fish curry,Red chilli powder,2
+Fish curry,Salt,2
+Fish curry,Water,12
+Fish fry,"Fish, tilapia, raw",120
+Fish fry,"Oil, groundnut",10
+Fish fry,Red chilli powder,1.5
+Fish fry,Turmeric powder,0.5
+Fish fry,Salt,1.5
+Fish fry,Water,0.5
+Mutton curry,"Mutton (goat), raw",110
+Mutton curry,Onion,40
+Mutton curry,Tomato,30
+Mutton curry,"Oil, sunflower",12
+Mutton curry,Ginger,3
+Mutton curry,Garlic,3
+Mutton curry,Curry powder,3
+Mutton curry,Salt,2
+Prawn fry,"Prawns, raw",100
+Prawn fry,"Oil, groundnut",10
+Prawn fry,Onion,15
+Prawn fry,Red chilli powder,1.5
+Prawn fry,Salt,1
+Prawn fry,Water,0.5
+Idli,"Rice, white, raw",12
+Idli,"Urad dal, raw",4
+Idli,Water,24
+Plain dosa,"Rice, white, raw",25
+Plain dosa,"Urad dal, raw",8
+Plain dosa,"Oil, groundnut",4
+Plain dosa,Water,43
+Masala dosa,"Rice, white, raw",30
+Masala dosa,"Urad dal, raw",10
+Masala dosa,"Oil, groundnut",7
+Masala dosa,Potato,60
+Masala dosa,Onion,20
+Masala dosa,Mustard seeds,0.5
+Masala dosa,Turmeric powder,0.5
+Masala dosa,Salt,1
+Masala dosa,Water,71
+Uttapam,"Rice, white, raw",25
+Uttapam,"Urad dal, raw",8
+Uttapam,Onion,20
+Uttapam,Tomato,10
+Uttapam,"Oil, groundnut",5
+Uttapam,Water,52
+Upma,"Rava, semolina",35
+Upma,"Oil, groundnut",5
+Upma,Onion,15
+Upma,Mustard seeds,0.5
+Upma,Green chilli,2
+Upma,Salt,1
+Upma,Water,91.5
+Poha,"Poha, flattened rice",40
+Poha,"Oil, groundnut",5
+Poha,Onion,20
+Poha,"Peanuts, raw",8
+Poha,Mustard seeds,0.5
+Poha,Turmeric powder,0.5
+Poha,Lemon juice,3
+Poha,Salt,1
+Poha,Water,72
+Ven pongal,"Rice, white, raw",30
+Ven pongal,"Moong dal, raw",15
+Ven pongal,Ghee,5
+Ven pongal,Black pepper,0.5
+Ven pongal,Cumin seeds,0.5
+Ven pongal,"Cashew nuts, raw",3
+Ven pongal,Salt,1
+Ven pongal,Water,95
+Medu vada,"Urad dal, raw",25
+Medu vada,"Oil, groundnut",7
+Medu vada,Green chilli,1
+Medu vada,Salt,0.5
+Medu vada,Water,16.5
+Besan chilla,"Besan, gram flour",30
+Besan chilla,Onion,15
+Besan chilla,Tomato,10
+Besan chilla,"Oil, sunflower",4
+Besan chilla,Water,31
+Oats porridge with milk,"Oats, rolled",40
+Oats porridge with milk,"Milk, whole",150
+Oats porridge with milk,Sugar,4
+Oats porridge with milk,Water,56
+Bread omelette,"Egg, whole",100
+Bread omelette,"Bread, white",56
+Bread omelette,"Oil, sunflower",5
+Bread omelette,Onion,10
+Bread omelette,Salt,1
+Samosa,Maida,25
+Samosa,"Oil, sunflower",12
+Samosa,Potato,35
+Samosa,"Green peas, raw",6
+Samosa,Curry powder,1
+Samosa,Salt,0.5
+Samosa,Water,0.5
+Vada pav,Potato,60
+Vada pav,"Besan, gram flour",12
+Vada pav,"Oil, sunflower",12
+Vada pav,"Bread, white",56
+Vada pav,Green chilli,2
+Vada pav,Salt,1
+Vada pav,Water,7
+Pav bhaji,Potato,80
+Pav bhaji,Cauliflower,40
+Pav bhaji,"Green peas, raw",25
+Pav bhaji,Tomato,50
+Pav bhaji,Onion,30
+Pav bhaji,Butter,12
+Pav bhaji,"Bread, white",56
+Pav bhaji,Curry powder,3
+Pav bhaji,Salt,2
+Pav bhaji,Water,2
+Peanut chaat,"Peanuts, raw",40
+Peanut chaat,Onion,15
+Peanut chaat,Tomato,15
+Peanut chaat,Lemon juice,5
+Peanut chaat,Salt,1
+Peanut chaat,Water,24
+Roasted peanuts,"Peanuts, raw",30
+"Papad, roasted",Papad,12
+Chai with sugar,"Milk, whole",100
+Chai with sugar,Sugar,8
+Chai with sugar,Water,42
+Chai without sugar,"Milk, whole",100
+Chai without sugar,Water,50
+Coffee with milk and sugar,"Milk, whole",100
+Coffee with milk and sugar,Sugar,8
+Coffee with milk and sugar,Water,42
+Sweet lassi,"Curd, plain",150
+Sweet lassi,Sugar,15
+Sweet lassi,Water,85
+Masala buttermilk,Buttermilk,240
+Masala buttermilk,Cumin seeds,0.5
+Masala buttermilk,Salt,1
+Masala buttermilk,Water,8.5
+Banana shake,"Milk, whole",200
+Banana shake,Banana,100
+Banana shake,Sugar,5
+Whey protein shake with water,Whey protein isolate,30
+Whey protein shake with water,Water,250
+Whey protein shake with milk,Whey protein isolate,30
+Whey protein shake with milk,"Milk, whole",250
