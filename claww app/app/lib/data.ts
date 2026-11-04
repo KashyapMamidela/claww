@@ -1543,6 +1543,7 @@ export interface UserDataExport {
   exerciseProgress: unknown[];
   muscleCheckins: unknown[];
   prescriptionDecisions: unknown[];
+  userResources: unknown | null;
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1565,6 +1566,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     exerciseProgress,
     muscleCheckins,
     prescriptionDecisions,
+    userResources,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1583,6 +1585,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('exercise_progress').select('*').eq('user_id', userId),
     supabase.from('muscle_checkins').select('*').eq('user_id', userId),
     supabase.from('prescription_decisions').select('*').eq('user_id', userId),
+    supabase.from('user_resources').select('*').eq('user_id', userId).maybeSingle(),
   ]);
 
   return {
@@ -1604,6 +1607,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     exerciseProgress: exerciseProgress.data ?? [],
     muscleCheckins: muscleCheckins.data ?? [],
     prescriptionDecisions: prescriptionDecisions.data ?? [],
+    userResources: userResources.data ?? null,
   };
 }
 
