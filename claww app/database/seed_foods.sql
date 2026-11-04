@@ -1,0 +1,13 @@
+-- ============================================================
+-- Claww: food database (NG PHASE 4)
+--
+-- GENERATED from database/foods/*.csv by database/foods/build_foods.mjs.
+-- Edit the CSV files and re-run the script, not this file. Every row is
+-- unreviewed (reviewed_by stays NULL) until the nutritionist signs off; see
+-- docs/food-review.md. Sources and licences: database/foods/SOURCES.md.
+--
+-- Run after schema.sql. Safe to run any number of times: foods are upserted
+-- by name and reviewed_by / reviewed_at are never overwritten.
+-- ============================================================
+
+-- No food rows yet.

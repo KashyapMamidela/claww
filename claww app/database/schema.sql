@@ -709,3 +709,54 @@ ALTER TABLE profiles ADD COLUMN IF NOT EXISTS bar_weight_kg NUMERIC DEFAULT 20;
 -- until a distance is logged. Covered by the existing owner-only workout_logs policy.
 -- ============================================================
 ALTER TABLE workout_logs ADD COLUMN IF NOT EXISTS distance_km FLOAT;
+
+-- ============================================================
+-- NG PHASE 4: food database (reference data, read-only for signed-in users)
+-- Rows come from database/seed_foods.sql, built from database/foods/*.csv by
+-- database/foods/build_foods.mjs. reviewed_by stays NULL until the nutritionist signs off.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS foods (
+  id BIGSERIAL PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  aliases TEXT[] DEFAULT '{}',
+  kind TEXT NOT NULL CHECK (kind IN ('ingredient','dish')),
+  cuisine TEXT,
+  diet TEXT CHECK (diet IN ('veg','egg','nonveg','vegan')),
+  jain_ok BOOLEAN DEFAULT false,
+  kcal_100g NUMERIC NOT NULL CHECK (kcal_100g >= 0),
+  protein_100g NUMERIC NOT NULL CHECK (protein_100g >= 0),
+  carbs_100g NUMERIC NOT NULL CHECK (carbs_100g >= 0),
+  fat_100g NUMERIC NOT NULL CHECK (fat_100g >= 0),
+  fibre_100g NUMERIC, iron_mg_100g NUMERIC, calcium_mg_100g NUMERIC, vitc_mg_100g NUMERIC,
+  b12_ug_100g NUMERIC, sodium_mg_100g NUMERIC, sugar_100g NUMERIC,
+  cost_inr_100g NUMERIC,
+  source TEXT NOT NULL,
+  source_ref TEXT,
+  reviewed_by TEXT,
+  reviewed_at TIMESTAMPTZ
+);
+CREATE TABLE IF NOT EXISTS food_units (
+  food_id BIGINT NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
+  unit TEXT NOT NULL,
+  grams NUMERIC NOT NULL CHECK (grams > 0),
+  is_default BOOLEAN DEFAULT false,
+  PRIMARY KEY (food_id, unit)
+);
+CREATE TABLE IF NOT EXISTS dish_items (
+  dish_id BIGINT NOT NULL REFERENCES foods(id) ON DELETE CASCADE,
+  item_id BIGINT NOT NULL REFERENCES foods(id),
+  grams NUMERIC NOT NULL CHECK (grams > 0),
+  PRIMARY KEY (dish_id, item_id)
+);
+CREATE INDEX IF NOT EXISTS foods_kind_idx ON foods (kind);
+
+ALTER TABLE foods ENABLE ROW LEVEL SECURITY;
+ALTER TABLE food_units ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dish_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "foods readable by signed-in users" ON foods;
+CREATE POLICY "foods readable by signed-in users" ON foods FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "food_units readable by signed-in users" ON food_units;
+CREATE POLICY "food_units readable by signed-in users" ON food_units FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "dish_items readable by signed-in users" ON dish_items;
+CREATE POLICY "dish_items readable by signed-in users" ON dish_items FOR SELECT TO authenticated USING (true);
