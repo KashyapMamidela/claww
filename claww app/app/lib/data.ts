@@ -1655,6 +1655,7 @@ export interface UserDataExport {
   muscleCheckins: unknown[];
   prescriptionDecisions: unknown[];
   userResources: unknown | null;
+  weightLogs: unknown[];
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1678,6 +1679,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     muscleCheckins,
     prescriptionDecisions,
     userResources,
+    weightLogs,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1697,6 +1699,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('muscle_checkins').select('*').eq('user_id', userId),
     supabase.from('prescription_decisions').select('*').eq('user_id', userId),
     supabase.from('user_resources').select('*').eq('user_id', userId).maybeSingle(),
+    supabase.from('weight_logs').select('*').eq('user_id', userId),
   ]);
 
   return {
@@ -1719,6 +1722,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     muscleCheckins: muscleCheckins.data ?? [],
     prescriptionDecisions: prescriptionDecisions.data ?? [],
     userResources: userResources.data ?? null,
+    weightLogs: weightLogs.data ?? [],
   };
 }
 
@@ -1786,4 +1790,36 @@ export async function saveExamWeek(userId: string, week: { from: string; until: 
 /** Logs a sport or walk from the Workouts activity card: counts for calories and recovery, never as a plan day. */
 export async function logActivity(userId: string, name: string, minutes: number): Promise<boolean> {
   return logAdHocSession(userId, { exerciseName: name.trim().slice(0, 40) || 'Activity', modality: 'cardio', durationMinutes: minutes });
+}
+
+
+export interface LoggedActivity {
+  name: string;
+  minutes: number;
+  loggedAt: string;
+  kcal: number;
+}
+
+/** Timed sessions and activities logged in the last `days` days (not plan days), newest first, with an estimated burn. */
+export async function getRecentActivities(userId: string, weightKg: number | null, days = 7): Promise<LoggedActivity[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('exercise_name, duration_minutes, completed_at, exercises(met_value)')
+    .eq('user_id', userId)
+    .not('duration_minutes', 'is', null)
+    .gt('duration_minutes', 0)
+    .gte('completed_at', since)
+    .order('completed_at', { ascending: false })
+    .limit(20);
+  if (error) {
+    console.warn('[Claww] Failed to load activities:', error.message);
+    return [];
+  }
+  const weight = weightKg ?? 70;
+  return (data ?? []).map((r) => {
+    const catalogMet = (r as unknown as { exercises: { met_value: number | null } | null }).exercises?.met_value ?? null;
+    const minutes = Number(r.duration_minutes);
+    return { name: r.exercise_name as string, minutes, loggedAt: r.completed_at as string, kcal: activityKcal(catalogMet ?? activityMet(r.exercise_name as string) ?? OTHER_ACTIVITY_MET, minutes, weight) };
+  });
 }

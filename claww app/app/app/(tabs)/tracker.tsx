@@ -14,6 +14,7 @@ import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { TrackerBody, type ChartKind } from '../../components/tracker/TrackerBody';
+import { TrackerToday } from '../../components/tracker/TrackerToday';
 import { TrackerChartScreen } from '../../components/tracker/TrackerChartScreen';
 
 // V2 PHASE 9: the Tracker is a performance page. Cards stay black; each area's
@@ -154,6 +155,13 @@ export default function TrackerTab() {
             line={locked ? `${workoutsCompleted} of ${UNLOCK_AT} workout days logged` : `Level ${level.level} · ${level.xpForNextLevel - level.xpIntoLevel} XP to Level ${level.level + 1}`}
             score={score}
             locked={locked}
+          />
+
+          <TrackerToday
+            weekSteps={steps}
+            weekLabels={Array.from({ length: 7 }, (_, i) => new Date(Date.now() - (6 - i) * 86_400_000).toLocaleDateString(undefined, { weekday: 'narrow' }))}
+            stepsGoal={data.stepsGoal}
+            onOpen={setChart}
           />
 
           {locked ? (

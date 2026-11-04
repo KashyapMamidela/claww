@@ -175,25 +175,6 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
         )}
       </TrackerCard>
 
-      <TrackerCard label="STEPS · 7 DAYS" color={AREA_COLORS.steps} right={`goal ${stepsGoal.toLocaleString()}`} onPress={() => onOpen('steps')}>
-        {steps ? (
-          <>
-            <BarChart values={steps} color={AREA_COLORS.steps} height={80} goal={stepsGoal} labels={v.days7.map((b) => b.label)} />
-            <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>
-              Avg {Math.round(stepsTotal / 7).toLocaleString()} steps · goal hit {stepsHit}/7
-            </Text>
-            {burned !== null ? (
-              <Text style={{ color: AREA_COLORS.burned, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
-                BURNED · about {burned.toLocaleString()} kcal this week
-                <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}> (estimate from steps)</Text>
-              </Text>
-            ) : null}
-          </>
-        ) : (
-          <Empty>Step counting isn't connected on this device. Open Steps on Home to connect it.</Empty>
-        )}
-      </TrackerCard>
-
       <TrackerCard label="NUTRITION · 7 DAYS" color={AREA_COLORS.nutrition} right={data.proteinTargetG ? `protein target ${data.proteinTargetG} g` : undefined} onPress={() => onOpen('nutrition')}>
         {v.nutrition.some((d) => d.logged) ? (
           <>
@@ -204,19 +185,6 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
           </>
         ) : (
           <Empty>No meals logged in the last 7 days. Log a meal on the Nutrition tab to see trends here.</Empty>
-        )}
-      </TrackerCard>
-
-      <TrackerCard label="SLEEP · 7 NIGHTS" color={AREA_COLORS.sleep} right="goal 8 h" onPress={() => onOpen('sleep')}>
-        {v.sleep.nightsLogged > 0 ? (
-          <>
-            <BarChart values={v.nights.map((n) => n ?? 0)} color={AREA_COLORS.sleep} height={80} goal={8} labels={v.days7.map((b) => b.label)} />
-            <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>
-              Avg {formatHours(v.sleep.averageHours ?? 0)} · {v.sleep.nightsUnder} night{v.sleep.nightsUnder === 1 ? '' : 's'} under 6.5 h
-            </Text>
-          </>
-        ) : (
-          <Empty>No sleep logged this week. Log last night's sleep on Home.</Empty>
         )}
       </TrackerCard>
 

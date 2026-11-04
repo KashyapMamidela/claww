@@ -295,3 +295,56 @@ describe('one definition of a day', () => {
     expect(stepsSourceLine(null)).toContain('Connect');
   });
 });
+
+import { bedtimeFor, parseWeight, recoveryFactors, todayAction, trainingLoad, weightDeltaText, weightTrend } from './trackerToday';
+describe('tracker today rules', () => {
+  it('training load from sets in 72 hours', () => {
+    expect(trainingLoad(5)).toBe('low');
+    expect(trainingLoad(20)).toBe('normal');
+    expect(trainingLoad(45)).toBe('high');
+  });
+  it('recovery factors in words, never inventing a missing input', () => {
+    const f = recoveryFactors({ sleepHours: 6.2, setsLast72h: 40, proteinPct: 90 });
+    expect(f.map((x) => x.word)).toEqual(['– short', 'high', 'on track']);
+    expect(f[0].level).toBe('low');
+    const none = recoveryFactors({ sleepHours: null, setsLast72h: 0, proteinPct: null });
+    expect(none[0].value).toBe('not logged');
+    expect(none[2].value).toBe('not tracked');
+  });
+  it('bedtime for 8 hours before waking', () => {
+    expect(bedtimeFor('07:00')).toBe('11:00 PM');
+    expect(bedtimeFor('06:50')).toBe('10:45 PM');
+    expect(bedtimeFor('07:30')).toBe('11:30 PM');
+    expect(bedtimeFor(null)).toBe('11:00 PM');
+    expect(bedtimeFor('04:00')).toBe('8:00 PM');
+  });
+  it('the Today line follows the rules in order', () => {
+    const base = { band: 'Moderate' as const, sleepHours: 7, sessionFocus: 'Push day', sessionLighter: false, wakeHHMM: '07:30' };
+    expect(todayAction({ ...base, sleepHours: 6.2, sessionLighter: true })).toBe('Push day is already lighter. In bed by 11:30 PM and tomorrow climbs back.');
+    expect(todayAction({ ...base, band: 'Low' })).toContain('easy');
+    expect(todayAction({ ...base, band: 'High' })).toContain('push');
+    expect(todayAction({ ...base, sessionFocus: null })).toContain('Rest day');
+    expect(todayAction({ ...base, sleepHours: null })).toContain('Log last night');
+    expect(todayAction(base)).toContain('as planned');
+  });
+  it('weight trend over four weeks', () => {
+    const now = new Date(2026, 10, 4);
+    const day = (n: number) => new Date(2026, 10, 4 - n).toISOString();
+    const t = weightTrend([{ weightKg: 67.8, loggedAt: day(27) }, { weightKg: 68, loggedAt: day(14) }, { weightKg: 68.4, loggedAt: day(1) }, { weightKg: 60, loggedAt: day(90) }], now)!;
+    expect(t.latest).toBe(68.4);
+    expect(t.deltaKg).toBe(0.6);
+    expect(t.points).toEqual([67.8, 68, 68.4]);
+    expect(weightDeltaText(0.6)).toBe('+0.6 kg in 4 weeks');
+    expect(weightDeltaText(-1.2)).toBe('−1.2 kg in 4 weeks');
+    expect(weightDeltaText(null)).toContain('log again');
+    expect(weightTrend([], now)).toBeNull();
+    expect(weightTrend([{ weightKg: 70, loggedAt: day(1) }], now)!.deltaKg).toBeNull();
+  });
+  it('parses a typed weight', () => {
+    expect(parseWeight('68,4')).toBe(68.4);
+    expect(parseWeight('68.44')).toBe(68.4);
+    expect(parseWeight('abc')).toBeNull();
+    expect(parseWeight('12')).toBeNull();
+    expect(parseWeight('500')).toBeNull();
+  });
+});
