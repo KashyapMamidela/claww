@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 // @ts-ignore build script is plain ESM JavaScript
+import { resolveFood, type Food } from './foodLookup';
 import { buildSql, dishPer100g, loadFoods, parseCsv, validate } from '../../database/foods/build_foods.mjs';
 
 // The build script's checks, run on TEST FIXTURES (not nutrition data), plus the committed CSVs.
@@ -84,5 +85,48 @@ describe('buildSql', () => {
 describe('the committed CSVs', () => {
   it('pass validation (empty until sourced data is added)', () => {
     expect(validate(loadFoods())).toEqual([]);
+  });
+  it('has real rows with a default unit each, and every dish is veg-consistent', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d: any = loadFoods();
+    expect(d.ingredients.length).toBeGreaterThan(100);
+    expect(d.dishes.length).toBeGreaterThan(80);
+    expect((d.ingredients as { source: string }[]).every((r) => r.source.length > 0)).toBe(true);
+  });
+  it('"chicken fried rice", "2 roti", "1 katori dal" and "chai" resolve with units and nutrients (NG PHASE 4 acceptance)', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const d: any = loadFoods();
+    const byName = new Map(d.ingredients.map((r: { name: string }) => [r.name, r]));
+    const num = (v: string) => (v === '' || v === undefined ? null : Number(v));
+    const foods: Food[] = [];
+    const add = (row: Record<string, string>, kind: 'ingredient' | 'dish', n: Record<string, number | null>, id: number) => {
+      foods.push({
+        id, name: row.name, aliases: row.aliases ? row.aliases.split('|') : [], kind, cuisine: row.cuisine || null, diet: row.diet as Food['diet'], jainOk: row.jain_ok === 'true',
+        kcal100g: n.kcal_100g ?? 0, protein100g: n.protein_100g ?? 0, carbs100g: n.carbs_100g ?? 0, fat100g: n.fat_100g ?? 0,
+        fibre100g: n.fibre_100g ?? null, ironMg100g: n.iron_mg_100g ?? null, calciumMg100g: n.calcium_mg_100g ?? null, vitcMg100g: n.vitc_mg_100g ?? null,
+        b12Ug100g: n.b12_ug_100g ?? null, sodiumMg100g: n.sodium_mg_100g ?? null, sugar100g: n.sugar_100g ?? null, costInr100g: null,
+        units: d.units.filter((u: { food: string }) => u.food === row.name).map((u: { unit: string; grams: string; is_default: string }) => ({ unit: u.unit, grams: Number(u.grams), isDefault: u.is_default === 'true' })),
+        reviewed: false,
+      });
+    };
+    d.ingredients.forEach((r: Record<string, string>, i: number) => add(r, 'ingredient', Object.fromEntries(Object.keys(r).filter((k) => k.endsWith('_100g')).map((k) => [k, num(r[k])])), i + 1));
+    d.dishes.forEach((r: Record<string, string>, i: number) => {
+      const { per100g } = dishPer100g(d.items.filter((x: { dish: string }) => x.dish === r.name), byName) as unknown as { per100g: Record<string, number | null> };
+      add(r, 'dish', per100g, 1000 + i);
+    });
+    const rice = resolveFood(foods, 'chicken fried rice')!;
+    expect(rice.food.name).toBe('Chicken fried rice');
+    expect(rice.nutrients.kcal).toBeGreaterThan(300);
+    const roti = resolveFood(foods, '2 roti')!;
+    expect(roti.food.name).toBe('Roti');
+    expect(roti.nutrients.grams).toBe(80);
+    const dal = resolveFood(foods, '1 katori dal')!;
+    expect(dal.food.name).toBe('Dal tadka');
+    expect(dal.nutrients.grams).toBe(150);
+    expect(dal.nutrients.ironMg).not.toBeNull();
+    const chai = resolveFood(foods, 'chai')!;
+    expect(chai.food.name).toBe('Chai with sugar');
+    expect(chai.unit).toBe('cup');
+    expect(chai.nutrients.calciumMg).not.toBeNull();
   });
 });

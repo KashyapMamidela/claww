@@ -1,1 +1,263 @@
 food,unit,grams,is_default
+"Rice, white, raw",g,1,true
+"Rice, brown, raw",g,1,true
+"Wheat flour, atta",g,1,true
+Maida,g,1,true
+"Rava, semolina",g,1,true
+Rice flour,g,1,true
+"Poha, flattened rice",g,1,true
+"Oats, rolled",g,1,true
+"Bajra, pearl millet",g,1,true
+"Jowar, sorghum",g,1,true
+Cornmeal,g,1,true
+"Bread, white",slice,28,true
+"Bread, white",g,1,false
+"Bread, whole wheat",slice,28,true
+"Bread, whole wheat",g,1,false
+"Vermicelli, dry",g,1,true
+"Chinese noodles, dry",g,1,true
+"Besan, gram flour",g,1,true
+"Toor dal, raw",g,1,true
+"Moong dal, raw",g,1,true
+"Masoor dal, raw",g,1,true
+"Urad dal, raw",g,1,true
+"Chana, chickpeas raw",g,1,true
+"Rajma, kidney beans raw",g,1,true
+"Lobia, black-eyed peas raw",g,1,true
+Moong sprouts,katori,100,true
+Moong sprouts,g,1,false
+"Green peas, raw",g,1,true
+"Soya chunks, dry",katori,30,true
+"Soya chunks, dry",g,1,false
+"Tofu, firm",katori,100,true
+"Tofu, firm",g,1,false
+"Peanuts, raw",handful,30,true
+"Peanuts, raw",tbsp,10,false
+"Peanuts, raw",g,1,false
+Peanut butter,tbsp,16,true
+Peanut butter,g,1,false
+"Milk, whole",glass,250,true
+"Milk, whole",katori,150,false
+"Milk, whole",g,1,false
+"Milk, toned (2%)",glass,250,true
+"Milk, toned (2%)",g,1,false
+"Curd, plain",katori,150,true
+"Curd, plain",tbsp,15,false
+"Curd, plain",g,1,false
+Buttermilk,glass,250,true
+Buttermilk,g,1,false
+Ghee,tsp,5,true
+Ghee,tbsp,15,false
+Ghee,g,1,false
+Butter,tsp,5,true
+Butter,tbsp,14,false
+Butter,g,1,false
+Cheddar cheese,slice,20,true
+Cheddar cheese,g,1,false
+Whey protein isolate,scoop,30,true
+Whey protein isolate,g,1,false
+Skim milk powder,tbsp,7,true
+Skim milk powder,g,1,false
+"Egg, whole",egg,50,true
+"Egg, whole",g,1,false
+Egg white,egg white,33,true
+Egg white,g,1,false
+"Chicken breast, raw",g,1,true
+"Chicken thigh with skin, raw",g,1,true
+"Mutton (goat), raw",g,1,true
+"Fish, carp (rohu), raw",g,1,true
+"Fish, tilapia, raw",g,1,true
+"Prawns, raw",g,1,true
+"Tuna, canned in water",g,1,true
+"Oil, groundnut",tsp,5,true
+"Oil, groundnut",tbsp,15,false
+"Oil, groundnut",g,1,false
+"Oil, sunflower",tsp,5,true
+"Oil, sunflower",tbsp,15,false
+"Oil, sunflower",g,1,false
+"Oil, coconut",tsp,5,true
+"Oil, coconut",g,1,false
+"Oil, mustard",tsp,5,true
+"Oil, mustard",g,1,false
+"Oil, sesame",tsp,5,true
+"Oil, sesame",g,1,false
+"Oil, soybean",tsp,5,true
+"Oil, soybean",g,1,false
+Onion,onion,100,true
+Onion,g,1,false
+Tomato,tomato,100,true
+Tomato,g,1,false
+Potato,potato,150,true
+Potato,g,1,false
+Carrot,carrot,70,true
+Carrot,g,1,false
+Cauliflower,g,1,true
+Cabbage,g,1,true
+Spinach,g,1,true
+"Brinjal, eggplant",g,1,true
+"Okra, bhindi",g,1,true
+"Capsicum, green",g,1,true
+Green chilli,chilli,5,true
+Green chilli,g,1,false
+Cucumber,katori,100,true
+Cucumber,g,1,false
+Green beans,g,1,true
+Beetroot,g,1,true
+Radish,g,1,true
+Bitter gourd,g,1,true
+Drumstick leaves,g,1,true
+Coriander leaves,g,1,true
+Garlic,g,1,true
+Ginger,g,1,true
+Mushroom,g,1,true
+Pumpkin,g,1,true
+Sweet potato,g,1,true
+Sweet corn,katori,100,true
+Sweet corn,g,1,false
+Lemon juice,tsp,5,true
+Lemon juice,g,1,false
+Tamarind,g,1,true
+"Coconut, fresh",g,1,true
+Coconut milk,g,1,true
+Tomato puree,g,1,true
+Banana,banana,118,true
+Banana,g,1,false
+Apple,apple,182,true
+Apple,g,1,false
+Orange,orange,131,true
+Orange,g,1,false
+Mango,mango,200,true
+Mango,g,1,false
+Papaya,katori,150,true
+Papaya,g,1,false
+Watermelon,katori,150,true
+Watermelon,g,1,false
+Guava,guava,100,true
+Guava,g,1,false
+Pomegranate,katori,100,true
+Pomegranate,g,1,false
+Grapes,katori,100,true
+Grapes,g,1,false
+Pineapple,katori,100,true
+Pineapple,g,1,false
+Dates,date,8,true
+Dates,g,1,false
+Raisins,tbsp,10,true
+Raisins,g,1,false
+"Cashew nuts, raw",handful,30,true
+"Cashew nuts, raw",g,1,false
+Walnuts,handful,30,true
+Walnuts,g,1,false
+Sesame seeds,g,1,true
+Sugar,tsp,4,true
+Sugar,g,1,false
+Brown sugar,tsp,4,true
+Brown sugar,g,1,false
+Salt,pinch,1,true
+Salt,tsp,6,false
+Salt,g,1,false
+Turmeric powder,g,1,true
+Cumin seeds,g,1,true
+Coriander seeds,g,1,true
+Red chilli powder,g,1,true
+Mustard seeds,g,1,true
+Fenugreek seeds,g,1,true
+Black pepper,g,1,true
+Cardamom,g,1,true
+Cinnamon,g,1,true
+Curry powder,g,1,true
+Soy sauce,g,1,true
+Papad,papad,12,true
+Papad,g,1,false
+Water,g,1,true
+Roti,roti,40,true
+Roti with ghee,roti,45,true
+"Paratha, plain",paratha,70,true
+Aloo paratha,paratha,110,true
+Puri,puri,30,true
+Naan,naan,90,true
+Jowar roti,roti,45,true
+Bajra roti,roti,45,true
+"Rice, cooked",katori,150,true
+"Rice, cooked",plate,300,false
+Curd rice,katori,180,true
+Jeera rice,katori,150,true
+Jeera rice,plate,300,false
+Lemon rice,katori,150,true
+Lemon rice,plate,300,false
+Tamarind rice,katori,150,true
+Tamarind rice,plate,300,false
+Vegetable pulao,plate,300,true
+Chicken biryani,plate,350,true
+Vegetable biryani,plate,330,true
+Egg biryani,plate,330,true
+Chicken fried rice,plate,300,true
+Egg fried rice,plate,280,true
+Vegetable fried rice,plate,280,true
+"Hakka noodles, veg",plate,250,true
+Khichdi,katori,200,true
+Dal tadka,katori,150,true
+Moong dal,katori,150,true
+Masoor dal,katori,150,true
+Palak dal,katori,150,true
+Sambar,katori,150,true
+Rasam,katori,150,true
+Rajma masala,katori,150,true
+Chole masala,katori,150,true
+Dal makhani,katori,150,true
+Lobia curry,katori,150,true
+"Sundal, chana",katori,120,true
+Sprouts salad,katori,150,true
+Soya chunks curry,katori,150,true
+Soya chunks fry,katori,100,true
+Kadhi,katori,150,true
+Aloo gobi,katori,150,true
+Aloo sabzi,katori,120,true
+Bhindi fry,katori,124,true
+Baingan bharta,katori,169,true
+Cabbage poriyal,katori,116,true
+Beans poriyal,katori,114,true
+Mixed vegetable curry,katori,150,true
+"Palak, spinach sabzi",katori,120,true
+Tomato curry,katori,150,true
+Pumpkin sabzi,katori,120,true
+Coconut chutney,tbsp,30,true
+Coconut chutney,katori,60,false
+Peanut chutney,tbsp,30,true
+Raita,katori,121,true
+Egg bhurji,serving,154,true
+Omelette,serving,120,true
+Egg curry,serving,220,true
+Boiled eggs,egg,50,true
+Chicken curry,katori,233,true
+Chicken fry,serving,158,true
+Grilled chicken breast,serving,172,true
+Fish curry,katori,200,true
+Fish fry,serving,134,true
+Mutton curry,katori,203,true
+Prawn fry,serving,128,true
+Idli,idli,40,true
+Plain dosa,dosa,80,true
+Masala dosa,dosa,200,true
+Uttapam,uttapam,120,true
+Upma,katori,150,true
+Poha,katori,150,true
+Ven pongal,katori,150,true
+Medu vada,vada,50,true
+Besan chilla,chilla,90,true
+Oats porridge with milk,katori,250,true
+Bread omelette,serving,172,true
+Samosa,samosa,80,true
+Vada pav,vada pav,150,true
+Pav bhaji,plate,300,true
+Peanut chaat,katori,100,true
+Roasted peanuts,handful,30,true
+"Papad, roasted",papad,12,true
+Chai with sugar,cup,150,true
+Chai without sugar,cup,150,true
+Coffee with milk and sugar,cup,150,true
+Sweet lassi,glass,250,true
+Masala buttermilk,glass,250,true
+Banana shake,glass,305,true
+Whey protein shake with water,glass,280,true
+Whey protein shake with milk,glass,280,true
