@@ -88,3 +88,65 @@ export function examWeekFrom(start: Date): ExamWeek {
 export function examWeekActive(week: ExamWeek | null, today: string): boolean {
   return !!week && today >= week.from && today <= week.until;
 }
+
+// ─── NG PHASE 12 follow-up: one streak for Home, the Tracker and the session card ───────────────────────────
+
+export type StreakDayStatus = 'done' | 'rest' | 'missed' | 'protected' | 'today';
+
+export interface StreakGridDay {
+  date: Date;
+  key: string;
+  status: StreakDayStatus;
+  /** True when this day adds to the streak (a done session or a followed rest day). */
+  counts: boolean;
+}
+
+export interface PlanStreakStats {
+  current: number;
+  best: number;
+  since: string | null;
+  /** The last `gridDays` days, oldest first. */
+  grid: StreakGridDay[];
+}
+
+function statusOf(key: string, i: StreakInput, cursor: Date): StreakDayStatus {
+  const planned = i.plannedWeekdays === null || i.plannedWeekdays.includes(weekdayOf(cursor));
+  if (i.completedDates.has(key)) return key === i.today ? 'today' : 'done';
+  if (!planned) return 'rest';
+  if (i.examWeek && key >= i.examWeek.from && key <= i.examWeek.until) return 'protected';
+  return key === i.today ? 'today' : 'missed';
+}
+
+/** Current and best plan streak, and a grid of the last days with why each did or did not count. */
+export function planStreakStats(i: StreakInput, gridDays = 21): PlanStreakStats {
+  const { days, since } = planStreak(i);
+
+  // Best: walk forward through the last year; done and rest days extend the run, protected days hold it, a miss ends it.
+  const start = parse(i.today);
+  start.setDate(start.getDate() - 364);
+  let best = 0;
+  let run = 0;
+  const cur = new Date(start);
+  for (let n = 0; n < 365; n++) {
+    const key = dateKey(cur);
+    if (!i.planStart || key >= i.planStart) {
+      const s = statusOf(key, i, cur);
+      if (s === 'done' || s === 'rest' || (s === 'today' && i.completedDates.has(key))) run += 1;
+      else if (s === 'missed') run = 0;
+      best = Math.max(best, run);
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+  best = Math.max(best, days);
+
+  const grid: StreakGridDay[] = [];
+  const g = parse(i.today);
+  g.setDate(g.getDate() - (gridDays - 1));
+  for (let n = 0; n < gridDays; n++) {
+    const key = dateKey(g);
+    const status = statusOf(key, i, g);
+    grid.push({ date: new Date(g), key, status, counts: status === 'done' || status === 'rest' || (status === 'today' && i.completedDates.has(key)) });
+    g.setDate(g.getDate() + 1);
+  }
+  return { current: days, best, since, grid };
+}

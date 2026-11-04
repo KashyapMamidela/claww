@@ -156,7 +156,7 @@ interface WorkoutSessionState {
 const WorkoutSessionContext = createContext<WorkoutSessionState | null>(null);
 
 export function WorkoutSessionProvider({ children }: { children: React.ReactNode }) {
-  const { userId, bumpXp } = useAppState();
+  const { userId, bumpXp, refreshStreak } = useAppState();
   useSetQueueFlusher(userId);
   const [status, setStatus] = useState<SessionStatus>('idle');
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
@@ -300,6 +300,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       if (userId && workout && today) {
         logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed').then(() => {
           refreshReminders(userId).catch(() => {}); // drops today's workout reminder
+          refreshStreak(); // a finished session moves the plan streak
         });
       }
       const nextTargets: SessionSummary['nextTargets'] = {};
@@ -335,7 +336,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       setClock((c) => (c ? endRest(c) : c));
       setStatus('completed');
     },
-    [userId, workout, dayIndex, today, clock]
+    [userId, workout, dayIndex, today, clock, refreshStreak]
   );
 
   const applyFeel = useCallback(

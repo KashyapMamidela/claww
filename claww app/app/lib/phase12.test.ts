@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { coachLine, coachText, sleepText } from './coachLine';
 import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from './homeMoment';
 import { marksFor, shortNote, type PlanMark } from './planMarks';
-import { examWeekActive, examWeekFrom, planStreak, streakSentence } from './planStreak';
+import { examWeekActive, examWeekFrom, planStreak, planStreakStats, streakSentence } from './planStreak';
 import { feelNote, newBest, newBestText, sessionTitle, totalVolume, volumeDelta } from './sessionRecap';
 import { SHARE_HEIGHT, SHARE_WIDTH, previewScale, shareCaptureOptions, shareFileName } from './shareCard';
 import { shortLabel, weekStrip } from './weekStrip';
+import { burnedKcal, stepsKcal, stepsProgress, stepsSourceLine } from './dayStats';
 import { bestRecords, previousVolume } from './recapData';
 import type { PrescribedExercise } from './sessionPrescription';
 
@@ -241,5 +242,56 @@ describe('next meal', () => {
     expect(nextMealFor([], 19)).toBe('Dinner');
     expect(nextMealFor(['breakfast', 'lunch', 'dinner'], 19)).toBeNull();
     expect(nextMealFor(['Dinner'], 20)).toBeNull();
+  });
+});
+
+describe('plan streak stats (one streak everywhere)', () => {
+  const planned = [0, 1, 3, 4];
+  const base = { today: '2026-11-05', plannedWeekdays: planned, examWeek: null, planStart: '2026-10-01' } as const;
+  it('matches planStreak for the current run and builds a 21 day grid', () => {
+    const input = { ...base, completedDates: new Set(['2026-11-02', '2026-11-03']) };
+    const stats = planStreakStats(input);
+    expect(stats.current).toBe(planStreak(input).days);
+    expect(stats.grid).toHaveLength(21);
+    expect(stats.grid[20].key).toBe('2026-11-05');
+    expect(stats.grid[20].status).toBe('today');
+  });
+  it('statuses: done, rest, missed, protected', () => {
+    const input = { ...base, completedDates: new Set(['2026-11-03']), examWeek: { from: '2026-10-29', until: '2026-10-29' } };
+    const byKey = Object.fromEntries(planStreakStats(input).grid.map((d) => [d.key, d.status]));
+    expect(byKey['2026-11-03']).toBe('done');
+    expect(byKey['2026-11-04']).toBe('rest'); // Wednesday
+    expect(byKey['2026-11-02']).toBe('missed'); // Monday
+    expect(byKey['2026-10-29']).toBe('protected'); // Thursday inside the exam week
+  });
+  it('best is at least the current run and counts an earlier longer run', () => {
+    const done = new Set(['2026-10-12', '2026-10-13', '2026-10-15', '2026-10-16', '2026-10-19', '2026-10-20']);
+    const stats = planStreakStats({ ...base, completedDates: done, today: '2026-10-21' });
+    expect(stats.best).toBeGreaterThanOrEqual(stats.current);
+    expect(stats.best).toBeGreaterThanOrEqual(6);
+  });
+  it('a rest-only stretch with no plan counts as followed', () => {
+    const stats = planStreakStats({ today: '2026-11-05', plannedWeekdays: [], completedDates: new Set(), examWeek: null, planStart: '2026-11-01' });
+    expect(stats.current).toBe(5);
+  });
+});
+
+describe('one definition of a day', () => {
+  it('Health Connect wins and nothing is added to it', () => {
+    expect(burnedKcal({ healthConnectKcal: 412.4, steps: 8000, loggedKcal: 300, weightKg: 70 })).toEqual({ kcal: 412, source: 'health-connect' });
+  });
+  it('without it: steps estimate plus logged sessions', () => {
+    expect(burnedKcal({ healthConnectKcal: null, steps: 6000, loggedKcal: 250, weightKg: 70 })).toEqual({ kcal: 210 + 250, source: 'estimate' });
+    expect(burnedKcal({ healthConnectKcal: null, steps: null, loggedKcal: 250, weightKg: null })).toEqual({ kcal: 250, source: 'estimate' });
+    expect(burnedKcal({ healthConnectKcal: null, steps: null, loggedKcal: 0, weightKg: 70 })).toEqual({ kcal: null, source: 'none' });
+    expect(burnedKcal({ healthConnectKcal: null, steps: 0, loggedKcal: 0, weightKg: 70 }).kcal).toBe(0);
+  });
+  it('step maths and source lines', () => {
+    expect(stepsKcal(10000, 80)).toBe(400);
+    expect(stepsProgress(4000, 8000)).toBe(50);
+    expect(stepsProgress(20000, 8000)).toBe(100);
+    expect(stepsProgress(null, 8000)).toBe(0);
+    expect(stepsSourceLine('health-connect')).toContain('Never counted twice');
+    expect(stepsSourceLine(null)).toContain('Connect');
   });
 });

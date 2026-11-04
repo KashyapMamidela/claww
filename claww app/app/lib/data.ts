@@ -468,7 +468,19 @@ export interface MealLogRow {
   logged_at: string;
   /** Path into the private meal-photos Storage bucket, not a usable URL —
    * see getSignedMealPhotoUrl. NULL for text-only logs. */
-  photo_url: string | null;
+  photo_url: string | null;  /** NG PHASE 8 columns; absent until docs/ng-pending-2.sql is applied. */
+  plan_status?: 'as_planned' | 'swapped' | 'extra' | 'skipped' | null;
+  items?: { food: string; unit: string; qty: number; grams: number }[] | null;
+  nutrients?: MealNutrients | null;
+}
+
+export interface MealNutrients {
+  fibreG?: number | null;
+  ironMg?: number | null;
+  calciumMg?: number | null;
+  vitcMg?: number | null;
+  b12Ug?: number | null;
+  sodiumMg?: number | null;
 }
 
 export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
@@ -547,6 +559,10 @@ export interface EstimatedMeal {
   fats_g: number;
   /** Set when a photo was captured/reused for this meal — a Storage path (see uploadMealPhoto), not a URL. */
   photoPath?: string | null;
+  /** NG PHASE 8: how it was logged, what it was made of and its micronutrients (from the food database). */
+  planStatus?: 'as_planned' | 'swapped' | 'extra' | 'skipped';
+  items?: { food: string; unit: string; qty: number; grams: number }[];
+  nutrients?: MealNutrients;
 }
 
 export interface EstimateResult {
@@ -717,21 +733,29 @@ export async function estimateMealFromPhoto(mealType: MealType, imageDataUri: st
  * client, same pattern as every other own-rows write in this file.
  */
 export async function saveMeal(userId: string, mealType: MealType, meal: EstimatedMeal): Promise<MealLogRow | null> {
-  const { data, error } = await supabase
-    .from('meal_logs')
-    .insert({
-      user_id: userId,
-      description: meal.description,
-      calories: Math.round(meal.calories),
-      protein_g: Math.round(meal.protein_g),
-      carbs_g: Math.round(meal.carbs_g),
-      fats_g: Math.round(meal.fats_g),
-      estimated: true,
-      meal_type: mealType,
-      photo_url: meal.photoPath ?? null,
-    })
-    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url')
-    .single();
+  const core = {
+    user_id: userId,
+    description: meal.description,
+    calories: Math.round(meal.calories),
+    protein_g: Math.round(meal.protein_g),
+    carbs_g: Math.round(meal.carbs_g),
+    fats_g: Math.round(meal.fats_g),
+    estimated: true,
+    meal_type: mealType,
+    photo_url: meal.photoPath ?? null,
+  };
+  const extras = {
+    ...(meal.planStatus ? { plan_status: meal.planStatus } : {}),
+    ...(meal.items ? { items: meal.items } : {}),
+    ...(meal.nutrients ? { nutrients: meal.nutrients } : {}),
+  };
+  const columns = 'id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url';
+  let res = await supabase.from('meal_logs').insert({ ...core, ...extras }).select(columns).single();
+  if (res.error && Object.keys(extras).length > 0) {
+    // The NG PHASE 8 columns are not on this database yet (docs/ng-pending-2.sql): save the meal without them.
+    res = await supabase.from('meal_logs').insert(core).select(columns).single();
+  }
+  const { data, error } = res;
 
   if (error) {
     console.warn('[Claww] Failed to save meal log:', error.message);
@@ -739,7 +763,76 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
   }
   track(AnalyticsEvent.MealLogged, { meal_type: mealType });
   await awardXp(userId, 10, 'meal_logged');
-  return data;
+  return data as MealLogRow;
+}
+
+/** Deletes one meal log (the one-tap Undo after logging a usual). */
+export async function deleteMealLog(userId: string, id: string): Promise<boolean> {
+  const { error } = await supabase.from('meal_logs').delete().eq('id', id).eq('user_id', userId);
+  if (error) {
+    console.warn('[Claww] Failed to delete meal log:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/** Meals logged in [startIso, endIso), oldest first, with the NG PHASE 8 columns when they exist. */
+export async function getMealLogsBetween(userId: string, startIso: string, endIso: string): Promise<MealLogRow[]> {
+  const base = 'id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url';
+  let res = await supabase.from('meal_logs').select(`${base}, plan_status, items, nutrients`).eq('user_id', userId).gte('logged_at', startIso).lt('logged_at', endIso).order('logged_at', { ascending: true });
+  if (res.error) {
+    res = (await supabase.from('meal_logs').select(base).eq('user_id', userId).gte('logged_at', startIso).lt('logged_at', endIso).order('logged_at', { ascending: true })) as unknown as typeof res;
+  }
+  if (res.error) {
+    console.warn('[Claww] Failed to load meals for the diary:', res.error.message);
+    return [];
+  }
+  return (res.data ?? []) as unknown as MealLogRow[];
+}
+
+/** Meals from the last `days` days, newest first, for "your usuals". */
+export async function getRecentMeals(userId: string, days = 14): Promise<MealLogRow[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from('meal_logs')
+    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url')
+    .eq('user_id', userId)
+    .gte('logged_at', since)
+    .order('logged_at', { ascending: false })
+    .limit(300);
+  if (error) {
+    console.warn('[Claww] Failed to load recent meals:', error.message);
+    return [];
+  }
+  return (data ?? []) as MealLogRow[];
+}
+
+// ─── NG PHASE 13: weight over time ───────────────────────────────────────────────────────────────────────────
+
+export interface WeightLog {
+  weightKg: number;
+  loggedAt: string;
+}
+
+/** Weight entries from the last `days` days, oldest first. Empty (not an error) until weight_logs exists. */
+export async function getWeightLogs(userId: string, days = 90): Promise<WeightLog[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { data, error } = await supabase.from('weight_logs').select('weight_kg, logged_at').eq('user_id', userId).gte('logged_at', since).order('logged_at', { ascending: true });
+  if (error) return [];
+  return (data ?? []).map((r) => ({ weightKg: Number(r.weight_kg), loggedAt: r.logged_at as string }));
+}
+
+/** Saves a weight and keeps the profile's weight current (setups and calorie targets read it). */
+export async function logWeight(userId: string, weightKg: number): Promise<boolean> {
+  const { error } = await supabase.from('weight_logs').insert({ user_id: userId, weight_kg: weightKg });
+  const profileUpdate = await supabase.from('profiles').update({ weight: weightKg }).eq('id', userId);
+  invalidateProfile();
+  if (profileUpdate.error) console.warn('[Claww] Failed to update profile weight:', profileUpdate.error.message);
+  if (error) {
+    console.warn('[Claww] Failed to log weight (is weight_logs applied?):', error.message);
+    return !profileUpdate.error; // the profile weight still moved
+  }
+  return true;
 }
 
 const MEAL_PHOTOS_BUCKET = 'meal-photos';
