@@ -32,6 +32,7 @@ const P = COLORS.amber;
 const GOAL_LABELS: Record<string, string> = {
   muscle_gain: 'Build Muscle',
   fat_loss: 'Lose Fat',
+  strength: 'Get Stronger',
   endurance: 'Endurance',
   maintenance: 'Maintain',
   flexibility: 'Flexibility',

@@ -3,7 +3,7 @@
 // runner. `data.ts` re-exports everything here for existing call sites;
 // this file is the source of truth for these types and the formula.
 
-export type Goal = 'muscle_gain' | 'fat_loss' | 'endurance' | 'maintenance' | 'flexibility';
+export type Goal = 'muscle_gain' | 'fat_loss' | 'strength' | 'endurance' | 'maintenance' | 'flexibility';
 export type ActivityLevel = 'sedentary' | 'moderate' | 'active';
 
 export interface NutritionDefaults {
@@ -43,6 +43,7 @@ export function computeNutritionSample(input: {
   const PROTEIN_G_PER_KG: Record<Goal, number> = {
     fat_loss: 2.2,
     muscle_gain: 2.0,
+    strength: 1.8,
     maintenance: 1.6,
     endurance: 1.4,
     flexibility: 1.2,

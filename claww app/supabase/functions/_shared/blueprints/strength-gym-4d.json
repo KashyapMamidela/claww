@@ -1,0 +1,304 @@
+{
+  "id": "strength-gym-4d",
+  "version": 1,
+  "reviewed": false,
+  "title": "Upper / Lower, 4 days, gym",
+  "goal": "strength",
+  "place": "gym",
+  "daysPerWeek": 4,
+  "minMonths": 0,
+  "split": "UL",
+  "rationale": "Heavier main lifts at 3 to 6 reps with long rests, accessories to support them.",
+  "days": [
+    {
+      "name": "Upper A",
+      "slots": [
+        {
+          "pattern": "horizontal_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "vertical_push",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "vertical_pull",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "elbow_flexion",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "elbow_extension",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        }
+      ]
+    },
+    {
+      "name": "Lower A",
+      "slots": [
+        {
+          "pattern": "squat",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "hinge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "lunge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "knee_flexion",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        },
+        {
+          "pattern": "calf_raise",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "core_anti_extension",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        }
+      ]
+    },
+    {
+      "name": "Upper B",
+      "slots": [
+        {
+          "pattern": "vertical_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "vertical_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "horizontal_push",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "elbow_extension",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "elbow_flexion",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "Lower B",
+      "slots": [
+        {
+          "pattern": "hinge",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "squat",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "lunge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105,
+          "optional": true
+        },
+        {
+          "pattern": "knee_extension",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        },
+        {
+          "pattern": "calf_raise",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        },
+        {
+          "pattern": "core_flexion",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        }
+      ]
+    }
+  ]
+}

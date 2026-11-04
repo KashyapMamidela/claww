@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
-import { Text, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, FONT } from '../../../lib/theme';
+import { useAppState } from '../../../lib/appState';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Chip } from '../../../components/ui/Chip';
-import type { SplitPreference } from '../../../lib/data';
-import { defaultWeekdays, sortWeekdays, trainingDaysPerWeek } from '../../../lib/trainingWeek';
+import { Icon } from '../../../components/ui/Icon';
+import { ErrorCard } from '../../../components/ui/ErrorCard';
+import { generateWorkoutPlan, saveTrainingSchedule } from '../../../lib/data';
+import { defaultWeekdays, sortWeekdays } from '../../../lib/trainingWeek';
 
 const A = COLORS.blue;
-const TOTAL_STEPS = 8;
 
 const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -22,73 +24,61 @@ const TIME_OPTIONS: { value: string; label: string }[] = [
   { value: '20:30', label: 'Night' },
 ];
 
-const SPLIT_OPTIONS: { value: SplitPreference; label: string }[] = [
-  { value: 'auto', label: 'Let CLAWW Choose' },
-  { value: 'full_body', label: 'Full Body' },
-  { value: 'upper_lower', label: 'Upper / Lower' },
-  { value: 'push_pull_legs', label: 'Push / Pull / Legs' },
-];
-
 /**
- * Which weekdays the user trains. The selection starts from the days per
- * week CLAWW would have used anyway (from experience and activity level), so
- * accepting it changes nothing about how many days the plan has; the user
- * can move the days, and an optional usual time is saved too (V2 PHASE 6.1).
- * Clearing every day falls back to the old "Day 1, Day 2" plan.
+ * Step 2 of the workout setup: which weekdays the plan lands on, then generate (V2 PHASE 6.1, NG PHASE 5.5).
+ * The plan picked on the first screen has `planDays` sessions, so exactly that many weekdays are chosen and
+ * the plan's days take those names. The split comes from the reviewed plan, so there is no split picker.
  */
 export default function WorkoutSetupSchedule() {
   const router = useRouter();
-  const { height, weight, equipment, modalities, goal, experienceLevel, activityLevel } = useLocalSearchParams<{
-    height: string;
-    weight: string;
-    equipment: string;
-    modalities: string;
-    goal: string;
-    experienceLevel: string;
-    activityLevel: string;
-  }>();
-  const [trainingDays, setTrainingDays] = useState<string[]>(() =>
-    defaultWeekdays(trainingDaysPerWeek(experienceLevel ?? null, activityLevel ?? null, null))
-  );
+  const { userId, generatePlan, bumpXp } = useAppState();
+  const { planDays } = useLocalSearchParams<{ planDays: string }>();
+  const need = Math.min(6, Math.max(2, Number(planDays) || 3));
+
+  const [trainingDays, setTrainingDays] = useState<string[]>(() => defaultWeekdays(need));
   const [usualTime, setUsualTime] = useState('');
-  const [split, setSplit] = useState<SplitPreference>('auto');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleDay = (day: string) => {
-    setTrainingDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]));
+    setTrainingDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : prev.length >= need ? prev : [...prev, day]));
   };
 
-  const next = () => {
-    router.push({
-      pathname: '/screens/workout-setup/review',
-      params: {
-        height,
-        weight,
-        equipment,
-        modalities,
-        goal,
-        experienceLevel,
-        activityLevel,
-        trainingDays: sortWeekdays(trainingDays).join(','),
-        usualTrainingTime: usualTime,
-        splitPreference: split,
-      },
-    });
+  const ready = trainingDays.length === need;
+
+  const submit = async () => {
+    if (!userId || submitting || !ready) return;
+    setSubmitting(true);
+    setError(null);
+
+    const saved = await saveTrainingSchedule(userId, sortWeekdays(trainingDays), usualTime);
+    if (!saved) {
+      setError('Could not save your days. Check your connection and try again.');
+      setSubmitting(false);
+      return;
+    }
+
+    const { workout, error: genError } = await generateWorkoutPlan(userId);
+    setSubmitting(false);
+    if (!workout) {
+      setError(genError ?? 'Saved your answers, but the plan could not be built right now. Try again from the Workouts tab shortly.');
+      return;
+    }
+
+    generatePlan();
+    bumpXp(50); // matches awardXp(userId, 50, 'plan_generated') in generateWorkoutPlan
+    router.dismissTo('/(tabs)/workouts');
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={6} totalSteps={TOTAL_STEPS} accent={A} showBack />
-      <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-          <Text style={{ color: A, fontSize: 10, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>SCHEDULE</Text>
-        </View>
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
-          Which days work for you?
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+      <OnboardingTopBar step={1} totalSteps={2} accent={A} showBack={!submitting} />
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 30, paddingBottom: 24, flexGrow: 1 }}>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+          Which {need} days work for you?
         </Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
-          We started you on a sensible spread. Move the days to match your week and your plan lands exactly there.
-          Clear them all and CLAWW uses plain Day 1, Day 2 instead.
+          Your plan has {need} sessions. Pick the weekdays and each session lands exactly there.
         </Text>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -98,10 +88,11 @@ export default function WorkoutSetupSchedule() {
             </Chip>
           ))}
         </View>
-
-        <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
-          USUAL TIME · OPTIONAL
+        <Text style={{ color: ready ? COLORS.textMuted : COLORS.amber, fontSize: 13, marginTop: 12, fontFamily: FONT }}>
+          {ready ? `${need} of ${need} picked` : `${trainingDays.length} of ${need} picked. Tap ${need - trainingDays.length} more.`}
         </Text>
+
+        <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, marginTop: 28, marginBottom: 12, fontFamily: FONT }}>USUAL TIME (OPTIONAL)</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {TIME_OPTIONS.map((opt) => (
             <Chip key={opt.label} active={usualTime === opt.value} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setUsualTime(opt.value)}>
@@ -110,22 +101,16 @@ export default function WorkoutSetupSchedule() {
           ))}
         </View>
 
-        <Text style={{ color: COLORS.textMuted, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, marginTop: 30, marginBottom: 12, fontFamily: FONT }}>
-          PREFERRED SPLIT
-        </Text>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-          {SPLIT_OPTIONS.map((opt) => (
-            <Chip key={opt.value} active={split === opt.value} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setSplit(opt.value)}>
-              {opt.label}
-            </Chip>
-          ))}
-        </View>
-
-        <View style={{ flex: 1 }} />
-        <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth onPress={next}>
-          Continue
+        <View style={{ flex: 1, minHeight: 24 }} />
+        {error ? (
+          <View style={{ marginBottom: 12 }}>
+            <ErrorCard message={error} onRetry={submit} retrying={submitting} />
+          </View>
+        ) : null}
+        <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={submitting || !ready} onPress={submit} icon={<Icon name="wand-2" size={16} color="#fff" />}>
+          {submitting ? 'Building your plan…' : 'Build my plan'}
         </Button>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

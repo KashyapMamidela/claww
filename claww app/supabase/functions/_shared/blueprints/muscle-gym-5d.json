@@ -1,0 +1,340 @@
+{
+  "id": "muscle-gym-5d",
+  "version": 1,
+  "reviewed": false,
+  "title": "Push / Pull / Legs + Upper / Lower, 5 days, gym",
+  "goal": "muscle",
+  "place": "gym",
+  "daysPerWeek": 5,
+  "minMonths": 6,
+  "split": "PPLUL",
+  "rationale": "Each muscle is trained about twice a week with 10 to 20 hard sets, main lifts first, 6 to 12 reps close to failure.",
+  "days": [
+    {
+      "name": "Push",
+      "slots": [
+        {
+          "pattern": "horizontal_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "vertical_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "horizontal_push",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "elbow_extension",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "core_anti_extension",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "Pull",
+      "slots": [
+        {
+          "pattern": "vertical_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "elbow_flexion",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        }
+      ]
+    },
+    {
+      "name": "Legs",
+      "slots": [
+        {
+          "pattern": "squat",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "hinge",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "lunge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "knee_flexion",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        },
+        {
+          "pattern": "calf_raise",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "core_anti_extension",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "Upper A",
+      "slots": [
+        {
+          "pattern": "horizontal_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "vertical_push",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "vertical_pull",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "elbow_flexion",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "elbow_extension",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        }
+      ]
+    },
+    {
+      "name": "Lower A",
+      "slots": [
+        {
+          "pattern": "squat",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 150
+        },
+        {
+          "pattern": "hinge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "lunge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            8,
+            12
+          ],
+          "rir": 2,
+          "restSec": 90
+        },
+        {
+          "pattern": "knee_flexion",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        },
+        {
+          "pattern": "calf_raise",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        },
+        {
+          "pattern": "core_anti_extension",
+          "role": "isolation",
+          "sets": 3,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        }
+      ]
+    }
+  ]
+}

@@ -80,4 +80,11 @@ describe('swapCandidates', () => {
     expect(swapCandidates(e('Mystery', { primaryMuscle: null }), pool, base)).toEqual([]);
     expect(swapCandidates(e('Mystery', { movementPattern: null }), pool, base)).toEqual([]);
   });
+
+  it('drops patterns a structured injury rules out (NG PHASE 5)', () => {
+    const none = swapCandidates(bench, pool, { ...base, injuries: [{ part: 'shoulder', severity: 'severe' }] });
+    expect(none).toEqual([]);
+    const some = swapCandidates(bench, pool, { ...base, injuries: [{ part: 'knee', severity: 'moderate' }] });
+    expect(some.length).toBeGreaterThan(0);
+  });
 });

@@ -4,6 +4,7 @@ import { computeRecoveryScore, proteinShare } from './engine';
 import { invalidateProfile } from './profileStore';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
+import type { Injury } from './engine';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
@@ -26,6 +27,8 @@ export type Modality = 'strength' | 'cardio' | 'mobility' | 'yoga';
 export type SplitPreference = 'auto' | 'full_body' | 'upper_lower' | 'push_pull_legs';
 
 export interface WorkoutDefaults {
+  /** NG PHASE 5: days per week asked in setup; generate-plan uses it before the weekday picks. */
+  daysPerWeek?: number;
   modalities: Modality[];
   activityLevel: ActivityLevel;
   /** Free-text injuries/limitations (e.g. "bad knees, avoid heavy squats") — feeds the exercise-exclusion filter in generate-plan. */
@@ -86,10 +89,14 @@ export interface Profile {
   rating_prompt_shown_at: string | null;
   /** NG PHASE 2 column; the player's plate math uses it. Null for a profile row written before it existed. */
   bar_weight_kg?: number | null;
+  /** NG PHASE 5 setup answers (columns from NG PHASE 2). */
+  training_months?: number | null;
+  session_minutes?: number | null;
+  injuries?: Injury[] | null;
 }
 
 const PROFILE_COLUMNS =
-  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at, bar_weight_kg';
+  'id, name, email, age, gender, height, weight, goal, experience_level, equipment, personalization_profile, notifications_enabled, notification_prompt_shown_at, rating_prompt_shown_at, bar_weight_kg, training_months, session_minutes, injuries';
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase.from('profiles').select(PROFILE_COLUMNS).eq('id', userId).maybeSingle();
@@ -191,49 +198,55 @@ export async function setRatingPromptShown(userId: string): Promise<void> {
 }
 
 export interface WorkoutIntakeInput {
-  height: number;
-  weight: number;
+  /** Only sent when the profile did not have them (or the user edited them). */
+  height?: number;
+  weight?: number;
   goal: Goal;
-  experienceLevel: ExperienceLevel;
   equipment: Equipment;
-  modalities: Modality[];
-  activityLevel: ActivityLevel;
-  injuries?: string;
-  trainingDays?: string[];
-  usualTrainingTime?: string;
-  splitPreference?: SplitPreference;
+  daysPerWeek: number;
+  /** Months of training: 0 (new), 12 (6 months to 2 years), 36 (2 years and more). */
+  trainingMonths: number;
+  sessionMinutes: number;
+  injuries: Injury[];
+}
+
+/** Experience level kept in step with the months trained (older code still reads experience_level). */
+export function experienceFromMonths(months: number): ExperienceLevel {
+  return months < 6 ? 'beginner' : months < 24 ? 'intermediate' : 'advanced';
 }
 
 /**
- * Saves the workout-setup intake: flat columns for the fields the schema
- * already had (height/weight/goal/experience_level/equipment), plus a
- * merge into personalization_profile.workoutDefaults for the fields
- * generate-plan reads (modalities, activityLevel) — read-modify-write since
- * personalization_profile also holds name/gender/nutritionDefaults we must
- * not clobber.
+ * Saves the one-screen workout setup (NG PHASE 5.5): the flat profile columns (goal, equipment, experience,
+ * training months, session minutes, structured injuries, and height and weight when given) plus a merge into
+ * personalization_profile.workoutDefaults (days per week), which also holds the weekday picks and anything
+ * else we must not clobber.
  */
 export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInput): Promise<boolean> {
   const profile = await getProfile(userId);
+  const existing = profile?.personalization_profile?.workoutDefaults ?? null;
   const nextPersonalization: PersonalizationProfile = {
     ...(profile?.personalization_profile ?? {}),
     workoutDefaults: {
-      modalities: input.modalities,
-      activityLevel: input.activityLevel,
-      injuries: input.injuries?.trim() || undefined,
-      trainingDays: input.trainingDays?.length ? input.trainingDays : undefined,
-      usualTrainingTime: input.usualTrainingTime || undefined,
-      splitPreference: input.splitPreference,
+      modalities: existing?.modalities ?? ['strength'],
+      activityLevel: existing?.activityLevel ?? 'moderate',
+      ...existing,
+      daysPerWeek: input.daysPerWeek,
+      // The structured injuries replace the old free text, so the two can't disagree.
+      injuries: undefined,
     },
   };
 
   const { error } = await supabase
     .from('profiles')
     .update({
-      height: input.height,
-      weight: input.weight,
+      ...(input.height ? { height: input.height } : {}),
+      ...(input.weight ? { weight: input.weight } : {}),
       goal: input.goal,
-      experience_level: input.experienceLevel,
+      experience_level: experienceFromMonths(input.trainingMonths),
       equipment: input.equipment,
+      training_months: input.trainingMonths,
+      session_minutes: input.sessionMinutes,
+      injuries: input.injuries,
       personalization_profile: nextPersonalization,
     })
     .eq('id', userId);
@@ -241,6 +254,29 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
 
   if (error) {
     console.warn('[Claww] Failed to save workout intake:', error.message);
+    return false;
+  }
+  return true;
+}
+
+/** The weekday picks that follow the setup screen (V2 PHASE 6.1), merged into workoutDefaults. */
+export async function saveTrainingSchedule(userId: string, trainingDays: string[], usualTrainingTime?: string): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const existing = profile?.personalization_profile?.workoutDefaults ?? null;
+  const next: PersonalizationProfile = {
+    ...(profile?.personalization_profile ?? {}),
+    workoutDefaults: {
+      modalities: existing?.modalities ?? ['strength'],
+      activityLevel: existing?.activityLevel ?? 'moderate',
+      ...existing,
+      trainingDays: trainingDays.length ? trainingDays : undefined,
+      usualTrainingTime: usualTrainingTime || undefined,
+    },
+  };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
+  if (error) {
+    console.warn('[Claww] Failed to save training schedule:', error.message);
     return false;
   }
   return true;

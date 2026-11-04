@@ -1,0 +1,220 @@
+{
+  "id": "strength-gym-3d",
+  "version": 1,
+  "reviewed": false,
+  "title": "Full body, 3 days, gym",
+  "goal": "strength",
+  "place": "gym",
+  "daysPerWeek": 3,
+  "minMonths": 0,
+  "split": "FB",
+  "rationale": "Heavier main lifts at 3 to 6 reps with long rests, accessories to support them.",
+  "days": [
+    {
+      "name": "Full body A",
+      "slots": [
+        {
+          "pattern": "squat",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "horizontal_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "hinge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "core_anti_extension",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60
+        }
+      ]
+    },
+    {
+      "name": "Full body B",
+      "slots": [
+        {
+          "pattern": "hinge",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "vertical_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "vertical_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "lunge",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "horizontal_push",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105,
+          "optional": true
+        },
+        {
+          "pattern": "core_anti_rotation",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        }
+      ]
+    },
+    {
+      "name": "Full body C",
+      "slots": [
+        {
+          "pattern": "squat",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "horizontal_push",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "horizontal_pull",
+          "role": "main",
+          "sets": 4,
+          "repRange": [
+            3,
+            6
+          ],
+          "rir": 2,
+          "restSec": 180
+        },
+        {
+          "pattern": "vertical_push",
+          "role": "accessory",
+          "sets": 3,
+          "repRange": [
+            6,
+            10
+          ],
+          "rir": 2,
+          "restSec": 105
+        },
+        {
+          "pattern": "elbow_flexion",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        },
+        {
+          "pattern": "calf_raise",
+          "role": "isolation",
+          "sets": 2,
+          "repRange": [
+            10,
+            15
+          ],
+          "rir": 1,
+          "restSec": 60,
+          "optional": true
+        }
+      ]
+    }
+  ]
+}
