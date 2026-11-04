@@ -7,7 +7,6 @@ import { COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT 
 import { useAppState, type MealLogRow, type MealType } from '../../lib/appState';
 import { getProfile, getRecentMeals, saveFoodProfile, type NutritionDefaults } from '../../lib/data';
 import { normalizeFoodProfile, shouldAskFoodProfile } from '../../lib/foodProfile';
-import { MEAL_PLAN_ENABLED } from '../../lib/flags';
 import { nextMealFor } from '../../lib/homeMoment';
 import { dayLine, proteinGapNote, rateMeal, usualsFrom, type Usual } from '../../lib/nutritionLogic';
 import { MealDetailModal } from '../../components/MealDetailModal';
@@ -22,6 +21,11 @@ import { Surface } from '../../components/ui/Surface';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PressScale } from '../../components/ui/PressScale';
+import { BottomSheet } from '../../components/ui/BottomSheet';
+import { ensureMealPlans, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
+import { planLine, slotLabel, slotViews } from '../../lib/mealPlanView';
+import { itemsText, plannedToMeal } from '../../lib/mealPlanMeal';
+import type { PlannedMeal } from '../../lib/engine';
 
 // NG PHASE 8 (screen 14): the Nutrition tab. The macro card with the day's protein note in the pen, three labelled
 // actions, one-tap usuals from your last two weeks, and today's meals with what is next. Without meal plans yet
@@ -46,6 +50,12 @@ export default function NutritionTab() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [undo, setUndo] = useState<{ id: string; label: string } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [plan, setPlan] = useState<StoredPlan | null>(null);
+  const mealsRef = useRef(meals);
+  mealsRef.current = meals;
+  const [swapMeal, setSwapMeal] = useState<PlannedMeal | null>(null);
+  const [swapList, setSwapList] = useState<PlannedMeal[]>([]);
+  const [logging, setLogging] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -57,6 +67,15 @@ export default function NutritionTab() {
         setTargets(t);
         setAskFoodProfile(shouldAskFoodProfile(!!t, normalizeFoodProfile(profile?.personalization_profile?.foodProfile)));
         setTargetsLoaded(true);
+      });
+      ensureMealPlans(userId).then(async (p) => {
+        if (cancelled) return;
+        setPlan(p);
+        // Something other than the plan was eaten (a photo log, a usual): plan the rest of the day again.
+        if (p && mealsRef.current.some((m) => m.plan_status !== 'as_planned')) {
+          const re = await replanToday(userId, mealsRef.current);
+          if (re && !cancelled) setPlan(re);
+        }
       });
       getRecentMeals(userId, 14).then((rows) => {
         if (cancelled) return;
@@ -107,6 +126,7 @@ export default function NutritionTab() {
     const type = (u.mealType as MealType | null) ?? upNext ?? 'Snack';
     const row = await saveMeal(type, { description: u.label, calories: u.kcal, protein_g: u.protein, carbs_g: u.carbs, fats_g: u.fats, planStatus: 'extra' });
     if (!row) return;
+    replanToday(userId!, [...meals, row]).then((p) => p && setPlan(p));
     setUndo({ id: row.id, label: u.label });
     if (undoTimer.current) clearTimeout(undoTimer.current);
     undoTimer.current = setTimeout(() => setUndo(null), 6000);
@@ -117,6 +137,37 @@ export default function NutritionTab() {
     const id = undo.id;
     setUndo(null);
     await removeMeal(id);
+  };
+
+  const slots = useMemo(() => slotViews(plan, meals, hour), [plan, meals, hour]);
+  const upSlot = slots.find((v) => v.state === 'up_next') ?? null;
+
+  const ateAsPlanned = async (m: PlannedMeal) => {
+    if (logging) return;
+    setLogging(true);
+    const type = (m.meal.charAt(0).toUpperCase() + m.meal.slice(1)) as MealType;
+    await saveMeal(type, plannedToMeal(m));
+    setLogging(false);
+  };
+
+  // A meal logged some other way changes what is left of the day: plan the rest again.
+  const afterOtherLog = async (row: MealLogRow) => {
+    setSearchOpen(false);
+    if (!userId) return;
+    const p = await replanToday(userId, [...meals, row]);
+    if (p) setPlan(p);
+  };
+
+  const openSwap = async (m: PlannedMeal) => {
+    if (!userId) return;
+    setSwapMeal(m);
+    setSwapList(await swapChoices(userId, m));
+  };
+
+  const chooseSwap = async (choice: PlannedMeal) => {
+    if (!userId || !plan) return;
+    setPlan(await applySwap(userId, plan, choice));
+    setSwapMeal(null);
   };
 
   const openAdd = (type: MealType) => router.push({ pathname: '/meal-log', params: { mealType: type } });
@@ -268,53 +319,107 @@ export default function NutritionTab() {
 
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <SectionLabel color={G}>TODAY'S MEALS</SectionLabel>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{MEAL_PLAN_ENABLED ? 'your plan' : 'plan arrives with meal plans'}</Text>
+              <SectionLabel color={G}>{plan ? "TODAY'S PLAN · 3 MEALS" : "TODAY'S MEALS"}</SectionLabel>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
             </View>
-
-            {rated.map(({ meal: m, rating }) => (
-              <MealCard
-                key={m.id}
-                mealType={m.meal_type}
-                time={timeText(m.logged_at)}
-                planStatus={m.plan_status}
-                name={m.description}
-                macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} g`}
-                photoPath={m.photo_url}
-                rating={rating}
-                onPress={() => setSelectedMeal(m)}
-              />
+            {plan?.notes.map((n) => (
+              <Text key={n} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{n}</Text>
             ))}
 
-            {upNext ? (
-              <View style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: COLORS.card, padding: 16, gap: 12 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{upNext} · up next</Text>
-                <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>What are you having?</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>
-                  {Math.max(0, goals.kcal - consumed).toLocaleString('en-IN')} kcal and {Math.max(0, goals.protein - protein)} g protein left today
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <View style={{ flex: 1.2 }}>
-                    <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth onPress={() => setSearchOpen(true)} icon={<Icon name="search" size={16} color="#fff" />}>
-                      Search
-                    </Button>
+            {slots.map((v) => {
+              const label = slotLabel(v.slot);
+              if (v.logged) {
+                const r = rated.find((x) => x.meal.id === v.logged!.id);
+                const old = plan?.replaced?.[v.slot];
+                return (
+                  <MealCard
+                    key={v.slot}
+                    mealType={v.logged.meal_type}
+                    time={timeText(v.logged.logged_at)}
+                    planStatus={v.state === 'as_planned' ? 'as_planned' : v.state === 'swapped' ? 'swapped' : 'extra'}
+                    name={v.logged.description}
+                    macros={`${Math.round(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
+                    photoPath={(v.logged as MealLogRow).photo_url}
+                    rating={r?.rating}
+                    onPress={() => setSelectedMeal(v.logged as MealLogRow)}
+                  />
+                );
+              }
+              if (v.state === 'up_next') {
+                const m = v.planned;
+                const old = plan?.replaced?.[v.slot];
+                return (
+                  <View key={v.slot} style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: COLORS.card, padding: 16, gap: 10 }}>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · up next</Text>
+                    {m ? (
+                      <>
+                        {old ? <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: FONT }}>{old}</Text> : null}
+                        <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', textDecorationLine: old ? 'underline' : 'none', fontFamily: FONT }}>{m.name}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{itemsText(m)}</Text>
+                        {old ? <Text style={{ color: COLORS.fg, fontSize: 19, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
+                        <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+                          <View style={{ flex: 1.3 }}>
+                            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => ateAsPlanned(m)} icon={<Icon name="check" size={16} color="#fff" />}>
+                              Ate as planned
+                            </Button>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => setSearchOpen(true)}>
+                              Something else
+                            </Button>
+                          </View>
+                          <PressScale onPress={() => openAdd(upNext ?? 'Snack')} accessibilityRole="button" accessibilityLabel="Log with a photo">
+                            <View style={{ width: 48, height: 48, borderRadius: 14, borderWidth: 1, borderColor: COLORS.greenBorderMd, alignItems: 'center', justifyContent: 'center' }}>
+                              <Icon name="camera" size={18} color={G} />
+                            </View>
+                          </PressScale>
+                        </View>
+                        <PressScale onPress={() => openSwap(m)} accessibilityRole="button" accessibilityLabel="Swap this meal for another">
+                          <View style={{ minHeight: 40, justifyContent: 'center' }}>
+                            <Text style={{ color: G, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Swap for another {v.slot}</Text>
+                          </View>
+                        </PressScale>
+                      </>
+                    ) : (
+                      <>
+                        <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>What are you having?</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>
+                          {Math.max(0, goals.kcal - consumed).toLocaleString('en-IN')} kcal and {Math.max(0, goals.protein - protein)} g protein left today
+                        </Text>
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                          <View style={{ flex: 1.2 }}>
+                            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth onPress={() => setSearchOpen(true)} icon={<Icon name="search" size={16} color="#fff" />}>
+                              Search
+                            </Button>
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => openAdd(upNext ?? 'Snack')} icon={<Icon name="camera" size={16} color={G} />}>
+                              Photo
+                            </Button>
+                          </View>
+                        </View>
+                      </>
+                    )}
                   </View>
-                  <View style={{ flex: 1 }}>
-                    <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => openAdd(upNext)} icon={<Icon name="camera" size={16} color={G} />}>
-                      Photo
-                    </Button>
-                  </View>
+                );
+              }
+              return (
+                <View key={v.slot} style={{ borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, borderStyle: 'dashed', padding: 14, gap: 2 }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · later</Text>
+                  {v.planned ? (
+                    <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '700', fontFamily: FONT }}>
+                      {v.planned.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 14 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
+                    </Text>
+                  ) : null}
                 </View>
-              </View>
-            ) : meals.length > 0 ? (
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>All three meals are logged. Log a snack any time with Search.</Text>
+              );
+            })}
+            {!plan && targetsLoaded ? (
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+                Finish "Set up your meals" and your three meals a day are planned from what you can get.
+              </Text>
             ) : null}
-
-            {SLOTS.filter((t) => !loggedTypes.includes(t) && t !== upNext && SLOTS.indexOf(t) > SLOTS.indexOf(upNext ?? 'Breakfast')).map((t) => (
-              <View key={t} style={{ borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, borderStyle: 'dashed', padding: 14 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{t} · later</Text>
-              </View>
-            ))}
           </View>
 
           <PressScale onPress={() => router.push('/diary')} accessibilityRole="button" accessibilityLabel="Food diary: photos, ratings and micronutrients">
@@ -347,7 +452,23 @@ export default function NutritionTab() {
       ) : null}
 
       <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
-      <FoodSearchSheet visible={searchOpen} mealType={addType} recent={recent} onClose={() => setSearchOpen(false)} onLogged={() => setSearchOpen(false)} />
+      <FoodSearchSheet visible={searchOpen} mealType={addType} recent={recent} planned={!!upSlot?.planned} onClose={() => setSearchOpen(false)} onLogged={afterOtherLog} />
+
+      <BottomSheet visible={swapMeal !== null} onClose={() => setSwapMeal(null)}>
+        <View style={{ padding: 20, gap: 12 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Swap {swapMeal?.meal}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>Close in calories and protein to what was planned.</Text>
+          {swapList.length === 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>No close match from what you can get.</Text> : null}
+          {swapList.map((o) => (
+            <PressScale key={o.templateId} onPress={() => chooseSwap(o)} accessibilityRole="button" accessibilityLabel={`${o.name}, ${o.kcal} kilocalories`}>
+              <Surface padding={14}>
+                <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{o.name}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{o.kcal} kcal · P {Math.round(o.protein)} g</Text>
+              </Surface>
+            </PressScale>
+          ))}
+        </View>
+      </BottomSheet>
     </View>
   );
 }

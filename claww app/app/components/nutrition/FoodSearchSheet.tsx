@@ -23,11 +23,13 @@ export interface FoodSearchSheetProps {
   mealType: MealType;
   /** Recent descriptions to start from while the box is empty. */
   recent: string[];
+  /** True when the meal being logged replaces a planned one (logged as swapped), false for an extra. */
+  planned?: boolean;
   onClose: () => void;
   onLogged: (row: MealLogRow) => void;
 }
 
-export function FoodSearchSheet({ visible, mealType, recent, onClose, onLogged }: FoodSearchSheetProps) {
+export function FoodSearchSheet({ visible, mealType, recent, planned = false, onClose, onLogged }: FoodSearchSheetProps) {
   const router = useRouter();
   const { saveMeal } = useAppState();
   const [query, setQuery] = useState('');
@@ -97,6 +99,7 @@ export function FoodSearchSheet({ visible, mealType, recent, onClose, onLogged }
       protein_g: nutrients.proteinG,
       carbs_g: nutrients.carbsG,
       fats_g: nutrients.fatG,
+      planStatus: planned ? 'swapped' : 'extra',
       items: [{ food: picked.name, unit, qty, grams: Math.round(grams) }],
       nutrients: { fibreG: nutrients.fibreG, ironMg: nutrients.ironMg, calciumMg: nutrients.calciumMg, vitcMg: nutrients.vitcMg, b12Ug: nutrients.b12Ug, sodiumMg: nutrients.sodiumMg },
     });
