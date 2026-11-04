@@ -12,6 +12,8 @@ export interface PlanMark {
   newText: string;
   /** Handwritten note, 42 characters at most, lower case. */
   note: string;
+  /** The engine's full one-line reason, shown when the mark is tapped. */
+  reason: string;
   direction: 'up' | 'down';
 }
 
@@ -38,11 +40,11 @@ export function marksFor(prescribed: PrescribedExercise[]): PlanMark[] {
     const today = p.prescription;
     const note = shortNote(today.reason);
     if (plan.weightKg !== null && today.weightKg !== null && Math.abs(plan.weightKg - today.weightKg) > 0.001) {
-      marks.push({ name: p.name, kind: 'weight', oldText: kgText(plan.weightKg), newText: `${kgText(today.weightKg)} kg`, note, direction: today.weightKg > plan.weightKg ? 'up' : 'down' });
+      marks.push({ name: p.name, kind: 'weight', oldText: kgText(plan.weightKg), newText: `${kgText(today.weightKg)} kg`, note, reason: today.reason, direction: today.weightKg > plan.weightKg ? 'up' : 'down' });
     } else if (today.sets !== plan.sets) {
-      marks.push({ name: p.name, kind: 'sets', oldText: `${plan.sets} sets`, newText: `${today.sets} sets`, note, direction: today.sets > plan.sets ? 'up' : 'down' });
+      marks.push({ name: p.name, kind: 'sets', oldText: `${plan.sets} sets`, newText: `${today.sets} sets`, note, reason: today.reason, direction: today.sets > plan.sets ? 'up' : 'down' });
     } else if (today.reps !== plan.repTarget) {
-      marks.push({ name: p.name, kind: 'reps', oldText: `${plan.repTarget}`, newText: `${today.reps} reps`, note, direction: today.reps > plan.repTarget ? 'up' : 'down' });
+      marks.push({ name: p.name, kind: 'reps', oldText: `${plan.repTarget}`, newText: `${today.reps} reps`, note, reason: today.reason, direction: today.reps > plan.repTarget ? 'up' : 'down' });
     }
   }
   return marks;

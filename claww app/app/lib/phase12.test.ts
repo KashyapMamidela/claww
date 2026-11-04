@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { coachLine, coachText, sleepText } from './coachLine';
-import { clockLabel, heroFor, usualMinutesOf } from './homeMoment';
+import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from './homeMoment';
 import { marksFor, shortNote, type PlanMark } from './planMarks';
 import { examWeekActive, examWeekFrom, planStreak, streakSentence } from './planStreak';
 import { feelNote, newBest, newBestText, sessionTitle, totalVolume, volumeDelta } from './sessionRecap';
@@ -9,7 +9,7 @@ import { shortLabel, weekStrip } from './weekStrip';
 import { bestRecords, previousVolume } from './recapData';
 import type { PrescribedExercise } from './sessionPrescription';
 
-const mark = (over: Partial<PlanMark> = {}): PlanMark => ({ name: 'Bench press', kind: 'weight', oldText: '62.5', newText: '60 kg', note: 'short sleep', direction: 'down', ...over });
+const mark = (over: Partial<PlanMark> = {}): PlanMark => ({ name: 'Bench press', kind: 'weight', oldText: '62.5', newText: '60 kg', note: 'short sleep', reason: 'Short sleep, so the weight holds back.', direction: 'down', ...over });
 
 describe('coach line', () => {
   const base = { sleepHours: 6 + 10 / 60, sessionPlanned: true, sessionDone: false, marks: [mark(), mark({ name: 'Face pulls', kind: 'sets', direction: 'up' })], proteinLeftG: null as number | null, hour: 7 };
@@ -171,7 +171,7 @@ describe('plan marks', () => {
       prescription: { weightKg: o.weight ?? 60, reps: o.reps ?? 8, sets: o.sets ?? 4, commands: [], reason: o.reason ?? 'Short sleep, so the weight holds back.' },
     }) as unknown as PrescribedExercise;
   it('a lowered weight is a struck old value and a bold new one with a short note', () => {
-    expect(marksFor([ex({})])).toEqual([{ name: 'Bench press', kind: 'weight', oldText: '62.5', newText: '60 kg', note: 'short sleep', direction: 'down' }]);
+    expect(marksFor([ex({})])).toEqual([{ name: 'Bench press', kind: 'weight', oldText: '62.5', newText: '60 kg', note: 'short sleep', reason: 'Short sleep, so the weight holds back.', direction: 'down' }]);
   });
   it('sets and reps marks; nothing for unchanged, new or unmanaged exercises', () => {
     expect(marksFor([ex({ name: 'Face pulls', planW: 20, weight: 20, planSets: 3, sets: 4 })])[0]).toMatchObject({ kind: 'sets', oldText: '3 sets', newText: '4 sets', direction: 'up' });
@@ -229,5 +229,17 @@ describe('recap reductions', () => {
   it('best records keep the heaviest weight and the most reps at it', () => {
     expect(bestRecords(past)).toEqual([{ name: 'Bench press', maxWeightKg: 62.5, repsAtMax: 5 }]);
     expect(bestRecords([...past, { name: 'Bench press', weightKg: 62.5, reps: 6, completedAt: new Date(2026, 9, 8).toISOString() }])[0].repsAtMax).toBe(6);
+  });
+});
+
+describe('next meal', () => {
+  it('follows the time of day and skips what is logged', () => {
+    expect(nextMealFor([], 8)).toBe('Breakfast');
+    expect(nextMealFor(['Breakfast'], 8)).toBe('Lunch');
+    expect(nextMealFor([], 13)).toBe('Lunch');
+    expect(nextMealFor(['Lunch'], 13)).toBe('Dinner');
+    expect(nextMealFor([], 19)).toBe('Dinner');
+    expect(nextMealFor(['breakfast', 'lunch', 'dinner'], 19)).toBeNull();
+    expect(nextMealFor(['Dinner'], 20)).toBeNull();
   });
 });

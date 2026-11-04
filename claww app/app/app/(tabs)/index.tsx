@@ -20,6 +20,12 @@ import { WaterRow } from '../../components/WaterRow';
 import { getCatalog, getRecentLoggedSets } from '../../lib/adaptiveData';
 import { lowestMuscle, muscleScores, musclesForExercises } from '../../lib/muscleRecovery';
 import { Display } from '../../components/ui/Typography';
+import { Hero } from '../../components/ui/Hero';
+import { PenMark } from '../../components/ui/PenMark';
+import { coachLine, type CoachSegment } from '../../lib/coachLine';
+import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from '../../lib/homeMoment';
+import { marksFor, type PlanMark } from '../../lib/planMarks';
+import { loadDayPrescription } from '../../lib/todayPlan';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { greetingFor, type Greeting } from '../../lib/greeting';
@@ -298,6 +304,10 @@ function HomePopulated() {
   // NG PHASE 2: today's session for the Workout ring, and the usual training time for its note.
   const [workoutToday, setWorkoutToday] = useState<WorkoutToday>({ planned: false, completed: false, setsDone: 0, setsPlanned: 0 });
   const [usualTime, setUsualTime] = useState<string | null>(null);
+  // NG PHASE 12: where today's numbers differ from the plan (the Coach's Pen marks), and the protein target for the coach line.
+  const [marks, setMarks] = useState<PlanMark[]>([]);
+  const [proteinTarget, setProteinTarget] = useState<number | null>(null);
+  const [sleepOpen, setSleepOpen] = useState(false);
   const steps = useTodaySteps();
 
   // xp/streak come from AppState directly — they update live as XP events
@@ -327,12 +337,18 @@ function HomePopulated() {
             setsDone: sets.filter((x) => sameDay(x.completedAt) && names.includes(x.exerciseName)).length,
             setsPlanned: (day?.exercises ?? []).reduce((n, ex) => n + (Number(ex.sets) || 0), 0),
           });
+          loadDayPrescription(userId, w, dayIdx)
+            .then((p) => {
+              if (!cancelled) setMarks(marksFor(p));
+            })
+            .catch(() => {});
           const muscles = musclesForExercises(names, catalog);
           const low = lowestMuscle(muscleScores(muscles, sets, { ...history, ...catalog }, new Date()), muscles);
           setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
         }
         const targets = profile?.personalization_profile?.nutritionDefaults;
         if (targets) setTargetKcal(targets.calories);
+        setProteinTarget(targets?.protein_g ?? null);
         setUsualTime(profile?.personalization_profile?.workoutDefaults?.usualTrainingTime ?? null);
       });
       return () => {
@@ -372,6 +388,32 @@ function HomePopulated() {
       : `${today.day.toUpperCase()} · ${dayOfLabel}`
     : null;
 
+  // NG PHASE 12: the coach line, the hero for this moment, and what is left to eat today.
+  const now = new Date();
+  const mealsLogged = meals.map((m) => m.meal_type ?? '').filter(Boolean);
+  const nextMeal = nextMealFor(mealsLogged, now.getHours());
+  const sessionPlanned = workoutToday.planned && !!today;
+  const hero = heroFor({
+    hour: now.getHours(),
+    minute: now.getMinutes(),
+    sessionPlanned,
+    sessionDone: workoutToday.completed,
+    mealLeft: nextMeal !== null,
+    usualMinutes: usualMinutesOf(usualTime),
+  });
+  const consumedProtein = meals.reduce((s, m) => s + (m.protein_g ?? 0), 0);
+  const proteinLeft = proteinTarget ? Math.max(0, proteinTarget - consumedProtein) : null;
+  const kcalLeft = Math.max(0, targetKcal - consumedKcal);
+  const coach: CoachSegment[] = coachLine({
+    sleepHours,
+    sessionPlanned,
+    sessionDone: workoutToday.completed,
+    marks,
+    proteinLeftG: proteinLeft,
+    hour: now.getHours(),
+  });
+  const sessionMinutes = today ? Math.round((today.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0) * 130) / 60 + 5) : 0;
+
   return (
     <View
       style={{
@@ -382,28 +424,74 @@ function HomePopulated() {
       }}
     >
       <View>
-        <SectionLabel color={COLORS.green}>TODAY</SectionLabel>
+        <SectionLabel color={COLORS.green}>{`TODAY · ${clockLabel(now)}`}</SectionLabel>
         <Display style={{ marginTop: 4 }}>
           {greeting},{'\n'}{userName || 'there'}.
         </Display>
-        <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
-          {recovery ? (
-            <>
-              Recovery score{' '}
-              <Text style={{ color: recoveryColor, fontWeight: '700' }}>
-                {recovery.score} · {recovery.band}
-              </Text>{' '}
-              {tiredMuscle ? (
-                <>. {tiredMuscle.muscle.charAt(0).toUpperCase() + tiredMuscle.muscle.slice(1)} is still recovering ({tiredMuscle.band.toLowerCase()}).</>
-              ) : (
-                <> — {recovery.band === 'Low' ? 'take it easy today.' : recovery.band === 'High' ? 'great day to push hard.' : 'a solid day for moderate work.'}</>
-              )}
-            </>
-          ) : (
-            'Recovery score not available yet — log a night of sleep to unlock it.'
-          )}
-        </Text>
+        <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, lineHeight: 22, fontFamily: FONT }}>
+            {coach.map((seg, i) => (
+              <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '800' } : undefined}>
+                {seg.text}
+              </Text>
+            ))}
+          </Text>
+        </TouchableOpacity>
       </View>
+
+
+      {hero === 'session' && today ? (
+        <Hero variant="blue" accessibilityLabel={`Your plan today: ${today.focus}`}>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
+            {planCardLabel ? `YOUR PLAN · ${planCardLabel}${usualTime ? ` · ${clockLabel(new Date(2000, 0, 1, Number(usualTime.slice(0, 2)), Number(usualTime.slice(3, 5))))}` : ''}` : 'YOUR PLAN'}
+          </Text>
+          <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{today.focus}</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 14, marginTop: 4, fontFamily: FONT }}>
+            {today.exercises.length} exercise{today.exercises.length === 1 ? '' : 's'} · about {sessionMinutes} min
+          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 14 }}>
+            <Button
+              variant="secondary"
+              size="md"
+              onPress={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+              icon={<Icon name="play" size={14} color={COLORS.blue} />}
+            >
+              Start
+            </Button>
+          </View>
+        </Hero>
+      ) : hero === 'meal' && nextMeal ? (
+        <Hero variant="green" accessibilityLabel={`Next meal: ${nextMeal}`}>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`NEXT MEAL · ${nextMeal.toUpperCase()}`}</Text>
+          <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{nextMeal}</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 14, marginTop: 4, fontFamily: FONT }}>
+            {Math.round(kcalLeft).toLocaleString('en-IN')} kcal left today
+            {proteinLeft !== null ? ` · ${Math.round(proteinLeft)} g protein` : ''}
+          </Text>
+          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 14 }}>
+            <Button variant="secondary" size="md" onPress={() => router.push({ pathname: '/meal-log', params: { mealType: nextMeal } })} icon={<Icon name="plus" size={14} color={COLORS.green} />}>
+              Log it
+            </Button>
+          </View>
+        </Hero>
+      ) : null}
+
+      {marks.length > 0 && !workoutToday.completed && today ? (
+        <Surface padding={16}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="pencil" size={14} color={COLORS.textMuted} />
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
+            </View>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/workouts')} accessibilityRole="button" accessibilityLabel="This week" style={{ minHeight: 44, justifyContent: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week {'›'}</Text>
+            </TouchableOpacity>
+          </View>
+          {marks.slice(0, 3).map((m) => (
+            <PenMark key={m.name} area="workout" context={today.focus.toUpperCase()} item={m.name} oldValue={m.oldText} newValue={m.newText} note={m.note} reason={m.reason} />
+          ))}
+        </Surface>
+      ) : null}
 
       {/* NG PHASE 1: the first real use of Surface (grain, top light, soft shadow). Data unchanged. */}
       <Surface padding={17}>
@@ -505,65 +593,14 @@ function HomePopulated() {
             ))}
           </View>
         </View>
+        <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 16, marginBottom: 14 }} />
+        <HomeStatTiles userId={userId} steps={steps} streak={streak} />
       </Surface>
-
-      <HomeStatTiles userId={userId} steps={steps} streak={streak} />
 
       <WaterRow userId={userId} />
 
-      <SleepRow />
-
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={() =>
-          today ? router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } }) : router.push('/(tabs)/workouts')
-        }
-      >
-        <LinearGradient
-          colors={['#0F172A', '#1E3A5F', '#1D4ED8']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{
-            borderRadius: 20,
-            borderWidth: 1,
-            borderColor: 'rgba(59,130,246,0.35)',
-            paddingHorizontal: 18,
-            paddingVertical: 16,
-          }}
-        >
-          <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
-            {planCardLabel ? `YOUR PLAN · ${planCardLabel}` : 'YOUR PLAN'}
-          </Text>
-          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, marginTop: 6, marginBottom: 8, fontFamily: FONT }}>
-            {today ? today.focus : 'No plan yet — tap to generate one'}
-          </Text>
-          {today ? (
-            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 11, fontFamily: FONT }}>
-              {today.exercises.length} exercise{today.exercises.length === 1 ? '' : 's'} · tap to open
-            </Text>
-          ) : null}
-        </LinearGradient>
-      </TouchableOpacity>
-
-      <AiCard>
-        {recovery ? (
-          <>
-            Your <Text style={{ color: '#fff', fontWeight: '700' }}>recovery score of {recovery.score}</Text> puts you in{' '}
-            <Text style={{ color: recoveryColor, fontWeight: '700' }}>{recovery.band.toLowerCase()}</Text> recovery today
-            {streak > 0 ? (
-              <>
-                , and you're on a <Text style={{ color: AREA_COLORS.streak, fontWeight: '700' }}>{streak}-day streak</Text>
-              </>
-            ) : null}
-            .
-          </>
-        ) : (
-          <>
-            Log a night of sleep and your <Text style={{ color: '#fff', fontWeight: '700' }}>Recovery Score</Text> will start showing
-            up here each morning.
-          </>
-        )}
-      </AiCard>
+      {todaySleep ? null : <SleepRow />}
+      <SleepLogModal visible={sleepOpen} onClose={() => setSleepOpen(false)} />
     </View>
   );
 }
