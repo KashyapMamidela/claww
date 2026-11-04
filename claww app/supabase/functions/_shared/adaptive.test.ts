@@ -471,3 +471,36 @@ describe('exercise intelligence', () => {
     expect(d.replacement).toBeNull();
   });
 });
+
+describe('how did that feel (NG PHASE 12)', () => {
+  it('too hard cancels a weight increase for one session and says why', () => {
+    let s = base({ next: { weightKg: 60, repTarget: 10, sets: 3 } });
+    s = evaluateSession(s, session(s, [10, 10, 10]), barbell).state;
+    const r = evaluateSession(s, session(s, [10, 10, 10], { feel: 'too_hard' }), barbell);
+    expect(r.commands).toEqual(['HOLD']);
+    expect(r.state.next.weightKg).toBe(60);
+    expect(r.state.topStreak).toBe(1); // not counted twice, not reset
+    expect(r.reason).toContain('too hard');
+  });
+  it('too hard does not soften a failed session', () => {
+    const s = base();
+    const r = evaluateSession(s, session(s, [4, 4, 4], { feel: 'too_hard' }), barbell);
+    expect(r.commands).toContain('DECREASE_WEIGHT');
+  });
+  it('too easy counts a good session below the top of the range as a top one', () => {
+    let s = base({ next: { weightKg: 60, repTarget: 8, sets: 3 } });
+    const a = evaluateSession(s, session(s, [8, 8, 8], { feel: 'too_easy' }), barbell);
+    expect(a.state.topStreak).toBe(1);
+    const t = a.state.next.repTarget;
+    const b = evaluateSession(a.state, session(a.state, [t, t, t], { feel: 'too_easy' }), barbell);
+    expect(b.commands).toEqual(['INCREASE_WEIGHT']);
+    expect(b.state.next.weightKg).toBe(62.5);
+  });
+  it('just right and no answer behave the same', () => {
+    const s = base({ next: { weightKg: 60, repTarget: 8, sets: 3 } });
+    const a = evaluateSession(s, session(s, [8, 8, 8], { feel: 'just_right' }), barbell);
+    const b = evaluateSession(s, { ...session(s, [8, 8, 8]), date: a.state.lastSessionDate ?? '' }, barbell);
+    expect(a.commands).toEqual(b.commands);
+    expect(a.state.next).toEqual(b.state.next);
+  });
+});

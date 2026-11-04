@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import {
@@ -42,7 +42,17 @@ import { ExerciseGuideSheet } from '../../components/ExerciseGuideSheet';
 import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
 import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
 import { computeRepRange, startingPrescription } from '../../lib/engine';
-import { newStateFor } from '../../lib/sessionPrescription';
+import { newStateFor, type PrescribedExercise } from '../../lib/sessionPrescription';
+import { Hero } from '../../components/ui/Hero';
+import { WeekStripView } from '../../components/workouts/WeekStripView';
+import { ExerciseRow } from '../../components/workouts/ExerciseRow';
+import { ActivityCard } from '../../components/workouts/ActivityCard';
+import { weekStrip } from '../../lib/weekStrip';
+import { marksFor } from '../../lib/planMarks';
+import { loadDayPrescription } from '../../lib/todayPlan';
+import { BLUEPRINTS } from '../../lib/engine';
+import { blueprintDayMinutes } from '../../lib/engine';
+import { WEEKDAY_NAMES } from '../../lib/trainingWeek';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -147,6 +157,10 @@ export default function WorkoutsTab() {
   const [todayStats, setTodayStats] = useState<TodayWorkoutStats | null>(null);
   const [equipment, setEquipment] = useState<Equipment>('gym');
   const [pickerOpen, setPickerOpen] = useState(false);
+  // NG PHASE 12: what the engine would prescribe for the selected day, for the marks and weights in the list.
+  const [prescribed, setPrescribed] = useState<PrescribedExercise[]>([]);
+  const scrollRef = useRef<ScrollView>(null);
+  const exercisesY = useRef(0);
 
   // Hints for the exercise picker: muscles that are Low or Very low today.
   useEffect(() => {
@@ -219,6 +233,21 @@ export default function WorkoutsTab() {
     getProfile(userId).then((p) => getTodayWorkoutStats(userId, p?.weight ?? null)).then(setTodayStats);
   }, [sessionStatus, userId, workout]);
 
+  useEffect(() => {
+    if (!userId || !workout) return;
+    let cancelled = false;
+    loadDayPrescription(userId, workout, selectedDay)
+      .then((p) => {
+        if (!cancelled) setPrescribed(p);
+      })
+      .catch(() => {
+        if (!cancelled) setPrescribed([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, workout, selectedDay, events.length]);
+
   if (!loaded) {
     return (
       <View
@@ -263,6 +292,19 @@ export default function WorkoutsTab() {
   // Plans on real weekdays get week-aware states (and Missed); "Day 1, Day 2" plans keep the old ones.
   const dayStates = computeWeekdayStates(dayLabels, events, new Date()) ?? computeDayStates(dayLabels, events, suggestedDay);
   const selectedState = dayStates[selectedDay] ?? dayStates[0];
+
+  // NG PHASE 12: week strip, blueprint line, numbers for the exercise list and the sticky Start label.
+  const nowDate = new Date();
+  const strip = weekStrip(workout.plan.days, events, nowDate);
+  const marks = marksFor(prescribed);
+  const markByName = new Map(marks.map((m) => [m.name, m]));
+  const prescribedByName = new Map(prescribed.map((p) => [p.name, p]));
+  const blueprint = BLUEPRINTS.find((b) => b.id === workout.blueprint_id) ?? null;
+  const totalSets = day.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0);
+  const dayMinutes = Math.round((totalSets * 130) / 60 + 5);
+  const weekLabel = workout.block_week ? `WEEK ${workout.block_week} OF 6` : null;
+  const todayName = WEEKDAY_NAMES[(nowDate.getDay() + 6) % 7].toUpperCase();
+  const canStart = sessionStatus === 'idle' && (selectedState.state === 'suggested' || selectedState.state === 'upcoming');
 
   const handleSkip = async () => {
     if (!userId || skipping) return;
@@ -328,12 +370,12 @@ export default function WorkoutsTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,
             paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-            paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 48,
+            paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 100,
             gap: 16,
           }}
         >
@@ -341,7 +383,7 @@ export default function WorkoutsTab() {
             <View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-                <Text style={{ color: A, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR PLAN</Text>
+                <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{weekLabel ? `${todayName} \u00b7 ${weekLabel}` : 'YOUR PLAN'}</Text>
               </View>
               <Display>Workouts</Display>
             </View>
@@ -442,10 +484,13 @@ export default function WorkoutsTab() {
             </View>
           ) : null}
 
-          <View>
-            <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontWeight: '700', letterSpacing: 0.7, marginBottom: 8, fontFamily: FONT }}>
-              PICK A DAY {isSuggested ? '· SUGGESTED IS HIGHLIGHTED' : ''}
-            </Text>
+          {strip ? (
+            <WeekStripView strip={strip} selectedPlanIndex={selectedDay} onSelect={setSelectedDay} />
+          ) : (
+            <View>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.7, marginBottom: 8, fontFamily: FONT }}>
+                PICK A DAY {isSuggested ? '· SUGGESTED IS HIGHLIGHTED' : ''}
+              </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 7 }}>
               {workout.plan.days.map((d, i) => {
                 const active = i === selectedDay;
@@ -480,96 +525,60 @@ export default function WorkoutsTab() {
                 );
               })}
             </ScrollView>
-          </View>
-
-          <LinearGradient
-            colors={[A3, A2, A]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ borderRadius: 20, borderWidth: 1, borderColor: 'rgba(59,130,246,0.48)', paddingHorizontal: 18, paddingTop: 18, paddingBottom: 16 }}
-          >
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <Badge color="#fff">{day.day.toUpperCase()}</Badge>
-              {isSuggested ? <Badge color={COLORS.amber}>TODAY'S PICK</Badge> : null}
             </View>
-            <Text style={{ color: '#fff', fontSize: 21, fontWeight: '900', letterSpacing: -0.4, marginTop: 10, fontFamily: FONT }}>
-              {day.focus}
-            </Text>
-            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, marginTop: 10, fontFamily: FONT }}>
-              {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}
-            </Text>
-          </LinearGradient>
+          )}
 
-          {todayStats ? (
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {[
-                {
-                  label: 'PROGRESS',
-                  value: `${Math.min(
-                    100,
-                    Math.round((todayStats.setsCompleted / Math.max(1, day.exercises.reduce((s, ex) => s + ex.sets, 0))) * 100)
-                  )}%`,
-                  sub: `${todayStats.setsCompleted} sets today`,
-                },
-                { label: 'VOLUME', value: todayStats.volume >= 1000 ? `${(todayStats.volume / 1000).toFixed(1)}K` : String(Math.round(todayStats.volume)), sub: 'kg today' },
-                { label: 'BURNED', value: todayStats.calorieBurn > 0 ? String(todayStats.calorieBurn) : '—', sub: 'kcal est.' },
-              ].map((s) => (
-                <View
-                  key={s.label}
-                  style={{
-                    flex: 1,
-                    backgroundColor: '#151517',
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderRadius: 14,
-                    paddingHorizontal: 12,
-                    paddingVertical: 10,
-                  }}
-                >
-                  <Text style={{ color: COLORS.textMuted, fontSize: 9, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
-                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
-                  <Text style={{ color: COLORS.textFaint, fontSize: 9.5, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
+          <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
+            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
+              {`${isSuggested ? 'TODAY' : day.day.toUpperCase()} \u00b7 ${day.focus.toUpperCase()}`}
+            </Text>
+            <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+              {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
+                <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
+                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{t}</Text>
                 </View>
               ))}
             </View>
-          ) : null}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
+              <Icon name="shield-check" size={16} color="rgba(255,255,255,0.75)" />
+              <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, flex: 1, fontFamily: FONT }}>
+                {blueprint ? `${blueprint.title.split(',')[0]} blueprint${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
+              </Text>
+              <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="Preview the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
+                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Preview {'\u203a'}</Text>
+              </TouchableOpacity>
+            </View>
+          </Hero>
 
-          <View>
+          <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{day.day}'s Exercises</Text>
-              <Badge color={A}>{day.exercises.length} total</Badge>
+              <Text style={{ color: A, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{isSuggested ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
+              {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 18, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
             </View>
-            <View style={{ gap: 8 }}>
-              {day.exercises.map((ex, i) => (
-                <View
-                  key={`${ex.name}-${i}`}
-                  style={{
-                    backgroundColor: '#151517',
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.08)',
-                    borderRadius: 14,
-                    paddingHorizontal: 14,
-                    paddingVertical: 12,
-                  }}
-                >
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    onPress={() => setGuideName(ex.name)}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${ex.name}: how to do it`}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}
-                  >
-                    <Icon name="circle" size={20} color="#71717A" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{ex.name}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>
-                        {ex.sets} sets · {ex.reps} reps
-                      </Text>
-                    </View>
-                    <Icon name="info" size={16} color="#52525B" />
-                  </TouchableOpacity>
-                </View>
-              ))}
+            <View style={{ gap: 10 }}>
+              {day.exercises.map((ex, i) => {
+                const p = prescribedByName.get(ex.name);
+                const entry = p?.entry ?? null;
+                const managed = !!p?.managed;
+                const repMin = managed ? p!.state.repMin : ex.reps;
+                const repMax = managed ? p!.state.repMax : ex.reps;
+                const sets = managed ? p!.prescription.sets : ex.sets;
+                const weight = managed ? p!.prescription.weightKg : null;
+                const sub = entry?.primaryMuscle ? `${entry.primaryMuscle.charAt(0).toUpperCase()}${entry.primaryMuscle.slice(1)}${entry.secondaryMuscles?.[0] ? ` \u00b7 ${entry.secondaryMuscles[0]}` : ''}` : null;
+                return (
+                  <ExerciseRow
+                    key={`${ex.name}-${i}`}
+                    index={i + 1}
+                    name={ex.name}
+                    sub={sub}
+                    setsText={`${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
+                    weightText={weight !== null && weight > 0 ? `${Math.round(weight * 100) / 100} kg` : null}
+                    mark={markByName.get(ex.name)}
+                    onOpenGuide={() => setGuideName(ex.name)}
+                  />
+                );
+              })}
             </View>
             <TouchableOpacity
               activeOpacity={0.8}
@@ -598,6 +607,16 @@ export default function WorkoutsTab() {
             </Text>
           ) : null}
 
+          <ActivityCard
+            userId={userId}
+            onLogged={async () => {
+              if (userId) {
+                const p = await getProfile(userId);
+                setTodayStats(await getTodayWorkoutStats(userId, p?.weight ?? null));
+              }
+            }}
+          />
+
           {sessionStatus === 'idle' && selectedState.state === 'completed' && selectedState.event && userId ? (
             <CompletedDayCard userId={userId} day={day} event={selectedState.event} />
           ) : sessionStatus === 'idle' && selectedState.state === 'skipped' && selectedState.event ? (
@@ -615,24 +634,11 @@ export default function WorkoutsTab() {
               onKeepToday={() => setSelectedDay(suggestedDay)}
             />
           ) : sessionStatus === 'idle' ? (
-            <View style={{ gap: 8 }}>
-              <Button
-                variant="primary"
-                accent={A}
-                accentDeep={A3}
-                size="lg"
-                fullWidth
-                onPress={() => setFlowOpen(true)}
-                icon={<Icon name="play" size={14} color="#fff" />}
-              >
-                Begin Workout
-              </Button>
-              <TouchableOpacity activeOpacity={0.8} onPress={handleSkip} disabled={skipping} style={{ alignSelf: 'center', paddingVertical: 4 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>
-                  {skipping ? 'Skipping…' : "Not today — skip this workout"}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity activeOpacity={0.8} onPress={handleSkip} disabled={skipping} style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '600', fontFamily: FONT }}>
+                {skipping ? 'Skipping…' : 'Not today? Skip this workout'}
+              </Text>
+            </TouchableOpacity>
           ) : (
             <View
               style={{
@@ -674,6 +680,13 @@ export default function WorkoutsTab() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      {canStart ? (
+        <View pointerEvents="box-none" style={{ position: 'absolute', left: 16, right: 16, bottom: Math.max(insets.bottom, 12) + TAB_BAR_CONTENT_HEIGHT + 12 }}>
+          <Button variant="primary" accent={A} accentDeep={A3} size="lg" fullWidth onPress={() => setFlowOpen(true)} icon={<Icon name="play" size={14} color="#fff" />}>
+            {`Start ${day.focus} \u00b7 ${dayMinutes} min`}
+          </Button>
+        </View>
+      ) : null}
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
       {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
       <SessionStartFlow

@@ -386,3 +386,35 @@ export async function saveSwap(userId: string, sessionId: string, replacedName: 
   }
   return true;
 }
+
+// ─── NG PHASE 12: session recap and the day preview ─────────────────────────
+
+export interface PastSet {
+  name: string;
+  weightKg: number;
+  reps: number;
+  completedAt: string;
+}
+
+/** Sets of these exercises logged before `beforeIso` (up to 600), for "volume vs last time" and "new best". */
+export async function getPastSets(userId: string, names: string[], beforeIso: string): Promise<PastSet[]> {
+  if (names.length === 0) return [];
+  const { data, error } = await supabase
+    .from('workout_logs')
+    .select('exercise_name, weight_achieved, weight_prescribed, reps_achieved, reps_prescribed, completed_at')
+    .eq('user_id', userId)
+    .in('exercise_name', names)
+    .lt('completed_at', beforeIso)
+    .order('completed_at', { ascending: false })
+    .limit(600);
+  if (error) {
+    warn('Failed to load past sets', error);
+    return [];
+  }
+  return (data ?? []).map((r) => ({
+    name: r.exercise_name,
+    weightKg: Number(r.weight_achieved ?? r.weight_prescribed ?? 0),
+    reps: Number(r.reps_achieved ?? r.reps_prescribed ?? 0),
+    completedAt: r.completed_at,
+  }));
+}

@@ -1,0 +1,101 @@
+import React, { useState } from 'react';
+import { Text, TextInput, View } from 'react-native';
+import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
+import { ACTIVITIES, ACTIVITY_MINUTES_MAX, ACTIVITY_MINUTES_MIN, ACTIVITY_MINUTES_STEP, DEFAULT_ACTIVITY_MINUTES } from '../../lib/activities';
+import { logActivity } from '../../lib/data';
+import { BottomSheet } from '../ui/BottomSheet';
+import { Button } from '../ui/Button';
+import { Chip } from '../ui/Chip';
+import { ErrorCard } from '../ui/ErrorCard';
+import { Icon } from '../ui/Icon';
+import { Stepper } from '../ui/Stepper';
+
+// NG PHASE 12 (screen 06): "Played a sport or walked a lot?" Logs an activity with a duration. It counts for
+// calories and recovery and is never a missed or completed plan day.
+
+const C = AREA_COLORS.streak;
+
+export function ActivityCard({ userId, onLogged }: { userId: string | null; onLogged: () => void }) {
+  const [picked, setPicked] = useState<string | null>(null);
+  const [other, setOther] = useState('');
+  const [minutes, setMinutes] = useState(DEFAULT_ACTIVITY_MINUTES);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<string | null>(null);
+
+  const name = picked === 'Other' ? other.trim() : picked;
+
+  const close = () => {
+    setPicked(null);
+    setOther('');
+    setError(null);
+  };
+
+  const save = async () => {
+    if (!userId || !name || saving) return;
+    setSaving(true);
+    setError(null);
+    const ok = await logActivity(userId, name, minutes);
+    setSaving(false);
+    if (!ok) {
+      setError('Could not log it. Check your connection and try again.');
+      return;
+    }
+    setDone(`Logged ${name} · ${minutes} min`);
+    close();
+    setMinutes(DEFAULT_ACTIVITY_MINUTES);
+    onLogged();
+  };
+
+  return (
+    <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(C, 0.35), backgroundColor: tint(C, 0.07), padding: 16, gap: 12 }}>
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(C, 0.16), borderWidth: 1, borderColor: tint(C, 0.35) }}>
+          <Icon name="zap" size={20} color={C} />
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Played a sport or walked a lot?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>Log it as an activity. It counts for calories and recovery, and never as a missed workout.</Text>
+        </View>
+      </View>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+        {[...ACTIVITIES.map((a) => a.name), 'Other'].map((n) => (
+          <Chip key={n} accent={C} onPress={() => setPicked(n)}>
+            {n === 'Other' ? '+ Other' : n}
+          </Chip>
+        ))}
+      </View>
+      {done ? <Text style={{ color: COLORS.green, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{done}</Text> : null}
+
+      <BottomSheet visible={picked !== null} onClose={close}>
+        <View style={{ padding: 20, gap: 14 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>{picked === 'Other' ? 'Log an activity' : `Log ${picked}`}</Text>
+          {picked === 'Other' ? (
+            <TextInput
+              value={other}
+              onChangeText={setOther}
+              placeholder="What did you play?"
+              placeholderTextColor={COLORS.textFaint}
+              maxLength={40}
+              accessibilityLabel="Activity name"
+              style={{ height: 52, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
+            />
+          ) : null}
+          <Stepper
+            label="Minutes"
+            value={String(minutes)}
+            unit="min"
+            onDecrement={() => setMinutes((m) => Math.max(ACTIVITY_MINUTES_MIN, m - ACTIVITY_MINUTES_STEP))}
+            onIncrement={() => setMinutes((m) => Math.min(ACTIVITY_MINUTES_MAX, m + ACTIVITY_MINUTES_STEP))}
+            decrementDisabled={minutes <= ACTIVITY_MINUTES_MIN}
+            incrementDisabled={minutes >= ACTIVITY_MINUTES_MAX}
+          />
+          {error ? <ErrorCard message={error} onRetry={save} retrying={saving} /> : null}
+          <Button variant="primary" accent={C} size="lg" fullWidth disabled={!name || saving} onPress={save}>
+            {saving ? 'Saving…' : 'Log activity'}
+          </Button>
+        </View>
+      </BottomSheet>
+    </View>
+  );
+}

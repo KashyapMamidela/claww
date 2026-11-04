@@ -5,6 +5,8 @@ import { invalidateProfile } from './profileStore';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import type { Injury } from './engine';
+import { dateKey } from './planStreak';
+import { activityKcal, activityMet, OTHER_ACTIVITY_MET } from './activities';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
@@ -68,6 +70,8 @@ export interface PersonalizationProfile {
   reminders?: Partial<ReminderSettings>;
   /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
   stepsGoal?: number;
+  /** Exam week (NG PHASE 12): days in this range neither count toward nor break the plan streak. */
+  examWeek?: { from: string; until: string } | null;
   /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
   foodProfile?: FoodProfile;
 }
@@ -1077,7 +1081,7 @@ export async function getTodayWorkoutStats(userId: string, weightKg: number | nu
   startOfDay.setHours(0, 0, 0, 0);
   const { data, error } = await supabase
     .from('workout_logs')
-    .select('reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at, exercises(met_value)')
+    .select('exercise_name, duration_minutes, reps_achieved, reps_prescribed, weight_achieved, weight_prescribed, completed_at, exercises(met_value)')
     .eq('user_id', userId)
     .gte('completed_at', startOfDay.toISOString())
     .order('completed_at', { ascending: true });
@@ -1096,7 +1100,13 @@ export async function getTodayWorkoutStats(userId: string, weightKg: number | nu
     const w = row.weight_achieved ?? row.weight_prescribed ?? 0;
     volume += reps * w;
 
-    const met = (row as unknown as { exercises: { met_value: number | null } | null }).exercises?.met_value ?? DEFAULT_STRENGTH_MET;
+    const catalogMet = (row as unknown as { exercises: { met_value: number | null } | null }).exercises?.met_value ?? null;
+    // A timed row (a logged activity, a cardio block) burns by its duration, not by the gap between sets.
+    if (row.duration_minutes) {
+      calorieBurn += activityKcal(catalogMet ?? activityMet(row.exercise_name) ?? OTHER_ACTIVITY_MET, row.duration_minutes, weight);
+      continue;
+    }
+    const met = catalogMet ?? DEFAULT_STRENGTH_MET;
     const thisTime = new Date(row.completed_at).getTime();
     const seconds = prevTime === null ? FIRST_SET_ASSUMED_SECONDS : Math.min(600, (thisTime - prevTime) / 1000); // cap at 10min so a paused/abandoned session doesn't blow up the estimate
     calorieBurn += met * weight * (seconds / 3600);
@@ -1132,21 +1142,29 @@ export interface WorkoutRow {
   id: string;
   plan: WorkoutPlan;
   created_at: string;
+  /** NG PHASE 5 columns; absent until they are applied. */
+  blueprint_id?: string | null;
+  block_number?: number | null;
+  block_week?: number | null;
 }
 
 export async function getLatestWorkout(userId: string): Promise<WorkoutRow | null> {
-  const { data, error } = await supabase
+  let res = await supabase
     .from('workouts')
-    .select('id, plan, created_at')
+    .select('id, plan, created_at, blueprint_id, block_number, block_week')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (error) {
-    console.warn('[Claww] Failed to load latest workout:', error.message);
+  if (res.error) {
+    // The block columns may not exist yet (database/schema.sql, NG PHASE 5): ask for the old set.
+    res = (await supabase.from('workouts').select('id, plan, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(1).maybeSingle()) as typeof res;
+  }
+  if (res.error) {
+    console.warn('[Claww] Failed to load latest workout:', res.error.message);
     return null;
   }
-  return data;
+  return res.data as WorkoutRow | null;
 }
 
 /**
@@ -1636,4 +1654,43 @@ export async function getGenerationUsageToday(userId: string): Promise<{ plan: n
     else if (row.kind === 'meal') usage.meal = row.count;
   }
   return usage;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NG PHASE 12 — streak inputs
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Local dates (YYYY-MM-DD) on which a session was completed, across every plan, for the last `days` days. */
+export async function getCompletedSessionDates(userId: string, days = 120): Promise<string[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from('workout_day_events')
+    .select('created_at')
+    .eq('user_id', userId)
+    .eq('status', 'completed')
+    .gte('created_at', since);
+  if (error) {
+    console.warn('[Claww] Failed to load completed session dates:', error.message);
+    return [];
+  }
+  return Array.from(new Set((data ?? []).map((r) => dateKey(new Date(r.created_at as string)))));
+}
+
+export async function saveExamWeek(userId: string, week: { from: string; until: string } | null): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), examWeek: week };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
+  if (error) {
+    console.warn('[Claww] Failed to save exam week:', error.message);
+    return false;
+  }
+  return true;
+}
+
+
+/** Logs a sport or walk from the Workouts activity card: counts for calories and recovery, never as a plan day. */
+export async function logActivity(userId: string, name: string, minutes: number): Promise<boolean> {
+  return logAdHocSession(userId, { exerciseName: name.trim().slice(0, 40) || 'Activity', modality: 'cardio', durationMinutes: minutes });
 }

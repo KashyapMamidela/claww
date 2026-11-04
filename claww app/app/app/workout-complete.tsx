@@ -1,65 +1,93 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, ScrollView, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, Share, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { captureRef } from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { useWorkoutSession } from '../lib/workoutSession';
-import { getCompletedWorkoutDays, getProfile, setRatingPromptShown } from '../lib/data';
+import { getCompletedSessionDates, getCompletedWorkoutDays, getLatestWorkout, getProfile, saveExamWeek, setRatingPromptShown } from '../lib/data';
+import { getPastSets } from '../lib/adaptiveData';
+import { bestRecords, previousVolume } from '../lib/recapData';
+import { examWeekActive, examWeekFrom, dateKey, planStreak, streakSentence, type ExamWeek } from '../lib/planStreak';
+import { FEEL_OPTIONS, feelNote, newBest, newBestText, sessionTitle, totalVolume, volumeDelta, type Feel } from '../lib/sessionRecap';
+import { shareCaptureOptions, shareFileName } from '../lib/shareCard';
+import { sessionKcal } from '../lib/sessionPlan';
+import { weekdayIndex } from '../lib/trainingWeek';
 import { notificationsSupported } from '../lib/notifications';
 import { requestAppReview } from '../lib/rating';
-import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
+import { Hero } from '../components/ui/Hero';
+import { Icon } from '../components/ui/Icon';
+import { Segmented } from '../components/ui/Segmented';
+import { Surface } from '../components/ui/Surface';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
+import { ShareCard } from '../components/workouts/ShareCard';
 import { track, AnalyticsEvent } from '../lib/analytics';
 
 const RATING_PROMPT_AT_WORKOUTS = 3; // same milestone as Tracker's own unlock threshold
 
 const A = COLORS.blue;
-const A3 = COLORS.blueDeep;
 
-function formatClock(totalSeconds: number): string {
-  const mm = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-  const ss = String(totalSeconds % 60).padStart(2, '0');
-  return `${mm}:${ss}`;
-}
-
+/** The session-complete card (screen 10): reward hero, new best, how it felt, streak, share, done. */
 export default function WorkoutCompleteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { userId, userName } = useAppState();
-  const { lastSummary } = useWorkoutSession();
+  const { lastSummary: summary, applyFeel } = useWorkoutSession();
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
-
-  const tileScale = useRef(new Animated.Value(0.5)).current;
-  const tileOpacity = useRef(new Animated.Value(0)).current;
+  const [feel, setFeel] = useState<Feel>('just_right');
+  const [targets, setTargets] = useState(summary?.nextTargets ?? {});
+  const [volumePrev, setVolumePrev] = useState<number | null>(null);
+  const [bests, setBests] = useState<ReturnType<typeof bestRecords>>([]);
+  const [completedDates, setCompletedDates] = useState<Set<string>>(new Set());
+  const [plannedWeekdays, setPlannedWeekdays] = useState<number[] | null>(null);
+  const [examWeek, setExamWeek] = useState<ExamWeek | null>(null);
+  const [bodyKg, setBodyKg] = useState<number | null>(null);
+  const [sharing, setSharing] = useState(false);
+  const cardRef = useRef<View>(null);
+  const now = useMemo(() => new Date(), []);
+  const today = dateKey(now);
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.spring(tileScale, { toValue: 1, useNativeDriver: true, speed: 14, bounciness: 12 }),
-      Animated.timing(tileOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-    ]).start();
     track(AnalyticsEvent.WorkoutCompleted);
   }, []);
 
-  // SHIP PHASE 8.3 + item #31 — at most one soft-ask on this screen. The
-  // notification prompt (contextual, after a user's first completed
-  // workout) takes priority since it's been live longer; the rating
-  // prompt (item #31: a real milestone, the 3rd completed workout — same
-  // threshold Tracker itself unlocks at) only fires when the notification
-  // one genuinely isn't showing this time, checked in the same effect so
-  // there's no render-order race between the two. Both are one-time-ever,
-  // via their own *_prompt_shown_at column, set the instant they fire
-  // regardless of whether the OS actually displayed anything (that's
-  // throttled on Apple/Google's end, not ours to retry around).
+  // The numbers the card compares against: earlier sessions of the same exercises, the streak inputs, the profile.
+  useEffect(() => {
+    if (!userId || !summary) return;
+    let cancelled = false;
+    (async () => {
+      const names = Array.from(new Set(summary.doneSets.map((s) => s.name)));
+      const [past, dates, profile, workout] = await Promise.all([
+        getPastSets(userId, names, summary.startedAtIso),
+        getCompletedSessionDates(userId),
+        getProfile(userId),
+        getLatestWorkout(userId),
+      ]);
+      if (cancelled) return;
+      setVolumePrev(previousVolume(past));
+      setBests(bestRecords(past));
+      setCompletedDates(new Set([...dates, today]));
+      setExamWeek(profile?.personalization_profile?.examWeek ?? null);
+      setBodyKg(profile?.weight ?? null);
+      const labels = workout?.plan.days.map((d) => d.day) ?? [];
+      const idx = labels.map((l) => weekdayIndex(l));
+      setPlannedWeekdays(labels.length > 0 && idx.every((i) => i !== null) ? (idx as number[]) : null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, summary, today]);
+
+  // SHIP PHASE 8.3 + item #31 — at most one soft-ask on this screen. The notification prompt takes priority;
+  // the rating prompt only fires when it isn't showing, once ever, on the 3rd completed workout.
   useEffect(() => {
     if (!userId) return;
     let cancelled = false;
     getProfile(userId).then(async (profile) => {
       if (cancelled || !profile) return;
-      // Only for users who skipped the onboarding ask (V2 PHASE 3.2): "Not
-      // now" there leaves notification_prompt_shown_at unset on purpose.
       if (notificationsSupported && !profile.notification_prompt_shown_at && !profile.notifications_enabled) {
         setShowNotificationPrompt(true);
         return;
@@ -75,154 +103,175 @@ export default function WorkoutCompleteScreen() {
     };
   }, [userId]);
 
-  const summary = lastSummary;
-  const STATS = [
-    { icon: 'clock', label: 'TIME TRAINED', value: summary ? formatClock(summary.elapsedSeconds) : '—' },
-    { icon: 'dumbbell', label: 'EXERCISES', value: summary ? String(summary.exercisesCompleted) : '—', sub: summary ? `/ ${summary.totalExercises}` : undefined },
-    {
-      icon: 'check-circle-2',
-      label: 'SETS COMPLETED',
-      value: summary ? String(summary.setsCompleted) : '—',
-      sub: summary ? `/ ${summary.totalSetsPlanned}` : undefined,
-    },
-    { icon: 'repeat', label: 'REPS COMPLETED', value: summary ? String(summary.repsCompleted) : '—' },
-  ];
-  const setsPct = summary && summary.totalSetsPlanned > 0 ? Math.round((summary.setsCompleted / summary.totalSetsPlanned) * 100) : null;
+  const volume = summary ? totalVolume(summary.doneSets) : 0;
+  const delta = volumeDelta(volume, volumePrev);
+  const best = summary ? newBest(summary.doneSets, bests) : null;
+  const bestNext = best && targets[best.name]?.weightKg ? targets[best.name].weightKg : null;
+  const kcal = summary ? sessionKcal(summary.elapsedSeconds * 1000, bodyKg) : 0;
+  const minutes = summary ? Math.max(1, Math.round(summary.elapsedSeconds / 60)) : 0;
+  const streak = planStreak({ today, plannedWeekdays, completedDates, examWeek });
+  const examOn = examWeekActive(examWeek, today);
+  const title = summary ? sessionTitle(summary.setsCompleted, summary.totalSetsPlanned) : 'Session done';
+  const setsLine = summary ? (summary.setsCompleted >= summary.totalSetsPlanned ? 'all done' : `of ${summary.totalSetsPlanned}`) : '';
+  const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  const timeText = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
-  const handleDone = () => {
-    router.dismissTo('/(tabs)');
+  const chooseFeel = async (value: Feel) => {
+    setFeel(value);
+    const next = await applyFeel(value);
+    if (next) setTargets(next);
   };
 
+  const toggleExam = async (on: boolean) => {
+    if (!userId) return;
+    const week = on ? examWeekFrom(now) : null;
+    setExamWeek(week);
+    await saveExamWeek(userId, week);
+  };
+
+  const shareData = {
+    name: userName ?? '',
+    title,
+    focus: summary?.focus || 'Workout',
+    minutes,
+    setsText: summary ? `${summary.setsCompleted} sets` : '0 sets',
+    volumeText: `${volume.toLocaleString('en-IN')} kg`,
+    kcal,
+    bestLine: best ? `${best.name}: ${newBestText(best)}` : null,
+    streakText: streak.days > 1 ? `${streak.days}-day streak` : null,
+    dateText: now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' }),
+  };
+
+  const share = async () => {
+    if (sharing || !cardRef.current) return;
+    setSharing(true);
+    try {
+      const uri = await captureRef(cardRef, shareCaptureOptions());
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: shareFileName(now), UTI: 'public.png' });
+      } else {
+        await Share.share({ message: `${title}: ${summary?.setsCompleted ?? 0} sets, ${volume} kg, ${minutes} min. Trained with CLAWW.` });
+      }
+    } catch {
+      // The user closing the share sheet is not an error; a failed capture just leaves the card as it was.
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const handleDone = () => router.dismissTo('/(tabs)');
+
+  const tile = (value: string, label: string) => (
+    <View style={{ flex: 1, minHeight: 88, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 14, justifyContent: 'center' }}>
+      <Text style={{ color: '#fff', fontSize: 24, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
+      <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: FONT }}>{label}</Text>
+    </View>
+  );
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 48, paddingHorizontal: 22, paddingBottom: 24, alignItems: 'center' }}>
-        <Animated.View style={{ transform: [{ scale: tileScale }], opacity: tileOpacity, marginBottom: 22 }}>
-          <LinearGradient
-            colors={[A3, A]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{
-              width: 88,
-              height: 88,
-              borderRadius: 26,
-              alignItems: 'center',
-              justifyContent: 'center',
-              shadowColor: A,
-              shadowOffset: { width: 0, height: 10 },
-              shadowOpacity: 0.35,
-              shadowRadius: 20,
-              elevation: 10,
-            }}
-          >
-            <Icon name="check" size={44} color="#fff" strokeWidth={3} />
-          </LinearGradient>
-        </Animated.View>
-
-        <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8, fontFamily: FONT }}>
-          SESSION COMPLETE
-        </Text>
-        <Text
-          style={{
-            color: '#fff',
-            fontSize: 30,
-            fontWeight: '900',
-            letterSpacing: -0.6,
-            marginBottom: 10,
-            textAlign: 'center',
-            lineHeight: 35,
-            fontFamily: FONT,
-          }}
-        >
-          Nice work{userName ? `, ${userName}` : ''}.
-        </Text>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6,
-            backgroundColor: 'rgba(245,158,11,0.12)',
-            borderWidth: 1,
-            borderColor: 'rgba(245,158,11,0.28)',
-            borderRadius: 100,
-            paddingHorizontal: 12,
-            paddingVertical: 5,
-            marginBottom: 18,
-          }}
-        >
-          <Text style={{ fontSize: 13 }}>✦</Text>
-          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>
-            +{summary?.xpEarned ?? 0} CLAWW earned
-          </Text>
+    <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
+      <ScrollView contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: 24, gap: 14 }} showsVerticalScrollIndicator={false}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
+            <Text style={{ color: A, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`${dayName} · ${timeText}`}</Text>
+          </View>
+          <Pressable onPress={handleDone} accessibilityRole="button" accessibilityLabel="Close" style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+            <Icon name="x" size={22} color={COLORS.textMuted} />
+          </Pressable>
         </View>
 
-        <Text style={{ color: '#A1A1AA', fontSize: 13.5, lineHeight: 21, textAlign: 'center', maxWidth: 300, marginBottom: 26, fontFamily: FONT }}>
-          {setsPct !== null ? (
-            <>
-              Great session — you completed{' '}
-              <Text style={{ color: '#fff', fontWeight: '700' }}>
-                {summary!.setsCompleted}/{summary!.totalSetsPlanned} sets
-              </Text>{' '}
-              (<Text style={{ color: A, fontWeight: '700' }}>{setsPct}%</Text> of planned volume).
-            </>
-          ) : (
-            'Great session.'
-          )}
-        </Text>
-
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, width: '100%' }}>
-          {STATS.map((s) => (
-            <View
-              key={s.label}
-              style={{
-                flexBasis: '47%',
-                flexGrow: 1,
-                backgroundColor: '#151517',
-                borderWidth: 1,
-                borderColor: 'rgba(59,130,246,0.22)',
-                borderRadius: 16,
-                paddingHorizontal: 14,
-                paddingTop: 14,
-                paddingBottom: 12,
-              }}
-            >
-              <View
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 9,
-                  backgroundColor: 'rgba(59,130,246,0.14)',
-                  borderWidth: 1,
-                  borderColor: 'rgba(59,130,246,0.28)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 10,
-                }}
-              >
-                <Icon name={s.icon} size={15} color={A} />
-              </View>
-              <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '700', letterSpacing: 0.5, marginBottom: 3, fontFamily: FONT }}>
-                {s.label}
-              </Text>
-              <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>
-                {s.value}
-                {s.sub ? <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '400', letterSpacing: 0 }}> {s.sub}</Text> : null}
-              </Text>
+        <Hero variant="blue" accessibilityLabel={`${title}. ${minutes} minutes, ${summary?.setsCompleted ?? 0} sets`}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, flex: 1, fontFamily: FONT }}>
+              {`${(summary?.focus || 'Workout').toUpperCase()} · COMPLETE`}
+            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.55)', backgroundColor: 'rgba(245,158,11,0.16)', paddingHorizontal: 10, paddingVertical: 5 }}>
+              <Icon name="sparkles" size={13} color={COLORS.amber} />
+              <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>+{summary?.xpEarned ?? 0} CLAWW</Text>
             </View>
-          ))}
-        </View>
+          </View>
+          <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: FONT }}>
+            {title},{'\n'}{userName || 'you'}.
+          </Text>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+            {tile(`${minutes} min`, 'time')}
+            {tile(String(summary?.setsCompleted ?? 0) + ' sets', setsLine)}
+          </View>
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
+            {tile(`${volume.toLocaleString('en-IN')} kg`, delta ? `volume · ${delta.text}` : 'volume')}
+            {tile(String(kcal), 'kcal burned (estimate)')}
+          </View>
+        </Hero>
 
-        {showNotificationPrompt && userId ? (
-          <View style={{ width: '100%', marginTop: 16 }}>
-            <NotificationPromptCard userId={userId} onDismiss={() => setShowNotificationPrompt(false)} />
+        {best ? (
+          <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(COLORS.amber, 0.5), backgroundColor: tint(COLORS.amber, 0.10), padding: 16, gap: 12 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+              <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(COLORS.amber, 0.18), borderWidth: 1, borderColor: tint(COLORS.amber, 0.4) }}>
+                <Icon name="trophy" size={20} color={COLORS.amber} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>New best · {best.name}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{newBestText(best)}</Text>
+              </View>
+            </View>
+            {bestNext ? (
+              <View style={{ borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: FONT_HAND }}>
+                  next {(summary?.focus || 'session').toLowerCase()}: {Math.round(bestNext * 100) / 100} kg
+                </Text>
+                <Icon name="arrow-up-right" size={16} color={COLORS.fg} />
+              </View>
+            ) : null}
           </View>
         ) : null}
+
+        <Surface padding={16}>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>How did that feel?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, marginTop: 2, marginBottom: 12, fontFamily: FONT }}>This decides how the next session is marked.</Text>
+          <Segmented options={FEEL_OPTIONS} value={feel} onChange={chooseFeel} accessibilityLabel="How did that feel" />
+          <Text style={{ color: COLORS.fg, fontSize: 21, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
+        </Surface>
+
+        <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4), backgroundColor: tint(AREA_COLORS.streak, 0.08), padding: 16, gap: 12 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.streak, 0.18), borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4) }}>
+              <Icon name="zap" size={20} color={AREA_COLORS.streak} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{streak.days}-day streak</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{streakSentence(streak, today)}</Text>
+            </View>
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10 }}>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Exam week</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Protects your streak for 7 days if you miss sessions.</Text>
+            </View>
+            <Switch value={examOn} onValueChange={toggleExam} accessibilityLabel="Exam week" trackColor={{ true: AREA_COLORS.streak, false: '#3F3F46' }} />
+          </View>
+        </View>
+
+        {showNotificationPrompt && userId ? <NotificationPromptCard userId={userId} onDismiss={() => setShowNotificationPrompt(false)} /> : null}
+
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
+          <View style={{ flex: 0.9 }}>
+            <Button variant="secondary" size="lg" fullWidth onPress={share} disabled={sharing} icon={<Icon name="share-2" size={16} color={A} />}>
+              {sharing ? 'Preparing…' : 'Share card'}
+            </Button>
+          </View>
+          <View style={{ flex: 1.1 }}>
+            <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth onPress={handleDone}>
+              Done
+            </Button>
+          </View>
+        </View>
+        <View style={{ height: Math.max(insets.bottom, 8) }} />
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 22, paddingTop: 14, paddingBottom: Math.max(insets.bottom, 26) }}>
-        <Button variant="primary" accent={A} accentDeep={A3} size="lg" fullWidth onPress={handleDone}>
-          Back to Home
-        </Button>
+      {/* The share image is laid out at its real 1080 x 1920 pixels, invisible and behind everything, only to be captured. */}
+      <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, opacity: 0.01 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <ShareCard ref={cardRef} data={shareData} />
       </View>
     </View>
   );
