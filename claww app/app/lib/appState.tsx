@@ -1,10 +1,12 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { supabase } from './supabase';
 import { refreshReminders } from './reminderSync';
+import { loadPlanStreak } from './streakData';
+import type { PlanStreakStats } from './planStreak';
 import {
   estimateMeal,
+  deleteMealLog,
   estimateMealFromPhoto,
-  getActivityStreak,
   getLatestWorkout,
   getProfile,
   getRecoveryScore,
@@ -63,9 +65,16 @@ interface AppState {
   estimateMealPhoto: (type: MealType, imageDataUri: string, portion?: PortionSize) => Promise<EstimateResult>;
   /** Persists a reviewed (possibly edited) estimate — the only step that actually writes to meal_logs. */
   saveMeal: (type: MealType, meal: EstimatedMeal) => Promise<MealLogRow | null>;
+  /** NG PHASE 8: takes a just-logged meal back (the Undo after a one-tap usual). */
+  removeMeal: (id: string) => Promise<boolean>;
   xp: number;
   bumpXp: (amount: number) => void;
+  /** Plan days followed (rest days count, an exam week protects it): the one streak every screen shows. */
   streak: number;
+  /** The same streak with its best run and the grid of recent days, for the sheet and the Tracker. */
+  streakStats: PlanStreakStats | null;
+  /** Re-reads it after something that can change it (a finished session, a new plan, the exam-week switch). */
+  refreshStreak: () => void;
 }
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -80,20 +89,21 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [recovery, setRecovery] = useState<RecoveryResult | null>(null);
   const [meals, setMeals] = useState<MealLogRow[]>([]);
   const [xp, setXp] = useState(0);
-  const [streak, setStreak] = useState(0);
+  const [streakStats, setStreakStats] = useState<PlanStreakStats | null>(null);
+  const streak = streakStats?.current ?? 0;
 
   useEffect(() => {
     let cancelled = false;
 
     async function loadForUser(uid: string) {
-      const [profile, rec, todaySleepLog, todaysMeals, latestWorkout, userXp, activityStreak] = await Promise.all([
+      const [profile, rec, todaySleepLog, todaysMeals, latestWorkout, userXp, loadedStreak] = await Promise.all([
         getProfile(uid),
         getRecoveryScore(uid),
         getTodaysSleepLog(uid),
         getTodaysMealLogs(uid),
         getLatestWorkout(uid),
         getUserXp(uid),
-        getActivityStreak(uid),
+        loadPlanStreak(uid).catch(() => null),
       ]);
       if (cancelled) return;
       if (profile?.name) setUserName(profile.name);
@@ -103,7 +113,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       setMeals(todaysMeals);
       setHasPlan(!!latestWorkout);
       setXp(userXp);
-      setStreak(activityStreak);
+      setStreakStats(loadedStreak ? loadedStreak.stats : null);
       setLoading(false);
     }
 
@@ -133,7 +143,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         setTodaySleep(null);
         setMeals([]);
         setXp(0);
-        setStreak(0);
+        setStreakStats(null);
         setLoading(false);
       }
     });
@@ -155,7 +165,6 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         setTodaySleep({ hours, bedtime: bedtime.toISOString(), wake_time: wakeTime.toISOString(), logged_at: new Date().toISOString() });
         setRecovery(await getRecoveryScore(userId));
         bumpXp(10); // matches awardXp(userId, 10, 'sleep_logged') in insertSleepLog
-        getActivityStreak(userId).then(setStreak);
         refreshReminders(userId).catch(() => {}); // drops today's sleep reminder
       }
     },
@@ -179,13 +188,31 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       if (inserted) {
         setMeals((m) => [...m, inserted]);
         bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in saveMeal
-        getActivityStreak(userId).then(setStreak);
         refreshReminders(userId).catch(() => {}); // drops today's reminder for this meal
       }
       return inserted;
     },
     [userId, bumpXp]
   );
+
+  const removeMeal = useCallback(
+    async (id: string) => {
+      if (!userId) return false;
+      const ok = await deleteMealLog(userId, id);
+      if (ok) {
+        setMeals((m) => m.filter((x) => x.id !== id));
+      }
+      return ok;
+    },
+    [userId]
+  );
+
+  const refreshStreak = useCallback(() => {
+    if (!userId) return;
+    loadPlanStreak(userId)
+      .then((r) => setStreakStats(r.stats))
+      .catch(() => {});
+  }, [userId]);
 
   const value = useMemo<AppState>(
     () => ({
@@ -194,7 +221,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       setUserName,
       loading,
       hasPlan,
-      generatePlan: () => setHasPlan(true),
+      generatePlan: () => {
+        setHasPlan(true);
+        refreshStreak();
+      },
       sleepLogged,
       todaySleep,
       recovery,
@@ -203,9 +233,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       estimateMealText,
       estimateMealPhoto,
       saveMeal: saveMealAndUpdateState,
+      removeMeal,
       xp,
       bumpXp,
       streak,
+      streakStats,
+      refreshStreak,
     }),
     [
       userId,
@@ -220,9 +253,12 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       estimateMealText,
       estimateMealPhoto,
       saveMealAndUpdateState,
+      removeMeal,
       xp,
       bumpXp,
       streak,
+      streakStats,
+      refreshStreak,
     ]
   );
 

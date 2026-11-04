@@ -2,9 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
-import { getActivityDays, getProfile, saveStepsGoal } from '../lib/data';
-import { DEFAULT_STEPS_GOAL, lastSevenDays, streakStats, type StreakStats } from '../lib/activityMath';
-import { estimateCaloriesFromSteps, type StepsResult } from '../lib/steps';
+import { getProfile, getTodayWorkoutStats, saveStepsGoal } from '../lib/data';
+import { DEFAULT_STEPS_GOAL } from '../lib/activityMath';
+import { burnedKcal, stepsProgress } from '../lib/dayStats';
+import type { StepsResult } from '../lib/steps';
+import { useAppState } from '../lib/appState';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
 import { TintTile } from './ui/TintTile';
@@ -67,8 +69,9 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
   const [goal, setGoal] = useState(DEFAULT_STEPS_GOAL);
   const [weightKg, setWeightKg] = useState<number | null>(null);
   const [heightCm, setHeightCm] = useState<number | null>(null);
-  const [week, setWeek] = useState<boolean[]>([false, false, false, false, false, false, false]);
-  const [stats, setStats] = useState<StreakStats | null>(null);
+  // Calories of sessions and activities logged today, so Burned counts them (once; see lib/dayStats).
+  const [loggedKcal, setLoggedKcal] = useState(0);
+  const { streakStats } = useAppState();
   const [stepsOpen, setStepsOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
 
@@ -82,11 +85,9 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
         setWeightKg(p?.weight ?? null);
         setHeightCm(p?.height ?? null);
       });
-      getActivityDays(userId).then((days) => {
-        if (cancelled) return;
-        const now = new Date();
-        setWeek(lastSevenDays(days, now));
-        setStats(streakStats(days, now));
+      getProfile(userId).then(async (p) => {
+        const stats = await getTodayWorkoutStats(userId, p?.weight ?? null);
+        if (!cancelled) setLoggedKcal(stats.calorieBurn);
       });
       return () => {
         cancelled = true;
@@ -99,8 +100,10 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
     if (userId) saveStepsGoal(userId, g);
   };
 
-  const pct = steps.available && goal > 0 ? Math.min(100, (steps.steps / goal) * 100) : 0;
-  const burned = steps.available ? steps.caloriesBurned ?? estimateCaloriesFromSteps(steps.steps, weightKg) : null;
+  const pct = stepsProgress(steps.available ? steps.steps : null, goal);
+  const burnedResult = burnedKcal({ healthConnectKcal: steps.available ? steps.caloriesBurned : null, steps: steps.available ? steps.steps : null, loggedKcal, weightKg });
+  const burned = burnedResult.kcal;
+  const week = (streakStats?.grid ?? []).slice(-7).map((d) => d.counts);
 
   return (
     <>
@@ -124,7 +127,7 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
 
         <Tile icon="flame" color={AREA_COLORS.burned} label="BURNED" value={burned !== null ? burned.toLocaleString() : '—'} a11y={`Burned ${burned ?? 'unknown'} kilocalories`}>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>
-            {burned === null ? 'not tracked yet' : steps.caloriesBurned !== null ? 'kcal active' : 'kcal est.'}
+            {burned === null ? 'not tracked yet' : burnedResult.source === 'health-connect' ? 'kcal active' : 'kcal est.'}
           </Text>
         </Tile>
 
@@ -137,7 +140,7 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
           a11y={`Streak: ${streak} days. Open details.`}
         >
           <View style={{ flexDirection: 'row', gap: 2 }}>
-            {week.map((on, i) => (
+            {(week.length > 0 ? week : [false, false, false, false, false, false, false]).map((on, i) => (
               <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: on ? AREA_COLORS.streak : tint(AREA_COLORS.streak, 0.15) }} />
             ))}
           </View>
@@ -145,7 +148,7 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
       </View>
 
       <StepsSheet visible={stepsOpen} onClose={() => setStepsOpen(false)} steps={steps} goal={goal} onGoalChange={changeGoal} weightKg={weightKg} heightCm={heightCm} />
-      <StreakSheet visible={streakOpen} onClose={() => setStreakOpen(false)} stats={stats} />
+      <StreakSheet visible={streakOpen} onClose={() => setStreakOpen(false)} stats={streakStats} />
     </>
   );
 }

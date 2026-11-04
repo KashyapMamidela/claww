@@ -34,7 +34,7 @@ const A = COLORS.blue;
 export default function WorkoutCompleteScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userId, userName } = useAppState();
+  const { userId, userName, streakStats, refreshStreak } = useAppState();
   const { lastSummary: summary, applyFeel } = useWorkoutSession();
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [feel, setFeel] = useState<Feel>('just_right');
@@ -52,6 +52,9 @@ export default function WorkoutCompleteScreen() {
 
   useEffect(() => {
     track(AnalyticsEvent.WorkoutCompleted);
+    const t = setTimeout(refreshStreak, 1200); // after the completed-day event has been written
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // The numbers the card compares against: earlier sessions of the same exercises, the streak inputs, the profile.
@@ -109,7 +112,9 @@ export default function WorkoutCompleteScreen() {
   const bestNext = best && targets[best.name]?.weightKg ? targets[best.name].weightKg : null;
   const kcal = summary ? sessionKcal(summary.elapsedSeconds * 1000, bodyKg) : 0;
   const minutes = summary ? Math.max(1, Math.round(summary.elapsedSeconds / 60)) : 0;
-  const streak = planStreak({ today, plannedWeekdays, completedDates, examWeek });
+  const localStreak = planStreak({ today, plannedWeekdays, completedDates, examWeek });
+  // The shared streak (the same number Home and the Tracker show) once it has loaded; the local read until then.
+  const streak = streakStats ? { days: streakStats.current, since: streakStats.since } : localStreak;
   const examOn = examWeekActive(examWeek, today);
   const title = summary ? sessionTitle(summary.setsCompleted, summary.totalSetsPlanned) : 'Session done';
   const setsLine = summary ? (summary.setsCompleted >= summary.totalSetsPlanned ? 'all done' : `of ${summary.totalSetsPlanned}`) : '';
@@ -127,6 +132,7 @@ export default function WorkoutCompleteScreen() {
     const week = on ? examWeekFrom(now) : null;
     setExamWeek(week);
     await saveExamWeek(userId, week);
+    refreshStreak();
   };
 
   const shareData = {
