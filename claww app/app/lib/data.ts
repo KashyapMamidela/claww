@@ -5,6 +5,7 @@ import { invalidateProfile } from './profileStore';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from './supabase';
 import type { Injury } from './engine';
+import { dateKey } from './planStreak';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
@@ -68,6 +69,8 @@ export interface PersonalizationProfile {
   reminders?: Partial<ReminderSettings>;
   /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
   stepsGoal?: number;
+  /** Exam week (NG PHASE 12): days in this range neither count toward nor break the plan streak. */
+  examWeek?: { from: string; until: string } | null;
   /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
   foodProfile?: FoodProfile;
 }
@@ -1636,4 +1639,37 @@ export async function getGenerationUsageToday(userId: string): Promise<{ plan: n
     else if (row.kind === 'meal') usage.meal = row.count;
   }
   return usage;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NG PHASE 12 — streak inputs
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Local dates (YYYY-MM-DD) on which a session was completed, across every plan, for the last `days` days. */
+export async function getCompletedSessionDates(userId: string, days = 120): Promise<string[]> {
+  const since = new Date(Date.now() - days * 86_400_000).toISOString();
+  const { data, error } = await supabase
+    .from('workout_day_events')
+    .select('created_at')
+    .eq('user_id', userId)
+    .eq('status', 'completed')
+    .gte('created_at', since);
+  if (error) {
+    console.warn('[Claww] Failed to load completed session dates:', error.message);
+    return [];
+  }
+  return Array.from(new Set((data ?? []).map((r) => dateKey(new Date(r.created_at as string)))));
+}
+
+export async function saveExamWeek(userId: string, week: { from: string; until: string } | null): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), examWeek: week };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
+  if (error) {
+    console.warn('[Claww] Failed to save exam week:', error.message);
+    return false;
+  }
+  return true;
 }

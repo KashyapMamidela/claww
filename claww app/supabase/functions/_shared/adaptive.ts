@@ -160,6 +160,8 @@ export interface SessionResult {
   weightKg?: number | null;
   /** True when the prescription had progression blocked or sets reduced by recovery. */
   blocked?: boolean;
+  /** NG PHASE 12: "How did that feel?" at the end of the session. Too hard stops a progression; too easy counts a good session as a top one. */
+  feel?: 'too_easy' | 'just_right' | 'too_hard';
 }
 
 export interface SessionEvaluation {
@@ -241,7 +243,8 @@ export function evaluateSession(
   cfg: AdaptiveConfig = ADAPTIVE_CONFIG
 ): SessionEvaluation {
   const ratio = performanceRatio(session);
-  const top = isTopOfRange(session, state.repMax);
+  // Too easy: a session that met the target counts as a top-of-range one, so weight comes up sooner.
+  const top = isTopOfRange(session, state.repMax) || (session.feel === 'too_easy' && ratio >= cfg.performance.repUpAt);
   const weight = session.weightKg !== undefined ? session.weightKg : session.prescribed.weightKg;
   const performed = { weightKg: weight, repTarget: session.prescribed.reps, sets: session.prescribed.sets };
   const pct = Math.round(ratio * 100);
@@ -369,6 +372,25 @@ export function evaluateSession(
     declineStreak = 0;
     commands.push('DECREASE_SETS');
     reason += ` ${cfg.sets.declineSessionsForSetDown} sessions under ${Math.round(cfg.performance.holdAt * 100)}% in a row, so one set comes off (${next.sets} sets).`;
+  }
+
+  // Too hard: any progression is cancelled for one session; failures and decreases already stand.
+  const PROGRESSIONS: Command[] = ['INCREASE_WEIGHT', 'INCREASE_SETS', 'INCREASE_REPS', 'SUGGEST_HARDER_VARIATION'];
+  if (session.feel === 'too_hard' && commands.some((c) => PROGRESSIONS.includes(c))) {
+    return {
+      state: {
+        ...state,
+        next: { ...state.next, weightKg: weight },
+        last: performed,
+        lastSessionDate: session.date,
+        pendingCommands: ['HOLD'],
+        pendingReason: 'You called the session too hard, so the numbers stay for next time.',
+      },
+      ratio,
+      topOfRange: top,
+      commands: ['HOLD'],
+      reason: 'You called the session too hard, so the numbers stay for next time.',
+    };
   }
 
   return {

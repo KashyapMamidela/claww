@@ -150,7 +150,7 @@ export interface SessionOutcome {
  * prescription was reduced or blocked by recovery is flagged so the engine
  * keeps its pending decision (see evaluateSession).
  */
-export function sessionOutcomes(prescribed: PrescribedExercise[], rowsByName: Record<string, LoggedRowLike[]>, date: string): SessionOutcome[] {
+export function sessionOutcomes(prescribed: PrescribedExercise[], rowsByName: Record<string, LoggedRowLike[]>, date: string, feel?: 'too_easy' | 'just_right' | 'too_hard'): SessionOutcome[] {
   const out: SessionOutcome[] = [];
   for (const p of prescribed) {
     if (!p.managed || !p.meta) continue;
@@ -167,6 +167,7 @@ export function sessionOutcomes(prescribed: PrescribedExercise[], rowsByName: Re
         prescribed: { weightKg: p.prescription.weightKg ?? weight, reps: p.prescription.reps, sets: p.prescription.sets },
         weightKg: weight,
         blocked,
+        feel,
       },
       p.meta
     );
