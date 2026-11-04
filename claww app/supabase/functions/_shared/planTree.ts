@@ -251,6 +251,12 @@ export function sessionMinutes(day: FilledDay): number {
   return Math.round(seconds / 60 + WARMUP_MINUTES);
 }
 
+/** Minutes for a blueprint day before any exercise is chosen (the same sums as sessionMinutes). */
+export function blueprintDayMinutes(day: { slots: { sets: number; restSec: number }[] }): number {
+  const seconds = day.slots.reduce((sum, s) => sum + s.sets * (WORK_SECONDS_PER_SET + s.restSec), 0);
+  return Math.round(seconds / 60 + WARMUP_MINUTES);
+}
+
 export function weeklyMuscleSets(plan: FilledPlan): Record<string, { sets: number; days: number }> {
   const out: Record<string, { sets: number; days: number }> = {};
   for (const day of plan.days) {

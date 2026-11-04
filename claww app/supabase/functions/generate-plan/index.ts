@@ -51,6 +51,11 @@ const DEFAULT_PLAN: PlanOut = {
 
 const GENERATION_COOLDOWN_MS = 30_000;
 
+function deriveDaysPerWeek(personalizationProfile: Record<string, unknown> | null): number | null {
+  const n = (personalizationProfile as { workoutDefaults?: { daysPerWeek?: unknown } } | null)?.workoutDefaults?.daysPerWeek;
+  return typeof n === 'number' && n >= 2 && n <= 6 ? Math.round(n) : null;
+}
+
 function deriveTrainingDays(personalizationProfile: Record<string, unknown> | null): string[] | null {
   const wd = (personalizationProfile as { workoutDefaults?: { trainingDays?: unknown } } | null)?.workoutDefaults;
   return Array.isArray(wd?.trainingDays) && wd!.trainingDays!.length > 0 ? (wd!.trainingDays as string[]) : null;
@@ -112,7 +117,7 @@ Deno.serve(async (req: Request) => {
     const personalizationProfile = (profile?.personalization_profile ?? null) as Record<string, unknown> | null;
     const workoutDefaults = (personalizationProfile as { workoutDefaults?: { injuries?: string; activityLevel?: string; dislikedExercises?: unknown } } | null)?.workoutDefaults;
     const trainingDays = deriveTrainingDays(personalizationProfile);
-    const daysPerWeek = trainingDays?.length || computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
+    const daysPerWeek = deriveDaysPerWeek(personalizationProfile) ?? trainingDays?.length || computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
     const structured = parseInjuries(profile?.injuries);
     const injuries = structured.length > 0 ? structured : injuriesFromText(workoutDefaults?.injuries);
     const trainingMonths = profile?.training_months ?? MONTHS_BY_LEVEL[profile?.experience_level ?? ''] ?? 12;

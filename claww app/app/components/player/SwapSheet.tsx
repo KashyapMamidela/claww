@@ -51,6 +51,7 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
         todayNames,
         equipment: profile?.equipment ?? null,
         injuriesText: profile?.personalization_profile?.workoutDefaults?.injuries ?? null,
+        injuries: profile?.injuries ?? [],
       });
       if (!cancelled) setLoad(options.length ? { kind: 'ready', muscle: current.primaryMuscle, options } : { kind: 'none', muscle: current.primaryMuscle });
     })().catch(() => {

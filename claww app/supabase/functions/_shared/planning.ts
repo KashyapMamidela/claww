@@ -95,6 +95,7 @@ export interface RepRange {
 // Standard hypertrophy/strength/endurance rep-range conventions per goal.
 export const GOAL_REP_RANGES: Record<string, RepRange> = {
   muscle_gain: { minSets: 3, maxSets: 5, minReps: 6, maxReps: 12 },
+  strength: { minSets: 3, maxSets: 5, minReps: 3, maxReps: 6 },
   fat_loss: { minSets: 2, maxSets: 4, minReps: 12, maxReps: 20 },
   endurance: { minSets: 2, maxSets: 3, minReps: 15, maxReps: 25 },
   maintenance: { minSets: 2, maxSets: 4, minReps: 8, maxReps: 15 },
