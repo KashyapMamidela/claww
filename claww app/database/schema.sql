@@ -768,3 +768,24 @@ CREATE POLICY "dish_items readable by signed-in users" ON dish_items FOR SELECT 
 ALTER TABLE workouts ADD COLUMN IF NOT EXISTS blueprint_id TEXT;
 ALTER TABLE workouts ADD COLUMN IF NOT EXISTS block_number INT DEFAULT 1;
 ALTER TABLE workouts ADD COLUMN IF NOT EXISTS block_week INT DEFAULT 1;
+
+-- ============================================================
+-- NG PHASE 6: what the user can get (food sources, what they cook with, diet, budget, which foods they can
+-- buy). One row per user; owner-only, and part of the data export. Cascades with the account.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS user_resources (
+  user_id       UUID PRIMARY KEY REFERENCES profiles(id) ON DELETE CASCADE,
+  sources       TEXT[] NOT NULL DEFAULT '{}',
+  cook_with     TEXT[] NOT NULL DEFAULT '{}',
+  diet          TEXT NOT NULL CHECK (diet IN ('veg','egg','nonveg','vegan','jain')),
+  budget_inr_day INT,
+  plan_style    TEXT NOT NULL DEFAULT 'same' CHECK (plan_style IN ('same','varied')),
+  availability  JSONB NOT NULL DEFAULT '{}'::jsonb,
+  avoid         TEXT[] NOT NULL DEFAULT '{}',
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+ALTER TABLE user_resources ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "user_resources_own" ON user_resources;
+CREATE POLICY "user_resources_own" ON user_resources
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

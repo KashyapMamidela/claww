@@ -12,3 +12,9 @@ export const RINGS_V1 = false;
  * built and tried on an iPhone (needs an Apple Developer account and "expo-live-activity" in the app.json plugins).
  */
 export const LIVE_ACTIVITY_ENABLED = false;
+
+/**
+ * NG PHASE 7: the daily meal plan. Until the templates and planner ship, step 3 of the meal setup shows a short
+ * note where "A day on this plan" will go.
+ */
+export const MEAL_PLAN_ENABLED = false;

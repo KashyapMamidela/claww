@@ -44,8 +44,7 @@ export default function NutritionSetupFoodProfile() {
     setSaving(true);
     await saveFoodProfile(userId, normalizeFoodProfile({ cuisines, avoid }));
     setSaving(false);
-    if (editing) router.back();
-    else router.push({ pathname: '/screens/nutrition-setup/review', params });
+    router.back(); // reached from the Nutrition tab card or Profile; the meal setup no longer passes through here (NG PHASE 6)
   };
 
   return (
