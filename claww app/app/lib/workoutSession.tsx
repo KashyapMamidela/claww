@@ -54,6 +54,14 @@ export interface SessionSummary {
   exercisesCompleted: number;
   totalExercises: number;
   xpEarned: number;
+  /** NG PHASE 12: for the session-complete card. */
+  focus: string;
+  /** Every set that was ticked, with the weight and reps actually logged (timed blocks and warm-ups excluded). */
+  doneSets: { name: string; weightKg: number; reps: number }[];
+  /** What the engine set for each exercise's next session, by exercise name. */
+  nextTargets: Record<string, { weightKg: number | null; reps: number; sets: number }>;
+  /** When the session started (ISO), so "volume vs last time" looks only at earlier sessions. */
+  startedAtIso: string;
 }
 
 export interface LastCompletedSet {
@@ -87,6 +95,12 @@ interface WorkoutSessionState {
   restEndsAt: number | null;
   isPaused: boolean;
   lastSummary: SessionSummary | null;
+  /**
+   * NG PHASE 12: "How did that feel?" Re-runs the session's performance step with the answer (too hard stops a
+   * progression for a session, too easy counts a good session as a top one) and saves the new next-session numbers.
+   * Returns the new targets by exercise name, or null when there is nothing to re-run.
+   */
+  applyFeel: (feel: 'too_easy' | 'just_right' | 'too_hard') => Promise<SessionSummary['nextTargets'] | null>;
   /** The set that was just logged — shown on the rest screen. */
   lastCompletedSet: LastCompletedSet | null;
   /** `rx` carries the engine's prescriptions for the day (V2 PHASE 7); without it the plan's own numbers are used. */
@@ -164,6 +178,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const sessionKey = useRef(0);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
+  const lastRunRef = useRef<{ sessionId: string; prescribed: PrescribedExercise[]; rowsByName: Record<string, { reps: number; weight: number; done: boolean }[]>; date: string } | null>(null);
   const prescribedRef = useRef<PrescribedExercise[]>([]);
   const [prescribed, setPrescribed] = useState<PrescribedExercise[]>([]);
 
@@ -287,27 +302,54 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
           refreshReminders(userId).catch(() => {}); // drops today's workout reminder
         });
       }
+      const nextTargets: SessionSummary['nextTargets'] = {};
       // V2 PHASE 7.3: the performance step for each exercise, saved as next session's starting point.
       if (userId && sessionIdRef.current && prescribedRef.current.length > 0) {
         const rowsByName: Record<string, { reps: number; weight: number; done: boolean }[]> = {};
         (workout?.plan.days[dayIndex]?.exercises ?? []).forEach((ex, i) => {
           rowsByName[ex.name] = finalPlan[i]?.rows ?? [];
         });
-        const outcomes = sessionOutcomes(prescribedRef.current, rowsByName, localDateKey(new Date()));
+        const date = localDateKey(new Date());
+        const outcomes = sessionOutcomes(prescribedRef.current, rowsByName, date);
         saveSessionOutcomes(userId, sessionIdRef.current, outcomes).catch(() => {});
+        lastRunRef.current = { sessionId: sessionIdRef.current, prescribed: prescribedRef.current, rowsByName, date };
+        for (const o of outcomes) nextTargets[o.name] = { weightKg: o.evaluation.state.next.weightKg, reps: o.evaluation.state.next.repTarget, sets: o.evaluation.state.next.sets };
       }
       const totals = sessionTotals(finalPlan);
+      const exercises = workout?.plan.days[dayIndex]?.exercises ?? [];
+      const doneSets: SessionSummary['doneSets'] = [];
+      exercises.forEach((ex, i) => {
+        for (const row of finalPlan[i]?.rows ?? []) if (row.done) doneSets.push({ name: ex.name, weightKg: row.weight, reps: row.reps });
+      });
       setLastSummary({
         ...totals,
         elapsedSeconds: clock ? elapsedSeconds(clock, Date.now()) : 0,
         totalSetsPlanned: finalPlan.reduce((s, ex) => s + ex.rows.length, 0),
         totalExercises: finalPlan.length,
         xpEarned: totals.setsCompleted * 5,
+        focus: today?.focus ?? '',
+        doneSets,
+        nextTargets,
+        startedAtIso: new Date(Date.now() - (clock ? elapsedSeconds(clock, Date.now()) : 0) * 1000).toISOString(),
       });
       setClock((c) => (c ? endRest(c) : c));
       setStatus('completed');
     },
     [userId, workout, dayIndex, today, clock]
+  );
+
+  const applyFeel = useCallback(
+    async (feel: 'too_easy' | 'just_right' | 'too_hard'): Promise<SessionSummary['nextTargets'] | null> => {
+      const run = lastRunRef.current;
+      if (!userId || !run) return null;
+      const outcomes = sessionOutcomes(run.prescribed, run.rowsByName, run.date, feel);
+      await saveSessionOutcomes(userId, run.sessionId, outcomes).catch(() => {});
+      const next: SessionSummary['nextTargets'] = {};
+      for (const o of outcomes) next[o.name] = { weightKg: o.evaluation.state.next.weightKg, reps: o.evaluation.state.next.repTarget, sets: o.evaluation.state.next.sets };
+      setLastSummary((prev) => (prev ? { ...prev, nextTargets: next } : prev));
+      return next;
+    },
+    [userId]
   );
 
   const swapExercise = useCallback(
@@ -602,6 +644,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       restEndsAt,
       isPaused,
       lastSummary,
+      applyFeel,
       lastCompletedSet,
       sessionId,
       startSession,
@@ -634,6 +677,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       restEndsAt,
       isPaused,
       lastSummary,
+      applyFeel,
       lastCompletedSet,
       sessionId,
       startSession,
