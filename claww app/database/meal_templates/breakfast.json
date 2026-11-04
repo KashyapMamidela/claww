@@ -1,0 +1,1034 @@
+[
+  {
+    "id": "breakfast-01",
+    "meal": "breakfast",
+    "name": "Idli, sambar and coconut chutney",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Idli",
+        "qty": 3
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-02",
+    "meal": "breakfast",
+    "name": "Dosa, sambar and peanut chutney",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Plain dosa",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Peanut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-03",
+    "meal": "breakfast",
+    "name": "Poha with 2 boiled eggs",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Poha",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-04",
+    "meal": "breakfast",
+    "name": "Poha, peanuts and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Poha",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-05",
+    "meal": "breakfast",
+    "name": "Upma, boiled egg and a banana",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Upma",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-06",
+    "meal": "breakfast",
+    "name": "Ven pongal, vada and sambar",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Ven pongal",
+        "qty": 1
+      },
+      {
+        "food": "Medu vada",
+        "qty": 1
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-07",
+    "meal": "breakfast",
+    "name": "Besan chilla and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Besan chilla",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-08",
+    "meal": "breakfast",
+    "name": "Egg bhurji with 2 roti",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Egg bhurji",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-09",
+    "meal": "breakfast",
+    "name": "Bread omelette and a banana",
+    "cuisine": "Street food",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Bread omelette",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-10",
+    "meal": "breakfast",
+    "name": "Oats with milk, a banana and peanuts",
+    "cuisine": "Continental",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Oats porridge with milk",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-11",
+    "meal": "breakfast",
+    "name": "Banana shake and 2 boiled eggs",
+    "cuisine": "Continental",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Banana shake",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-12",
+    "meal": "breakfast",
+    "name": "Whey shake with milk, a banana and peanuts",
+    "cuisine": "Continental",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Whey protein shake with milk",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-13",
+    "meal": "breakfast",
+    "name": "Aloo paratha and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Aloo paratha",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-14",
+    "meal": "breakfast",
+    "name": "Medu vada, sambar and chutney",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Medu vada",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-15",
+    "meal": "breakfast",
+    "name": "Uttapam and sambar",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Uttapam",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-16",
+    "meal": "breakfast",
+    "name": "Moong khichdi and curd",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Khichdi",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-17",
+    "meal": "breakfast",
+    "name": "Sprouts salad, 1 egg and chai",
+    "cuisine": "Street food",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 1
+      },
+      {
+        "food": "Chai with sugar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-18",
+    "meal": "breakfast",
+    "name": "Idli, sambar and coconut chutney (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Idli",
+        "qty": 3
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-19",
+    "meal": "breakfast",
+    "name": "Dosa, sambar and peanut chutney (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Plain dosa",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Peanut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-20",
+    "meal": "breakfast",
+    "name": "Poha with 2 boiled eggs (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Poha",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-21",
+    "meal": "breakfast",
+    "name": "Poha, peanuts and curd (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Poha",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-22",
+    "meal": "breakfast",
+    "name": "Upma, boiled egg and a banana (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Upma",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-23",
+    "meal": "breakfast",
+    "name": "Ven pongal, vada and sambar (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Ven pongal",
+        "qty": 1
+      },
+      {
+        "food": "Medu vada",
+        "qty": 1
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-24",
+    "meal": "breakfast",
+    "name": "Egg bhurji with 2 roti (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg bhurji",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-25",
+    "meal": "breakfast",
+    "name": "Bread omelette and a banana (mess or tiffin)",
+    "cuisine": "Street food",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Bread omelette",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-26",
+    "meal": "breakfast",
+    "name": "Banana shake and 2 boiled eggs (mess or tiffin)",
+    "cuisine": "Continental",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Banana shake",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-27",
+    "meal": "breakfast",
+    "name": "Whey shake with milk, a banana and peanuts (mess or tiffin)",
+    "cuisine": "Continental",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Whey protein shake with milk",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-28",
+    "meal": "breakfast",
+    "name": "Aloo paratha and curd (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Aloo paratha",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-29",
+    "meal": "breakfast",
+    "name": "Medu vada, sambar and chutney (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Medu vada",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-30",
+    "meal": "breakfast",
+    "name": "Uttapam and sambar (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Uttapam",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-31",
+    "meal": "breakfast",
+    "name": "Moong khichdi and curd (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Khichdi",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-32",
+    "meal": "breakfast",
+    "name": "Sprouts salad, 1 egg and chai (mess or tiffin)",
+    "cuisine": "Street food",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 1
+      },
+      {
+        "food": "Chai with sugar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-33",
+    "meal": "breakfast",
+    "name": "Idli, sambar and coconut chutney (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Idli",
+        "qty": 3
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-34",
+    "meal": "breakfast",
+    "name": "Dosa, sambar and peanut chutney (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Plain dosa",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Peanut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-35",
+    "meal": "breakfast",
+    "name": "Poha with 2 boiled eggs (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Poha",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-36",
+    "meal": "breakfast",
+    "name": "Poha, peanuts and curd (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Poha",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-37",
+    "meal": "breakfast",
+    "name": "Upma, boiled egg and a banana (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Upma",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-38",
+    "meal": "breakfast",
+    "name": "Ven pongal, vada and sambar (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Ven pongal",
+        "qty": 1
+      },
+      {
+        "food": "Medu vada",
+        "qty": 1
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-39",
+    "meal": "breakfast",
+    "name": "Besan chilla and curd (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Besan chilla",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-40",
+    "meal": "breakfast",
+    "name": "Egg bhurji with 2 roti (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg bhurji",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  }
+]

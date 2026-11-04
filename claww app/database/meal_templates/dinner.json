@@ -1,0 +1,1122 @@
+[
+  {
+    "id": "dinner-01",
+    "meal": "dinner",
+    "name": "Egg bhurji, 2 roti and dal",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Egg bhurji",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-02",
+    "meal": "dinner",
+    "name": "Roti, palak dal and bhindi fry",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Palak dal",
+        "qty": 1
+      },
+      {
+        "food": "Bhindi fry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-03",
+    "meal": "dinner",
+    "name": "Grilled chicken, 2 roti and vegetables",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Grilled chicken breast",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Mixed vegetable curry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-04",
+    "meal": "dinner",
+    "name": "Chicken curry, 2 roti and salad",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Chicken curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-05",
+    "meal": "dinner",
+    "name": "Fish fry, rice and dal",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Fish fry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-06",
+    "meal": "dinner",
+    "name": "Khichdi, kadhi and papad",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Khichdi",
+        "qty": 1
+      },
+      {
+        "food": "Kadhi",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-07",
+    "meal": "dinner",
+    "name": "Soya chunks fry, 2 roti and dal",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Soya chunks fry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-08",
+    "meal": "dinner",
+    "name": "Idli with sambar",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Idli",
+        "qty": 4
+      },
+      {
+        "food": "Sambar",
+        "qty": 1.5
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-09",
+    "meal": "dinner",
+    "name": "Dosa, sambar and chutney",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Plain dosa",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-10",
+    "meal": "dinner",
+    "name": "Moong dal, rice, beans poriyal and curd",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Moong dal",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Beans poriyal",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-11",
+    "meal": "dinner",
+    "name": "Egg curry, rice and cabbage poriyal",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Egg curry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Cabbage poriyal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-12",
+    "meal": "dinner",
+    "name": "Rajma, rice and raita",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Rajma masala",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-13",
+    "meal": "dinner",
+    "name": "Chole, 2 roti and cucumber",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Chole masala",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-14",
+    "meal": "dinner",
+    "name": "Masoor dal, 3 roti and tomato curry",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Masoor dal",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Tomato curry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-15",
+    "meal": "dinner",
+    "name": "Sprouts salad, 2 roti and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-16",
+    "meal": "dinner",
+    "name": "Mutton curry, 2 roti and salad",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Mutton curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-17",
+    "meal": "dinner",
+    "name": "Egg bhurji, 2 roti and dal (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg bhurji",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-18",
+    "meal": "dinner",
+    "name": "Roti, palak dal and bhindi fry (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Palak dal",
+        "qty": 1
+      },
+      {
+        "food": "Bhindi fry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-19",
+    "meal": "dinner",
+    "name": "Grilled chicken, 2 roti and vegetables (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Grilled chicken breast",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Mixed vegetable curry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-20",
+    "meal": "dinner",
+    "name": "Chicken curry, 2 roti and salad (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Chicken curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-21",
+    "meal": "dinner",
+    "name": "Fish fry, rice and dal (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Fish fry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-22",
+    "meal": "dinner",
+    "name": "Khichdi, kadhi and papad (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Khichdi",
+        "qty": 1
+      },
+      {
+        "food": "Kadhi",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-23",
+    "meal": "dinner",
+    "name": "Soya chunks fry, 2 roti and dal (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Soya chunks fry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-24",
+    "meal": "dinner",
+    "name": "Idli with sambar (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Idli",
+        "qty": 4
+      },
+      {
+        "food": "Sambar",
+        "qty": 1.5
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-25",
+    "meal": "dinner",
+    "name": "Dosa, sambar and chutney (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Plain dosa",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-26",
+    "meal": "dinner",
+    "name": "Moong dal, rice, beans poriyal and curd (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Moong dal",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Beans poriyal",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-27",
+    "meal": "dinner",
+    "name": "Egg curry, rice and cabbage poriyal (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg curry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Cabbage poriyal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-28",
+    "meal": "dinner",
+    "name": "Rajma, rice and raita (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rajma masala",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-29",
+    "meal": "dinner",
+    "name": "Chole, 2 roti and cucumber (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Chole masala",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-30",
+    "meal": "dinner",
+    "name": "Masoor dal, 3 roti and tomato curry (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Masoor dal",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Tomato curry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-31",
+    "meal": "dinner",
+    "name": "Sprouts salad, 2 roti and curd (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-32",
+    "meal": "dinner",
+    "name": "Mess dinner as usual with 2 boiled eggs",
+    "cuisine": "Mess",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo sabzi",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-33",
+    "meal": "dinner",
+    "name": "Mess dinner as usual with soya fry and curd",
+    "cuisine": "Mess",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo sabzi",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Soya chunks fry",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-34",
+    "meal": "dinner",
+    "name": "Mutton curry, 2 roti and salad (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Mutton curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-35",
+    "meal": "dinner",
+    "name": "Egg bhurji, 2 roti and dal (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg bhurji",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-36",
+    "meal": "dinner",
+    "name": "Roti, palak dal and bhindi fry (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Palak dal",
+        "qty": 1
+      },
+      {
+        "food": "Bhindi fry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-37",
+    "meal": "dinner",
+    "name": "Grilled chicken, 2 roti and vegetables (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Grilled chicken breast",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Mixed vegetable curry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-38",
+    "meal": "dinner",
+    "name": "Chicken curry, 2 roti and salad (eating out)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Chicken curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-39",
+    "meal": "dinner",
+    "name": "Fish fry, rice and dal (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Fish fry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-40",
+    "meal": "dinner",
+    "name": "Khichdi, kadhi and papad (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Khichdi",
+        "qty": 1
+      },
+      {
+        "food": "Kadhi",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  }
+]

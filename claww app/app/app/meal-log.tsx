@@ -19,6 +19,7 @@ import {
 } from '../lib/data';
 import type { FoodProfile } from '../lib/foodProfile';
 import { MealSuggestions } from '../components/MealSuggestions';
+import { SUGGEST_MEAL_ENABLED } from '../lib/flags';
 import { Icon } from '../components/ui/Icon';
 import { Button } from '../components/ui/Button';
 import { ErrorCard } from '../components/ui/ErrorCard';
@@ -462,7 +463,7 @@ export default function MealLogScreen() {
           </View>
         )}
 
-        {!photo && (
+        {!photo && SUGGEST_MEAL_ENABLED && (
           <MealSuggestions
             mealType={(mealType as MealType) ?? 'Snack'}
             remaining={remainingMacros}

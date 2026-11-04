@@ -1,0 +1,1141 @@
+[
+  {
+    "id": "lunch-01",
+    "meal": "lunch",
+    "name": "Rice, dal tadka, aloo gobi and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo gobi",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-02",
+    "meal": "lunch",
+    "name": "Roti, rajma masala and raita",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Rajma masala",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-03",
+    "meal": "lunch",
+    "name": "Rice, sambar, cabbage poriyal, curd and papad",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Sambar",
+        "qty": 1.5
+      },
+      {
+        "food": "Cabbage poriyal",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-04",
+    "meal": "lunch",
+    "name": "Rice, chicken curry and beans poriyal",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Chicken curry",
+        "qty": 1
+      },
+      {
+        "food": "Beans poriyal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-05",
+    "meal": "lunch",
+    "name": "Rice, fish curry and spinach sabzi",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Fish curry",
+        "qty": 1
+      },
+      {
+        "food": "Palak, spinach sabzi",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-06",
+    "meal": "lunch",
+    "name": "Chicken fried rice and raita",
+    "cuisine": "Indo-Chinese",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Chicken fried rice",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-07",
+    "meal": "lunch",
+    "name": "Egg curry, 2 roti and sprouts salad",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Egg curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-08",
+    "meal": "lunch",
+    "name": "Soya chunks curry, 2 roti and rice",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Soya chunks curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-09",
+    "meal": "lunch",
+    "name": "Chole masala, rice and raita",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Chole masala",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-10",
+    "meal": "lunch",
+    "name": "Dal makhani, 2 roti and cucumber",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Dal makhani",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-11",
+    "meal": "lunch",
+    "name": "Vegetable biryani and raita",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Vegetable biryani",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-12",
+    "meal": "lunch",
+    "name": "Chicken biryani and raita",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Chicken biryani",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-13",
+    "meal": "lunch",
+    "name": "Egg biryani and raita",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Egg biryani",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-14",
+    "meal": "lunch",
+    "name": "Curd rice, sundal and papad",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Curd rice",
+        "qty": 1.5
+      },
+      {
+        "food": "Sundal, chana",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-15",
+    "meal": "lunch",
+    "name": "Palak dal, roti, bhindi fry and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Palak dal",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Bhindi fry",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-16",
+    "meal": "lunch",
+    "name": "Mutton curry, rice and salad",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Mutton curry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-17",
+    "meal": "lunch",
+    "name": "Rice, dal tadka, aloo gobi and curd (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo gobi",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-18",
+    "meal": "lunch",
+    "name": "Roti, rajma masala and raita (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Rajma masala",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-19",
+    "meal": "lunch",
+    "name": "Rice, sambar, cabbage poriyal, curd and papad (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Sambar",
+        "qty": 1.5
+      },
+      {
+        "food": "Cabbage poriyal",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-20",
+    "meal": "lunch",
+    "name": "Rice, chicken curry and beans poriyal (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Chicken curry",
+        "qty": 1
+      },
+      {
+        "food": "Beans poriyal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-21",
+    "meal": "lunch",
+    "name": "Rice, fish curry and spinach sabzi (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Fish curry",
+        "qty": 1
+      },
+      {
+        "food": "Palak, spinach sabzi",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-22",
+    "meal": "lunch",
+    "name": "Egg curry, 2 roti and sprouts salad (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-23",
+    "meal": "lunch",
+    "name": "Soya chunks curry, 2 roti and rice (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Soya chunks curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-24",
+    "meal": "lunch",
+    "name": "Chole masala, rice and raita (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Chole masala",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-25",
+    "meal": "lunch",
+    "name": "Dal makhani, 2 roti and cucumber (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Dal makhani",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-26",
+    "meal": "lunch",
+    "name": "Curd rice, sundal and papad (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Curd rice",
+        "qty": 1.5
+      },
+      {
+        "food": "Sundal, chana",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-27",
+    "meal": "lunch",
+    "name": "Mess thali as usual with curd and a boiled egg",
+    "cuisine": "Mess",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo sabzi",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-28",
+    "meal": "lunch",
+    "name": "Mess thali as usual with curd and soya fry",
+    "cuisine": "Mess",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo sabzi",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      },
+      {
+        "food": "Soya chunks fry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-29",
+    "meal": "lunch",
+    "name": "Palak dal, roti, bhindi fry and curd (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Palak dal",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Bhindi fry",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-30",
+    "meal": "lunch",
+    "name": "Mutton curry, rice and salad (mess or tiffin)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Mutton curry",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-31",
+    "meal": "lunch",
+    "name": "Rice, dal tadka, aloo gobi and curd (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      },
+      {
+        "food": "Aloo gobi",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-32",
+    "meal": "lunch",
+    "name": "Roti, rajma masala and raita (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 3
+      },
+      {
+        "food": "Rajma masala",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-33",
+    "meal": "lunch",
+    "name": "Rice, sambar, cabbage poriyal, curd and papad (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Sambar",
+        "qty": 1.5
+      },
+      {
+        "food": "Cabbage poriyal",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      },
+      {
+        "food": "Papad, roasted",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-34",
+    "meal": "lunch",
+    "name": "Rice, chicken curry and beans poriyal (eating out)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Chicken curry",
+        "qty": 1
+      },
+      {
+        "food": "Beans poriyal",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-35",
+    "meal": "lunch",
+    "name": "Rice, fish curry and spinach sabzi (eating out)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Rice, cooked",
+        "qty": 1.5
+      },
+      {
+        "food": "Fish curry",
+        "qty": 1
+      },
+      {
+        "food": "Palak, spinach sabzi",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-36",
+    "meal": "lunch",
+    "name": "Chicken fried rice and raita (eating out)",
+    "cuisine": "Indo-Chinese",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Chicken fried rice",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-37",
+    "meal": "lunch",
+    "name": "Egg curry, 2 roti and sprouts salad (eating out)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Egg curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-38",
+    "meal": "lunch",
+    "name": "Chole masala, rice and raita (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Chole masala",
+        "qty": 1
+      },
+      {
+        "food": "Rice, cooked",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-39",
+    "meal": "lunch",
+    "name": "Dal makhani, 2 roti and cucumber (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Dal makhani",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "lunch-40",
+    "meal": "lunch",
+    "name": "Vegetable biryani and raita (eating out)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Vegetable biryani",
+        "qty": 1
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  }
+]

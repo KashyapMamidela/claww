@@ -14,7 +14,7 @@ export const RINGS_V1 = false;
 export const LIVE_ACTIVITY_ENABLED = false;
 
 /**
- * NG PHASE 7: the daily meal plan. Until the templates and planner ship, step 3 of the meal setup shows a short
- * note where "A day on this plan" will go.
+ * NG PHASE 7: the model-based "Suggest 3 meals" (the suggest-meal function) is retired from the main flow, since the
+ * day's meals now come from reviewed templates. Kept behind this flag for "Something else" ideas only, and marked for removal.
  */
-export const MEAL_PLAN_ENABLED = false;
+export const SUGGEST_MEAL_ENABLED = false;

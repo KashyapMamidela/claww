@@ -6,9 +6,12 @@ import { COLORS, FONT, FONT_HAND } from '../../../lib/theme';
 import { useAppState } from '../../../lib/appState';
 import { useProfile } from '../../../lib/profile';
 import { track } from '../../../lib/analytics';
-import { MEAL_PLAN_ENABLED } from '../../../lib/flags';
 import { computeNutritionSample, saveNutritionTargets, type ActivityLevel, type Goal, type NutritionDefaults } from '../../../lib/data';
 import { saveUserResources } from '../../../lib/userResources';
+import { resetMealPlans } from '../../../lib/mealPlanData';
+import { ADD_ONS, MEAL_TEMPLATES, planDay, type PlanDiet } from '../../../lib/engine';
+import { itemsText } from '../../../lib/mealPlanMeal';
+import { planLine } from '../../../lib/mealPlanView';
 import { FOOD_ROWS, cookLabel, defaultBudget, dietLabel, restrictionsForDiet, sourcesLabel, visibleFoods } from '../../../lib/resourceDefaults';
 import { resourceGaps } from '../../../lib/resourceGaps';
 import { draftAvailability, draftBudget, getDraft, patchDraft, resetDraft } from '../../../lib/mealSetupDraft';
@@ -51,6 +54,26 @@ export default function MealSetupSummary() {
   const gaps = useMemo(() => resourceGaps({ sources: draft.sources, cookWith: draft.cookWith, diet: draft.diet, availability }), [draft, availability]);
   const chips = FOOD_ROWS.filter((r) => r.group === 'protein' && visible.has(r.key) && availability[r.key] !== 'no');
 
+  // A day on this plan: the same planner the Nutrition tab uses, on the answers so far.
+  const sampleTarget = useMemo(() => {
+    const saved = profile?.personalization_profile?.nutritionDefaults;
+    if (saved) return { kcal: saved.calories, protein: saved.protein_g };
+    const w = draft.basics?.weight ?? profile?.weight ?? 70;
+    return { kcal: 2000, protein: Math.round(w * 1.6) };
+  }, [profile, draft.basics]);
+  const sample = useMemo(() => {
+    if (!draft.diet) return null;
+    return planDay({
+      target: sampleTarget,
+      resources: { sources: draft.sources, cookWith: draft.cookWith, diet: draft.diet as PlanDiet, availability: availability as Record<string, 'yes' | 'sometimes' | 'no'>, avoid: [], style: draft.planStyle },
+      date: new Date().toISOString().slice(0, 10),
+      seed: userId ?? 'preview',
+      history: [],
+      templates: MEAL_TEMPLATES,
+      addOns: ADD_ONS,
+    });
+  }, [draft, availability, sampleTarget, userId]);
+
   const goBackTo = (step: 1 | 2) => {
     // Step 3 sits on top of 2 on top of 1, so going back is a pop, not a push.
     router.dismiss(step === 2 ? 1 : 2);
@@ -92,6 +115,7 @@ export default function MealSetupSummary() {
       availability,
       avoid: [],
     });
+    if (okResources) await resetMealPlans(userId).catch(() => {});
     setSaving(false);
     if (!okTargets || !okResources) {
       setError('Could not save your answers. Check your connection and try again.');
@@ -168,12 +192,26 @@ export default function MealSetupSummary() {
         ) : null}
 
         <Surface padding={16}>
-          <SectionLabel color={G}>A DAY ON THIS PLAN</SectionLabel>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 10, fontFamily: FONT }}>
-            {MEAL_PLAN_ENABLED
-              ? 'Your three meals for today appear on the Nutrition tab.'
-              : 'Your three meals a day will be built from this, from nutritionist-reviewed meal templates. They arrive in the next update; what you set here is saved now.'}
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+            <SectionLabel color={G}>A DAY ON THIS PLAN</SectionLabel>
+            {sample && sample.meals.length > 0 ? <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', flexShrink: 1, textAlign: 'right', fontFamily: FONT }}>{planLine(sample)}</Text> : null}
+          </View>
+          {sample && sample.meals.length > 0 ? (
+            sample.meals.map((m, i) => (
+              <View key={m.meal} style={{ paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border, marginTop: i === 0 ? 8 : 0 }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{m.name}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                  {m.kcal} kcal · P {Math.round(m.protein)} g · {itemsText(m)}
+                </Text>
+              </View>
+            ))
+          ) : (
+            <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 8, fontFamily: FONT }}>
+              Pick a diet to see a sample day built from nutritionist-reviewed meal templates.
+            </Text>
+          )}
+          <Text style={{ color: COLORS.textFaint, fontSize: 12, marginTop: 6, fontFamily: FONT }}>Built from meal templates (still being reviewed), never generated.</Text>
         </Surface>
 
         {error ? <ErrorCard message={error} onRetry={save} retrying={saving} /> : null}

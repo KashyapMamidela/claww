@@ -486,17 +486,17 @@ export interface MealNutrients {
 export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
-  const { data, error } = await supabase
-    .from('meal_logs')
-    .select('id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url')
-    .eq('user_id', userId)
-    .gte('logged_at', startOfDay.toISOString())
-    .order('logged_at', { ascending: true });
-  if (error) {
-    console.warn('[Claww] Failed to load meal logs:', error.message);
+  const base = 'id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url';
+  let res = await supabase.from('meal_logs').select(`${base}, plan_status, items, nutrients`).eq('user_id', userId).gte('logged_at', startOfDay.toISOString()).order('logged_at', { ascending: true });
+  if (res.error) {
+    // The NG PHASE 8 columns may not exist yet (docs/ng-pending-2.sql): read the old set.
+    res = (await supabase.from('meal_logs').select(base).eq('user_id', userId).gte('logged_at', startOfDay.toISOString()).order('logged_at', { ascending: true })) as unknown as typeof res;
+  }
+  if (res.error) {
+    console.warn('[Claww] Failed to load meal logs:', res.error.message);
     return [];
   }
-  return data ?? [];
+  return (res.data ?? []) as unknown as MealLogRow[];
 }
 
 export interface NutritionSummary {
@@ -1656,6 +1656,7 @@ export interface UserDataExport {
   prescriptionDecisions: unknown[];
   userResources: unknown | null;
   weightLogs: unknown[];
+  mealPlanDays: unknown[];
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1680,6 +1681,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     prescriptionDecisions,
     userResources,
     weightLogs,
+    mealPlanDays,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1700,6 +1702,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('prescription_decisions').select('*').eq('user_id', userId),
     supabase.from('user_resources').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('weight_logs').select('*').eq('user_id', userId),
+    supabase.from('meal_plan_days').select('*').eq('user_id', userId),
   ]);
 
   return {
@@ -1723,6 +1726,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     prescriptionDecisions: prescriptionDecisions.data ?? [],
     userResources: userResources.data ?? null,
     weightLogs: weightLogs.data ?? [],
+    mealPlanDays: mealPlanDays.data ?? [],
   };
 }
 
