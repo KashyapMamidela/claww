@@ -1,55 +1,26 @@
-import { z } from 'npm:zod@3';
 import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
-import { callGroqJSON } from '../_shared/groq.ts';
-import { classifyGroqFailure, logGenerationFailure } from '../_shared/generationFailures.ts';
+import { logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
-import { EXPERIENCE_MAX_SETS, applyTrainingWeekdays, computeRepRange, deriveAllowedEquipment, excludeInjuredExercises, groundPlanInCatalog, type RepRange } from '../_shared/planning.ts';
+import { applyTrainingWeekdays, deriveAllowedEquipment } from '../_shared/planning.ts';
+import { BLUEPRINTS } from '../_shared/blueprints/index.ts';
+import { injuriesFromText, parseInjuries } from '../_shared/injuryRules.ts';
+import {
+  applyBlockWeek, applyRegenerationReason, fillBlueprint, fitPlan, nextBlockState, pickBlueprint, toPlan,
+  type BlockState, type CatalogRow, type PlanOut,
+} from '../_shared/planTree.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
-import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
 
-const MODALITIES = ['strength', 'cardio', 'mobility', 'yoga'] as const;
+// NG PHASE 5.4: the plan comes from a reviewed blueprint picked by rules (see _shared/planTree.ts). No model is
+// called here, so there is no generation cap on this path either. The response keeps the shape the app has
+// always read: { recovery, workout: { plan, ... }, generated }.
 
-// ─────────────────────────────────────────────────────────────────────────
-// Deterministic trainer thresholds. These are hard numeric constraints
-// computed server-side from real exercise-science conventions (rep ranges
-// per training goal, volume caps per experience level, age-adjusted
-// intensity) — the model is told the exact numbers to stay within, and its
-// output is clamped into range afterward regardless of what it returns.
-// This is the same "don't trust the model, ground it" philosophy as the
-// equipment/catalog filtering above, just applied to volume and frequency
-// instead of exercise names.
-// ─────────────────────────────────────────────────────────────────────────
-
-// experience x activity -> base training days/week. Matches how a trainer
-// would scope a starting frequency before knowing anything else about the client.
+// experience x activity -> base training days/week, used only when the user hasn't chosen days.
 const FREQUENCY_TABLE: Record<string, Record<string, number>> = {
   beginner: { sedentary: 2, moderate: 3, active: 3 },
   intermediate: { sedentary: 3, moderate: 4, active: 4 },
   advanced: { sedentary: 3, moderate: 4, active: 5 },
 };
-
-/**
- * Deterministic recovery -> volume link (item #13: "once sleep is logged,
- * the workout must be modified according to it"). Previously recovery only
- * ever showed up as prose in the LLM prompt ("adjust where in the range
- * you land") — a *suggestion* the model could ignore, never a real change
- * to the numbers themselves, and nothing about generation was ever
- * triggered by a new sleep log at all. This makes it a real, deterministic
- * ±1 set adjustment applied server-side before the model ever sees the
- * range, same "don't trust the model, ground it" posture as everything
- * else in this file. Only takes effect at the next plan generation/
- * regeneration — it does not retroactively rewrite an already-saved plan,
- * which would silently change a workout a user has already mentally
- * committed to.
- */
-function applyRecoveryToSets(range: RepRange, band: 'Low' | 'Moderate' | 'High', experienceLevel: string | null): RepRange {
-  if (band === 'Moderate') return range;
-  const experienceCap = EXPERIENCE_MAX_SETS[experienceLevel ?? ''] ?? EXPERIENCE_MAX_SETS.intermediate;
-  const delta = band === 'Low' ? -1 : 1;
-  const maxSets = Math.min(experienceCap, Math.max(range.minSets, range.maxSets + delta));
-  return { ...range, maxSets, minSets: Math.min(range.minSets, maxSets) };
-}
 
 function computeTrainingDays(experienceLevel: string | null, activityLevel: string | null, age: number | null): number {
   const row = FREQUENCY_TABLE[experienceLevel ?? ''] ?? FREQUENCY_TABLE.intermediate;
@@ -58,198 +29,35 @@ function computeTrainingDays(experienceLevel: string | null, activityLevel: stri
   return days;
 }
 
-// ─────────────────────────────────────────────────────────────────────────
-// Feed real history into the next plan — still entirely deterministic math,
-// same "don't trust the model, ground it" philosophy as everything above.
-// The model's job never widens: it still only picks exercise names within
-// whatever range comes out of this.
-// ─────────────────────────────────────────────────────────────────────────
+/** Months trained, when the profile doesn't say: a rough read from the experience level. */
+const MONTHS_BY_LEVEL: Record<string, number> = { beginner: 0, intermediate: 12, advanced: 36 };
 
-type AdjustDirection = 'down' | 'up' | 'hold';
-
-interface RecentSetLog {
-  reps_achieved: number | null;
-  reps_prescribed: number | null;
-}
-
-/**
- * Whether the next plan's rep prescriptions should shift down, up, or hold.
- * An explicit regeneration reason always wins — it's direct user feedback,
- * more trustworthy than an inferred trend. Otherwise it reads the trend
- * across recent logged sets: consistently achieving well under prescribed
- * reps means the target was too high, consistently meeting or beating it
- * means there's room to push.
- */
-function deriveAdjustDirection(reason: string | null, recentLogs: RecentSetLog[]): AdjustDirection {
-  if (reason === 'too_hard') return 'down';
-  if (reason === 'too_easy') return 'up';
-  // 'wrong_focus' (or no reason given) says nothing about intensity — read it from performance instead.
-  const comparable = recentLogs.filter(
-    (l) => l.reps_achieved !== null && l.reps_prescribed !== null && (l.reps_prescribed as number) > 0
-  );
-  if (comparable.length < 3) return 'hold'; // not enough real signal yet — first few sessions stay at the computed baseline
-  const avgRatio =
-    comparable.reduce((sum, l) => sum + (l.reps_achieved as number) / (l.reps_prescribed as number), 0) / comparable.length;
-  if (avgRatio < 0.85) return 'down';
-  if (avgRatio >= 1.05) return 'up';
-  return 'hold';
-}
-
-/** Nudges the rep window by a small, bounded amount — a trend or one explicit reason moves it a couple of reps, never a jump. */
-function applyAdjustDirection(range: RepRange, direction: AdjustDirection, explicit: boolean): RepRange {
-  if (direction === 'hold') return range;
-  const delta = (explicit ? 3 : 2) * (direction === 'down' ? -1 : 1);
-  const minReps = Math.max(1, range.minReps + delta);
-  const maxReps = Math.max(minReps, range.maxReps + delta);
-  return { ...range, minReps, maxReps };
-}
-
-/** Hard-enforces the computed rep range and day count on the model's output, regardless of what it returned. */
-function clampPlanToThresholds(plan: Plan, range: RepRange, maxDays: number): Plan {
-  const days = plan.days.slice(0, maxDays).map((day) => ({
-    ...day,
-    exercises: day.exercises.map((ex) => ({
-      ...ex,
-      sets: Math.min(Math.max(ex.sets, range.minSets), range.maxSets),
-      reps: Math.min(Math.max(ex.reps, range.minReps), range.maxReps),
-    })),
-  }));
-  return { ...plan, days };
-}
-
-const PlanExerciseSchema = z.object({
-  exerciseId: z.string().optional(),
-  name: z.string(),
-  sets: z.number().int().positive(),
-  reps: z.number().int().positive(),
-});
-
-const PlanDaySchema = z.object({
-  day: z.string(),
-  focus: z.string(),
-  exercises: z.array(PlanExerciseSchema).min(1),
-});
-
-const PlanSchema = z.object({
-  days: z.array(PlanDaySchema).min(1),
-  notes: z.string().optional(),
-});
-
-type Plan = z.infer<typeof PlanSchema>;
-
-// Fallback used when the Groq response fails validation, so the user
-// always gets a usable plan back instead of an error.
-const DEFAULT_PLAN: Plan = {
+// Fallback used only if the catalog can't be read or a blueprint can't be filled, so the user always gets a usable plan.
+const DEFAULT_PLAN: PlanOut = {
   days: [
-    {
-      day: 'Day 1',
-      focus: 'Full Body',
-      exercises: [
-        { name: 'Bodyweight Squat', sets: 3, reps: 15 },
-        { name: 'Push-up', sets: 3, reps: 10 },
-        { name: 'Plank', sets: 3, reps: 30 },
-      ],
-    },
-    {
-      day: 'Day 2',
-      focus: 'Active Recovery',
-      exercises: [
-        { name: 'Walking', sets: 1, reps: 1 },
-        { name: 'Stretching', sets: 1, reps: 1 },
-      ],
-    },
-    {
-      day: 'Day 3',
-      focus: 'Full Body',
-      exercises: [
-        { name: 'Lunges', sets: 3, reps: 12 },
-        { name: 'Glute Bridge', sets: 3, reps: 15 },
-        { name: 'Bird Dog', sets: 3, reps: 10 },
-      ],
-    },
+    { day: 'Day 1', focus: 'Full Body', exercises: [
+      { name: 'Bodyweight Squat', sets: 3, reps: 15, repMin: 12, repMax: 15, role: 'main', restSec: 90, rir: 2 },
+      { name: 'Push-Up', sets: 3, reps: 10, repMin: 8, repMax: 12, role: 'main', restSec: 90, rir: 2 },
+      { name: 'Plank', sets: 3, reps: 30, repMin: 30, repMax: 30, role: 'isolation', restSec: 60, rir: 2 },
+    ] },
+    { day: 'Day 2', focus: 'Full Body', exercises: [
+      { name: 'Bodyweight Lunge', sets: 3, reps: 12, repMin: 10, repMax: 12, role: 'main', restSec: 90, rir: 2 },
+      { name: 'Glute Bridge', sets: 3, reps: 15, repMin: 12, repMax: 15, role: 'main', restSec: 90, rir: 2 },
+      { name: 'Bird Dog', sets: 3, reps: 10, repMin: 10, repMax: 10, role: 'isolation', restSec: 60, rir: 2 },
+    ] },
   ],
-  notes: 'Default starter plan — personalize once more workout history is available.',
-};
-
-function derivePreferredModalities(personalizationProfile: Record<string, unknown> | null): string[] {
-  const modalities = (personalizationProfile as { workoutDefaults?: { modalities?: unknown } } | null)
-    ?.workoutDefaults?.modalities;
-  if (Array.isArray(modalities) && modalities.every((m) => (MODALITIES as readonly string[]).includes(m))) {
-    return modalities as string[];
-  }
-  return [...MODALITIES];
-}
-
-const VALID_SPLITS = ['auto', 'full_body', 'upper_lower', 'push_pull_legs'] as const;
-type SplitPreference = (typeof VALID_SPLITS)[number];
-
-/** Real weekday names the user picked (empty/absent = old activity-based
- * day-count estimate, untouched) and a split they asked for instead of
- * leaving it entirely to the LLM's judgment. Both optional — a user who
- * never saw or skipped screens/workout-setup/schedule.tsx gets identical
- * behavior to before it existed. */
-function deriveScheduleConstraints(personalizationProfile: Record<string, unknown> | null): {
-  trainingDays: string[] | null;
-  splitPreference: SplitPreference;
-} {
-  const wd = (personalizationProfile as { workoutDefaults?: { trainingDays?: unknown; splitPreference?: unknown } } | null)
-    ?.workoutDefaults;
-  const trainingDays = Array.isArray(wd?.trainingDays) && wd!.trainingDays!.length > 0 ? (wd!.trainingDays as string[]) : null;
-  const splitPreference = VALID_SPLITS.includes(wd?.splitPreference as SplitPreference) ? (wd!.splitPreference as SplitPreference) : 'auto';
-  return { trainingDays, splitPreference };
-}
-
-const SPLIT_INSTRUCTIONS: Record<Exclude<SplitPreference, 'auto'>, string> = {
-  full_body: 'The user asked for a Full Body split — every training day must train the whole body, not a muscle-group/movement-pattern split across days.',
-  upper_lower: 'The user asked for an Upper/Lower split — alternate strictly between an Upper Body day and a Lower Body day across the given days, in that order, wrapping back to Upper after Lower.',
-  push_pull_legs: 'The user asked for a Push/Pull/Legs split — cycle strictly through Push, Pull, Legs in that order across the given days, wrapping back to Push after Legs.',
+  notes: 'Starter plan. Your setup will refresh it as soon as the exercise list is available.',
 };
 
 const GENERATION_COOLDOWN_MS = 30_000;
 
-function buildSystemPrompt(
-  range: RepRange,
-  dayCount: number,
-  injuriesText: string | null | undefined,
-  regenerationReason: string | null,
-  trainingDays: string[] | null,
-  splitPreference: SplitPreference
-): string {
-  const injuriesLine = injuriesText?.trim()
-    ? `The user reported these injuries/limitations: "${injuriesText.trim()}". The available-exercises list has already been filtered to exclude movements that commonly stress those areas — do not work around the filter or suggest anything outside the provided list.`
-    : 'The user reported no injuries or limitations.';
-
-  // 'wrong_focus' is a selection concern (which days/exercises to pick), not
-  // a numeric one — sets/reps stay entirely in the deterministic range
-  // above regardless of reason. 'too_hard'/'too_easy' already moved that
-  // range before this prompt was built, so they don't need a note here.
-  const regenerationLine =
-    regenerationReason === 'wrong_focus'
-      ? 'The user regenerated because the previous plan\'s day split / focus areas were wrong for them — choose a meaningfully different day split and exercise selection this time, not a near-copy of a typical plan for their goal.'
-      : '';
-
-  const dayNamingLine = trainingDays
-    ? `Use these exact real weekday names for the "day" field, in this order, one per training day: ${trainingDays.join(', ')}. Do not invent generic labels like "Day 1".`
-    : 'Name each "day" field something like "Day 1", "Day 2" etc. — the user did not pick specific weekdays.';
-
-  const splitLine = splitPreference !== 'auto' ? SPLIT_INSTRUCTIONS[splitPreference] : '';
-
-  return `You are a certified personal trainer generating a workout plan. You will be given the user's
-recovery score/band, their personalization profile, recent workout history, and a filtered list of
-available exercises. Build a plan using ONLY exercises from the provided list. Respond with ONLY a JSON
-object matching this exact shape:
-{"days": [{"day": string, "focus": string, "exercises": [{"exerciseId": string, "name": string, "sets": number, "reps": number}]}], "notes": string}
-
-Hard constraints, already computed for this specific user — follow them exactly:
-- Generate EXACTLY ${dayCount} training day(s).
-- ${dayNamingLine}
-- Every exercise must use ${range.minSets}-${range.maxSets} sets and ${range.minReps}-${range.maxReps} reps.
-- ${injuriesLine}
-${splitLine ? `- ${splitLine}\n` : ''}${regenerationLine ? `- ${regenerationLine}\n` : ''}
-Within those constraints, use your judgment like a trainer would: pick a sensible ${splitLine ? 'exercise selection' : 'day split and exercise selection'}
-for the user's goal and equipment, and adjust where in each range you land based on recovery (lower in
-the range when recovery is Low, higher when High).`;
+function deriveTrainingDays(personalizationProfile: Record<string, unknown> | null): string[] | null {
+  const wd = (personalizationProfile as { workoutDefaults?: { trainingDays?: unknown } } | null)?.workoutDefaults;
+  return Array.isArray(wd?.trainingDays) && wd!.trainingDays!.length > 0 ? (wd!.trainingDays as string[]) : null;
 }
+
+const WORKOUT_COLUMNS = 'id, user_id, plan, created_at';
+const WORKOUT_BLOCK_COLUMNS = `${WORKOUT_COLUMNS}, blueprint_id, block_number, block_week`;
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -265,42 +73,30 @@ Deno.serve(async (req: Request) => {
 
     const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
-    const [
-      { data: profile },
-      { data: sleepLog },
-      { data: lastWorkout },
-      { data: recentWorkouts },
-      { data: latestWorkout },
-      { data: recentMeals },
-    ] = await Promise.all([
-      supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle(),
-      supabase
-        .from('sleep_logs')
-        .select('hours, bedtime, wake_time, logged_at')
-        .eq('user_id', user.id)
-        .order('logged_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from('workout_logs')
-        .select('sets, reps_achieved, reps_prescribed, completed_at')
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      supabase
-        .from('workout_logs')
-        .select('exercise_id, exercise_name, sets, reps_prescribed, reps_achieved, weight_prescribed, weight_achieved, completed_at')
-        .eq('user_id', user.id)
-        .order('completed_at', { ascending: false })
-        .limit(10),
-      supabase
-        .from('workouts')
-        .select('id, user_id, plan, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle(),
+    // The NG 2 / NG 5 columns may not exist on an older database: ask for them, fall back to the old set.
+    let profileRes = await supabase
+      .from('profiles')
+      .select('personalization_profile, equipment, age, goal, experience_level, training_months, session_minutes, injuries')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (profileRes.error) {
+      profileRes = await supabase.from('profiles').select('personalization_profile, equipment, age, goal, experience_level').eq('id', user.id).maybeSingle();
+    }
+    const profile = profileRes.data as
+      | { personalization_profile: Record<string, unknown> | null; equipment: string | null; age: number | null; goal: string | null; experience_level: string | null; training_months?: number | null; session_minutes?: number | null; injuries?: unknown }
+      | null;
+
+    let latestRes = await supabase.from('workouts').select(WORKOUT_BLOCK_COLUMNS).eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    if (latestRes.error) {
+      latestRes = await supabase.from('workouts').select(WORKOUT_COLUMNS).eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+    }
+    const latestWorkout = latestRes.data as
+      | { id: string; user_id: string; plan: unknown; created_at: string; blueprint_id?: string | null; block_number?: number | null; block_week?: number | null }
+      | null;
+
+    const [{ data: sleepLog }, { data: lastWorkout }, { data: recentMeals }] = await Promise.all([
+      supabase.from('sleep_logs').select('hours, bedtime, wake_time, logged_at').eq('user_id', user.id).order('logged_at', { ascending: false }).limit(1).maybeSingle(),
+      supabase.from('workout_logs').select('sets, reps_achieved, reps_prescribed, completed_at').eq('user_id', user.id).order('completed_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('meal_logs').select('protein_g').eq('user_id', user.id).gte('logged_at', last24h),
     ]);
 
@@ -308,154 +104,87 @@ Deno.serve(async (req: Request) => {
     const proteinPct = proteinShare(recentMeals, proteinTarget);
     const recovery = computeRecoveryScore(sleepLog, lastWorkout, proteinPct === null ? null : { proteinPct });
 
-    // Cooldown: a double-tap or accidental repeat shouldn't burn another
-    // Groq call — just hand back the plan that was just generated. Does NOT
-    // apply when a regeneration reason was given: that's an explicit,
-    // intentional request, and silently returning the plan the user is
-    // complaining about would ignore their feedback outright.
+    // Cooldown: a double-tap shouldn't create a second plan. Not applied when a regeneration reason was given.
     if (!reason && latestWorkout && Date.now() - new Date(latestWorkout.created_at).getTime() < GENERATION_COOLDOWN_MS) {
       return new Response(JSON.stringify({ recovery, workout: latestWorkout, cached: true }), { headers: jsonHeaders });
     }
 
     const personalizationProfile = (profile?.personalization_profile ?? null) as Record<string, unknown> | null;
-    const preferredModalities = derivePreferredModalities(personalizationProfile);
-    const allowedEquipment = deriveAllowedEquipment(profile?.equipment);
-    const workoutDefaults = (personalizationProfile as { workoutDefaults?: { injuries?: string; activityLevel?: string } } | null)
-      ?.workoutDefaults;
-    const injuriesText = workoutDefaults?.injuries;
+    const workoutDefaults = (personalizationProfile as { workoutDefaults?: { injuries?: string; activityLevel?: string; dislikedExercises?: unknown } } | null)?.workoutDefaults;
+    const trainingDays = deriveTrainingDays(personalizationProfile);
+    const daysPerWeek = trainingDays?.length || computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
+    const structured = parseInjuries(profile?.injuries);
+    const injuries = structured.length > 0 ? structured : injuriesFromText(workoutDefaults?.injuries);
+    const trainingMonths = profile?.training_months ?? MONTHS_BY_LEVEL[profile?.experience_level ?? ''] ?? 12;
+    const dislikes = Array.isArray(workoutDefaults?.dislikedExercises) ? (workoutDefaults!.dislikedExercises as unknown[]).filter((x): x is string => typeof x === 'string') : [];
 
-    const { data: rawExercises, error: exercisesError } = await supabase
-      .from('exercises')
-      .select('id, name, modality, muscle_group, equipment, met_value')
-      .in('modality', preferredModalities)
-      .in('equipment', allowedEquipment);
+    const planProfile = { goal: profile?.goal ?? null, equipment: profile?.equipment ?? null, daysPerWeek, trainingMonths, sessionMinutes: profile?.session_minutes ?? null, injuries };
 
-    if (exercisesError) {
-      throw new Error(`Failed to load exercises: ${exercisesError.message}`);
-    }
+    const previousBlock =
+      latestWorkout?.block_number && latestWorkout.block_week
+        ? { blockNumber: latestWorkout.block_number, blockWeek: latestWorkout.block_week, createdAtMs: new Date(latestWorkout.created_at).getTime() }
+        : null;
+    const block: BlockState = nextBlockState(previousBlock, Date.now());
 
-    const exercises = excludeInjuredExercises(rawExercises ?? [], injuriesText);
-    const recoveryAdjustedRange = applyRecoveryToSets(
-      computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null),
-      recovery.band,
-      profile?.experience_level ?? null
-    );
-    const adjustDirection = deriveAdjustDirection(reason, recentWorkouts ?? []);
-    const repRange = applyAdjustDirection(recoveryAdjustedRange, adjustDirection, reason !== null);
-    if (adjustDirection !== 'hold') {
-      console.log(
-        `[generate-plan] Adjusting rep range ${adjustDirection} for user ${user.id} ` +
-          `(reason: ${reason ?? 'performance trend'}) — ${recoveryAdjustedRange.minReps}-${recoveryAdjustedRange.maxReps} -> ${repRange.minReps}-${repRange.maxReps}`
-      );
-    }
-    const { trainingDays, splitPreference } = deriveScheduleConstraints(personalizationProfile);
-    const dayCount = trainingDays?.length || computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null);
-    const systemPrompt = buildSystemPrompt(repRange, dayCount, injuriesText, reason, trainingDays, splitPreference);
-
-    // Checked right before the real Groq call, after the cache/cooldown
-    // short-circuit above — a cached response must never burn a cap slot.
-    // Thrown outside the fallback try/catch below on purpose: hitting the
-    // cap should surface as a 429, not silently degrade to DEFAULT_PLAN.
-    await enforceGenerationCap(supabase, 'plan');
-
-    let plan: Plan;
-    // Distinguishes a real Groq-generated plan from any fallback path, in
-    // both the log line below and the response body — so "is generation
-    // actually working" is a direct read, not an inference from plan shape.
+    let plan: PlanOut = DEFAULT_PLAN;
+    let blueprintId: string | null = null;
     let generated = false;
-    // Which model in the fallback chain actually served this response, when
-    // generation succeeded — logged alongside GENERATED so a "generated" plan
-    // that quietly slid to the 3rd fallback model is still visible.
-    let servedByModel: string | null = null;
 
-    try {
-      const { content: raw, model } = await callGroqJSON([
-        { role: 'system', content: systemPrompt },
-        {
-          role: 'user',
-          content: JSON.stringify({
-            recovery,
-            personalizationProfile,
-            recentWorkouts: recentWorkouts ?? [],
-            availableExercises: exercises,
-          }),
-        },
-      ]);
+    const { data: catalog, error: catalogError } = await supabase
+      .from('exercises')
+      .select('id, name, modality, equipment, primary_muscle, movement_pattern, role, stimulus_type')
+      .eq('modality', 'strength')
+      .in('equipment', deriveAllowedEquipment(profile?.equipment));
 
-      const parseResult = PlanSchema.safeParse(JSON.parse(raw));
-      if (!parseResult.success) {
-        const detail = JSON.stringify(parseResult.error.flatten());
-        console.error('[generate-plan] FELL BACK: Groq response failed schema validation:', detail);
-        await logGenerationFailure(supabase, user.id, 'generate-plan', 'validation_failed', detail);
-      }
-      plan = parseResult.success ? groundPlanInCatalog(parseResult.data, exercises) : DEFAULT_PLAN;
-      if (plan.days.length === 0) {
-        console.error('[generate-plan] FELL BACK: grounding filtered every exercise out of the plan.');
-        await logGenerationFailure(
-          supabase,
-          user.id,
-          'generate-plan',
-          'grounding_emptied',
-          `Groq returned ${parseResult.success ? parseResult.data.days.length : 0} day(s), grounding filtered all exercises out.`
-        );
-        plan = DEFAULT_PLAN;
-      }
-      generated = parseResult.success && plan.days.length > 0;
-      if (generated) servedByModel = model;
-    } catch (groqError) {
-      // Every candidate in the fallback chain already failed by this point
-      // (see _shared/groq.ts's callWithFallback) — this is the chain's last
-      // error, not necessarily the primary model's.
-      const { kind, detail } = classifyGroqFailure(groqError);
-      if (kind === 'permission_blocked') {
-        // Worth a distinct loud log even with a fallback chain: it means
-        // EVERY model in the chain is blocked for this org, not just one.
-        console.error(
-          `[generate-plan] 🚨 FELL BACK — ALL GROQ MODELS BLOCKED for this org. ` +
-            `Enable models at console.groq.com/settings/limits. This will keep happening for every user until fixed. ${detail}`
-        );
+    if (catalogError || !catalog || catalog.length === 0) {
+      const detail = catalogError?.message ?? 'exercise catalog is empty';
+      console.error('[generate-plan] FELL BACK: could not read the exercise catalog:', detail);
+      await logGenerationFailure(supabase, user.id, 'generate-plan', 'grounding_emptied', detail);
+    } else {
+      const picked = pickBlueprint(planProfile, BLUEPRINTS);
+      const filled = fillBlueprint(picked.blueprint, catalog as CatalogRow[], {
+        seed: user.id,
+        allowedEquipment: deriveAllowedEquipment(profile?.equipment),
+        injuries,
+        blockNumber: block.blockNumber,
+        dislikes,
+        variant: reason === 'wrong_focus' ? Math.floor(Date.now() / 1000) : 0,
+      });
+      const fitted = fitPlan(filled, planProfile, picked.blueprint.goal);
+      const adjusted = applyBlockWeek(applyRegenerationReason(fitted.plan, reason), block.blockWeek);
+      if (adjusted.days.length === 0) {
+        console.error('[generate-plan] FELL BACK: the blueprint filled with no sessions.');
+        await logGenerationFailure(supabase, user.id, 'generate-plan', 'grounding_emptied', `blueprint ${picked.blueprint.id} filled with no sessions`);
       } else {
-        console.error('[generate-plan] FELL BACK: Groq call failed:', detail);
+        plan = toPlan(adjusted);
+        blueprintId = picked.blueprint.id;
+        generated = true;
+        console.log(
+          `[generate-plan] PICKED blueprint ${blueprintId} for user ${user.id} (${plan.days.length} days, block ${block.blockNumber} week ${block.blockWeek}` +
+            `${fitted.check.ok ? '' : `, checks: ${fitted.check.problems.join('; ')}`}).`
+        );
       }
-      await logGenerationFailure(supabase, user.id, 'generate-plan', kind, detail);
-      plan = DEFAULT_PLAN;
     }
 
-    if (generated) {
-      console.log(`[generate-plan] GENERATED a real plan for user ${user.id} (${plan.days.length} days, model ${servedByModel}).`);
-    }
-
-    // Hard-enforce the computed thresholds regardless of what the model
-    // returned (or whether we fell back to DEFAULT_PLAN).
-    plan = clampPlanToThresholds(plan, repRange, dayCount);
-    // Real weekday labels come from the user's picks, not from the model.
+    // Real weekday labels come from the user's picks.
     plan = applyTrainingWeekdays(plan, trainingDays);
 
-    const { data: savedWorkout, error: insertError } = await supabase
-      .from('workouts')
-      .insert({ user_id: user.id, plan })
-      .select()
-      .single();
-
-    if (insertError) {
-      throw new Error(`Failed to save workout plan: ${insertError.message}`);
+    const row = { user_id: user.id, plan };
+    let saved = await supabase.from('workouts').insert({ ...row, blueprint_id: blueprintId, block_number: block.blockNumber, block_week: block.blockWeek }).select().single();
+    if (saved.error) {
+      // The block columns aren't on this database yet (database/schema.sql, NG PHASE 5): save without them.
+      saved = await supabase.from('workouts').insert(row).select().single();
+    }
+    if (saved.error) {
+      throw new Error(`Failed to save workout plan: ${saved.error.message}`);
     }
 
-    return new Response(JSON.stringify({ recovery, workout: savedWorkout, generated }), { headers: jsonHeaders });
+    return new Response(JSON.stringify({ recovery, workout: saved.data, generated }), { headers: jsonHeaders });
   } catch (error) {
-    if (!(error instanceof GenerationCapExceededError) && !(error instanceof UnauthorizedError)) {
+    if (!(error instanceof UnauthorizedError)) {
       await reportEdgeError('generate-plan', error);
     }
-    if (error instanceof GenerationCapExceededError) {
-      return new Response(
-        JSON.stringify({ error: "You've hit today's plan generation limit — try again tomorrow." }),
-        { status: 429, headers: jsonHeaders }
-      );
-    }
     const status = error instanceof UnauthorizedError ? 401 : 500;
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
-      status,
-      headers: jsonHeaders,
-    });
+    return new Response(JSON.stringify({ error: (error as Error).message }), { status, headers: jsonHeaders });
   }
 });

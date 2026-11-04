@@ -5,3 +5,8 @@ export { computeRepRange, startingPrescription, deriveAllowedEquipment, excludeI
 export type { RepRange, ExerciseRole, StartingPrescription } from '../../supabase/functions/_shared/planning';
 export { computeRecoveryScore, proteinShare } from '../../supabase/functions/_shared/recovery';
 export type { RecoveryResult } from '../../supabase/functions/_shared/recovery';
+export { pickBlueprint, goalToBlueprintGoal, equipmentToPlace, fillBlueprint, fitPlan, checkPlan, sessionMinutes, toPlan } from '../../supabase/functions/_shared/planTree';
+export type { PlanProfile, PickResult } from '../../supabase/functions/_shared/planTree';
+export { INJURY_PARTS, SEVERITIES, parseInjuries, injuriesFromText, contraindicatedPatterns } from '../../supabase/functions/_shared/injuryRules';
+export type { Injury, InjuryPart, Severity } from '../../supabase/functions/_shared/injuryRules';
+export { BLUEPRINTS } from '../../supabase/functions/_shared/blueprints';

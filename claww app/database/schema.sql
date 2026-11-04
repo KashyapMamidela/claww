@@ -760,3 +760,11 @@ DROP POLICY IF EXISTS "food_units readable by signed-in users" ON food_units;
 CREATE POLICY "food_units readable by signed-in users" ON food_units FOR SELECT TO authenticated USING (true);
 DROP POLICY IF EXISTS "dish_items readable by signed-in users" ON dish_items;
 CREATE POLICY "dish_items readable by signed-in users" ON dish_items FOR SELECT TO authenticated USING (true);
+
+-- ============================================================
+-- NG PHASE 5: which reviewed blueprint a plan came from, and where the user is in the 6-week block.
+-- generate-plan works without these columns (it retries the insert without them), so they can be applied any time.
+-- ============================================================
+ALTER TABLE workouts ADD COLUMN IF NOT EXISTS blueprint_id TEXT;
+ALTER TABLE workouts ADD COLUMN IF NOT EXISTS block_number INT DEFAULT 1;
+ALTER TABLE workouts ADD COLUMN IF NOT EXISTS block_week INT DEFAULT 1;
