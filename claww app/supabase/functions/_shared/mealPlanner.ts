@@ -144,7 +144,7 @@ export function scaleTemplate(t: MealTemplate, factor: number): PlannedMeal {
 
 // ─── Eligibility ───────────────────────────────────────────────────────────────────────────────────────────
 
-const DIET_ALLOWED: Record<Diet, MealTemplate['diet'][]> = {
+export const DIET_ALLOWED: Record<Diet, MealTemplate['diet'][]> = {
   vegan: ['vegan'],
   veg: ['vegan', 'veg'],
   jain: ['vegan', 'veg'],

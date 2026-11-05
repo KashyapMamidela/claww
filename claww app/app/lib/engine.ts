@@ -10,7 +10,7 @@ export type { PlanProfile, PickResult } from '../../supabase/functions/_shared/p
 export { INJURY_PARTS, SEVERITIES, parseInjuries, injuriesFromText, contraindicatedPatterns, isExerciseAllowed } from '../../supabase/functions/_shared/injuryRules';
 export type { Injury, InjuryPart, Severity } from '../../supabase/functions/_shared/injuryRules';
 export { BLUEPRINTS } from '../../supabase/functions/_shared/blueprints';
-export { planDay, swapOptions, replanRemaining, scaleTemplate, cheapestFix, isEligible, stepFor, KCAL_TOLERANCE, PROTEIN_MIN } from '../../supabase/functions/_shared/mealPlanner';
+export { planDay, swapOptions, DIET_ALLOWED, replanRemaining, scaleTemplate, cheapestFix, isEligible, stepFor, KCAL_TOLERANCE, PROTEIN_MIN } from '../../supabase/functions/_shared/mealPlanner';
 export type { DayPlan, PlannedMeal, PlanInput, Resources, HistoryDay, Shortfall, Diet as PlanDiet } from '../../supabase/functions/_shared/mealPlanner';
 export { MEAL_TEMPLATES, ADD_ONS } from '../../supabase/functions/_shared/mealTemplates';
 export type { MealTemplate, AddOn } from '../../supabase/functions/_shared/mealTypes';

@@ -9,6 +9,7 @@ import {
 } from './data';
 import { cancelAllReminders, ensureNotificationChannels, hasNotificationPermission, notificationsSupported, scheduleReminderPlan } from './notifications';
 import { normalizeReminderSettings, planReminders, type TodayState } from './reminderPlan';
+import { unanswered } from './dayMoments';
 import { registerPushToken } from './pushTokens';
 import { isWeekdayPlan, weekdayIndex } from './trainingWeek';
 
@@ -52,6 +53,7 @@ async function buildTodayState(userId: string): Promise<TodayState> {
     sleepLoggedToday: !!sleep,
     waterMlToday: waterMl,
     waterTargetMl: WATER_TARGET_ML,
+    unansweredMeals: unanswered(meals.map((m) => m.meal_type)).length,
   };
 }
 

@@ -1,3 +1,5 @@
+import { NIGHT_CLOSE_FROM, nightCloseText } from './dayMoments';
+
 // Smart local reminders (V2 PHASE 3.3). Pure: given the user's reminder
 // settings, today's state and "now", decide exactly which notifications to
 // schedule. lib/reminderSync.ts gathers the state and schedules the result.
@@ -23,7 +25,8 @@ export const REMINDER_ID_PREFIX = 'claww-r-';
 
 export const DEFAULT_REMINDER_SETTINGS: ReminderSettings = {
   workout: { enabled: true, hour: 18, minute: 0 },
-  meals: { enabled: true, hour: 13, minute: 30 },
+  // The meals reminder is the morning one (breakfast time) since NG PHASE 10; the evening one is the night close.
+  meals: { enabled: true, hour: 8, minute: 30 },
   sleep: { enabled: true, hour: 8, minute: 30 },
   water: { enabled: false, hour: 16, minute: 0 },
 };
@@ -55,13 +58,15 @@ export interface TodayState {
   sleepLoggedToday: boolean;
   waterMlToday: number;
   waterTargetMl: number;
+  /** Meals with no answer today (not logged, not skipped); drives the 21:30 night close. Omitted means unknown: no night close. */
+  unansweredMeals?: number;
 }
 
 export interface PlannedReminder {
   id: string;
   kind: ReminderKind;
   /** Notification tap routing type (see REMINDER_ROUTES in app/_layout.tsx). */
-  routeType: 'workout' | 'meal' | 'sleep' | 'water';
+  routeType: 'workout' | 'meal' | 'sleep' | 'water' | 'catchup';
   date: Date;
   title: string;
   body: string;
@@ -96,6 +101,13 @@ export function planReminders(settings: ReminderSettings, today: TodayState, now
     const base = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offset);
     const isToday = offset === 0;
     const candidates: PlannedReminder[] = [];
+
+    // NG PHASE 10: one "close your day" notification at 21:30 when meals are unanswered, kept ahead of the others by the cap.
+    if (isToday && today.unansweredMeals) {
+      const text = nightCloseText(today.unansweredMeals);
+      const at = new Date(base.getFullYear(), base.getMonth(), base.getDate(), Math.floor(NIGHT_CLOSE_FROM / 60), NIGHT_CLOSE_FROM % 60, 0, 0);
+      if (text && at.getTime() > now.getTime()) candidates.push({ id: `${REMINDER_ID_PREFIX}close-${dayKey(at)}`, kind: 'meals', routeType: 'catchup', date: at, ...text });
+    }
 
     for (const kind of PRIORITY) {
       const s = settings[kind];

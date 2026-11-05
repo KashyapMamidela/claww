@@ -767,8 +767,11 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
     console.warn('[Claww] Failed to save meal log:', error.message);
     return null;
   }
-  track(AnalyticsEvent.MealLogged, { meal_type: mealType });
-  await awardXp(userId, 10, 'meal_logged');
+  // A skipped meal (NG PHASE 10 catch-up) is an answer, not a meal: no XP and no meal event.
+  if (meal.planStatus !== 'skipped') {
+    track(AnalyticsEvent.MealLogged, { meal_type: mealType });
+    await awardXp(userId, 10, 'meal_logged');
+  }
   return data as MealLogRow;
 }
 

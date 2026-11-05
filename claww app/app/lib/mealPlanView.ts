@@ -16,7 +16,7 @@ export interface LoggedLike {
   protein_g: number | null;
 }
 
-export type SlotState = 'as_planned' | 'swapped' | 'extra' | 'up_next' | 'later' | 'unplanned';
+export type SlotState = 'as_planned' | 'swapped' | 'extra' | 'skipped' | 'up_next' | 'later' | 'unplanned';
 
 export interface SlotView {
   slot: MealSlot;
@@ -45,7 +45,7 @@ export function slotViews(plan: DayPlan | null, logged: LoggedLike[], hour: numb
     const planned = plan?.meals.find((m) => m.meal === slot) ?? null;
     const entry = logged.find((l) => (l.meal_type ?? '').toLowerCase() === slot) ?? null;
     let state: SlotState;
-    if (entry) state = entry.plan_status === 'as_planned' ? 'as_planned' : entry.plan_status === 'swapped' ? 'swapped' : planned ? 'swapped' : 'extra';
+    if (entry) state = entry.plan_status === 'skipped' ? 'skipped' : entry.plan_status === 'as_planned' ? 'as_planned' : entry.plan_status === 'swapped' ? 'swapped' : planned ? 'swapped' : 'extra';
     else if (slot === next) state = 'up_next';
     else state = planned ? 'later' : 'unplanned';
     return { slot, planned, logged: entry, state };
