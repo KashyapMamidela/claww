@@ -75,7 +75,7 @@ export default function DiaryScreen() {
   const rated = useMemo(() => {
     let kcalBefore = 0;
     let proteinBefore = 0;
-    return entries.map((m, i) => {
+    return entries.filter((m) => m.plan_status !== 'skipped').map((m, i) => {
       const r = rateMeal(
         { kcal: m.calories ?? 0, protein: m.protein_g ?? 0, fats: m.fats_g ?? 0, sodiumMg: m.nutrients?.sodiumMg ?? null, mealType: m.meal_type },
         { kcalTarget: goals.calories, proteinTarget: goals.protein_g, kcalBefore, proteinBefore, nextMeal: nextMealFor(entries.slice(0, i + 1).map((x) => x.meal_type ?? ''), new Date(m.logged_at).getHours()) }

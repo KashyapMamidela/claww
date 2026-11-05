@@ -23,6 +23,7 @@ import { Display } from '../../components/ui/Typography';
 import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
+import { CatchUpBanner } from '../../components/nutrition/CatchUpBanner';
 import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from '../../lib/homeMoment';
 import { marksFor, type PlanMark } from '../../lib/planMarks';
 import { loadDayPrescription } from '../../lib/todayPlan';
@@ -475,6 +476,8 @@ function HomePopulated() {
           </View>
         </Hero>
       ) : null}
+
+      <CatchUpBanner />
 
       {marks.length > 0 && !workoutToday.completed && today ? (
         <Surface padding={16}>

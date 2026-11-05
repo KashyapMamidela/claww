@@ -10,6 +10,7 @@ import { normalizeFoodProfile, shouldAskFoodProfile } from '../../lib/foodProfil
 import { nextMealFor } from '../../lib/homeMoment';
 import { dayLine, proteinGapNote, rateMeal, usualsFrom, type Usual } from '../../lib/nutritionLogic';
 import { MealDetailModal } from '../../components/MealDetailModal';
+import { CatchUpBanner } from '../../components/nutrition/CatchUpBanner';
 import { MealCard } from '../../components/nutrition/MealCard';
 import { FoodSearchSheet } from '../../components/nutrition/FoodSearchSheet';
 import { Icon } from '../../components/ui/Icon';
@@ -104,7 +105,7 @@ export default function NutritionTab() {
   const hour = new Date().getHours();
   const upNext = nextMealFor(loggedTypes, hour);
   const pen = proteinGapNote(protein, targets ? goals.protein : null, upNext);
-  const sorted = useMemo(() => [...meals].sort((a, b) => a.logged_at.localeCompare(b.logged_at)), [meals]);
+  const sorted = useMemo(() => meals.filter((m) => m.plan_status !== 'skipped').sort((a, b) => a.logged_at.localeCompare(b.logged_at)), [meals]);
 
   // Each logged meal is rated against what the day needed at that point.
   const rated = useMemo(() => {
@@ -177,7 +178,7 @@ export default function NutritionTab() {
   const size = 150;
   const sw = 12;
   const pct = goals.kcal > 0 ? (consumed / goals.kcal) * 100 : 0;
-  const line = dayLine(loggedTypes, protein, targets ? goals.protein : null);
+  const line = dayLine(meals.filter((m) => m.plan_status !== 'skipped').map((m) => m.meal_type ?? ''), protein, targets ? goals.protein : null);
 
   const action = (label: string, icon: string, onPress: () => void, primary = false, flex = 1) => (
     <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={label} style={{ flex }}>
@@ -318,6 +319,8 @@ export default function NutritionTab() {
             </View>
           ) : null}
 
+          <CatchUpBanner />
+
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <SectionLabel color={G}>{plan ? "TODAY'S PLAN · 3 MEALS" : "TODAY'S MEALS"}</SectionLabel>
@@ -337,9 +340,9 @@ export default function NutritionTab() {
                     key={v.slot}
                     mealType={v.logged.meal_type}
                     time={timeText(v.logged.logged_at)}
-                    planStatus={v.state === 'as_planned' ? 'as_planned' : v.state === 'swapped' ? 'swapped' : 'extra'}
+                    planStatus={v.state === 'as_planned' || v.state === 'swapped' || v.state === 'skipped' ? v.state : 'extra'}
                     name={v.logged.description}
-                    macros={`${Math.round(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
+                    macros={v.state === 'skipped' ? 'no meal' : `${Math.round(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
                     photoPath={(v.logged as MealLogRow).photo_url}
                     rating={r?.rating}
                     onPress={() => setSelectedMeal(v.logged as MealLogRow)}

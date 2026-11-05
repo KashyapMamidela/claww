@@ -187,7 +187,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const inserted = await saveMeal(userId, type, meal);
       if (inserted) {
         setMeals((m) => [...m, inserted]);
-        bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in saveMeal
+        if (meal.planStatus !== 'skipped') bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in saveMeal
         refreshReminders(userId).catch(() => {}); // drops today's reminder for this meal
       }
       return inserted;
