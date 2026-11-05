@@ -13,6 +13,7 @@ import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
 import { enqueueSet, newClientId } from './setQueueRuntime';
 import { mergeById, queuedRowsFor, writeOrQueue } from './writeQueueRuntime';
+import { queuePhoto } from './photoQueue';
 import { toExerciseForm, type ExerciseForm, type ExerciseFormRow } from './exerciseForm';
 import type { ReminderSettings } from './reminderPlan';
 import type { DayActivity } from './activityMath';
@@ -870,11 +871,13 @@ const MEAL_PHOTOS_BUCKET = 'meal-photos';
  */
 export async function uploadMealPhoto(userId: string, base64: string, mimeType: string): Promise<string | null> {
   const ext = mimeType.split('/')[1]?.split('+')[0] || 'jpg';
-  const path = `${userId}/${Date.now()}.${ext}`;
-  const { error } = await supabase.storage.from(MEAL_PHOTOS_BUCKET).upload(path, decode(base64), { contentType: mimeType });
+  // The path is chosen here, so the meal can point at it before the file is there (NG PHASE 14: no signal keeps the photo on
+  // the phone and uploads it later to this same path; the thumbnail shows the meal's icon until then).
+  const path = `${userId}/${newClientId()}.${ext}`;
+  const { error } = await supabase.storage.from(MEAL_PHOTOS_BUCKET).upload(path, decode(base64), { contentType: mimeType, upsert: true });
   if (error) {
-    console.warn('[Claww] Failed to upload meal photo:', error.message);
-    return null;
+    console.warn('[Claww] Meal photo not uploaded yet, kept on the phone:', error.message);
+    await queuePhoto({ userId, path, base64, mimeType, attempts: 0 });
   }
   return path;
 }

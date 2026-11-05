@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { supabase } from './supabase';
 import { classifyInsertError, createSetQueue, type QueuedItem, type SendResult } from './setQueue';
+import { flushPendingPhotos } from './photoQueue';
 import { onSetQueueChange, pendingSetCount } from './setQueueRuntime';
 import { insertAttempts, isMissingColumn, mergeById, queuedRows, type InsertTable, type WritePayload } from './writeQueue';
 
@@ -80,7 +81,7 @@ export async function writeOrQueue(clientId: string, payload: WritePayload): Pro
 }
 
 export function flushPendingWrites(): Promise<void> {
-  return queue.flush().then(notify);
+  return queue.flush().then(() => flushPendingPhotos()).then(notify);
 }
 
 export async function pendingWrites(): Promise<number> {

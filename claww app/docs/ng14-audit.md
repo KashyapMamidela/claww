@@ -13,7 +13,7 @@ and first day. Counts come from reading the code, not from running the app.
 | Water | lost if the insert failed | same |
 | Sleep | lost if the insert failed | same |
 | Pen mark decisions (Keep / Undo) | lost | same |
-| Meal photo upload | not queued | **still not queued**: the meal is saved with its photo path only when the upload worked |
+| Meal photo upload | not queued; a failed upload logged the meal without its photo | **queued** (`lib/photoQueue.ts`): the path is chosen on the phone, the meal points at it at once, the file uploads when a connection returns (up to 12 photos, 20 tries each). Until then the thumbnail shows the meal's icon |
 | Profile edits, nutrition targets, plan generation | not queued | **not queued** (they need the server) |
 
 The queue is `lib/setQueue.ts` made generic (`createSetQueue<P>`) plus `lib/writeQueue.ts` and `lib/writeQueueRuntime.ts`.
@@ -35,16 +35,16 @@ happened, `D` first-day version. Yes = present in the code today. Gaps are real;
 | More, Settings, About | n/a | n/a | n/a | no | n/a | static |
 | Food diary | yes | yes | merges queued meals | no | no | |
 | Catch-up | yes | yes | yes | yes (save failed) | n/a | |
-| Weekly review | no | yes | decisions queue | no | n/a | no skeleton while marks load |
-| Scanner, check | no | n/a | **no**: needs the server to read the plate | yes | n/a | offline it should offer "Log by name"; not built |
+| Weekly review | yes | yes | decisions queue | no | n/a | |
+| Scanner, check | no | n/a | the scan needs the server: offline it says so at once (no timeout wait) and offers "Log it by name", which saves on the phone | yes | n/a | |
 | Meal log (describe) | no | n/a | needs the server to estimate | yes | n/a | |
 | Workout player | n/a | n/a | yes (sets queue) | n/a | n/a | |
 | Session complete | no | n/a | yes | no | n/a | |
 | Workout setup, Nutrition setup | no | n/a | needs the server | yes (generate) | n/a | |
 | Profile | yes | n/a | no | yes | n/a | |
 
-**Left for NG 14 part 2 (needs a phone to judge):** skeletons for the weekly review, scanner and session-complete; error cards
-for Home, Nutrition and Tracker loads; the scanner's offline "Log by name"; queuing the meal photo upload.
+**Left (needs a phone to judge):** skeletons for the scanner and session-complete; error cards for Home, Nutrition and
+Tracker loads (their loaders swallow errors and show the empty state, which hides a failed load).
 
 ## 3. Accessibility
 
@@ -70,7 +70,8 @@ trend reader now runs from Home (at most every 10 minutes); the Tracker loads a 
 
 ## 5. Acceptance
 
-- "Airplane mode through a full workout and two meal logs loses nothing": sets, meals, water, sleep and pen decisions are
-  queued and tested (`lib/writeQueue.test.ts`, `lib/setQueue.test.ts`). **Not run on a phone.** The meal photo is the known hole.
+- "Airplane mode through a full workout and two meal logs loses nothing": sets, meals, meal photos, water, sleep and pen
+  decisions are queued and tested (`lib/writeQueue.test.ts`, `lib/setQueue.test.ts`, `lib/photoQueue.test.ts`). **Not run on a phone.**
+  A scan cannot be read offline (the model is on the server); logging by name works.
 - "Every screen has all five states": **not met** (section 2).
 - "Targets in 5.6 met": **not measured**.
