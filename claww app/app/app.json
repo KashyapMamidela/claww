@@ -115,6 +115,14 @@
           "microphonePermission": false
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "CLAWW uses your camera to scan your meals.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-web-browser",
       "expo-notifications",
       "expo-sensors",

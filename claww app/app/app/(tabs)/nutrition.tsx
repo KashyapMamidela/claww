@@ -170,7 +170,8 @@ export default function NutritionTab() {
     setSwapMeal(null);
   };
 
-  const openAdd = (type: MealType) => router.push({ pathname: '/meal-log', params: { mealType: type } });
+  // Scan and the camera buttons open the scanner (NG PHASE 9); describing a meal in words is still on the meal-log screen.
+  const openAdd = (type: MealType) => router.push({ pathname: '/scan', params: { mealType: type } });
   const addType: MealType = upNext ?? 'Snack';
 
   const size = 150;

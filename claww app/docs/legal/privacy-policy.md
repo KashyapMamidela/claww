@@ -162,3 +162,11 @@ notice mechanism, e.g. a forced acknowledgement screen]`
 
 Questions about this policy, or a request that isn't covered by an in-app
 option: `privacy@claww.me` `[FILL IN — real inbox]`
+
+## Scanner training data (optional)
+
+If you turn on "Help improve the scanner" in Settings (it is off by default), then each time you log a scanned plate we store the photo, what the scanner guessed, the answers you gave (where it was from, how oily, the portion) and the items you confirmed, so we can improve how it reads Indian meals. This is used only to train and test the scanner, is visible only to you and the CLAWW team, is included in "Download my data", and is deleted when you delete your account. You can turn it off at any time; turning it off stops new collection. Photos of meals you log are stored in a private bucket whether or not this is on; this setting only controls whether the photo and your corrections are also kept for training.
+
+### Who reads the plate photo
+
+To read a plate, the photo is sent to Groq (our image-reading service). If Groq is unavailable it is sent instead to a backup image-reading service. `[FILL IN: name the backup provider here once it is chosen, and add it to the list of subprocessors above.]` Only the photo is sent, with an instruction to list the foods on the plate; no name, email or other account detail goes with it. The calories and nutrients are calculated by CLAWW from its own food database, not by these services.

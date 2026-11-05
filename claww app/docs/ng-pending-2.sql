@@ -64,3 +64,27 @@ DROP POLICY IF EXISTS "meal_plan_days_own" ON meal_plan_days;
 CREATE POLICY "meal_plan_days_own" ON meal_plan_days
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- NG PHASE 9: the scanner. meal_logs.context remembers where, how oily and how big, so the next scan can start from
+-- habit. scan_corrections is the opt-in training data (Settings, default off): the photo, what the model guessed, the
+-- context and the final items the user confirmed. Owner-only, in the data export, deleted with the account.
+-- ============================================================
+ALTER TABLE meal_logs ADD COLUMN IF NOT EXISTS context JSONB;     -- {place, oil, portion}
+
+CREATE TABLE IF NOT EXISTS scan_corrections (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  photo_path  TEXT,
+  model       TEXT,
+  model_guess JSONB,
+  context     JSONB,
+  final_items JSONB,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS scan_corrections_user_idx ON scan_corrections (user_id, created_at DESC);
+ALTER TABLE scan_corrections ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "scan_corrections_own" ON scan_corrections;
+CREATE POLICY "scan_corrections_own" ON scan_corrections
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

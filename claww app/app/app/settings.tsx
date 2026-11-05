@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
-import { getGenerationUsageToday, getProfile, saveReminderSettings, setNotificationsEnabled } from '../lib/data';
+import { getGenerationUsageToday, getProfile, saveReminderSettings, saveScanTraining, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
 import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
@@ -31,6 +31,7 @@ export default function SettingsScreen() {
   const [usage, setUsage] = useState<{ plan: number; meal: number } | null>(null);
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [notificationsBusy, setNotificationsBusy] = useState(false);
+  const [scanTraining, setScanTrainingOn] = useState(false);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [testStatus, setTestStatus] = useState<string | null>(null);
   const [reminderSettings, setReminderSettings] = useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
@@ -43,6 +44,7 @@ export default function SettingsScreen() {
         if (cancelled) return;
         setUsage(u);
         setNotificationsOn(profile?.notifications_enabled ?? false);
+        setScanTrainingOn(!!profile?.personalization_profile?.scanTraining);
         setReminderSettings(normalizeReminderSettings(profile?.personalization_profile?.reminders));
       });
       return () => {
@@ -159,6 +161,28 @@ export default function SettingsScreen() {
             ) : null}
           </View>
         ) : null}
+
+        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(34,197,94,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="camera" size={16} color={COLORS.green} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600', fontFamily: FONT }}>Help improve the scanner</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 1, lineHeight: 17, fontFamily: FONT }}>
+                When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals. Off by default. Turn it off any time.
+              </Text>
+            </View>
+            <Switch
+              value={scanTraining}
+              accessibilityLabel="Help improve the scanner"
+              onValueChange={(on) => {
+                setScanTrainingOn(on);
+                if (userId) saveScanTraining(userId, on).then((ok) => { if (!ok) setScanTrainingOn(!on); });
+              }}
+            />
+          </View>
+        </View>
 
         {notificationsSupported && SHOW_DEV_TOOLS ? (
           <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>

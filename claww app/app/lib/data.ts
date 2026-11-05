@@ -70,6 +70,8 @@ export interface PersonalizationProfile {
   reminders?: Partial<ReminderSettings>;
   /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
   stepsGoal?: number;
+  /** NG PHASE 9: the user agreed (Settings, default off) to share scan corrections to train the scanner. */
+  scanTraining?: boolean;
   /** Exam week (NG PHASE 12): days in this range neither count toward nor break the plan streak. */
   examWeek?: { from: string; until: string } | null;
   /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
@@ -472,6 +474,8 @@ export interface MealLogRow {
   plan_status?: 'as_planned' | 'swapped' | 'extra' | 'skipped' | null;
   items?: { food: string; unit: string; qty: number; grams: number }[] | null;
   nutrients?: MealNutrients | null;
+  /** NG PHASE 9: where, how oily and what size, when the meal came from the scanner. */
+  context?: { place: string; oil: string; portion: string } | null;
 }
 
 export interface MealNutrients {
@@ -563,6 +567,7 @@ export interface EstimatedMeal {
   planStatus?: 'as_planned' | 'swapped' | 'extra' | 'skipped';
   items?: { food: string; unit: string; qty: number; grams: number }[];
   nutrients?: MealNutrients;
+  context?: { place: string; oil: string; portion: string };
 }
 
 export interface EstimateResult {
@@ -748,6 +753,7 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
     ...(meal.planStatus ? { plan_status: meal.planStatus } : {}),
     ...(meal.items ? { items: meal.items } : {}),
     ...(meal.nutrients ? { nutrients: meal.nutrients } : {}),
+    ...(meal.context ? { context: meal.context } : {}),
   };
   const columns = 'id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url';
   let res = await supabase.from('meal_logs').insert({ ...core, ...extras }).select(columns).single();
@@ -1657,6 +1663,7 @@ export interface UserDataExport {
   userResources: unknown | null;
   weightLogs: unknown[];
   mealPlanDays: unknown[];
+  scanCorrections: unknown[];
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1682,6 +1689,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     userResources,
     weightLogs,
     mealPlanDays,
+    scanCorrections,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1703,6 +1711,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('user_resources').select('*').eq('user_id', userId).maybeSingle(),
     supabase.from('weight_logs').select('*').eq('user_id', userId),
     supabase.from('meal_plan_days').select('*').eq('user_id', userId),
+    supabase.from('scan_corrections').select('*').eq('user_id', userId),
   ]);
 
   return {
@@ -1727,6 +1736,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     userResources: userResources.data ?? null,
     weightLogs: weightLogs.data ?? [],
     mealPlanDays: mealPlanDays.data ?? [],
+    scanCorrections: scanCorrections.data ?? [],
   };
 }
 
@@ -1826,4 +1836,18 @@ export async function getRecentActivities(userId: string, weightKg: number | nul
     const minutes = Number(r.duration_minutes);
     return { name: r.exercise_name as string, minutes, loggedAt: r.completed_at as string, kcal: activityKcal(catalogMet ?? activityMet(r.exercise_name as string) ?? OTHER_ACTIVITY_MET, minutes, weight) };
   });
+}
+
+
+/** The Settings switch "Help improve the scanner". Default off; stored with the rest of the personalization profile. */
+export async function saveScanTraining(userId: string, on: boolean): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), scanTraining: on };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
+  if (error) {
+    console.warn('[Claww] Failed to save the scanner training choice:', error.message);
+    return false;
+  }
+  return true;
 }
