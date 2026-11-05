@@ -23,6 +23,7 @@ import { Display } from '../../components/ui/Typography';
 import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
+import { ActivityCard } from '../../components/workouts/ActivityCard';
 import { CatchUpBanner } from '../../components/nutrition/CatchUpBanner';
 import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from '../../lib/homeMoment';
 import { marksFor, type PlanMark } from '../../lib/planMarks';
@@ -636,6 +637,9 @@ function HomePopulated() {
       </Surface>
 
       <WaterRow userId={userId} />
+
+      {/* Activities are logged here and on Workouts; the Tracker shows what was recorded. */}
+      <ActivityCard userId={userId} onLogged={() => {}} />
 
       {todaySleep ? null : <SleepRow />}
       <SleepLogModal visible={sleepOpen} onClose={() => setSleepOpen(false)} />

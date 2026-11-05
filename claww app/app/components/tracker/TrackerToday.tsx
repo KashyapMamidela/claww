@@ -292,20 +292,12 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         </View>
       </View>
 
-      {/* Activities that are not the plan */}
-      <Card
-        color={AREA_COLORS.burned}
-        label="ACTIVITIES · NOT YOUR PLAN"
-        right={
-          <Pressable onPress={() => router.push('/(tabs)/workouts')} accessibilityRole="button" accessibilityLabel="Add an activity on the Workouts tab" style={{ minHeight: 40, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: tint(AREA_COLORS.burned, 0.5), justifyContent: 'center' }}>
-            <Text style={{ color: AREA_COLORS.burned, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>+ Add</Text>
-          </Pressable>
-        }
-      >
+      {/* What was recorded: activities outside the plan. They are logged on Workouts and Home, shown here. */}
+      <Card color={AREA_COLORS.burned} label="ACTIVITIES RECORDED">
         {activities.length === 0 ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>Cricket, a long walk, yoga: log them on the Workouts tab and they count for calories and recovery.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>Nothing recorded this week. Log a sport or a long walk on Home or the Workouts tab and it shows up here.</Text>
         ) : (
-          activities.slice(0, 3).map((a) => (
+          activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.burned, 0.16) }}>
                 <Icon name="zap" size={20} color={AREA_COLORS.burned} />

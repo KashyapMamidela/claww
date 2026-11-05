@@ -14,6 +14,7 @@ import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Display } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { TrackerBody, type ChartKind } from '../../components/tracker/TrackerBody';
+import { AdaptiveCard } from '../../components/tracker/AdaptiveCard';
 import { TrackerToday } from '../../components/tracker/TrackerToday';
 import { TrackerChartScreen } from '../../components/tracker/TrackerChartScreen';
 
@@ -156,6 +157,8 @@ export default function TrackerTab() {
             score={score}
             locked={locked}
           />
+
+          <AdaptiveCard />
 
           <TrackerToday
             weekSteps={steps}
