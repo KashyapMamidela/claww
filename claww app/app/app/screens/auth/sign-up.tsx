@@ -96,7 +96,7 @@ export default function SignUpScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => router.back()} style={backButtonStyle}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} activeOpacity={0.8} onPress={() => router.back()} style={backButtonStyle}>
           <Icon name="chevron-left" size={18} color="#A1A1AA" />
         </TouchableOpacity>
       </View>

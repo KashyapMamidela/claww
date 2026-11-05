@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { syncPenMarks } from './penData';
+import { useWriteQueueFlusher } from './writeQueueRuntime';
 import { supabase } from './supabase';
 import { refreshReminders } from './reminderSync';
 import { loadPlanStreak } from './streakData';
@@ -82,6 +83,7 @@ const AppStateContext = createContext<AppState | null>(null);
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null);
+  useWriteQueueFlusher(userId); // NG PHASE 14: meals, water, sleep and pen decisions waiting on the phone are sent when a connection returns
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
   const [hasPlan, setHasPlan] = useState(false);

@@ -1,6 +1,7 @@
 // NG PHASE 9: the scanner's server calls and the little in-memory session that carries a scan from the camera screen
 // to the check screen.
 
+import NetInfo from '@react-native-community/netinfo';
 import { supabase } from './supabase';
 import { extractInvokeErrorMessage } from './data';
 import type { ScanContext, ScanFood, ScanItem } from './engine';
@@ -20,6 +21,11 @@ export type ScanOutcome = { ok: true; result: ScanResult } | { ok: false; reason
 
 /** Sends the photo to the scan-plate function. The function only names items; the numbers come from the food database. */
 export async function scanPlate(imageDataUri: string): Promise<ScanOutcome> {
+  // Offline: say so at once instead of waiting for a timeout, and point at the way that works without a connection.
+  const net = await NetInfo.fetch().catch(() => null);
+  if (net && net.isConnected === false) {
+    return { ok: false, reason: 'You are offline, so the plate cannot be read. Log it by name; it is saved on this phone and sent when you are back.' };
+  }
   const { data, error } = await supabase.functions.invoke('scan-plate', { body: { image: imageDataUri } });
   if (error) {
     const message = await extractInvokeErrorMessage(error);

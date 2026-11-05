@@ -25,11 +25,14 @@ export interface SetPayload {
   completed_at: string;
 }
 
-export interface QueuedSet {
+/** One queued write: a client-generated id (so retries are safe), what to send, and how many times it has failed. */
+export interface QueuedItem<P> {
   clientId: string;
-  payload: SetPayload;
+  payload: P;
   attempts: number;
 }
+
+export type QueuedSet = QueuedItem<SetPayload>;
 
 /**
  * - inserted: saved now.
@@ -40,31 +43,35 @@ export interface QueuedSet {
  */
 export type SendResult = 'inserted' | 'duplicate' | 'retry' | 'skip' | 'drop';
 
-export interface QueueStorage {
-  load(): Promise<QueuedSet[]>;
-  save(items: QueuedSet[]): Promise<void>;
+export interface QueueStorage<P = SetPayload> {
+  load(): Promise<QueuedItem<P>[]>;
+  save(items: QueuedItem<P>[]): Promise<void>;
 }
 
-export interface SetQueue {
-  enqueue(clientId: string, payload: SetPayload): Promise<void>;
+export interface SetQueue<P = SetPayload> {
+  enqueue(clientId: string, payload: P): Promise<void>;
   flush(): Promise<void>;
   pending(): Promise<number>;
+  /** Is this write still waiting to be sent? */
+  has(clientId: string): Promise<boolean>;
 }
 
 /** Keeps the device from growing a queue without bound if something is badly wrong. */
 export const MAX_QUEUE = 1000;
 
-export function createSetQueue(
-  storage: QueueStorage,
-  send: (item: QueuedSet) => Promise<SendResult>,
-  onInserted?: (item: QueuedSet) => void
-): SetQueue {
-  let items: QueuedSet[] | null = null;
+/** The queue itself, for any kind of write (NG PHASE 14 reuses it for meals, water, sleep and pen decisions). */
+export function createSetQueue<P = SetPayload>(
+  storage: QueueStorage<P>,
+  send: (item: QueuedItem<P>) => Promise<SendResult>,
+  onInserted?: (item: QueuedItem<P>) => void,
+  onDropped?: (item: QueuedItem<P>) => void
+): SetQueue<P> {
+  let items: QueuedItem<P>[] | null = null;
   let flushing: Promise<void> | null = null;
   // Writes go through one chain so a slow save can't overwrite a newer one.
   let writes: Promise<void> = Promise.resolve();
 
-  async function load(): Promise<QueuedSet[]> {
+  async function load(): Promise<QueuedItem<P>[]> {
     if (items === null) {
       try {
         items = await storage.load();
@@ -96,6 +103,7 @@ export function createSetQueue(
         list.splice(i, 1);
         await persist();
         if (result === 'inserted') onInserted?.(item);
+        if (result === 'drop') onDropped?.(item);
         continue;
       }
       item.attempts += 1;
@@ -125,6 +133,9 @@ export function createSetQueue(
     },
     async pending() {
       return (await load()).length;
+    },
+    async has(clientId) {
+      return (await load()).some((it) => it.clientId === clientId);
     },
   };
 }

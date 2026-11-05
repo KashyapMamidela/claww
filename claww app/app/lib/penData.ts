@@ -6,6 +6,7 @@ import { supabase } from './supabase';
 import { getLatestWorkout, getMealLogsBetween, getProfile, getSuggestedDayIndex, getWeightLogs, getWorkoutDayEvents, saveNutritionTargets, type WorkoutPlan } from './data';
 import { ADD_ONS, MEAL_TEMPLATES, cheapestFix, scaleTemplate, swapOptions, type PenKind, type PenMark, type PenStatus, type PenTarget, type NewMark, type RuleContext, type SwapChoice } from './engine';
 import { applyRules, createWithinLimits, dayKeyOf, expireMarks, readTrends, undoPatch, type Finding, type TrendInput } from './engine';
+import { writeOrQueue } from './writeQueueRuntime';
 import { loadPlanInputs, planFor, setPlannedMeal } from './mealPlanData';
 import { loadDayPrescription } from './todayPlan';
 import { epley1RM, toTrainLogs } from './trackerMath';
@@ -54,8 +55,9 @@ async function insertMarks(userId: string, marks: NewMark[]): Promise<PenMark[]>
 }
 
 async function setStatus(userId: string, id: string, status: PenStatus): Promise<boolean> {
-  const { error } = await supabase.from('pen_marks').update({ status, decided_at: new Date().toISOString() }).eq('id', id).eq('user_id', userId);
-  return !error;
+  // NG PHASE 14: a decision made offline is kept on the phone and sent later (the update is the same whenever it lands).
+  const outcome = await writeOrQueue(`pen-${id}-${status}-${Date.now()}`, { op: 'update', table: 'pen_marks', userId, id, patch: { status, decided_at: new Date().toISOString() } });
+  return outcome !== 'failed';
 }
 
 // ─── Applying a mark and undoing it ────────────────────────────────────────────────────────────────────────

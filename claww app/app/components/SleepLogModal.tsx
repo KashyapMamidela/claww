@@ -116,7 +116,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             {step === 'wake' && (
-              <TouchableOpacity onPress={() => setStep('bedtime')} hitSlop={10}>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" onPress={() => setStep('bedtime')} hitSlop={10}>
                 <Icon name="chevron-left" size={20} color={COLORS.fgGrayDim} />
               </TouchableOpacity>
             )}
@@ -135,7 +135,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>
               {step === 'bedtime' ? 'When did you go to bed?' : 'When did you wake up?'}
             </Text>
-            <TouchableOpacity onPress={onClose} hitSlop={10}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} hitSlop={10}>
               <Icon name="x" size={18} color={COLORS.fgGrayDim} />
             </TouchableOpacity>
           </View>

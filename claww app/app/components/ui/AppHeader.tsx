@@ -64,7 +64,7 @@ export function AppHeader({ wordmarkAccent, onBellPress }: AppHeaderProps) {
               <Text style={{ color: wordmarkAccent }}>W</Text>
             </Text>
           </View>
-          <IconButton icon={<Icon name="bell" size={15} color="#A1A1AA" />} onPress={onBellPress} />
+          <IconButton icon={<Icon name="bell" size={15} color="#A1A1AA" />} onPress={onBellPress} label="Notifications" />
         </View>
       </BlurView>
     </View>

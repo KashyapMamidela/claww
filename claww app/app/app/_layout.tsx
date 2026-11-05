@@ -10,6 +10,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 import { AppStateProvider } from '../lib/appState';
+import { OfflineBanner } from '../components/OfflineBanner';
 import { WorkoutSessionProvider } from '../lib/workoutSession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
@@ -139,6 +140,7 @@ function RootLayout() {
               }}
             />
           </WorkoutSessionProvider>
+          <OfflineBanner />
         </AppStateProvider>
         {!introDone && (
           <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>

@@ -12,6 +12,7 @@ import { dateLine, isClimb, marksForReview, reviewLine, weekStart, type WeekFact
 import { Hero } from '../components/ui/Hero';
 import { Icon } from '../components/ui/Icon';
 import { Segmented } from '../components/ui/Segmented';
+import { Skeleton } from '../components/ui/Skeleton';
 import { Surface } from '../components/ui/Surface';
 import { Display } from '../components/ui/Typography';
 
@@ -137,6 +138,13 @@ export default function WeekReviewScreen() {
             ))}
           </View>
         </Hero>
+
+        {!pen.loaded ? (
+          <View style={{ gap: 12 }} accessibilityLabel="Loading your week">
+            <Skeleton height={150} borderRadius={20} />
+            <Skeleton height={180} borderRadius={20} />
+          </View>
+        ) : null}
 
         {marks.length === 0 && pen.loaded ? (
           <Surface padding={18}>

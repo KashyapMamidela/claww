@@ -18,7 +18,7 @@ export function OnboardingTopBar({ step, accent, showBack = false, totalSteps = 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 22, paddingTop: 26 }}>
       {showBack ? (
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           activeOpacity={0.8}
           onPress={() => router.back()}
           style={{

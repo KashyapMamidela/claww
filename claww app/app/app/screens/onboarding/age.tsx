@@ -22,7 +22,7 @@ export default function OnboardingAge() {
   };
 
   const stepBtn = (dir: -1 | 1) => (
-    <TouchableOpacity
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel={dir < 0 ? 'Decrease age' : 'Increase age'} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       activeOpacity={0.8}
       onPress={() => setAge((a) => Math.max(MIN_AGE, Math.min(MAX_AGE, a + dir)))}
       style={{
