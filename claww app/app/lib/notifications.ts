@@ -11,7 +11,7 @@ import { REMINDER_ID_PREFIX, type PlannedReminder } from './reminderPlan';
 // send-reminders Edge Function (V2 PHASE 3.4).
 
 /** Tap routing types — see REMINDER_ROUTES in app/_layout.tsx. */
-export type ReminderType = 'workout' | 'sleep' | 'meal' | 'water' | 'catchup';
+export type ReminderType = 'workout' | 'sleep' | 'meal' | 'water' | 'catchup' | 'review';
 
 /** The fixed daily repeats scheduled by builds before V2 PHASE 3.3 — still cancelled so updated users don't get duplicates. */
 const LEGACY_REMINDER_IDS = ['claww-reminder-workout', 'claww-reminder-sleep', 'claww-reminder-meal'];

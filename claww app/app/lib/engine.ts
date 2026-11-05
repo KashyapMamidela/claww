@@ -3,6 +3,10 @@
 export * from '../../supabase/functions/_shared/adaptive';
 export { computeRepRange, startingPrescription, deriveAllowedEquipment, excludeInjuredExercises } from '../../supabase/functions/_shared/planning';
 export type { RepRange, ExerciseRole, StartingPrescription } from '../../supabase/functions/_shared/planning';
+export * from '../../supabase/functions/_shared/penMarks';
+export * from '../../supabase/functions/_shared/trendReader';
+export * from '../../supabase/functions/_shared/penRules';
+export { wordsFor, chooseNote, validateReworded, NOTE_MAX } from '../../supabase/functions/_shared/penNotes';
 export { computeRecoveryScore, proteinShare } from '../../supabase/functions/_shared/recovery';
 export type { RecoveryResult } from '../../supabase/functions/_shared/recovery';
 export { pickBlueprint, goalToBlueprintGoal, equipmentToPlace, fillBlueprint, fitPlan, checkPlan, sessionMinutes, blueprintDayMinutes, BLOCK_WEEKS, toPlan } from '../../supabase/functions/_shared/planTree';

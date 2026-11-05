@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { syncPenMarks } from './penData';
 import { supabase } from './supabase';
 import { refreshReminders } from './reminderSync';
 import { loadPlanStreak } from './streakData';
@@ -189,6 +190,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
         setMeals((m) => [...m, inserted]);
         if (meal.planStatus !== 'skipped') bumpXp(10); // matches awardXp(userId, 10, 'meal_logged') in saveMeal
         refreshReminders(userId).catch(() => {}); // drops today's reminder for this meal
+        syncPenMarks(userId).catch(() => {}); // NG PHASE 11: the trend reader runs after each meal log (limits keep it quiet)
       }
       return inserted;
     },

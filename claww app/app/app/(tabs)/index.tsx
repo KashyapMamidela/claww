@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -26,6 +26,9 @@ import { coachLine, type CoachSegment } from '../../lib/coachLine';
 import { CatchUpBanner } from '../../components/nutrition/CatchUpBanner';
 import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from '../../lib/homeMoment';
 import { marksFor, type PlanMark } from '../../lib/planMarks';
+import { decideMark, getMarks, recordEngineMarks, syncPenMarks } from '../../lib/penData';
+import { activeFor, type PenMark as StoredMark } from '../../lib/engine';
+import { dateKey } from '../../lib/planStreak';
 import { loadDayPrescription } from '../../lib/todayPlan';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
@@ -307,6 +310,14 @@ function HomePopulated() {
   const [usualTime, setUsualTime] = useState<string | null>(null);
   // NG PHASE 12: where today's numbers differ from the plan (the Coach's Pen marks), and the protein target for the coach line.
   const [marks, setMarks] = useState<PlanMark[]>([]);
+  // NG PHASE 11: stored pen marks (engine marks and the trend rules'), the same ones the weekly review lists.
+  const [penAll, setPenAll] = useState<StoredMark[]>([]);
+  const penToday = useMemo(() => activeFor(penAll, dateKey(new Date())), [penAll]);
+  const decidePen = async (m: StoredMark, status: 'kept' | 'undone') => {
+    if (!userId) return;
+    const next = await decideMark(userId, m, status);
+    setPenAll((all) => all.map((x) => (x.id === next.id ? next : x)));
+  };
   const [proteinTarget, setProteinTarget] = useState<number | null>(null);
   const [sleepOpen, setSleepOpen] = useState(false);
   const steps = useTodaySteps();
@@ -340,7 +351,16 @@ function HomePopulated() {
           });
           loadDayPrescription(userId, w, dayIdx)
             .then((p) => {
-              if (!cancelled) setMarks(marksFor(p));
+              if (cancelled) return;
+              const local = marksFor(p);
+              setMarks(local);
+              recordEngineMarks(userId, local, dateKey(new Date()))
+                .then(() => syncPenMarks(userId))
+                .then(() => getMarks(userId, 35))
+                .then((all) => {
+                  if (!cancelled) setPenAll(all);
+                })
+                .catch(() => {});
             })
             .catch(() => {});
           const muscles = musclesForExercises(names, catalog);
@@ -479,20 +499,35 @@ function HomePopulated() {
 
       <CatchUpBanner />
 
-      {marks.length > 0 && !workoutToday.completed && today ? (
+      {penToday.length > 0 || (marks.length > 0 && !workoutToday.completed && today) ? (
         <Surface padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Icon name="pencil" size={14} color={COLORS.textMuted} />
               <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
             </View>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/workouts')} accessibilityRole="button" accessibilityLabel="This week" style={{ minHeight: 44, justifyContent: 'center' }}>
+            <TouchableOpacity onPress={() => router.push('/week-review')} accessibilityRole="button" accessibilityLabel="Your week, marked up" style={{ minHeight: 44, justifyContent: 'center' }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week {'›'}</Text>
             </TouchableOpacity>
           </View>
-          {marks.slice(0, 3).map((m) => (
-            <PenMark key={m.name} area="workout" context={today.focus.toUpperCase()} item={m.name} oldValue={m.oldText} newValue={m.newText} note={m.note} reason={m.reason} />
-          ))}
+          {penToday.length > 0
+            ? penToday.slice(0, 3).map((m) => (
+                <PenMark
+                  key={m.id}
+                  area={m.area}
+                  context={m.target.exercise ? today?.focus : m.target.meal}
+                  item={m.target.exercise ?? (m.kind === 'hold' ? 'This week' : m.target.meal ? m.target.meal.charAt(0).toUpperCase() + m.target.meal.slice(1) : m.kind === 'change_number' ? 'Calories' : 'Plan')}
+                  oldValue={m.oldValue}
+                  newValue={m.newValue}
+                  note={m.note}
+                  reason={m.reason}
+                  onKeep={() => decidePen(m, 'kept')}
+                  onUseOld={() => decidePen(m, 'undone')}
+                />
+              ))
+            : marks.slice(0, 3).map((m) => (
+                <PenMark key={m.name} area="workout" context={today?.focus.toUpperCase()} item={m.name} oldValue={m.oldText} newValue={m.newText} note={m.note} reason={m.reason} />
+              ))}
         </Surface>
       ) : null}
 

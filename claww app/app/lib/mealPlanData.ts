@@ -150,3 +150,15 @@ export async function applySwap(userId: string, current: StoredPlan, choice: Pla
   writeStored(userId, date, plan).catch(() => {});
   return plan;
 }
+
+/** NG PHASE 11: puts one planned meal into a day's plan (a pen mark swapping it, or its undo) and saves. */
+export async function setPlannedMeal(userId: string, date: string, meal: PlannedMeal): Promise<StoredPlan | null> {
+  const inputs = await loadPlanInputs(userId);
+  if (!inputs) return null;
+  const current = await planFor(userId, date, inputs);
+  const meals = current.meals.map((m) => (m.meal === meal.meal ? meal : m));
+  const plan: StoredPlan = { ...current, meals, totals: totalsOf(meals) };
+  cache.set(`${userId}|${date}`, plan);
+  writeStored(userId, date, plan).catch(() => {});
+  return plan;
+}

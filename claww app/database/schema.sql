@@ -875,3 +875,29 @@ DROP POLICY IF EXISTS "scan_corrections_own" ON scan_corrections;
 CREATE POLICY "scan_corrections_own" ON scan_corrections
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- NG PHASE 11: the Coach's Pen. One row per mark: a small, reasoned change drawn on the plan. Owner-only, in the data
+-- export, deleted with the account. Limits (3 new a day, 1 active per item) are enforced by the app and its tests.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS pen_marks (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  area        TEXT NOT NULL CHECK (area IN ('workout','nutrition')),
+  kind        TEXT NOT NULL CHECK (kind IN ('change_number','swap_item','add_item','move_day','hold')),
+  target      JSONB NOT NULL,                 -- {key, field, planDate, meal, exercise, restore}
+  old_value   TEXT,
+  new_value   TEXT NOT NULL,
+  note        TEXT NOT NULL CHECK (char_length(note) <= 40),
+  reason      TEXT NOT NULL,
+  evidence    JSONB,
+  status      TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','kept','undone','expired')),
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  decided_at  TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS pen_marks_user_created ON pen_marks (user_id, created_at DESC);
+ALTER TABLE pen_marks ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "pen_marks_own" ON pen_marks;
+CREATE POLICY "pen_marks_own" ON pen_marks
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);

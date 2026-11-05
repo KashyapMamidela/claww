@@ -50,6 +50,8 @@ export interface PrescribeDayInput {
   proteinPct: number | null;
   /** Heaviest weight used in each exercise's previous session, so existing users don't start from scratch. */
   lastWeights?: Record<string, number>;
+  /** NG PHASE 11: lowercase names the user chose "Use my old plan" for today: they get the plan's numbers, not the engine's. */
+  keepPlan?: ReadonlySet<string>;
 }
 
 export function isManaged(entry: CatalogEntry | null): boolean {
@@ -102,7 +104,10 @@ export function prescribeDay(input: PrescribeDayInput): PrescribedExercise[] {
     const isNew = !stored;
     const state = stored ?? newStateFor(ex, e, input.range, input.lastWeights?.[catalogKey(ex.name)] ?? null);
     const score = input.muscleScores[meta.primaryMuscle]?.score ?? null;
-    const prescription = prescribe(state, meta, { sleepHours: input.sleepHours, proteinPct: input.proteinPct, muscleScore: score });
+    let prescription = prescribe(state, meta, { sleepHours: input.sleepHours, proteinPct: input.proteinPct, muscleScore: score });
+    if (!isNew && input.keepPlan?.has(catalogKey(ex.name))) {
+      prescription = { weightKg: state.next.weightKg, reps: state.next.repTarget, sets: state.next.sets, commands: ['HOLD' as Command], reason: 'Your plan numbers, as you chose.' };
+    }
     return { name: ex.name, exerciseId: ex.exerciseId, managed: true, meta, entry: e, state, isNew, muscleScore: score, prescription };
   });
 }

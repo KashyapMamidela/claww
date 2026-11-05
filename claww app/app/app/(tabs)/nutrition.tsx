@@ -10,6 +10,8 @@ import { normalizeFoodProfile, shouldAskFoodProfile } from '../../lib/foodProfil
 import { nextMealFor } from '../../lib/homeMoment';
 import { dayLine, proteinGapNote, rateMeal, usualsFrom, type Usual } from '../../lib/nutritionLogic';
 import { MealDetailModal } from '../../components/MealDetailModal';
+import { SlotPenMark } from '../../components/nutrition/SlotPenMark';
+import { usePenMarks } from '../../lib/usePenMarks';
 import { CatchUpBanner } from '../../components/nutrition/CatchUpBanner';
 import { MealCard } from '../../components/nutrition/MealCard';
 import { FoodSearchSheet } from '../../components/nutrition/FoodSearchSheet';
@@ -40,6 +42,7 @@ const timeText = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '
 
 export default function NutritionTab() {
   const { userId, meals, saveMeal, removeMeal } = useAppState();
+  const penMarks = usePenMarks(7);
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [targets, setTargets] = useState<NutritionDefaults | null>(null);
@@ -361,6 +364,7 @@ export default function NutritionTab() {
                         <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', textDecorationLine: old ? 'underline' : 'none', fontFamily: FONT }}>{m.name}</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{itemsText(m)}</Text>
+                        <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                         {old ? <Text style={{ color: COLORS.fg, fontSize: 19, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
                         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                           <View style={{ flex: 1.3 }}>
@@ -416,6 +420,7 @@ export default function NutritionTab() {
                       {v.planned.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 14 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
                     </Text>
                   ) : null}
+                  <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                 </View>
               );
             })}

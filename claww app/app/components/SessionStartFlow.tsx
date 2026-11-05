@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { getKeepPlanNames } from '../lib/penData';
+import { dateKey } from '../lib/planStreak';
 import { Modal, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AREA_COLORS, COLORS, FONT, tint } from '../lib/theme';
@@ -54,6 +56,8 @@ interface Bundle {
   proteinPct: number | null;
   range: RepRange;
   muscles: string[];
+  /** NG PHASE 11: exercises the user chose "Use my old plan" for today. */
+  keepPlan: Set<string>;
 }
 
 export function applyPrescriptions(workout: WorkoutRow, dayIndex: number, prescribed: PrescribedExercise[]): WorkoutRow {
@@ -118,13 +122,14 @@ export function SessionStartFlow({ visible, userId, workout, dayIndex, onClose, 
     setSessionId(newClientId());
     (async () => {
       const names = day.exercises.map((e) => e.name);
-      const [catalog, progress, lastWeights, recentSets, recovery, profile] = await Promise.all([
+      const [catalog, progress, lastWeights, recentSets, recovery, profile, keepPlan] = await Promise.all([
         getCatalog(names),
         getExerciseProgress(userId, names),
         getLastWeights(userId, names),
         getRecentLoggedSets(userId),
         getRecoveryInputs(userId),
         getProfile(userId),
+        getKeepPlanNames(userId, dateKey(new Date())).catch(() => new Set<string>()),
       ]);
       if (cancelled) return;
       const managed = names.some((n) => {
@@ -137,7 +142,7 @@ export function SessionStartFlow({ visible, userId, workout, dayIndex, onClose, 
       }
       const range = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
       const muscles = musclesForExercises(names, catalog);
-      setBundle({ catalog, progress, lastWeights, recentSets, sleepHours: recovery.sleepHours, proteinPct: recovery.proteinPct, range, muscles });
+      setBundle({ catalog, progress, lastWeights, recentSets, sleepHours: recovery.sleepHours, proteinPct: recovery.proteinPct, range, muscles, keepPlan });
       setStage(muscles.length > 0 ? 'check' : 'plan');
     })();
     return () => {
@@ -164,6 +169,7 @@ export function SessionStartFlow({ visible, userId, workout, dayIndex, onClose, 
             sleepHours: bundle.sleepHours,
             proteinPct: bundle.proteinPct,
             lastWeights: bundle.lastWeights,
+            keepPlan: bundle.keepPlan,
           })
         : [],
     [bundle, day, scores]

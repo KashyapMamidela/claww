@@ -16,6 +16,7 @@ const fresh: TodayState = {
   sleepLoggedToday: false,
   waterMlToday: 500,
   waterTargetMl: 2000,
+  weekReview: false, // the Sunday review reminder has its own tests (phase11.test.ts); 11 Oct 2026 is a Sunday
 };
 
 const allOn: ReminderSettings = {
