@@ -55,12 +55,25 @@ export function newClientId(): string {
   return Crypto.randomUUID();
 }
 
+const changeListeners = new Set<() => void>();
+const changed = () => changeListeners.forEach((l) => l());
+
+/** For the offline banner: told whenever the set queue grows or empties. Returns the unsubscribe. */
+export function onSetQueueChange(cb: () => void): () => void {
+  changeListeners.add(cb);
+  return () => changeListeners.delete(cb);
+}
+
+export function pendingSetCount(): Promise<number> {
+  return queue.pending();
+}
+
 export function enqueueSet(clientId: string, payload: SetPayload): Promise<void> {
-  return queue.enqueue(clientId, payload);
+  return queue.enqueue(clientId, payload).then(changed);
 }
 
 export function flushPendingSets(): Promise<void> {
-  return queue.flush();
+  return queue.flush().then(changed);
 }
 
 /** Flushes queued sets when signed in, when the network comes back, and when the app returns to the foreground. */

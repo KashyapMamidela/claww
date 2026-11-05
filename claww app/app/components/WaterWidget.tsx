@@ -145,7 +145,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
 
   if (compact) {
     return (
-      <TouchableOpacity
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Open the water log" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         activeOpacity={0.85}
         onPress={onOpenFull}
         style={{
@@ -160,7 +160,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
           gap: 14,
         }}
       >
-        <TouchableOpacity activeOpacity={0.8} onPress={() => addWater(TAP_ADD_ML)} style={{ position: 'relative' }}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add ${TAP_ADD_ML} ml of water`} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} activeOpacity={0.8} onPress={() => addWater(TAP_ADD_ML)} style={{ position: 'relative' }}>
           <Bottle width={bottleWidth} height={bottleHeight} fillAnim={fillAnim} scaleAnim={scaleAnim} />
           <Animated.Text
             style={[
@@ -291,7 +291,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                   fontFamily: FONT,
                 }}
               />
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add this amount" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
                 activeOpacity={0.8}
                 onPress={handleCustomSubmit}
                 style={{

@@ -12,6 +12,7 @@ import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
 import { enqueueSet, newClientId } from './setQueueRuntime';
+import { mergeById, queuedRowsFor, writeOrQueue } from './writeQueueRuntime';
 import { toExerciseForm, type ExerciseForm, type ExerciseFormRow } from './exerciseForm';
 import type { ReminderSettings } from './reminderPlan';
 import type { DayActivity } from './activityMath';
@@ -400,18 +401,17 @@ export async function getRecentSleepLogs(userId: string, days = 7): Promise<Slee
 }
 
 export async function insertSleepLog(userId: string, hours: number, bedtime: Date, wakeTime: Date): Promise<boolean> {
-  const { error } = await supabase.from('sleep_logs').insert({
-    user_id: userId,
-    hours,
-    bedtime: bedtime.toISOString(),
-    wake_time: wakeTime.toISOString(),
+  // NG PHASE 14: stored on the phone first, sent from there; XP is awarded when it is really saved.
+  const id = newClientId();
+  const outcome = await writeOrQueue(id, {
+    op: 'insert',
+    table: 'sleep_logs',
+    userId,
+    row: { id, user_id: userId, hours, bedtime: bedtime.toISOString(), wake_time: wakeTime.toISOString(), logged_at: new Date().toISOString() },
+    xp: { amount: 10, reason: 'sleep_logged' },
   });
-  if (error) {
-    console.warn('[Claww] Failed to save sleep log:', error.message);
-    return false;
-  }
-  await awardXp(userId, 10, 'sleep_logged');
-  return true;
+  if (outcome === 'failed') console.warn('[Claww] The server refused this sleep log.');
+  return outcome !== 'failed';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -498,9 +498,10 @@ export async function getTodaysMealLogs(userId: string): Promise<MealLogRow[]> {
   }
   if (res.error) {
     console.warn('[Claww] Failed to load meal logs:', res.error.message);
-    return [];
   }
-  return (res.data ?? []) as unknown as MealLogRow[];
+  // Meals still waiting to be sent (offline) count as logged.
+  const queued = ((await queuedRowsFor('meal_logs', userId)) as unknown as MealLogRow[]).filter((r) => r.logged_at >= startOfDay.toISOString());
+  return mergeById(res.error ? [] : ((res.data ?? []) as unknown as MealLogRow[]), queued).sort((a, b) => a.logged_at.localeCompare(b.logged_at));
 }
 
 export interface NutritionSummary {
@@ -755,24 +756,37 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
     ...(meal.nutrients ? { nutrients: meal.nutrients } : {}),
     ...(meal.context ? { context: meal.context } : {}),
   };
-  const columns = 'id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url';
-  let res = await supabase.from('meal_logs').insert({ ...core, ...extras }).select(columns).single();
-  if (res.error && Object.keys(extras).length > 0) {
-    // The NG PHASE 8 columns are not on this database yet (docs/ng-pending-2.sql): save the meal without them.
-    res = await supabase.from('meal_logs').insert(core).select(columns).single();
-  }
-  const { data, error } = res;
-
-  if (error) {
-    console.warn('[Claww] Failed to save meal log:', error.message);
+  // NG PHASE 14: the meal is stored on the phone first with its own id and sent from there, so a bad signal or airplane
+  // mode loses nothing; the columns an older database lacks are dropped on the way. XP is awarded when it is really saved.
+  const id = newClientId();
+  const loggedAt = new Date().toISOString();
+  const outcome = await writeOrQueue(id, {
+    op: 'insert',
+    table: 'meal_logs',
+    userId,
+    row: { id, ...core, logged_at: loggedAt },
+    optional: extras,
+    xp: meal.planStatus !== 'skipped' ? { amount: 10, reason: 'meal_logged' } : undefined,
+  });
+  if (outcome === 'failed') {
+    console.warn('[Claww] The server refused this meal log.');
     return null;
   }
-  // A skipped meal (NG PHASE 10 catch-up) is an answer, not a meal: no XP and no meal event.
-  if (meal.planStatus !== 'skipped') {
-    track(AnalyticsEvent.MealLogged, { meal_type: mealType });
-    await awardXp(userId, 10, 'meal_logged');
-  }
-  return data as MealLogRow;
+  // A skipped meal (NG PHASE 10 catch-up) is an answer, not a meal: no meal event.
+  if (meal.planStatus !== 'skipped') track(AnalyticsEvent.MealLogged, { meal_type: mealType });
+  return {
+    id,
+    description: core.description,
+    calories: core.calories,
+    protein_g: core.protein_g,
+    carbs_g: core.carbs_g,
+    fats_g: core.fats_g,
+    estimated: true,
+    meal_type: mealType,
+    logged_at: loggedAt,
+    photo_url: core.photo_url,
+    ...extras,
+  } as MealLogRow;
 }
 
 /** Deletes one meal log (the one-tap Undo after logging a usual). */
@@ -794,9 +808,9 @@ export async function getMealLogsBetween(userId: string, startIso: string, endIs
   }
   if (res.error) {
     console.warn('[Claww] Failed to load meals for the diary:', res.error.message);
-    return [];
   }
-  return (res.data ?? []) as unknown as MealLogRow[];
+  const queued = ((await queuedRowsFor('meal_logs', userId)) as unknown as MealLogRow[]).filter((r) => r.logged_at >= startIso && r.logged_at < endIso);
+  return mergeById(res.error ? [] : ((res.data ?? []) as unknown as MealLogRow[]), queued).sort((a, b) => a.logged_at.localeCompare(b.logged_at));
 }
 
 /** Meals from the last `days` days, newest first, for "your usuals". */
@@ -1544,18 +1558,17 @@ export async function getTodaysWaterMl(userId: string): Promise<number> {
     .gte('logged_at', startOfDay.toISOString());
   if (error) {
     console.warn('[Claww] Failed to load water logs:', error.message);
-    return 0;
   }
-  return (data ?? []).reduce((sum, row) => sum + row.ml, 0);
+  const queued = (await queuedRowsFor('water_logs', userId)).filter((r) => String(r.logged_at) >= startOfDay.toISOString());
+  return [...(error ? [] : (data ?? [])), ...queued].reduce((sum: number, row) => sum + Number((row as { ml: number }).ml), 0);
 }
 
 export async function logWater(userId: string, ml: number): Promise<boolean> {
-  const { error } = await supabase.from('water_logs').insert({ user_id: userId, ml });
-  if (error) {
-    console.warn('[Claww] Failed to save water log:', error.message);
-    return false;
-  }
-  return true;
+  // NG PHASE 14: stored on the phone first, sent from there; true means it is saved or safely waiting.
+  const id = newClientId();
+  const outcome = await writeOrQueue(id, { op: 'insert', table: 'water_logs', userId, row: { id, user_id: userId, ml, logged_at: new Date().toISOString() } });
+  if (outcome === 'failed') console.warn('[Claww] The server refused this water log.');
+  return outcome !== 'failed';
 }
 
 export interface WaterLogRow {
@@ -1576,9 +1589,9 @@ export async function getTodaysWaterLogs(userId: string): Promise<WaterLogRow[]>
     .order('logged_at', { ascending: false });
   if (error) {
     console.warn('[Claww] Failed to load water entries:', error.message);
-    return [];
   }
-  return data ?? [];
+  const queued = ((await queuedRowsFor('water_logs', userId)) as unknown as WaterLogRow[]).filter((r) => r.logged_at >= startOfDay.toISOString());
+  return mergeById(error ? [] : (data ?? []), queued).sort((a, b) => b.logged_at.localeCompare(a.logged_at));
 }
 
 /** Undo one water entry. RLS limits it to the user's own rows. */

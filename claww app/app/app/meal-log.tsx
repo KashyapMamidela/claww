@@ -366,7 +366,7 @@ export default function MealLogScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: '#050505' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: insets.top + 26, paddingHorizontal: 20, paddingBottom: 4 }}>
-          <TouchableOpacity
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Edit the estimate" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             activeOpacity={0.8}
             onPress={handleEditEstimate}
             style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', alignItems: 'center', justifyContent: 'center' }}
@@ -420,7 +420,7 @@ export default function MealLogScreen() {
           paddingBottom: 4,
         }}
       >
-        <TouchableOpacity
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           activeOpacity={0.8}
           onPress={() => router.back()}
           style={{
@@ -527,7 +527,7 @@ export default function MealLogScreen() {
             }}
           >
             <Image source={{ uri: photo.uri }} style={{ width: '100%', height: 220 }} resizeMode="cover" />
-            <TouchableOpacity
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove the photo" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
               activeOpacity={0.85}
               onPress={() => setPhoto(null)}
               style={{

@@ -88,7 +88,7 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
             <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
               {modality === 'cardio' ? 'Pick a cardio exercise' : 'Add an exercise'}
             </Text>
-            <TouchableOpacity onPress={onClose} style={{ padding: 4 }}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={onClose} style={{ padding: 4 }}>
               <Icon name="x" size={18} color="#A1A1AA" />
             </TouchableOpacity>
           </View>

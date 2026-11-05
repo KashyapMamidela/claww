@@ -65,14 +65,14 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
       <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{label}</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <TouchableOpacity onPress={() => onChange(Math.max(0, value - step))} style={{ padding: 6 }}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Decrease" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={() => onChange(Math.max(0, value - step))} style={{ padding: 6 }}>
           <Icon name="chevron-left" size={16} color="#fff" />
         </TouchableOpacity>
         <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', width: 56, textAlign: 'center', fontFamily: FONT }}>
           {value}
           {unit}
         </Text>
-        <TouchableOpacity onPress={() => onChange(value + step)} style={{ padding: 6 }}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Increase" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={() => onChange(value + step)} style={{ padding: 6 }}>
           <Icon name="chevron-right" size={16} color="#fff" />
         </TouchableOpacity>
       </View>
@@ -111,7 +111,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Log a Session</Text>
-            <TouchableOpacity onPress={close}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={close}>
               <Icon name="x" size={18} color="#A1A1AA" />
             </TouchableOpacity>
           </View>
