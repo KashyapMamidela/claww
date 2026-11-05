@@ -149,3 +149,8 @@ NEEDED]` on whether Play expects this disclosed regardless.
 - [ ] Re-run this whole audit after SHIP PHASE 9.1/9.2 (crash reporting,
       analytics) or 11.1/11.5 (Health Connect, monetization) ship — each
       one adds real data collection this sheet currently says doesn't exist
+
+## NG PHASE 9 update: the scanner (check before Play Console submission)
+
+- **Photos:** the scanner sends the plate photo to Groq, and to a backup image-reading service if Groq is unavailable (`scan-plate`). Meal photos are also kept in a private bucket for the user's own diary (V2 PHASE 1.5), so the earlier statement that photos are not persisted is out of date. `[DECISION NEEDED]` name the backup provider and update "shared with".
+- **Optional training data:** with Settings > "Help improve the scanner" turned on (default off), the photo, the scanner's guess, the user's answers and corrections are kept in `scan_corrections` (owner-only, in the data export, deleted with the account). Answer "Optional" for this in the data-safety form.

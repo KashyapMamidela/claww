@@ -18,7 +18,7 @@ Vegetable biryani,veg biryani,Andhra/Telangana,veg,false,,Computed from ingredie
 Egg biryani,egg dum biryani,Andhra/Telangana,egg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 Chicken fried rice,chicken fried rice|indo chinese fried rice,Indo-Chinese,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 Egg fried rice,egg fried rice,Indo-Chinese,egg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
-Vegetable fried rice,veg fried rice,Indo-Chinese,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Vegetable fried rice,veg fried rice|fried rice,Indo-Chinese,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 "Hakka noodles, veg",veg noodles|chowmein|chow mein,Indo-Chinese,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 Khichdi,moong dal khichdi|pongal|khichri,South Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 Dal tadka,dal|toor dal|tadka dal|dal fry|pappu,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review

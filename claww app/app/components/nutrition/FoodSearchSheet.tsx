@@ -25,11 +25,13 @@ export interface FoodSearchSheetProps {
   recent: string[];
   /** True when the meal being logged replaces a planned one (logged as swapped), false for an extra. */
   planned?: boolean;
+  /** When given, picking a food hands it back (with quantity and unit) instead of logging a meal: the scanner's "add something we missed". */
+  onPickFood?: (food: Food, qty: number, unit: string) => void;
   onClose: () => void;
   onLogged: (row: MealLogRow) => void;
 }
 
-export function FoodSearchSheet({ visible, mealType, recent, planned = false, onClose, onLogged }: FoodSearchSheetProps) {
+export function FoodSearchSheet({ visible, mealType, recent, planned = false, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
   const router = useRouter();
   const { saveMeal } = useAppState();
   const [query, setQuery] = useState('');
@@ -90,6 +92,11 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
 
   const log = async () => {
     if (!picked || !nutrients || saving) return;
+    if (onPickFood) {
+      onPickFood(picked, qty, unit);
+      reset();
+      return;
+    }
     setSaving(true);
     setError(null);
     const qtyText = unit === 'g' ? `${qty} g` : `${qty} ${unit}`;
@@ -158,7 +165,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
             {!picked.reviewed ? <Text style={{ color: COLORS.textFaint, fontSize: 12, fontFamily: FONT }}>Values are from the food database and are still being reviewed.</Text> : null}
             {error ? <ErrorCard message={error} onRetry={log} retrying={saving} /> : null}
             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving} onPress={log}>
-              {saving ? 'Saving…' : `Log ${mealType.toLowerCase()}`}
+              {saving ? 'Saving…' : onPickFood ? 'Add to the plate' : `Log ${mealType.toLowerCase()}`}
             </Button>
           </>
         ) : (
