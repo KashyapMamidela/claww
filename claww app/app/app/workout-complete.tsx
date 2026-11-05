@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint } from '../lib/theme';
+import { syncPenMarks } from '../lib/penData';
 import { useAppState } from '../lib/appState';
 import { useWorkoutSession } from '../lib/workoutSession';
 import { getCompletedSessionDates, getCompletedWorkoutDays, getLatestWorkout, getProfile, saveExamWeek, setRatingPromptShown } from '../lib/data';
@@ -49,6 +50,11 @@ export default function WorkoutCompleteScreen() {
   const cardRef = useRef<View>(null);
   const now = useMemo(() => new Date(), []);
   const today = dateKey(now);
+
+  // NG PHASE 11: the trend reader runs after each session (the limits keep it to 3 new marks a day).
+  useEffect(() => {
+    if (userId) syncPenMarks(userId, true).catch(() => {});
+  }, [userId]);
 
   useEffect(() => {
     track(AnalyticsEvent.WorkoutCompleted);

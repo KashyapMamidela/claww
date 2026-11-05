@@ -66,7 +66,10 @@ export default function MoreTab() {
   const sections: { title: string; rows: MenuRow[] }[] = [
     {
       title: 'FEATURES',
-      rows: [{ icon: 'user-circle-2', color: COLORS.amber, label: 'Profile', sub: 'Stats, badges & body metrics', onPress: openProfile }],
+      rows: [
+        { icon: 'user-circle-2', color: COLORS.amber, label: 'Profile', sub: 'Stats, badges & body metrics', onPress: openProfile },
+        { icon: 'pencil', color: COLORS.blue, label: 'Your week, marked up', sub: 'What changed on your plan, keep or undo', onPress: () => router.push('/week-review') },
+      ],
     },
     {
       title: 'PERSONALISE',

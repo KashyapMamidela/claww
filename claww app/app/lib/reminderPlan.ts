@@ -20,6 +20,8 @@ export const REMINDER_KINDS: ReminderKind[] = ['workout', 'meals', 'sleep', 'wat
 const PRIORITY: ReminderKind[] = ['workout', 'meals', 'sleep', 'water'];
 
 export const MAX_REMINDERS_PER_DAY = 2;
+export const WEEK_REVIEW_HOUR = 18;
+const weekdayOf = (d: Date) => (d.getDay() + 6) % 7;
 export const REMINDER_DAYS_AHEAD = 7;
 export const REMINDER_ID_PREFIX = 'claww-r-';
 
@@ -60,13 +62,15 @@ export interface TodayState {
   waterTargetMl: number;
   /** Meals with no answer today (not logged, not skipped); drives the 21:30 night close. Omitted means unknown: no night close. */
   unansweredMeals?: number;
+  /** Schedule the Sunday 18:00 weekly review reminder (default true); it follows the workout reminder's switch. */
+  weekReview?: boolean;
 }
 
 export interface PlannedReminder {
   id: string;
   kind: ReminderKind;
   /** Notification tap routing type (see REMINDER_ROUTES in app/_layout.tsx). */
-  routeType: 'workout' | 'meal' | 'sleep' | 'water' | 'catchup';
+  routeType: 'workout' | 'meal' | 'sleep' | 'water' | 'catchup' | 'review';
   date: Date;
   title: string;
   body: string;
@@ -115,6 +119,12 @@ export function planReminders(settings: ReminderSettings, today: TodayState, now
       const date = new Date(base.getFullYear(), base.getMonth(), base.getDate(), s.hour, s.minute, 0, 0);
       if (date.getTime() <= now.getTime()) continue;
       const id = `${REMINDER_ID_PREFIX}${kind}-${dayKey(date)}`;
+
+      if (kind === 'workout' && weekdayOf(base) === 6 && today.weekReview !== false) {
+        // NG PHASE 11.5: Sunday 18:00, "Your week, marked up". It counts toward the same daily cap.
+        const at = new Date(base.getFullYear(), base.getMonth(), base.getDate(), WEEK_REVIEW_HOUR, 0, 0, 0);
+        if (at.getTime() > now.getTime()) candidates.push({ id: `${REMINDER_ID_PREFIX}review-${dayKey(at)}`, kind: 'workout', routeType: 'review', date: at, title: 'Your week, marked up', body: 'See what changed on your plan this week and keep or undo each mark.' });
+      }
 
       if (kind === 'workout') {
         const weekday = (base.getDay() + 6) % 7;

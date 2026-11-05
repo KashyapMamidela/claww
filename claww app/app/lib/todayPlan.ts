@@ -2,6 +2,8 @@
 // show the marks before the session starts. Same inputs and same prescribeDay as the session start flow.
 
 import { getProfile, type WorkoutRow } from './data';
+import { getKeepPlanNames } from './penData';
+import { dateKey } from './planStreak';
 import { computeRepRange } from './engine';
 import { getCatalog, getExerciseProgress, getLastWeights, getRecentLoggedSets, getRecoveryInputs } from './adaptiveData';
 import { muscleScores, musclesForExercises } from './muscleRecovery';
@@ -11,13 +13,14 @@ export async function loadDayPrescription(userId: string, workout: WorkoutRow, d
   const day = workout.plan.days[dayIndex];
   if (!day) return [];
   const names = day.exercises.map((e) => e.name);
-  const [catalog, progress, lastWeights, recentSets, recovery, profile] = await Promise.all([
+  const [catalog, progress, lastWeights, recentSets, recovery, profile, keepPlan] = await Promise.all([
     getCatalog(names),
     getExerciseProgress(userId, names),
     getLastWeights(userId, names),
     getRecentLoggedSets(userId),
     getRecoveryInputs(userId),
     getProfile(userId),
+    getKeepPlanNames(userId, dateKey(new Date())).catch(() => new Set<string>()),
   ]);
   const range = computeRepRange(profile?.goal ?? null, profile?.experience_level ?? null, profile?.age ?? null);
   const muscles = musclesForExercises(names, catalog);
@@ -31,5 +34,6 @@ export async function loadDayPrescription(userId: string, workout: WorkoutRow, d
     sleepHours: recovery.sleepHours,
     proteinPct: recovery.proteinPct,
     lastWeights,
+    keepPlan,
   });
 }

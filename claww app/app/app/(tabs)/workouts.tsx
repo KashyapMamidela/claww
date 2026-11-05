@@ -37,7 +37,7 @@ import { computeDayStates } from '../../lib/workoutDayState';
 import { computeWeekdayStates } from '../../lib/trainingWeek';
 import { useRenderCount } from '../../lib/perf';
 import { refreshReminders } from '../../lib/reminderSync';
-import { SessionStartFlow } from '../../components/SessionStartFlow';
+import { beginSession } from '../../lib/sessionStart';
 import { ExerciseGuideSheet } from '../../components/ExerciseGuideSheet';
 import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
 import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
@@ -146,7 +146,7 @@ export default function WorkoutsTab() {
   const [events, setEvents] = useState<WorkoutDayEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
-  const [flowOpen, setFlowOpen] = useState(false);
+  const [starting, setStarting] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
   const [recoveryHints, setRecoveryHints] = useState<Record<string, string>>({});
   const [skipping, setSkipping] = useState(false);
@@ -339,6 +339,19 @@ export default function WorkoutsTab() {
   // V2 PHASE 7.4: a manually added exercise gets the same computed range and sets the
   // plan's own exercises get (by its role), not a fixed 3 x 10, and an engine row whose
   // first session is a calibration session.
+  // Begin Workout starts straight away with the engine's prescription (the check-in and prescription live in the
+  // Tracker's Adaptive card now). Any engine failure starts the plan as written.
+  const startFromPlan = async () => {
+    if (starting || !workout) return;
+    setStarting(true);
+    try {
+      const start = userId ? await beginSession(userId, workout, selectedDay).catch(() => null) : null;
+      startSession(start ? start.workout : workout, selectedDay, start ? { sessionId: start.sessionId, prescribed: start.prescribed } : undefined);
+    } finally {
+      setStarting(false);
+    }
+  };
+
   const handleAddExercise = async (exercise: CatalogExercise) => {
     setPickerOpen(false);
     let sets = 3;
@@ -623,14 +636,14 @@ export default function WorkoutsTab() {
             <SkippedDayCard
               day={day}
               event={selectedState.event}
-              onDoToday={() => setFlowOpen(true)}
+              onDoToday={() => startFromPlan()}
               onKeepToday={() => setSelectedDay(suggestedDay)}
             />
           ) : sessionStatus === 'idle' && selectedState.state === 'missed' && 'date' in selectedState ? (
             <MissedDayCard
               day={day}
               date={(selectedState as { date: Date }).date}
-              onDoToday={() => setFlowOpen(true)}
+              onDoToday={() => startFromPlan()}
               onKeepToday={() => setSelectedDay(suggestedDay)}
             />
           ) : sessionStatus === 'idle' ? (
@@ -682,24 +695,13 @@ export default function WorkoutsTab() {
       </ScrollView>
       {canStart ? (
         <View pointerEvents="box-none" style={{ position: 'absolute', left: 16, right: 16, bottom: Math.max(insets.bottom, 12) + TAB_BAR_CONTENT_HEIGHT + 12 }}>
-          <Button variant="primary" accent={A} accentDeep={A3} size="lg" fullWidth onPress={() => setFlowOpen(true)} icon={<Icon name="play" size={14} color="#fff" />}>
+          <Button variant="primary" accent={A} accentDeep={A3} size="lg" fullWidth onPress={() => startFromPlan()} icon={<Icon name="play" size={14} color="#fff" />}>
             {`Start ${day.focus} \u00b7 ${dayMinutes} min`}
           </Button>
         </View>
       ) : null}
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
       {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
-      <SessionStartFlow
-        visible={flowOpen}
-        userId={userId}
-        workout={workout}
-        dayIndex={selectedDay}
-        onClose={() => setFlowOpen(false)}
-        onBegin={(start) => {
-          setFlowOpen(false);
-          startSession(start ? start.workout : workout, selectedDay, start ? { sessionId: start.sessionId, prescribed: start.prescribed } : undefined);
-        }}
-      />
       <LogSessionModal
         visible={sessionModalOpen}
         equipment={equipment}
