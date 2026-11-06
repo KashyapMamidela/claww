@@ -211,7 +211,32 @@ export function totalsOf(items: ScanItem[]): Nutrients {
 
 /** The smallest sensible step for a unit: half a katori, one roti, one tsp. */
 export function stepFor(unit: string): number {
-  return ['katori', 'plate', 'glass'].includes(unit) ? 0.5 : 1;
+  return ['katori', 'bowl', 'plate', 'glass'].includes(unit) ? 0.5 : 1;
+}
+
+/** The units a food can be measured in: its own household units, then grams (always). */
+export function unitChoices(food: ScanFood): string[] {
+  const own = food.units.map((u) => u.unit).filter((u, i, a) => u.toLowerCase() !== 'g' && a.indexOf(u) === i);
+  return [...own, 'g'];
+}
+
+/**
+ * Polish step 6b: the user measures an item in the unit they know. The amount is kept in grams, so switching the unit
+ * never changes the calories; the quantity shown is the same amount in the new unit, rounded to that unit's step
+ * (half a katori or bowl, one piece or spoon). Switching to grams rounds to 25 g.
+ */
+export function switchUnit(item: ScanItem, unit: string): ScanItem {
+  if (!item.food || item.unit === unit) return item;
+  const grams = item.grams;
+  if (unit === 'g') {
+    const g = Math.max(25, Math.round(grams / 25) * 25);
+    return { ...item, unit: 'g', qty: g, grams: g };
+  }
+  const hit = item.food.units.find((u) => u.unit.toLowerCase() === unit.toLowerCase());
+  if (!hit || !(hit.grams > 0)) return item;
+  const step = stepFor(hit.unit);
+  const qty = Math.max(step, Math.round(grams / hit.grams / step) * step);
+  return { ...item, unit: hit.unit, qty, grams };
 }
 
 /** The model's items matched to foods, in household units. Oil the model mentions is dropped: oil comes from "how oily?". */
