@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAWW UX research</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@600&display=swap" rel="stylesheet">
+<style>
+:root { --bg:#0A0A0B; --card:#131315; --line:#232327; --fg:#F2F2F3; --muted:#A1A1AA; --faint:#71717A;
+  --burn:#F97316; --food:#22C55E; --rec:#2DD4BF; --work:#3B82F6; --streak:#EC4899; --amber:#F59E0B; }
+* { box-sizing:border-box; margin:0; padding:0 }
+body { background:var(--bg); color:var(--fg); font-family:Inter,system-ui,sans-serif; line-height:1.6; font-size:15.5px }
+main { max-width:860px; margin:0 auto; padding:48px 20px 96px }
+h1 { font-size:40px; font-weight:900; letter-spacing:-1.2px; line-height:1.08; margin-bottom:14px }
+h2 { font-size:26px; font-weight:800; letter-spacing:-.5px; margin:56px 0 14px; line-height:1.2 }
+h3 { font-size:18px; font-weight:800; margin:26px 0 8px }
+p { margin:10px 0; color:#D4D4D8 }
+.lede { font-size:18px; color:var(--muted) }
+.pen { font-family:Caveat,cursive; font-size:26px; color:#fff }
+ul, ol { margin:10px 0 10px 22px; color:#D4D4D8 } li { margin:5px 0 }
+b, strong { color:#fff; font-weight:700 }
+.card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:18px 20px; margin:14px 0 }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin:14px 0 }
+.grid .card { margin:0 }
+.tag { display:inline-block; font-size:12px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid var(--line); color:var(--muted); margin-right:6px }
+.k { font-size:13px; color:var(--faint) }
+table { width:100%; border-collapse:collapse; margin:14px 0; font-size:14px }
+th, td { text-align:left; padding:10px 10px; border-bottom:1px solid var(--line); vertical-align:top }
+th { color:var(--muted); font-weight:600; font-size:13px }
+td.n { font-variant-numeric:tabular-nums; white-space:nowrap }
+.good { color:#4ADE80 } .bad { color:#F87171 }
+.idea { border-left:3px solid #fff; }
+.idea h3 { margin-top:0 }
+.score { float:right; font-size:12px; color:var(--muted) }
+.src li { font-size:13.5px } .src a { color:#93C5FD }
+.toc a { color:#D4D4D8; text-decoration:none } .toc a:hover { text-decoration:underline }
+@media (max-width:600px) { h1 { font-size:30px } h2 { font-size:22px } }
+</style></head><body><main>
+
+<p class="k">CLAWW · UX research and direction · 6 Nov 2026</p>
+<h1>Make CLAWW the app that takes 60 seconds a day.</h1>
+<p class="lede">The research and my evaluation of the current app (from your 6 Nov screenshots and the code) point to one main goal. Every person, gym or no gym, mess or home kitchen, should be able to run their whole day in CLAWW in about a minute, and feel noticed while doing it.</p>
+<p class="pen">the app does the work, you just say yes</p>
+
+<div class="card toc"><b>Contents</b>
+<ol><li><a href="#who">Who we are designing for</a></li><li><a href="#learned">What the research says</a></li><li><a href="#today">What is wrong today (measured)</a></li><li><a href="#principles">Seven rules for every screen</a></li><li><a href="#ideas">Twelve ideas, ranked</a></li><li><a href="#time">Time per task: today vs proposed</a></li><li><a href="#look">The look: three directions</a></li><li><a href="#order">Build order and what to test with real students</a></li><li><a href="#sources">Sources</a></li></ol></div>
+
+<h2 id="who">1. Who we are designing for</h2>
+<p>The core is 16 to 24, but the app has to work as well for someone who cooks at home for a family. The people below are not demographics; they are reasons to open the app. A user can be more than one.</p>
+<div class="grid">
+  <div class="card"><span class="tag">Lift</span><h3>Arjun, 19, gym 4 days</h3><p>Hostel mess, tracks protein, wants numbers to go up. <b>Annoyed by:</b> typing food, plans that ignore the mess menu, losing a set. <b>Time he gives:</b> 2 minutes a day outside the gym.</p></div>
+  <div class="card"><span class="tag">Move</span><h3>Priya, 20, no gym</h3><p>Home food, yoga and walks, wants energy, sleep and a lighter feel, not a bodybuilder plan. <b>Annoyed by:</b> apps that show barbells and "Workout 0/1", calorie shaming. <b>Time:</b> under a minute.</p></div>
+  <div class="card"><span class="tag">Eat</span><h3>Lakshmi, 41, cooks for 4</h3><p>One pot of dal for the whole family, her plate is part of it. <b>Annoyed by:</b> logging every ingredient, apps that think in grams. <b>Time:</b> 30 seconds after each meal.</p></div>
+  <div class="card"><span class="tag">Gain</span><h3>Rohit, 18, underweight</h3><p>Wants to gain, never knows if he ate enough, cheap food only. <b>Needs:</b> "you are 600 kcal short, here is the cheapest fix".</p></div>
+  <div class="card"><span class="tag">Busy</span><h3>Exam-week anyone</h3><p>Opens the app twice a day at most. <b>Needs:</b> to log from the notification without opening the app, and a streak that survives the week.</p></div>
+</div>
+<p><b>What it means:</b> the app cannot assume the gym. Today the first ring is "Workout" and the Tracker leads with bench press. Priya sees a rest day and a 0. That is the "not made for me" feeling you described.</p>
+
+<h2 id="learned">2. What the research says</h2>
+<div class="card"><h3>Enjoyment and other people keep young users, not health worries</h3><p>A study of 412 Gen Z app users in Pune found that continued use was driven by enjoyment, learning, social interaction and easy conditions of use. Being health-conscious mattered little. Strava and Les Mills report the same pull toward doing it with others.</p></div>
+<div class="card"><h3>Fewer actions wins food logging</h3><p>MacroFactor counts every tap in the four common logging jobs: search 10, repeat a past food 6, barcode 5, quick-add 3. The best competitors need 25 % more actions and the average one 70 % more. Their reason: people log 4 to 6 times a day, so seconds add up into quitting.</p></div>
+<div class="card"><h3>The photo is the hook for this age group</h3><p>Cal AI (built by teenagers, 15 million downloads, bought by MyFitnessPal in March 2026) grew on one action: point the camera at food. Its onboarding is long (20 to 29 screens), but every answer visibly shapes the result, so it feels personal rather than slow.</p></div>
+<div class="card"><h3>Kindness keeps people longer than pressure</h3><p>Gentler Streak won Apple's 2024 Design Award for Social Impact by adapting to how much you can do today and suggesting rest as readily as effort. Writers on streak design warn that the pressure of a daily streak makes even loyal users quit after a break; freezes and repair soften that. Half of health and fitness apps now have a streak screen, so a streak alone is not a differentiator.</p></div>
+<div class="card"><h3>Showing the work makes the result feel worth more</h3><p>Buell and Norton's "labor illusion" research: people valued a service more, even preferred a slower one, when they could see the work being done. That is exactly what the Coach's Pen does. It also applies to plan building, which today dumps everything at once.</p></div>
+<div class="card"><h3>Sharing grows apps for free</h3><p>Hevy reached two million downloads on about $15k of ads, crediting its feed and share-to-Stories; Meta reports their Stories shares rose 42 % in eight weeks. Ladder keeps people with coach-led teams and a fixed weekly drop. Finch makes daily check-ins feel like caring for a pet, with a style Gen Z likes.</p></div>
+<div class="card"><h3>What Indian users complain about</h3><p>HealthifyMe's 2025 reviews are dominated by aggressive upselling, paywalled basics, crashes and rigid plans, while its Indian food database is the part people praise. Hostel students describe mess food with "no way to track calories". Both point at CLAWW's strengths: Indian food done right, plans that follow what you can get, no tricks.</p></div>
+
+<h2 id="today">3. What is wrong today (measured)</h2>
+<table>
+<tr><th>Problem</th><th>Where you saw it</th><th>Why it costs users</th></tr>
+<tr><td>Three places to log food (Home hero, Nutrition card, Search, Scan, Photo or describe, catch-up)</td><td>Home "Log it" still opens the old describe screen</td><td>People must learn which door to use; each door works differently</td></tr>
+<tr><td>A missed meal disappears</td><td>Breakfast at lunchtime</td><td>The single most common real situation has no answer</td></tr>
+<tr><td>The day is split across four tabs</td><td>Home, Workouts, Nutrition, Tracker each show part of today</td><td>To know "what do I do now" you visit two or three tabs</td></tr>
+<tr><td>Gym-first defaults</td><td>"Workout · Rest day" ring, bench press first in Tracker</td><td>Non-gym users feel the app is not for them</td></tr>
+<tr><td>Setup is long and the plan arrives as a wall</td><td>Onboarding, workout setup, meal setup, then every exercise and meal at once</td><td>About 25 inputs before any value; the result is hard to read</td></tr>
+<tr><td>Numbers that disagree</td><td>2,000 vs 2,461 kcal; "log sleep" when sleep is logged; "today" differs between tabs</td><td>One wrong number and trust in every number drops</td></tr>
+<tr><td>Decoration without meaning</td><td>Hatching, dot grids, watermarks, uppercase labels everywhere</td><td>Looks generated; slows reading; costs memory on cheap phones</td></tr>
+</table>
+
+<h2 id="principles">4. Seven rules for every screen</h2>
+<ol>
+<li><b>One minute a day.</b> Budget: logging three meals, water, a session and sleep must fit in 60 seconds of total interaction. Every feature is judged against that.</li>
+<li><b>Say yes, don't fill in.</b> The app proposes (from the plan, from habit, from the clock); the user confirms with one tap. Typing is the last resort.</li>
+<li><b>One place to act.</b> Everything you can do right now lives on the Today line on Home. Other tabs are for looking back and planning ahead.</li>
+<li><b>Everyone is seen.</b> The first ring, the words and the plan follow the person's path: Lift, Move, Eat, Gain. Nobody sees a "0" for something they never signed up for.</li>
+<li><b>Show the change, not the plan.</b> The plan stays quiet; only what changed is drawn, by the pen, with a reason.</li>
+<li><b>Never punish a bad day.</b> Rest days, exam weeks and missed meals have a kind, one-tap answer, and the streak bends instead of breaking.</li>
+<li><b>Instant and light.</b> Every tap answers in under 100 ms, works offline, runs smoothly on a 4 GB phone. Decoration that costs frames goes.</li>
+</ol>
+
+<h2 id="ideas">5. Twelve ideas, ranked by impact for effort</h2>
+
+<div class="card idea"><span class="score">Impact high · effort medium</span><h3>1. The Today line (one place to act)</h3><p>Home becomes a vertical line through your day: breakfast, lunch, session or yoga, dinner, sleep. The item for now carries its buttons; a missed item stays with "As planned / Something else / Skipped"; done items shrink to a tick. It replaces the hero, the catch-up banner and most visits to the Nutrition and Workouts tabs. Already in the mock (<code>docs/design/ng15-home-welcome.html</code>).</p></div>
+
+<div class="card idea"><span class="score">Impact very high · effort medium</span><h3>2. Log from the notification</h3><p>At breakfast time the notification itself says "Breakfast: 2 idli, sambar, 2 eggs" with <b>Ate it</b> and <b>Something else</b> buttons. One tap from the lock screen, no app open. The same for water ("+250 ml") and the night close. Android supports action buttons today (we already built one for the workout lock screen). This alone can halve the daily time.</p></div>
+
+<div class="card idea"><span class="score">Impact very high · effort medium</span><h3>3. Paths: Lift, Move, Eat, Gain</h3><p>The first question in onboarding is "What do you want from CLAWW?" with four picture cards (more than one allowed). The path changes the first ring (Burned for Lift, Moved minutes for Move, Protein for Gain), the words, the default plan (yoga and mobility flows for Move, no barbells) and what the Tracker leads with. Priya opens the app and sees "Move 25 min · yoga done", not "Workout 0/1".</p></div>
+
+<div class="card idea"><span class="score">Impact high · effort low</span><h3>4. Plan reveal as stories</h3><p>Instead of the wall, the finished plan arrives as 4 or 5 full-screen story cards that the user taps through, a format every 16 to 24 year old already knows: "Your week" (the days lighting up one by one), "Your first session" (3 exercises shown, not 8), "A day of food" (three plates), "What I'll watch" (sleep, protein), "Ready". Each card is drawn by the pen as it appears (the labor illusion, used honestly). Each card has one adjust button, so changes happen where they are seen.</p></div>
+
+<div class="card idea"><span class="score">Impact high · effort medium</span><h3>5. Onboarding in 8 taps</h3><p>One question per screen, big picture answers, smart defaults pre-selected so most answers are a single tap: path, goal, where you eat (home, mess, both), diet, days you can train or move, how long, anything that hurts, sign in. Height, weight and age as wheels with defaults. The plan builds while they answer. Cal AI shows that long onboarding works when each answer visibly shapes the result; we make it short and visible.</p></div>
+
+<div class="card idea"><span class="score">Impact high · effort medium</span><h3>6. Family pot (for people who cook at home)</h3><p>Log a dish once for the whole pot ("dal for 4, the usual recipe"), then each meal is "my katori" in one tap. Home recipes are saved as "Amma's dal" with their own numbers. Lakshmi never logs ingredients again, and a student living at home logs "what mom made" the same way.</p></div>
+
+<div class="card idea"><span class="score">Impact high · effort low</span><h3>7. My plates</h3><p>The plates you eat often become one-tap cards, learned automatically (the "usuals" already exist): "Mess thali", "Poha + chai", "Maggi + egg". On the Today line, Something else opens these first, then search. Repeat meals become 2 taps, beating MacroFactor's 6.</p></div>
+
+<div class="card idea"><span class="score">Impact high · effort low</span><h3>8. The pen everywhere it means something</h3><p>The pen is CLAWW's identity. Use it at the moments that make people feel coached: the morning note, a changed weight, a swapped meal, the Sunday letter. Nowhere else. Its rarity makes it valuable.</p></div>
+
+<div class="card idea"><span class="score">Impact medium · effort low</span><h3>9. Sunday letter (shareable)</h3><p>The weekly review becomes a short handwritten letter from the coach with three numbers and one change for next week, rendered as a 9:16 card for Instagram Stories. Hevy grew on exactly this kind of share.</p></div>
+
+<div class="card idea"><span class="score">Impact medium · effort medium</span><h3>10. One buddy, not a feed</h3><p>Pair with one friend (roommate, gym partner, sister). You see each other's day line as ticks only, can send one nudge a day, and share a weekly "both of us kept it" streak. Social pull without the work and risk of a public feed.</p></div>
+
+<div class="card idea"><span class="score">Impact medium · effort low</span><h3>11. A weekly target, not only a daily streak</h3><p>Gentler Streak's lesson: aim for "4 good days this week", with rest days and exam weeks protected. The streak becomes weeks kept, which a bad Tuesday cannot break.</p></div>
+
+<div class="card idea"><span class="score">Impact medium · effort medium</span><h3>12. Four tabs and a centre button</h3><p>Today, Plan (the week's workouts and meals), <b>+</b> (Scan, Plates, Water, Activity), Progress, Me. The Tracker's detail stays in Progress; "Plan" holds what Workouts and Nutrition hold today, minus the actions that moved to Today.</p></div>
+
+<h2 id="time">6. Time per task: today vs proposed</h2>
+<table>
+<tr><th>Task</th><th>Today (taps)</th><th>Proposed</th><th>How</th></tr>
+<tr><td>Log a planned meal</td><td class="n">2 (Nutrition) or 5+ (Home "Log it")</td><td class="n good">1</td><td>Notification button, or Today line</td></tr>
+<tr><td>Log a meal you eat often</td><td class="n">5 + typing</td><td class="n good">2</td><td>Something else → My plates</td></tr>
+<tr><td>Log home-cooked food for yourself</td><td class="n">5 + typing, grams</td><td class="n good">2</td><td>Family pot → my katori</td></tr>
+<tr><td>Log a forgotten breakfast at lunch</td><td class="n bad">not possible</td><td class="n good">1 to 2</td><td>Missed item on the Today line</td></tr>
+<tr><td>Water</td><td class="n">1</td><td class="n">1</td><td>Kept, also from the notification</td></tr>
+<tr><td>Sleep</td><td class="n">5 to 7</td><td class="n good">1</td><td>Morning notification "Slept 11:40 to 7:10?" confirm; Health Connect when available</td></tr>
+<tr><td>Start today's session</td><td class="n">2</td><td class="n">1</td><td>Start on the Today line</td></tr>
+<tr><td>First-run to first plan</td><td class="n bad">about 25 inputs over 4 flows</td><td class="n good">8 taps, one flow</td><td>Paths and story onboarding</td></tr>
+</table>
+<p><b>A full day</b> (3 meals, water ×4, session, sleep) goes from roughly 25 taps and three tabs to about 10 taps, most of them from notifications.</p>
+
+<h2 id="look">7. The look: three directions</h2>
+<div class="grid">
+<div class="card"><h3>A. Coach's notebook <span class="tag">recommended</span></h3><p>Today's dark base, cleaned: one film grain, black cards with a top light, one colour per area, Caveat only for the pen. Light on memory (no blur, no shadows on Android, SVG instead of heavy canvases on Home). It is ours already and the pen fits it.</p></div>
+<div class="card"><h3>B. Training floor</h3><p>Ladder's language: big condensed type, one loud accent, real photos of real people, including women doing yoga and a hostel room workout. Very motivating, but it needs a photo shoot with the right rights, and it leans gym.</p></div>
+<div class="card"><h3>C. Warm and light</h3><p>Finch and Cal AI's bright, friendly screens. Easy to read in daylight, but it is the look of a hundred AI-made apps and loses the pen's drama on dark paper.</p></div>
+</div>
+<p>My recommendation: <b>A for the app, with B's people in the moments that sell</b> (welcome, the path cards, the share card), once there are real photos. "Light" in the sense you meant (fast on every phone) is a rule for all three: rings and charts in plain SVG, one 19 KB grain, no animated blur, lists that recycle rows.</p>
+
+<h2 id="order">8. Build order and what to test with real students</h2>
+<ol>
+<li><b>Fix what breaks trust</b> (polish plan step 1): the bugs, disagreeing numbers, missed meals.</li>
+<li><b>Today line + log from the notification</b> (ideas 1 and 2). Biggest time saving.</li>
+<li><b>Paths</b> (idea 3), because it changes the rings, words and plan everyone sees.</li>
+<li><b>Story onboarding and story plan reveal</b> (ideas 4 and 5), with the new welcome and logo animation.</li>
+<li><b>My plates and Family pot</b> (ideas 6 and 7).</li>
+<li><b>The cleaned look everywhere</b> (direction A) and the 3D body.</li>
+<li><b>Sunday letter, buddy, weekly target</b> (ideas 9 to 11), then the four-tab structure (12).</li>
+</ol>
+<div class="card"><h3>Test before building each step (cheap, 2 days)</h3><p>Ten people: four hostel students, three who live at home and do not go to the gym (at least two women), two who cook for a family, one exam-week case. Give them a clickable mock and three jobs: log yesterday's lunch, log what you ate now, start today's session. Time it, count taps, ask "who is this app for?". Ship the step only if the job times drop and at least 8 of 10 say "me".</p></div>
+<p class="pen">ready when you are, one step at a time</p>
+
+<h2 id="sources">9. Sources</h2>
+<ul class="src">
+<li><a href="https://doaj.org/article/3e295c53624047bd9f702c2236ce6bca">Cogent Business & Management (2024): fitness app continuance among 412 Gen Z users in Pune</a></li>
+<li><a href="https://macrofactor.com/fastest-food-logger-2025/">MacroFactor: Is MacroFactor still the fastest food logger? (2025 FLSI update)</a></li>
+<li>CNBC Make It, 6 Sept 2025: "Cal AI: How a teenage CEO built a fast-growing calorie app"; LinkedIn News, 2 Mar 2026: MyFitnessPal acquires Cal AI; <a href="https://superwall.com/case-studies/cal-ai">Superwall: Cal AI case study</a></li>
+<li><a href="https://apps.apple.com/us/story/id1745165692">Apple: 2024 Apple Design Award winners (Gentler Streak)</a>, <a href="https://bgr.com/tech/gentler-streak-gets-a-major-redesign-focused-on-your-wellbeing/">BGR: Gentler Streak redesign</a></li>
+<li><a href="https://www.mindtheproduct.com/designing-streaks-for-long-term-user-growth/">Mind the Product: Designing streaks for long-term user growth</a>, <a href="https://www.lazyweb.com/research/how-common-are-streaks-in-health-and-fitness-apps">Lazyweb: streaks in health and fitness apps</a></li>
+<li><a href="https://www.atticusli.com/blog/posts/labor-illusion-operational-transparency-ryan-buell-behavioral-economics/">The labor illusion (Buell and Norton, Management Science 2011), summary</a></li>
+<li><a href="https://revenuecat.com/blog/growth/guillem-ros-hevy-podcast">RevenueCat: how Hevy reached two million downloads</a>, <a href="https://developers.facebook.com/success-stories/hevy/">Meta: Hevy sharing to Stories</a></li>
+<li><a href="https://www.businesswire.com/news/home/20241120017577/en/Ladder-Secures-100-Million-New-Funding-Scale">Ladder raises $100M</a>, <a href="https://screensdesign.com/showcase/ladder-strength-training-plans">Ladder screens</a>, <a href="https://screensdesign.com/showcase/finch-self-care-pet">Finch screens</a>, <a href="https://screensdesign.com/showcase/cal-ai-calorie-tracker">Cal AI screens</a></li>
+<li><a href="https://civicscience.com/fitness-trends-of-2026-the-rise-of-yoga-home-equipment-purchasing-and-gen-z-elevates-social-fitness/">CivicScience: fitness trends of 2026, yoga and Gen Z</a>, <a href="https://www.lesmills.com/uk/articles/landmark-report-lifts-the-lid-on-gen-z-fitness">Les Mills: Gen Z fitness report</a></li>
+<li><a href="https://unitq.com/unitq-scorecards/healthifyme">unitQ: HealthifyMe quality scorecard</a>, <a href="https://www.trustpilot.com/review/www.healthifyme.com?page=2">Trustpilot reviews</a></li>
+<li>Reddit r/indianfitness: "Fellow college students and folks living in hostel/PGs, how do you track?" (found through Google search, 2026)</li>
+</ul>
+<p class="k">Vendor case studies (Superwall, Meta, MacroFactor, Ladder) report their own numbers; treat them as directional.</p>
+</main></body></html>
