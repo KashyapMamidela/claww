@@ -11,6 +11,8 @@ export { computeRecoveryScore, proteinShare } from '../../supabase/functions/_sh
 export type { RecoveryResult } from '../../supabase/functions/_shared/recovery';
 export { pickBlueprint, goalToBlueprintGoal, equipmentToPlace, fillBlueprint, fitPlan, checkPlan, sessionMinutes, blueprintDayMinutes, BLOCK_WEEKS, toPlan } from '../../supabase/functions/_shared/planTree';
 export type { PlanProfile, PickResult } from '../../supabase/functions/_shared/planTree';
+export { distributeStyleDays, needsStyledPlan, buildStyledPlan, cleanStyles as cleanTrainStyles } from '../../supabase/functions/_shared/stylePlan';
+export type { TrainStyle } from '../../supabase/functions/_shared/stylePlan';
 export { INJURY_PARTS, SEVERITIES, parseInjuries, injuriesFromText, contraindicatedPatterns, isExerciseAllowed } from '../../supabase/functions/_shared/injuryRules';
 export type { Injury, InjuryPart, Severity } from '../../supabase/functions/_shared/injuryRules';
 export { BLUEPRINTS } from '../../supabase/functions/_shared/blueprints';

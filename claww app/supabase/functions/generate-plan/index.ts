@@ -3,6 +3,7 @@ import { logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
 import { applyTrainingWeekdays, deriveAllowedEquipment } from '../_shared/planning.ts';
 import { BLUEPRINTS } from '../_shared/blueprints/index.ts';
+import { buildStyledPlan, cleanStyles, needsStyledPlan } from '../_shared/stylePlan.ts';
 import { injuriesFromText, parseInjuries } from '../_shared/injuryRules.ts';
 import {
   applyBlockWeek, applyRegenerationReason, fillBlueprint, fitPlan, nextBlockState, pickBlueprint, toPlan,
@@ -135,16 +136,43 @@ Deno.serve(async (req: Request) => {
     let blueprintId: string | null = null;
     let generated = false;
 
+    // Polish step 3: a week built from several ways to train (calisthenics, yoga, mobility, or a mix) uses the
+    // style-aware builder, which also needs the yoga and mobility rows. Plain gym or home keeps the original path.
+    const styles = cleanStyles((workoutDefaults as { styles?: unknown } | undefined)?.styles);
+    const styled = needsStyledPlan(styles);
+
     const { data: catalog, error: catalogError } = await supabase
       .from('exercises')
       .select('id, name, modality, equipment, primary_muscle, movement_pattern, role, stimulus_type')
-      .eq('modality', 'strength')
+      .in('modality', styled ? ['strength', 'yoga', 'mobility'] : ['strength'])
       .in('equipment', deriveAllowedEquipment(profile?.equipment));
 
     if (catalogError || !catalog || catalog.length === 0) {
       const detail = catalogError?.message ?? 'exercise catalog is empty';
       console.error('[generate-plan] FELL BACK: could not read the exercise catalog:', detail);
       await logGenerationFailure(supabase, user.id, 'generate-plan', 'grounding_emptied', detail);
+    } else if (styled) {
+      const result = buildStyledPlan({
+        profile: planProfile,
+        styles,
+        catalog: catalog as CatalogRow[],
+        blueprints: BLUEPRINTS,
+        seed: user.id,
+        blockNumber: block.blockNumber,
+        blockWeek: block.blockWeek,
+        dislikes,
+        reason,
+        variant: reason === 'wrong_focus' ? Math.floor(Date.now() / 1000) : 0,
+      });
+      if (result.plan.days.length === 0) {
+        console.error('[generate-plan] FELL BACK: the styled week filled with no sessions.');
+        await logGenerationFailure(supabase, user.id, 'generate-plan', 'grounding_emptied', `styles ${styles.join('+')} filled with no sessions`);
+      } else {
+        plan = result.plan;
+        blueprintId = result.blueprintId;
+        generated = true;
+        console.log(`[generate-plan] STYLED week ${result.summary} for user ${user.id} (${plan.days.length} days, block ${block.blockNumber} week ${block.blockWeek}).`);
+      }
     } else {
       const picked = pickBlueprint(planProfile, BLUEPRINTS);
       const filled = fillBlueprint(picked.blueprint, catalog as CatalogRow[], {

@@ -125,6 +125,8 @@ export interface FillOptions {
   dislikes?: string[];
   /** Changes the choice of accessories for "different split / exercises" regenerations. */
   variant?: number;
+  /** Exercise names to choose first when a slot has several fits (calisthenics progressions). */
+  prefer?: Set<string>;
 }
 
 /** FNV-1a, 32 bit. Stable across runtimes, which is all this needs. */
@@ -183,6 +185,9 @@ export function fillBlueprint(blueprint: Blueprint, catalog: CatalogRow[], opts:
           const ra = (a.role === 'main') === wantMain ? 0 : 1;
           const rb = (b.role === 'main') === wantMain ? 0 : 1;
           if (ra !== rb) return ra - rb;
+          const pa = opts.prefer?.has(a.name) ? 0 : 1;
+          const pb = opts.prefer?.has(b.name) ? 0 : 1;
+          if (pa !== pb) return pa - pb;
           const ua = slot.role !== 'main' && weekUsed.has(a.name) ? 1 : 0;
           const ub = slot.role !== 'main' && weekUsed.has(b.name) ? 1 : 0;
           if (ua !== ub) return ua - ub;
