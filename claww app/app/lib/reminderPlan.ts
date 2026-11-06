@@ -1,4 +1,5 @@
 import { NIGHT_CLOSE_FROM, nightCloseText } from './dayMoments';
+import { CATEGORY_MEAL, CATEGORY_SLEEP, CATEGORY_WATER } from './lockActions';
 
 // Smart local reminders (V2 PHASE 3.3). Pure: given the user's reminder
 // settings, today's state and "now", decide exactly which notifications to
@@ -64,6 +65,8 @@ export interface TodayState {
   unansweredMeals?: number;
   /** Schedule the Sunday 18:00 weekly review reminder (default true); it follows the workout reminder's switch. */
   weekReview?: boolean;
+  /** Polish step 5: last night guessed from the last logged one, for the morning "Slept 11:40 to 7:10?" reminder. */
+  sleepGuess?: { label: string; bed: string; wake: string } | null;
 }
 
 export interface PlannedReminder {
@@ -74,6 +77,9 @@ export interface PlannedReminder {
   date: Date;
   title: string;
   body: string;
+  /** Polish step 5: notification buttons (lib/lockActions.ts) and the data they need. */
+  category?: string;
+  data?: Record<string, unknown>;
 }
 
 /** Which meal a meal reminder at this hour is about. */
@@ -142,10 +148,15 @@ export function planReminders(settings: ReminderSettings, today: TodayState, now
       } else if (kind === 'meals') {
         const meal = mealForHour(s.hour);
         if (isToday && today.loggedMealTypes.includes(meal)) continue;
-        candidates.push({ id, kind, routeType: 'meal', date, title: `${meal} not logged yet`, body: 'Log it in a few seconds to keep your targets honest.' });
+        candidates.push({ id, kind, routeType: 'meal', date, title: `${meal} not logged yet`, body: 'Log it in a few seconds to keep your targets honest.', category: CATEGORY_MEAL, data: { slot: meal.toLowerCase() } });
       } else if (kind === 'sleep') {
         if (isToday && today.sleepLoggedToday) continue;
-        candidates.push({ id, kind, routeType: 'sleep', date, title: 'How did you sleep?', body: "Log last night's sleep to unlock today's recovery score." });
+        const guess = isToday ? today.sleepGuess : null;
+        candidates.push(
+          guess
+            ? { id, kind, routeType: 'sleep', date, title: 'How did you sleep?', body: guess.label, category: CATEGORY_SLEEP, data: { sleepBed: guess.bed, sleepWake: guess.wake } }
+            : { id, kind, routeType: 'sleep', date, title: 'How did you sleep?', body: "Log last night's sleep to unlock today's recovery score." }
+        );
       } else if (kind === 'water') {
         if (isToday && today.waterMlToday >= today.waterTargetMl) continue;
         candidates.push({
@@ -153,6 +164,7 @@ export function planReminders(settings: ReminderSettings, today: TodayState, now
           kind,
           routeType: 'water',
           date,
+          category: CATEGORY_WATER,
           title: 'Time for water',
           body: isToday ? `${formatLitres(today.waterMlToday)} of ${formatLitres(today.waterTargetMl)} so far today.` : 'A glass now keeps you on track.',
         });
