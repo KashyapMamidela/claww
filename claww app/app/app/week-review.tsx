@@ -1,6 +1,8 @@
 import { moveDayItemLabel } from '../lib/penDays';
-import React, { useCallback, useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { Pressable, ScrollView, Share, Text, View } from 'react-native';
+import { captureRef } from 'react-native-view-shot';
+import * as Sharing from 'expo-sharing';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -11,6 +13,9 @@ import { BLOCK_WEEKS, reviewCounts, type PenMark } from '../lib/engine';
 import { usePenMarks } from '../lib/usePenMarks';
 import { dateLine, isClimb, marksForReview, reviewLine, weekStart, type WeekFacts } from '../lib/weekReview';
 import { Hero } from '../components/ui/Hero';
+import { LetterCard } from '../components/LetterCard';
+import { letterChanges, letterFileName, letterNumbers } from '../lib/letter';
+import { SHARE_WIDTH, shareCaptureOptions } from '../lib/shareCard';
 import { Icon } from '../components/ui/Icon';
 import { Segmented } from '../components/ui/Segmented';
 import { Skeleton } from '../components/ui/Skeleton';
@@ -74,6 +79,9 @@ export default function WeekReviewScreen() {
   const [blockWeek, setBlockWeek] = useState<number | null>(null);
   const [planDays, setPlanDays] = useState<{ day: string; focus: string }[]>([]);
   const now = useMemo(() => new Date(), []);
+  const { userName } = useAppState();
+  const letterRef = useRef<View>(null);
+  const [sharing, setSharing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -112,6 +120,22 @@ export default function WeekReviewScreen() {
   const foodMarks = marks.filter((m) => m.area === 'nutrition');
   const line = facts ? reviewLine({ ...facts, climbs: marks.filter((m) => m.status !== 'undone' && isClimb(m)).length }) : ' ';
   const next = blockWeek ? blockWeek + 1 : null;
+  // Polish step 10: the Sunday letter, a 9:16 card of the week to share. It shows only counts and your own marks.
+  const letterNumbersList = facts ? letterNumbers({ ...facts, climbs: marks.filter((m) => m.status !== 'undone' && isClimb(m)).length }) : [];
+  const shareLetter = async () => {
+    if (sharing || !letterRef.current) return;
+    setSharing(true);
+    try {
+      const uri = await captureRef(letterRef, shareCaptureOptions());
+      if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: letterFileName(now), UTI: 'public.png' });
+      else await Share.share({ message: `${line} Trained with CLAWW.` });
+    } catch {
+      // Closing the share sheet is not an error.
+    } finally {
+      setSharing(false);
+    }
+  };
+
   const sections = [
     { label: 'WORKOUTS', list: workoutMarks, color: COLORS.blue },
     { label: 'NUTRITION', list: foodMarks, color: COLORS.green },
@@ -179,10 +203,21 @@ export default function WeekReviewScreen() {
           Undo puts your old plan back for that item. Every mark is made from your own logs, never guessed.
         </Text>
 
+        <Pressable onPress={shareLetter} disabled={sharing || !facts} accessibilityRole="button" accessibilityLabel="Share your week as a picture" style={{ minHeight: 52, borderRadius: 26, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
+          <Icon name="share-2" size={18} color={COLORS.fg} />
+          <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{sharing ? 'Preparing…' : 'Share your week'}</Text>
+        </Pressable>
+
         <Pressable onPress={() => router.replace('/(tabs)')} accessibilityRole="button" style={{ minHeight: 56, borderRadius: 28, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ color: '#0A0A0B', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{next ? `Start week ${next}` : 'Start next week'}</Text>
         </Pressable>
       </ScrollView>
+      <View pointerEvents="none" style={{ position: 'absolute', left: -SHARE_WIDTH * 2, top: 0 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+        <LetterCard
+          ref={letterRef}
+          data={{ name: userName, dateText: now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' }), line, numbers: letterNumbersList, changes: letterChanges(marks) }}
+        />
+      </View>
     </View>
   );
 }
