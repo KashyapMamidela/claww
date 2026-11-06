@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAWW Home and welcome</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#050505; --card:#121214; --card2:#17171a; --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.14);
+  --fg:#F4F4F5; --muted:#9A9AA3; --faint:#6E6E78;
+  --burn:#F97316; --food:#22C55E; --rec:#2DD4BF; --work:#3B82F6; --steps:#F59E0B; --streak:#EC4899; --water:#38BDF8;
+  --pen:#FFFFFF;
+}
+* { box-sizing:border-box; margin:0; padding:0 }
+body { background:#000; color:var(--fg); font-family:Inter,system-ui,sans-serif; padding:32px 16px 64px; }
+h1.page { font-size:15px; font-weight:600; color:var(--muted); max-width:1200px; margin:0 auto 6px; }
+p.lede { font-size:14px; color:var(--faint); max-width:1200px; margin:0 auto 28px; line-height:1.5 }
+.row { display:flex; gap:36px; flex-wrap:wrap; justify-content:center; max-width:1240px; margin:0 auto; }
+.frame { width:360px; }
+.cap { font-size:13px; color:var(--muted); margin:12px 4px 0; line-height:1.45 }
+.cap b { color:var(--fg); font-weight:600 }
+.phone { width:360px; height:780px; border-radius:44px; background:var(--bg); position:relative; overflow:hidden;
+  border:1px solid #222; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+.phone.scroll { height:auto; min-height:780px; }
+/* one grain everywhere it is used: a film grain, not a pattern */
+.grain::after { content:""; position:absolute; inset:0; pointer-events:none; opacity:.09; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>"); }
+.status { height:38px; display:flex; justify-content:space-between; align-items:center; padding:0 26px; font-size:13px; font-weight:600; color:#ddd }
+.pad { padding:0 18px }
+/* ---------- welcome ---------- */
+.splash { display:flex; align-items:center; justify-content:center; height:100%; background:radial-gradient(120% 70% at 50% 40%, #121214 0%, #050505 60%) }
+.mark { width:132px; fill:#fff }
+.mark .anim { animation:assemble 1.6s cubic-bezier(.2,.9,.25,1) infinite; transform-box:fill-box; transform-origin:center }
+.mark .pc-top.anim { --dx:0px; --dy:-120px; --r:-40deg }
+.mark .pc-left.anim { --dx:-110px; --dy:70px; --r:40deg; animation-delay:.08s }
+.mark .pc-right.anim { --dx:110px; --dy:80px; --r:-30deg; animation-delay:.16s }
+@keyframes assemble {
+  0% { transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(.7); opacity:0 }
+  45% { opacity:1 }
+  70%,100% { transform:none; opacity:1 }
+}
+@media (prefers-reduced-motion: reduce) { .mark .anim { animation:none } }
+.welcome { height:100%; display:flex; flex-direction:column; background:radial-gradient(90% 55% at 50% 22%, #16161a 0%, #050505 65%) }
+.welcome .top { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:0 28px; text-align:center }
+.welcome .mark { width:84px }
+.welcome h2 { font-size:34px; font-weight:900; letter-spacing:-1px; line-height:1.05 }
+.welcome .sub { font-size:15px; color:var(--muted); line-height:1.5; max-width:270px }
+.pen { font-family:Caveat,cursive; color:var(--pen); font-size:22px; font-weight:500 }
+.ul { position:relative; display:inline-block }
+.ul svg { position:absolute; left:-2%; bottom:-10px; width:104% }
+.cta { padding:0 22px 34px; display:flex; flex-direction:column; gap:12px }
+.btn { height:54px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px }
+.btn.primary { background:#fff; color:#0A0A0B }
+.btn.ghost { border:1px solid var(--line2); color:var(--fg) }
+.legal { font-size:12px; color:var(--faint); text-align:center; line-height:1.5 }
+.field { height:54px; border-radius:14px; background:var(--card); border:1px solid var(--line); display:flex; align-items:center; padding:0 16px; color:var(--faint); font-size:15px }
+.google { display:flex; gap:10px; align-items:center; justify-content:center }
+/* ---------- home ---------- */
+.hdr { display:flex; justify-content:space-between; align-items:center; padding:8px 18px 4px }
+.hdr .mark { width:26px }
+.when { font-size:13px; color:var(--muted); font-weight:500 }
+.bell { width:36px; height:36px; border-radius:12px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center }
+.greet { font-size:32px; font-weight:900; letter-spacing:-.9px; line-height:1.05; margin:14px 0 10px }
+.coach { font-size:15px; color:var(--muted); line-height:1.5 }
+.coach b { color:var(--fg); font-weight:600 }
+.card { position:relative; background:linear-gradient(180deg,#151518 0%,#0F0F11 100%); border:1px solid var(--line); border-radius:24px; overflow:hidden }
+.card::before { content:""; position:absolute; left:16px; right:16px; top:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent) }
+.rings { display:flex; gap:14px; align-items:center; padding:20px 18px 14px }
+.rings .center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center }
+.pct { font-size:26px; font-weight:900; letter-spacing:-1px }
+.pctl { font-size:11px; color:var(--muted); margin-top:2px }
+.read { flex:1; display:flex; flex-direction:column; gap:12px }
+.r1 { display:flex; justify-content:space-between; align-items:baseline; gap:8px }
+.r1 .k { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:6px }
+.dot { width:7px; height:7px; border-radius:4px }
+.r1 .v { white-space:nowrap; font-size:16px; font-weight:800; font-variant-numeric:tabular-nums }
+.r1 .v small { color:var(--faint); font-weight:500; font-size:12px }
+.note { font-size:12px; color:var(--faint); margin-top:2px }
+.tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:0 14px 14px }
+.tile { border-radius:16px; padding:11px 12px; background:#0C0C0E; border:1px solid var(--line) }
+.tile .k { font-size:11px; font-weight:700; letter-spacing:.3px }
+.tile .v { font-size:19px; font-weight:900; margin-top:4px; font-variant-numeric:tabular-nums }
+.tile .v small { font-size:11px; color:var(--faint); font-weight:600 }
+.bar { height:4px; border-radius:2px; background:rgba(255,255,255,.07); margin-top:8px; overflow:hidden }
+.bar i { display:block; height:100% }
+.sect { display:flex; justify-content:space-between; align-items:baseline; margin:24px 4px 10px }
+.sect h3 { font-size:17px; font-weight:800; letter-spacing:-.2px }
+.sect a { font-size:13px; color:var(--muted); text-decoration:none }
+.line { padding:6px 16px 8px; }
+.ev { display:grid; grid-template-columns:44px 18px 1fr; gap:10px; align-items:start; min-height:58px }
+.ev .t { font-size:12px; color:var(--faint); padding-top:3px; font-variant-numeric:tabular-nums }
+.ev .rail { position:relative; height:100%; display:flex; justify-content:center }
+.ev .rail::before { content:""; position:absolute; top:16px; bottom:-6px; width:2px; background:var(--line2) }
+.ev:last-child .rail::before { display:none }
+.node { width:14px; height:14px; border-radius:7px; border:2px solid var(--line2); background:var(--bg); margin-top:3px; z-index:1 }
+.node.done { background:var(--food); border-color:var(--food) }
+.node.miss { border-color:#F59E0B }
+.node.now { border-color:#fff; box-shadow:0 0 0 4px rgba(255,255,255,.12) }
+.ev .what { font-size:15px; font-weight:700 }
+.ev .what small { display:block; font-size:12.5px; color:var(--muted); font-weight:500; margin-top:2px }
+.act { display:flex; flex-wrap:wrap; gap:8px; margin:9px 0 12px }
+.chip { white-space:nowrap; height:34px; padding:0 12px; border-radius:12px; display:inline-flex; align-items:center; font-size:13px; font-weight:700; border:1px solid var(--line2) }
+.chip.solid { background:#fff; color:#0A0A0B; border-color:#fff }
+.chip.food { background:rgba(34,197,94,.14); color:#4ADE80; border-color:rgba(34,197,94,.35) }
+.chip.work { background:linear-gradient(180deg,#3B82F6,#2563EB); color:#fff; border-color:transparent }
+.mark-row { padding:14px 16px; border-top:1px solid var(--line) }
+.mark-row:first-child { border-top:0 }
+.mr1 { display:flex; justify-content:space-between; align-items:baseline }
+.mr1 .i { font-size:15px; font-weight:700 }
+.old { color:var(--faint); text-decoration:line-through; font-size:14px; margin-right:6px }
+.new { font-weight:800; font-size:17px }
+.mr2 { text-align:right; margin-top:6px }
+.area { font-size:11px; font-weight:700; margin-bottom:3px }
+.mini { display:grid; grid-template-columns:1fr 1fr; gap:10px }
+.mini .card { padding:14px }
+.mini .k { font-size:12px; color:var(--muted) }
+.mini .v { font-size:20px; font-weight:900; margin-top:4px }
+.tabbar { position:absolute; left:0; right:0; bottom:0; height:78px; background:rgba(5,5,5,.92); border-top:1px solid var(--line); display:flex; justify-content:space-around; padding-top:12px; font-size:11px; color:var(--faint) }
+.tabbar b { color:#fff }
+.spacer { height:96px }
+.notes { max-width:1200px; margin:40px auto 0; display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:18px }
+.notes div { background:#0c0c0e; border:1px solid #1d1d21; border-radius:16px; padding:16px; font-size:13.5px; line-height:1.55; color:#c9c9cf }
+.notes h4 { font-size:14px; color:#fff; margin-bottom:6px }
+</style></head><body>
+<h1 class="page">CLAWW: welcome flow and Home, proposal for NG 15 polish</h1>
+<p class="lede">Real data from your screenshots (6 Nov). One accent per area, one film grain, the pen as the only decoration. The logo animation on the left is live.</p>
+
+<div class="row">
+  <div class="frame">
+    <div class="phone grain"><div class="splash"><svg class="mark" viewBox="0 0 599 567" fill-rule="evenodd"><path class="pc pc-top anim" d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"/><path class="pc pc-left anim" d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"/><path class="pc pc-right anim" d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"/></svg></div></div>
+    <p class="cap"><b>1 · Splash.</b> The three pieces of the mark fly in from three sides, turning, and lock into the hexagon. The runner appears in the gap between them. About 1.1 s, then the mark rises into the welcome screen. With Reduce motion the mark simply fades in.</p>
+  </div>
+
+  <div class="frame">
+    <div class="phone grain"><div class="welcome">
+      <div class="status"><span>8:16</span><span>88</span></div>
+      <div class="top">
+        <svg class="mark" viewBox="0 0 599 567" fill-rule="evenodd"><path class="pc pc-top" d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"/><path class="pc pc-left" d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"/><path class="pc pc-right" d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"/></svg>
+        <h2>Train for the day<br>you actually <span class="ul">have.<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M2 6 C 25 2, 55 9, 98 4" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></span></h2>
+        <p class="sub">Workouts and meals planned around your mess, your gym and your week. Changed only when your own logs say so.</p>
+        <p class="pen">no guesswork, just your numbers</p>
+      </div>
+      <div class="cta">
+        <div class="btn primary">Create an account</div>
+        <div class="btn ghost">I already have one</div>
+        <p class="legal">By continuing you agree to the Terms and the Privacy Policy.</p>
+      </div>
+    </div></div>
+    <p class="cap"><b>2 · Welcome.</b> Same black, grain and type as the app. One line that says what CLAWW is, one handwritten note (the pen is the brand), two buttons. The three "100% Personalized / Privacy-First / Adapts To You" chips and the lock line are gone.</p>
+  </div>
+
+  <div class="frame">
+    <div class="phone grain"><div class="welcome">
+      <div class="status"><span>8:16</span><span>88</span></div>
+      <div class="pad" style="padding-top:18px"><svg class="mark" viewBox="0 0 599 567" fill-rule="evenodd"><path class="pc pc-top" d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"/><path class="pc pc-left" d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"/><path class="pc pc-right" d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"/></svg></div>
+      <div class="pad" style="margin-top:22px">
+        <h2 style="font-size:30px;text-align:left">Welcome back.</h2>
+        <p class="sub" style="text-align:left;max-width:none;margin-top:8px">Pick up your plan where you left it.</p>
+      </div>
+      <div class="pad" style="display:flex;flex-direction:column;gap:12px;margin-top:26px">
+        <div class="btn ghost google"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>Continue with Google</div>
+        <p class="legal" style="margin:2px 0">or with your email</p>
+        <div class="field">Email</div>
+        <div class="field">Password</div>
+        <p style="font-size:13px;color:var(--muted);text-align:right">Forgot password?</p>
+      </div>
+      <div class="cta" style="margin-top:auto"><div class="btn primary">Log in</div></div>
+    </div></div>
+    <p class="cap"><b>3 · Log in.</b> Google first (one tap), email below, one primary button at the thumb. Sign up is the same screen with a name field and "Create account".</p>
+  </div>
+</div>
+
+<div class="row" style="margin-top:56px">
+  <div class="frame">
+    <div class="phone scroll grain">
+      <div class="status"><span>8:16</span><span>88</span></div>
+      <div class="hdr"><svg class="mark" viewBox="0 0 599 567" fill-rule="evenodd"><path class="pc pc-top" d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"/><path class="pc pc-left" d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"/><path class="pc pc-right" d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"/></svg><span class="when">Friday 6 Nov</span><div class="bell"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></div></div>
+      <div class="pad">
+        <div class="greet">Good morning,<br>Kashyap.</div>
+        <p class="coach">You slept <b>8 h 40</b>. Rest day, so eat well: <b>122 g protein</b> to go.</p>
+        <p class="pen" style="margin-top:4px">breakfast is the easy win</p>
+
+        <div class="card" style="margin-top:20px">
+          <div class="rings">
+            <div style="position:relative;width:128px;height:128px;flex:none">
+              <svg viewBox="0 0 180 180" width="128" height="128"><defs><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+                <circle cx="90" cy="90" r="80" stroke="#F97316" stroke-opacity=".14" stroke-width="10" fill="none"/><circle cx="90" cy="90" r="80" stroke="#F97316" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="135.7 502.7" transform="rotate(-90 90 90)" filter="url(#glow)"/><circle cx="90" cy="90" r="64" stroke="#22C55E" stroke-opacity=".14" stroke-width="10" fill="none"/><circle cx="90" cy="90" r="64" stroke="#22C55E" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="8.0 402.1" transform="rotate(-90 90 90)" filter="url(#glow)"/><circle cx="90" cy="90" r="48" stroke="#2DD4BF" stroke-opacity=".14" stroke-width="10" fill="none"/><circle cx="90" cy="90" r="48" stroke="#2DD4BF" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="283.5 301.6" transform="rotate(-90 90 90)" filter="url(#glow)"/></svg>
+              <div class="center"><div class="pct">41%</div><div class="pctl">of today</div></div>
+            </div>
+            <div class="read">
+              <div><div class="r1"><span class="k"><i class="dot" style="background:var(--burn)"></i>Burned</span><span class="v">120 <small>/ 450</small></span></div><div class="note">steps so far</div></div>
+              <div><div class="r1"><span class="k"><i class="dot" style="background:var(--food)"></i>Eaten</span><span class="v">0 <small>/ 2,461</small></span></div><div class="note">nothing logged yet</div></div>
+              <div><div class="r1"><span class="k"><i class="dot" style="background:var(--rec)"></i>Recovery</span><span class="v">94</span></div><div class="note">sleep 8 h 40 counts</div></div>
+            </div>
+          </div>
+          <div class="tiles">
+            <div class="tile"><div class="k" style="color:var(--steps)">Steps</div><div class="v">169</div><div class="bar"><i style="width:3%;background:var(--steps)"></i></div></div>
+            <div class="tile"><div class="k" style="color:var(--work)">Session</div><div class="v">Rest</div><div class="bar"><i style="width:100%;background:var(--work)"></i></div></div>
+            <div class="tile"><div class="k" style="color:var(--streak)">Streak</div><div class="v">1 <small>day</small></div><div class="bar"><i style="width:14%;background:var(--streak)"></i></div></div>
+          </div>
+        </div>
+
+        <div class="sect"><h3>Today</h3><a href="#">Plan ›</a></div>
+        <div class="card line">
+          <div class="ev"><span class="t">8:30</span><span class="rail"><i class="node now"></i></span><div class="what">Breakfast<small>Up now · 2 idli, sambar, 2 boiled eggs</small><div class="act"><span class="chip food">Ate as planned</span><span class="chip">Something else</span></div></div></div>
+          <div class="ev"><span class="t">13:30</span><span class="rail"><i class="node"></i></span><div class="what">Lunch<small>Mess thali with curd and a boiled egg</small></div></div>
+          <div class="ev"><span class="t">18:00</span><span class="rail"><i class="node"></i></span><div class="what">Rest day<small>Missed Monday's Full body? Do it tonight</small><div class="act"><span class="chip work">Start · 18 min</span></div></div></div>
+          <div class="ev"><span class="t">20:30</span><span class="rail"><i class="node"></i></span><div class="what">Dinner<small>Roti, palak dal and bhindi fry</small></div></div>
+          <div class="ev"><span class="t">23:00</span><span class="rail"><i class="node"></i></span><div class="what">Sleep by 11<small>Up at 7, that is 8 hours</small></div></div>
+        </div>
+
+        <div class="sect"><h3>Marked on your plan</h3><a href="#">This week ›</a></div>
+        <div class="card">
+          <div class="mark-row"><div class="area" style="color:var(--work)">Workout</div><div class="mr1"><span class="i">Full body day</span><span><span class="old">Monday</span><span class="new ul">Saturday<svg viewBox="0 0 100 10" preserveAspectRatio="none"><path d="M2 6 C 25 2, 55 9, 98 4" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></span></span></div><div class="mr2 pen">missed two Mondays, moved it</div></div>
+        </div>
+
+        <div class="mini" style="margin-top:12px">
+          <div class="card"><div class="k">Water</div><div class="v">0.5 <small style="font-size:12px;color:var(--faint)">/ 2 L</small></div><div class="bar"><i style="width:25%;background:var(--water)"></i></div></div>
+          <div class="card"><div class="k">Played a sport?</div><div class="v" style="font-size:15px;margin-top:8px">Log activity ›</div></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar"><b>Home</b><span>Workouts</span><span>Nutrition</span><span>Tracker</span><span>More</span></div>
+    </div>
+    <p class="cap"><b>4 · Home.</b> Rings first (Burned outside, Eaten, Recovery), then <b>Today</b> as one line through the day: a missed meal stays on the line with its buttons, so breakfast can be logged at lunchtime. The Session tile replaces Burned. Pen marks are the only decoration.</p>
+  </div>
+
+  <div class="frame">
+    <div class="phone scroll grain">
+      <div class="status"><span>13:10</span><span>80</span></div>
+      <div class="hdr"><svg class="mark" viewBox="0 0 599 567" fill-rule="evenodd"><path class="pc pc-top" d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"/><path class="pc pc-left" d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"/><path class="pc pc-right" d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"/></svg><span class="when">Friday 6 Nov</span><div class="bell"></div></div>
+      <div class="pad">
+        <div class="greet">Good afternoon,<br>Kashyap.</div>
+        <p class="coach">Breakfast never got logged. <b>A rough answer</b> keeps dinner right.</p>
+        <div class="sect"><h3>Today</h3><a href="#">Plan ›</a></div>
+        <div class="card line">
+          <div class="ev"><span class="t">8:30</span><span class="rail"><i class="node miss"></i></span><div class="what">Breakfast<small style="color:#F59E0B">Not logged · 2 idli, sambar, 2 boiled eggs</small><div class="act"><span class="chip">As planned</span><span class="chip">Something else</span><span class="chip">Skipped</span></div></div></div>
+          <div class="ev"><span class="t">13:30</span><span class="rail"><i class="node now"></i></span><div class="what">Lunch<small>Up now · Mess thali with curd and a boiled egg</small><div class="act"><span class="chip food">Ate as planned</span><span class="chip">Something else</span></div></div></div>
+          <div class="ev"><span class="t">20:30</span><span class="rail"><i class="node"></i></span><div class="what">Dinner<small>Roti, palak dal and bhindi fry</small></div></div>
+        </div>
+        <div class="spacer"></div>
+      </div>
+      <div class="tabbar"><b>Home</b><span>Workouts</span><span>Nutrition</span><span>Tracker</span><span>More</span></div>
+    </div>
+    <p class="cap"><b>5 · The missed-meal fix.</b> At lunchtime breakfast is still on the line, marked "not logged", with As planned / Something else / Skipped. The same rows appear on the Nutrition tab.</p>
+  </div>
+</div>
+
+<div class="notes">
+  <div><h4>Cut from the app</h4>Diagonal hatch in hero corners, dot grids on tiles, watermark icons, the "✦ 775 CLAWW" pill on Home (XP moves to More), ALL-CAPS eyebrow labels over every card, the purple "CLAWW INSIGHT" bar card, the three trust chips and lock line on Welcome, "Privacy-Protected — your data stays private".</div>
+  <div><h4>Kept and used everywhere</h4>One film grain on every card and full screen (not only Home), a top light on cards, glow only on data (rings, the now node), one colour per area, Caveat only for pen notes, sentence-case section titles.</div>
+  <div><h4>Burned goal</h4>The activity part of your calorie target: BMR × (activity multiplier − 1.2), so a moderate 68 kg user gets about 410 kcal, active about 830; never under 250; editable in the Burned sheet. Burned is Health Connect active energy when connected, else the steps estimate plus logged sessions and activities.</div>
+</div>
+</body></html>
