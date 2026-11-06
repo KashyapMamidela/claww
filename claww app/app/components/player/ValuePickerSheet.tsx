@@ -78,7 +78,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
                   >
                     <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{format(kind, v)}</Text>
                     {tag ? (
-                      <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : COLORS.textMuted, fontSize: 9.5, fontWeight: '700', fontFamily: FONT }}>
+                      <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : COLORS.textMuted, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
                         {tag.toUpperCase()}
                       </Text>
                     ) : null}

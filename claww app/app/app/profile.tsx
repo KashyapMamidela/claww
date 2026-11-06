@@ -209,8 +209,8 @@ export default function ProfileScreen() {
           </View>
           <View style={{ marginTop: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 10, fontFamily: FONT }}>XP Progress — Level {level}</Text>
-              <Text style={{ color: P, fontSize: 10, fontWeight: '600', fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>XP Progress — Level {level}</Text>
+              <Text style={{ color: P, fontSize: 11, fontWeight: '600', fontFamily: FONT }}>
                 {xpIntoLevel} / {xpForNextLevel}
               </Text>
             </View>
@@ -243,7 +243,7 @@ export default function ProfileScreen() {
             >
               <Icon name={s.icon} size={14} color={s.color} />
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 9, textAlign: 'center', fontFamily: FONT }}>{s.label}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>{s.label}</Text>
             </View>
           ))}
         </View>
@@ -270,7 +270,7 @@ export default function ProfileScreen() {
                 >
                   <Text style={{ fontSize: 20 }}>{b.icon}</Text>
                 </View>
-                <Text style={{ color: '#A1A1AA', fontSize: 8.5, textAlign: 'center', lineHeight: 10, fontFamily: FONT }}>{b.label}</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 10, fontFamily: FONT }}>{b.label}</Text>
               </View>
             ))}
           </View>
@@ -278,7 +278,7 @@ export default function ProfileScreen() {
 
         <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Body Stats</Text>
+            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Body stats</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {bodyStats.map((bs) => (
@@ -293,7 +293,7 @@ export default function ProfileScreen() {
                   padding: 10,
                 }}
               >
-                <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontFamily: FONT }}>{bs.l}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{bs.l}</Text>
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', marginTop: 3, fontFamily: FONT }}>{bs.v}</Text>
               </View>
             ))}
@@ -339,7 +339,7 @@ export default function ProfileScreen() {
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="alert-triangle" size={16} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Medical Disclaimer</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Medical disclaimer</Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -381,7 +381,7 @@ export default function ProfileScreen() {
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign Out</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign out</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -399,7 +399,7 @@ export default function ProfileScreen() {
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="trash-2" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete Account</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete account</Text>
           </TouchableOpacity>
         </View>
 

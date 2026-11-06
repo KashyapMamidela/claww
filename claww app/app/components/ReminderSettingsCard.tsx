@@ -57,7 +57,7 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{row.label}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>{row.note}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{row.note}</Text>
             </View>
             <PressScale
               onPress={() => openTime(kind)}
@@ -79,7 +79,7 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
           </View>
         );
       })}
-      <Text style={{ color: COLORS.textFaint, fontSize: 10.5, marginTop: 4, fontFamily: FONT }}>Never more than 2 reminders a day in total.</Text>
+      <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 4, fontFamily: FONT }}>Never more than 2 reminders a day in total.</Text>
 
       {editing && pending ? (
         <Modal visible transparent animationType="fade" onRequestClose={() => setEditing(null)} statusBarTranslucent>

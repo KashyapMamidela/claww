@@ -131,18 +131,18 @@ export function AdaptiveCard() {
                   <View key={m} style={{ gap: 8 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
                       <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{cap(m)}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
                         {trainedAgoLabel(planned.scores[m]?.hoursSinceTrained ?? null)}
                         {planned.scores[m]?.score != null ? ` · score ${planned.scores[m].score}${planned.scores[m].band && planned.scores[m].band !== 'Excellent' && planned.scores[m].band !== 'Good' ? ` · ${planned.scores[m].band}` : ''}` : ''}
                       </Text>
                     </View>
-                    <Text style={{ color: COLORS.fgGray, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Soreness (0 none, 5 severe)</Text>
+                    <Text style={{ color: COLORS.fgGray, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Soreness (0 none, 5 severe)</Text>
                     <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                       {[0, 1, 2, 3, 4, 5].map((n) => (
                         <Option key={n} label={String(n)} active={c?.soreness === n} onPress={() => setCheckin(m, { soreness: c?.soreness === n ? null : n })} />
                       ))}
                     </View>
-                    <Text style={{ color: COLORS.fgGray, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>How strong does it feel?</Text>
+                    <Text style={{ color: COLORS.fgGray, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>How strong does it feel?</Text>
                     <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                       {READINESS.map((r) => (
                         <Option key={r.value} label={r.label} active={c?.readiness === r.value} onPress={() => setCheckin(m, { readiness: c?.readiness === r.value ? null : r.value })} />
@@ -162,7 +162,7 @@ export function AdaptiveCard() {
             return (
               <View key={p.name} style={{ gap: 6, paddingTop: 10, borderTopWidth: 1, borderTopColor: COLORS.border }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15.5, fontWeight: '800', fontFamily: FONT }}>{p.name}</Text>
+                  <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{p.name}</Text>
                   {p.managed ? <Pill label={pill.label} tone={pill.tone} /> : null}
                 </View>
                 <Text style={{ color: COLORS.fg, fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>

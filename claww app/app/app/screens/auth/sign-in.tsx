@@ -87,8 +87,17 @@ export default function SignInScreen() {
             Welcome back
           </Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
-            Sign in to pick up where you left off.
+            Pick up your plan where you left it.
           </Text>
+
+          <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>or with email</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+          </View>
+
 
           <Animated.View style={[{ gap: 12 }, shakeStyle]}>
             <TextInput
@@ -115,28 +124,21 @@ export default function SignInScreen() {
           </Animated.View>
 
           <TouchableOpacity onPress={() => router.push('/screens/auth/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 12.5, fontFamily: FONT }}>Forgot password?</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Forgot password?</Text>
           </TouchableOpacity>
 
           {error ? (
             <Animated.View entering={FadeInDown.duration(220)}>
-              <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 12, fontFamily: FONT }}>{error}</Text>
+              <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text>
             </Animated.View>
           ) : null}
 
           <View style={{ marginTop: 20 }}>
-            <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
-              {loading ? 'Signing in…' : 'Sign in'}
+            <Button variant="primary" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
+              {loading ? 'Logging in…' : 'Log in'}
             </Button>
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>OR</Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-          </View>
-
-          <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-up')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
             <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>

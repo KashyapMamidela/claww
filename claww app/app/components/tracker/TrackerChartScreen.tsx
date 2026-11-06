@@ -154,7 +154,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}> training day{g.sessions === 1 ? '' : 's'}</Text>
             </Text>
             <HeatGrid weeks={g.weeks} color={BLUE} maxCell={range === 'all' ? 12 : 30} />
-            <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>Each column is a week, Monday at the top. A bright square is a day you logged sets.</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Each column is a week, Monday at the top. A bright square is a day you logged sets.</Text>
           </>
         );
       }
@@ -166,7 +166,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
             {records.map((r) => (
               <View key={r.exerciseName} style={{ gap: 2 }}>
                 <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{r.exerciseName}</Text>
-                <Text style={{ color: BLUE, fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: BLUE, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
                   {r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `Bodyweight × ${r.reps}`}
                   <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}>
                     {r.weight > 0 ? `  ·  est. 1RM ${r.score} kg` : ''}  ·  {new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -190,7 +190,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
                 <View key={r.muscle} style={{ gap: 4 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{cap(r.muscle)}</Text>
-                    <Text style={{ color: TEAL, fontSize: 13.5, fontWeight: '800', fontFamily: FONT }}>
+                    <Text style={{ color: TEAL, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
                       {r.score} <Text style={{ color: '#A1A1AA', fontWeight: '500' }}>{r.band} · {r.confidence} confidence</Text>
                     </Text>
                   </View>
@@ -200,7 +200,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
                 </View>
               ))}
             </View>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11.5, lineHeight: 17, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 17, fontFamily: FONT }}>
               An estimate from your recent sets, time since you trained each muscle, and the soreness and readiness you report before a session. Missing answers lower the confidence.
             </Text>
           </>
@@ -214,7 +214,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         return (
           <>
             <BarChart values={steps} color={AREA_COLORS.steps} height={220} goal={goalForBucket} labels={labels} />
-            <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontFamily: FONT }}>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>
               {range === 'week' ? 'Steps per day' : range === 'month' ? 'Steps per week' : 'Steps per month'} · the dashed line is your goal ({stepsGoal.toLocaleString()} a day).
             </Text>
           </>
@@ -227,7 +227,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         return (
           <>
             <BarChart values={p.map((x) => x ?? 0)} color={AREA_COLORS.nutrition} height={220} goal={data.proteinTargetG} labels={labels} />
-            <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontFamily: FONT }}>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>
               Protein in grams, {range === 'week' ? 'per day' : 'averaged over the days you logged'}.
               {data.proteinTargetG ? ` The dashed line is your ${data.proteinTargetG} g target.` : ''}
             </Text>
@@ -267,7 +267,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
           {ranged ? (
             <>
               <Segment value={range} onChange={setRange} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>{RANGE_NOTE[range]}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{RANGE_NOTE[range]}</Text>
             </>
           ) : null}
           {body}

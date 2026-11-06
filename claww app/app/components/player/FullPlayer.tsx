@@ -244,7 +244,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     <View>
                       <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
-                      {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 12.5, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
+                      {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 13, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
                     </View>
 
                     {/* NG PHASE 3.4: How to opens the exercise guide; Swap replaces the exercise, until a set is logged. */}
@@ -350,7 +350,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                               accessibilityLabel={`Set ${s + 1}: ${setText(row.weight, reps)}. Change`}
                               style={{ flex: 1, minHeight: 44, justifyContent: 'center' }}
                             >
-                              <Text style={{ color: row.done || isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 19, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
+                              <Text style={{ color: row.done || isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 20, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
                                 {setText(row.weight, reps)}
                               </Text>
                             </Pressable>
@@ -396,11 +396,11 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, minHeight: 48, borderRadius: 14, backgroundColor: SURFACES.cardBottom, borderWidth: 1, borderColor: COLORS.border }}>
                           <Text style={{ color: COLORS.textFaint, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
-                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
                             {upNext.name}
                           </Text>
                           {upNextRow ? (
-                            <Text style={{ color: COLORS.fgGray, fontSize: 12.5, fontFamily: FONT }}>
+                            <Text style={{ color: COLORS.fgGray, fontSize: 13, fontFamily: FONT }}>
                               {upNextRow.weight > 0 ? `${upNextRow.weight} × ${upNextRow.reps}` : `${upNext.sets} × ${upNextRow.reps}`}
                             </Text>
                           ) : null}
@@ -574,7 +574,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       >
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 12, borderRadius: 12, backgroundColor: i === exerciseIndex ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)' }}>
                           <Icon name={done ? 'check-circle-2' : st?.skipped ? 'skip-forward' : 'circle'} size={18} color={done ? COLORS.green : st?.skipped ? '#71717A' : '#A1A1AA'} />
-                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
                             {ex.name}
                           </Text>
                           <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}</Text>

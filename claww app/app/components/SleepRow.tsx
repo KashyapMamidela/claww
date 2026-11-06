@@ -76,7 +76,7 @@ export function SleepRow() {
                   </Text>
                   <Text style={{ color: QUALITY_COLOR[q], fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{q}</Text>
                 </View>
-                <Text style={{ color: COLORS.textMuted, fontSize: 11.5, marginTop: 1, fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 1, fontFamily: FONT }}>
                   {clock(todaySleep?.bedtime)} – {clock(todaySleep?.wake_time)}
                 </Text>
               </View>

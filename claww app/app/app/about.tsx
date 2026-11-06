@@ -60,7 +60,7 @@ export default function AboutScreen() {
           </Text>
         </View>
 
-        <Text style={{ color: COLORS.textFaint, fontSize: 10.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
           © 2026 CLAWW. All rights reserved.
         </Text>
       </View>

@@ -163,7 +163,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
                 <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
                   {r.exerciseName}
                 </Text>
-                <Text style={{ color: BLUE, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: BLUE, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
                   {r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `BW × ${r.reps}`}
                   <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}>{`  ${new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}`}</Text>
                 </Text>
@@ -189,7 +189,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
       </TrackerCard>
 
       <TrackerCard label="CLAWW INSIGHT" color={AREA_COLORS.engine} accentStripe>
-        <Text style={{ color: '#fff', fontSize: 13.5, lineHeight: 20, fontWeight: '600', fontFamily: FONT }}>{v.insight.text}</Text>
+        <Text style={{ color: '#fff', fontSize: 14, lineHeight: 20, fontWeight: '600', fontFamily: FONT }}>{v.insight.text}</Text>
       </TrackerCard>
     </View>
   );

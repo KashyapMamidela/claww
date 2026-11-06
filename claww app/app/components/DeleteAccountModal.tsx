@@ -82,10 +82,10 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
             >
               <Icon name="alert-triangle" size={18} color={COLORS.danger} />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Delete Account</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Delete account</Text>
           </View>
 
-          <Text style={{ color: '#A1A1AA', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
+          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
             This permanently deletes your account and everything tied to it — workouts, meal and
             sleep logs, XP, streaks, all of it. This cannot be undone.
           </Text>

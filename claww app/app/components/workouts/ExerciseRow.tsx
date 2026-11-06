@@ -66,7 +66,7 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
 
       {mark?.note ? (
         <Pressable onPress={() => setOpen((v) => !v)} accessibilityRole="button" accessibilityLabel={`${mark.note}. Tap for the reason`} style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 6, minHeight: 32 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 19, fontFamily: FONT_HAND }}>{mark.note}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 20, fontFamily: FONT_HAND }}>{mark.note}</Text>
           <Icon name={open ? 'chevron-up' : 'chevron-down'} size={14} color={COLORS.textMuted} />
         </Pressable>
       ) : null}

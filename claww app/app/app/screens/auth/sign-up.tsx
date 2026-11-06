@@ -79,7 +79,7 @@ export default function SignUpScreen() {
   if (checkEmail) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 }}>
-        <Text style={{ fontSize: 42, marginBottom: 16 }}>📬</Text>
+        <View style={{ marginBottom: 16 }}><Icon name="mail" size={44} color={COLORS.fg} /></View>
         <Text style={{ color: '#fff', fontSize: 22, fontWeight: '800', textAlign: 'center', marginBottom: 8, fontFamily: FONT }}>
           Check your email
         </Text>
@@ -118,6 +118,15 @@ export default function SignUpScreen() {
             Takes a minute — you'll set up your profile next.
           </Text>
 
+          <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>or with email</Text>
+            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
+          </View>
+
+
           <Animated.View style={[{ gap: 12 }, shakeStyle]}>
             <TextInput
               value={email}
@@ -144,23 +153,16 @@ export default function SignUpScreen() {
 
           {error ? (
             <Animated.View entering={FadeInDown.duration(220)}>
-              <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 12, fontFamily: FONT }}>{error}</Text>
+              <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text>
             </Animated.View>
           ) : null}
 
           <View style={{ marginTop: 24 }}>
-            <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
+            <Button variant="primary" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
               {loading ? 'Creating account…' : 'Create account'}
             </Button>
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>OR</Text>
-            <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-          </View>
-
-          <GoogleSignInButton onPress={handleGoogleSignIn} loading={googleLoading} />
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-in')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
             <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>

@@ -45,7 +45,7 @@ function Cell({ cell, selected, onPress }: { cell: StripCell; selected: boolean;
         ) : (
           <Text
             numberOfLines={1}
-            style={{ color: missed ? COLORS.danger : fg, fontSize: 11.5, fontWeight: '700', textDecorationLine: missed ? 'line-through' : 'none', fontFamily: FONT }}
+            style={{ color: missed ? COLORS.danger : fg, fontSize: 12, fontWeight: '700', textDecorationLine: missed ? 'line-through' : 'none', fontFamily: FONT }}
           >
             {cell.label}
           </Text>

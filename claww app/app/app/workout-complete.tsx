@@ -242,7 +242,7 @@ export default function WorkoutCompleteScreen() {
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>How did that feel?</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 14, marginTop: 2, marginBottom: 12, fontFamily: FONT }}>This decides how the next session is marked.</Text>
           <Segmented options={FEEL_OPTIONS} value={feel} onChange={chooseFeel} accessibilityLabel="How did that feel" />
-          <Text style={{ color: COLORS.fg, fontSize: 21, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 20, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
         </Surface>
 
         <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4), backgroundColor: tint(AREA_COLORS.streak, 0.08), padding: 16, gap: 12 }}>

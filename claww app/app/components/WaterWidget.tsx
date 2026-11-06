@@ -195,7 +195,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                 }}
               >
                 <Icon name="plus" size={11} color={WATER} />
-                <Text style={{ color: WATER, fontSize: 10.5, fontWeight: '700', fontFamily: FONT }}>{p}ml</Text>
+                <Text style={{ color: WATER, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{p}ml</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -216,7 +216,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
       }}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
-        <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Water Intake</Text>
+        <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Water intake</Text>
         <View
           style={{
             backgroundColor: waterMl > 0 ? 'rgba(56,189,248,0.14)' : 'rgba(255,255,255,0.06)',
@@ -244,7 +244,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
           >
             {popLabel}
           </Animated.Text>
-          <Text style={{ color: COLORS.textFaint, fontSize: 9.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>Tap to add</Text>
+          <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>Tap to add</Text>
         </TouchableOpacity>
 
         <View style={{ flex: 1, gap: 8 }}>
@@ -264,7 +264,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                   borderColor: 'rgba(56,189,248,0.25)',
                 }}
               >
-                <Text style={{ color: WATER, fontSize: 11.5, fontWeight: '700', fontFamily: FONT }}>+{formatMl(p)}</Text>
+                <Text style={{ color: WATER, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>+{formatMl(p)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -286,7 +286,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                   borderColor: 'rgba(56,189,248,0.3)',
                   borderRadius: 10,
                   color: '#fff',
-                  fontSize: 12.5,
+                  fontSize: 13,
                   paddingHorizontal: 12,
                   fontFamily: FONT,
                 }}
@@ -310,7 +310,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
             </View>
           ) : (
             <TouchableOpacity activeOpacity={0.8} onPress={() => setCustomOpen(true)} style={{ alignSelf: 'flex-start' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontWeight: '600', fontFamily: FONT }}>+ Custom amount</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>+ Custom amount</Text>
             </TouchableOpacity>
           )}
         </View>

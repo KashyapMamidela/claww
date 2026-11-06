@@ -51,7 +51,7 @@ function Row({ m, planDays, onDecide }: { m: PenMark; planDays: { day: string; f
         </Text>
       </View>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-        <Text style={{ color: COLORS.pen, fontSize: 19, fontFamily: FONT_HAND, flex: 1 }}>{m.note}</Text>
+        <Text style={{ color: COLORS.pen, fontSize: 20, fontFamily: FONT_HAND, flex: 1 }}>{m.note}</Text>
         <View style={{ width: 150 }}>
           <Segmented
             accent={COLORS.blue}

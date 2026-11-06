@@ -15,7 +15,7 @@ import { ElapsedClock, RestCountdown } from './player/clocks';
 import { FullPlayer } from './player/FullPlayer';
 import { useRestEndNotification } from '../lib/restNotification';
 
-const clockLabelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 9.5, fontWeight: '700', letterSpacing: 0.7, fontFamily: FONT } as const;
+const clockLabelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: '700', letterSpacing: 0.7, fontFamily: FONT } as const;
 
 // Apple's "Drawer / sheet" spring values (damping 0.8, response 0.3s),
 // expressed in Reanimated's duration+dampingRatio spring API.
@@ -200,21 +200,21 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
                 <Text numberOfLines={1} style={{ color: '#fff', fontSize: 13, fontWeight: '800', fontFamily: FONT }}>
                   {current.name}
                 </Text>
-                <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 10.5, fontFamily: FONT }}>
+                <Text style={{ color: 'rgba(255,255,255,0.55)', fontSize: 11, fontFamily: FONT }}>
                   {row ? `Set ${setIndex + 1}/${state.rows.length} · ${row.reps}${row.weight > 0 ? ` × ${row.weight} kg` : ' reps'}` : 'Exercise done'}
                 </Text>
               </TouchableOpacity>
               {isResting ? (
                 <PressScale onPress={skipRest} accessibilityRole="button" accessibilityLabel="Skip rest">
                   <View style={{ height: 40, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.22)', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>Skip rest</Text>
+                    <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Skip rest</Text>
                   </View>
                 </PressScale>
               ) : row ? (
                 <PressScale onPress={onBarDone} accessibilityRole="button" accessibilityLabel="Done, log this set">
                   <View style={{ height: 40, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
                     <Icon name="check" size={15} color={COLORS.blueDeep} strokeWidth={3} />
-                    <Text style={{ color: COLORS.blueDeep, fontSize: 12.5, fontWeight: '800', fontFamily: FONT }}>Done</Text>
+                    <Text style={{ color: COLORS.blueDeep, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Done</Text>
                   </View>
                 </PressScale>
               ) : null}

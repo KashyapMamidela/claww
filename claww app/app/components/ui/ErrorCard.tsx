@@ -42,7 +42,7 @@ export function ErrorCard({ message, onRetry, retrying = false }: ErrorCardProps
         <Icon name="alert-triangle" size={15} color={COLORS.danger} />
       </View>
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#fff', fontSize: 12.5, fontWeight: '600', lineHeight: 18, fontFamily: FONT }}>{message}</Text>
+        <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', lineHeight: 18, fontFamily: FONT }}>{message}</Text>
         {onRetry ? (
           <TouchableOpacity activeOpacity={0.8} onPress={onRetry} disabled={retrying} style={{ marginTop: 8, alignSelf: 'flex-start' }}>
             <Text style={{ color: COLORS.danger, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>

@@ -35,9 +35,9 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
       <View style={{ flex: 1, gap: 6 }}>
         {expanded ? (
           <>
-            <Text style={{ color: COLORS.blue, fontSize: 10, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>FIRST TIME · HOW TO</Text>
+            <Text style={{ color: COLORS.blue, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>FIRST TIME · HOW TO</Text>
             {form.formSteps.map((step, i) => (
-              <Text key={i} style={{ color: '#fff', fontSize: 12.5, lineHeight: 18, fontFamily: FONT }}>
+              <Text key={i} style={{ color: '#fff', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
                 <Text style={{ color: COLORS.blue, fontWeight: '800' }}>{i + 1} </Text>
                 {step}
               </Text>
@@ -51,7 +51,7 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
           </>
         ) : (
           <>
-            <Text style={{ color: COLORS.blue, fontSize: 10, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.blue, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>
               CUE {cue + 1}/{form.formSteps.length}
             </Text>
             <Text numberOfLines={2} style={{ color: '#fff', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>

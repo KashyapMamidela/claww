@@ -145,7 +145,7 @@ export default function SettingsScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Reminders</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
               </View>
               <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
@@ -186,7 +186,7 @@ export default function SettingsScreen() {
 
         {notificationsSupported && SHOW_DEV_TOOLS ? (
           <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
-            <Text style={{ color: COLORS.amber, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>TEST TOOLS · NOT IN RELEASE BUILDS</Text>
+            <Text style={{ color: COLORS.amber, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>TEST TOOLS · NOT IN RELEASE BUILDS</Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={async () => {
@@ -197,7 +197,7 @@ export default function SettingsScreen() {
             >
               <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Send a test reminder in 2 minutes</Text>
             </TouchableOpacity>
-            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontFamily: FONT }}>{testStatus}</Text> : null}
+            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>{testStatus}</Text> : null}
           </View>
         ) : null}
 
@@ -223,7 +223,7 @@ export default function SettingsScreen() {
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign Out</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign out</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -246,14 +246,14 @@ function PerfReadout() {
   );
   return (
     <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 8 }}>
-      <Text style={{ color: COLORS.amber, fontSize: 10.5, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>SPEED NUMBERS · NOT IN RELEASE BUILDS</Text>
+      <Text style={{ color: COLORS.amber, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>SPEED NUMBERS · NOT IN RELEASE BUILDS</Text>
       {row('Sets timed', String(setLatency.count))}
       {row('Tap to next set, median', msText(setLatency.median))}
       {row('Tap to next set, slowest 10%', msText(setLatency.p90))}
       {row('Home first paint (this app start)', msText(homeFirstPaintMs))}
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
         <TouchableOpacity activeOpacity={0.8} onPress={() => setReport(getPerfReport())} style={{ flex: 1, height: 38, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Refresh</Text>
+          <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Refresh</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -263,7 +263,7 @@ function PerfReadout() {
           }}
           style={{ flex: 1, height: 38, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', alignItems: 'center', justifyContent: 'center' }}
         >
-          <Text style={{ color: COLORS.amber, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Reset set timings</Text>
+          <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Reset set timings</Text>
         </TouchableOpacity>
       </View>
     </View>

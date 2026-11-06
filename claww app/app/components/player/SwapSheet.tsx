@@ -68,7 +68,7 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
     <BottomSheet visible={visible} onClose={onClose} maxHeightFraction={0.8}>
       <View style={{ gap: 12 }}>
         <View style={{ gap: 4 }}>
-          <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 21, fontWeight: '800', fontFamily: FONT }}>
+          <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>
             Swap {exerciseName}
           </Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>

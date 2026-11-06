@@ -109,7 +109,7 @@ export default function OnboardingReveal() {
           <Image source={require('../../../assets/logo-mark.png')} style={{ width: 46, height: 46 }} resizeMode="contain" />
         </Animated.View>
 
-        <Text style={{ color: accent, fontSize: 10.5, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8, fontFamily: FONT }}>
+        <Text style={{ color: accent, fontSize: 11, fontWeight: '700', letterSpacing: 1.2, marginBottom: 8, fontFamily: FONT }}>
           PROFILE READY
         </Text>
         <Text
@@ -152,7 +152,7 @@ export default function OnboardingReveal() {
             marginBottom: 18,
           }}
         >
-          <Text style={{ color: '#A1A1AA', fontSize: 11.5, lineHeight: 17, fontFamily: FONT, marginBottom: 12 }}>
+          <Text style={{ color: '#A1A1AA', fontSize: 12, lineHeight: 17, fontFamily: FONT, marginBottom: 12 }}>
             {MEDICAL_DISCLAIMER_BODY}
           </Text>
           <TouchableOpacity
@@ -174,7 +174,7 @@ export default function OnboardingReveal() {
             >
               {disclaimerAcked ? <Icon name="check" size={13} color="#fff" strokeWidth={3} /> : null}
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 12.5, fontWeight: '600', fontFamily: FONT }}>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>
               {MEDICAL_DISCLAIMER_ACK_LABEL}
             </Text>
           </TouchableOpacity>
@@ -189,7 +189,7 @@ export default function OnboardingReveal() {
           onPress={handleEnter}
           disabled={saving || !disclaimerAcked}
         >
-          ENTER CLAWW
+          Enter CLAWW
         </Button>
       </View>
     </SafeAreaView>
