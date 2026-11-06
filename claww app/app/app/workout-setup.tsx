@@ -7,7 +7,7 @@ import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { basicsSummary, hasBasics, profileBasics, useProfile } from '../lib/profile';
 import { saveWorkoutIntake, type Equipment, type Goal } from '../lib/data';
-import { INJURY_PARTS, SEVERITIES, type Injury, type InjuryPart, type Severity } from '../lib/engine';
+import { INJURY_PARTS, SEVERITIES, cleanTrainStyles, type Injury, type InjuryPart, type Severity } from '../lib/engine';
 import { planCard } from '../lib/planCard';
 import { trainingDaysPerWeek } from '../lib/trainingWeek';
 import { Button } from '../components/ui/Button';
@@ -84,6 +84,7 @@ export default function WorkoutSetup() {
   const [months, setMonths] = useState(12);
   const [minutes, setMinutes] = useState<Minutes>('60');
   const [injuries, setInjuries] = useState<Injury[]>([]);
+  const styles = useMemo(() => cleanTrainStyles(profile?.personalization_profile?.workoutDefaults?.styles), [profile]);
   const [sheetPart, setSheetPart] = useState<InjuryPart | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,8 +107,8 @@ export default function WorkoutSetup() {
   }, [seeded, loading, profile]);
 
   const card = useMemo(
-    () => planCard({ goal, equipment: place, daysPerWeek: days, trainingMonths: months, sessionMinutes: Number(minutes), injuries }),
-    [goal, place, days, months, minutes, injuries]
+    () => planCard({ goal, equipment: place, daysPerWeek: days, trainingMonths: months, sessionMinutes: Number(minutes), injuries, styles }),
+    [goal, place, days, months, minutes, injuries, styles]
   );
 
   const showInputs = !known && !loading ? true : editing;

@@ -1,7 +1,7 @@
 // NG PHASE 5.5: the "Your plan" card on the setup screen. It runs the same pickBlueprint as generate-plan
 // on the same inputs, so the card and the plan that gets generated always agree.
 
-import { BLOCK_WEEKS, BLUEPRINTS, blueprintDayMinutes, pickBlueprint, type PickResult, type PlanProfile } from './engine';
+import { BLOCK_WEEKS, BLUEPRINTS, blueprintDayMinutes, distributeStyleDays, needsStyledPlan, pickBlueprint, type PickResult, type PlanProfile, type TrainStyle } from './engine';
 
 export interface PlanCardInput {
   goal: string | null;
@@ -10,6 +10,8 @@ export interface PlanCardInput {
   trainingMonths: number | null;
   sessionMinutes: number | null;
   injuries: PlanProfile['injuries'];
+  /** Polish step 2/3: how the user likes to train, first = main. A mixed week is described by its styles. */
+  styles?: TrainStyle[];
 }
 
 export interface PlanCard {
@@ -35,8 +37,20 @@ const SPLIT_TITLES: Record<string, string> = {
 
 const PLACE_TITLES: Record<string, string> = { gym: 'gym', home: 'home', none: 'no equipment' };
 
+/** "3 days gym + 1 day yoga" for a week built from more than one way to train (or a calisthenics, yoga or mobility week). */
+export function styledWeekTitle(styles: TrainStyle[], days: number): string {
+  const order = distributeStyleDays(styles, days);
+  const names: Record<TrainStyle, string> = { gym: 'gym', calisthenics: 'calisthenics', home: 'home', yoga: 'yoga', mobility: 'mobility' };
+  return (['gym', 'home', 'calisthenics', 'yoga', 'mobility'] as TrainStyle[])
+    .map((s) => [s, order.filter((x) => x === s).length] as const)
+    .filter(([, n]) => n > 0)
+    .map(([s, n]) => `${n} ${n === 1 ? 'day' : 'days'} ${names[s]}`)
+    .join(' + ');
+}
+
 export function planCard(input: PlanCardInput): PlanCard {
-  const profile: PlanProfile = { ...input };
+  const { styles, ...rest } = input;
+  const profile: PlanProfile = { ...rest };
   const pick: PickResult = pickBlueprint(profile, BLUEPRINTS);
   const bp = pick.blueprint;
   const longest = Math.max(...bp.days.map(blueprintDayMinutes));
@@ -44,6 +58,17 @@ export function planCard(input: PlanCardInput): PlanCard {
   const mains = bp.days.flatMap((d) => d.slots.filter((s) => s.role === 'main'));
   const lo = Math.min(...mains.map((s) => s.repRange[0]));
   const hi = Math.max(...mains.map((s) => s.repRange[1]));
+  if (styles && needsStyledPlan(styles)) {
+    return {
+      blueprintId: bp.id,
+      title: styledWeekTitle(styles, input.daysPerWeek),
+      days: input.daysPerWeek,
+      weeks: BLOCK_WEEKS,
+      minutes: Math.round((input.sessionMinutes ?? minutes) / 5) * 5,
+      repStyle: 'strength, flows and mobility in one week',
+      nearest: null,
+    };
+  }
   return {
     blueprintId: bp.id,
     title: `${SPLIT_TITLES[bp.split] ?? bp.title} · ${PLACE_TITLES[bp.place] ?? bp.place}`,
