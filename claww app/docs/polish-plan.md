@@ -46,106 +46,63 @@ no emoji, the model never computes numbers, RLS on every table, schema only in `
    clears the tab bar; the Tracker's Adaptive card says nothing about "changes" on a rest day; personal records ignore
    bodyweight-only sets when a loaded set exists.
 
-## Step 2: Daily Progress, Burned ring and the Session tile
+## Redrafted order (6 Nov, after the user's review)
 
-- Rings become **Burned (outer, `AREA_COLORS.burned`), Eaten (green), Recovery (teal)**. The Workout ring and the
-  `RINGS_V1` flag go.
-- **Burned goal** (decided by the user: an active-calorie goal based on how the calorie goal was set), pure
-  `lib/burnGoal.ts` with tests: `round10(BMR × (activityMultiplier − 1.2))`, floor 250 kcal, using the same BMR and
-  multiplier as `lib/nutrition.ts` (moderate 1.45, active 1.7; sedentary gives the floor). Example: 68 kg moderate
-  male about 410 kcal. Stored override `personalization_profile.burnGoalKcal` when the user edits it in the Burned
-  sheet (tap the ring row). Burned value is unchanged (`lib/dayStats.ts`).
-- Daily Goal % = average of the three rings (each capped at 100).
-- **Tiles: Steps, Session, Streak.** The Session tile replaces Burned (recommended because the Workout ring is gone and
-  the session must stay visible): "Rest", "0 / 4 sets", "Done", or "Missed · Mon"; tap opens Workouts. (Alternatives the
-  user may pick instead: Protein g / target, or Sleep.)
-- Layout to the mock: ring 128 px left, three read-outs right (label, value / target, one quiet note), three equal
-  tiles below. Same card on every screen size; no dot grid, no watermark, no hatch.
+Polish, not redesign: the current look stays (grain texture, top light, a colour per feature as a soft glow, one CLAWW primary colour, blue, for buttons, tabs and progress). Dropped: "From the home pot", the "Move" path, the black and white draft screens, the four-tab restructure (later). The canvas "CLAWW app redesign" (claude.ai artifact JAL32ssM1bVgZFUFQ4MQgH) holds the redrafted plan board and the two onboarding screens.
 
-## Step 3: Home redesign (the mock, frames 4 and 5)
+## Step 2: Onboarding, goal first, then how you train
 
-Order: header (small mark, date, bell) → greeting (32/900) → coach line with one bold fact and a Caveat pen note →
-Daily Progress card (step 2) → **Today** → Marked on your plan → a two-up row (Water, "Played a sport?").
+- Screen 1 "What's your goal?" (one choice): Lose fat, Gain weight, Build muscle, Get stronger, Stay fit. Maps to the existing goals (`fat_loss`, `muscle_gain` with a calorie surplus for Gain weight, `muscle`, `strength`, `general`).
+- Screen 2 "How do you like to train?" (pick any): Gym, Calisthenics, Home workout, Yoga, Mobility. A live line shows the week it makes ("3 days gym + 1 to 2 days yoga").
+- Then days, minutes, anything that hurts, and sign in. Onboarding and workout setup become one flow; height, weight and age are asked once.
+- Design: the canvas boards `Goal` and `Train` (cards with the feature's glow when picked, Apple sizes, Continue in the primary blue).
 
-- **Today** is one vertical line through the day, built by a pure `lib/todayLine.ts` (tested): meal slots from the
-  meal plan and logs (states done, missed, now, later), the session (planned, missed and offered, done, rest), and a
-  sleep target ("Sleep by 11"). The "now" item carries its buttons (Ate as planned / Something else, Start · 18 min); a
-  missed meal carries As planned / Something else / Skipped. This replaces the hero, the catch-up banner on Home and
-  the "Breakfast" hero. Done items collapse to one line with a check.
-- The XP pill leaves Home (it moves to More and the Tracker header).
-- "Played a sport?" opens the existing `ActivityCard` in a bottom sheet instead of the full card on Home.
-- Home must fit the first screen down to the end of the Today line's "now" item.
+## Step 3: Plans for every training style
 
-## Step 4: One look everywhere, and cut the generic decoration
+New blueprint families next to the gym ones: calisthenics (progressions: push-up to dips, rows to pull-ups, squats to pistol work), yoga (flows by length and level), mobility (routines by body area), and home. With more than one style picked, the plan mixes them (main style 3 days, others 1 to 2). The catalog needs the missing exercises and form guides; every template is `reviewed: false` until the trainer approves it (add them to the review PDF).
 
-**Cut** (the user calls it "AI slop"): diagonal hatch in hero corners, dot grids on tiles, icon watermarks, the
-"✦ CLAWW" XP pill on Home, ALL-CAPS eyebrow labels over every card (section titles become sentence case 17/800, area
-names stay as small coloured labels only inside pen marks), the purple "CLAWW INSIGHT" bar card (the insight becomes a
-plain line under the chart it is about), "Privacy-Protected — your data stays private", the trust chips on Welcome.
+## Step 4: Home, the Today line and the Burned ring
 
-**Keep and apply to every card on every screen:** `Surface` (gradient, 1 px border, top light) with **one** film grain;
-a screen-level grain on full-screen backgrounds; glow only on data (rings, the "now" node, the active segment); one
-colour per area; Caveat only for pen notes.
+- Today as one line through the day: the current item carries its buttons, a missed meal stays with As planned / Something else / Skipped, done items shrink to a tick. Replaces the hero and the catch-up banner on Home.
+- Rings Burned (outer; goal `round10(BMR x (activity multiplier - 1.2))`, floor 250, editable), Eaten, Recovery. Tiles Steps, Session, Streak. The XP pill moves off Home.
 
-Screens to convert, each checked against the user's screenshots: Workouts (exercise rows, remove the old "Missed" card,
-"This Week" calendar and "Log a session", which duplicate the week strip), Nutrition (macro card, meal cards, up-next,
-diary link), Tracker (every card from Strength down), More, Profile, Settings, Food diary, Catch-up, Weekly review,
-Scanner, workout and meal setup. `components/ui/Hero.tsx` and `TintTile.tsx` lose the hatch, dots and watermark.
+## Step 5: Log from the lock screen
 
-## Step 5: Welcome, splash and sign-in (mock frames 1 to 3)
+Notification actions (Android, the same native path as the workout lock-screen module): meal reminder with Ate it / Something else (opens the + sheet), water "+250 ml", morning "Slept 11:40 to 7:10? Yes". Each action writes through the offline write queue.
 
-- **Splash animation.** The mark is three pieces; they are traced in `assets/logo/logo-pieces.svg` and
-  `lib/logoPieces.ts` (`top`, `left`, `right`; the runner's head is a hole in `top`). Reanimated 4 + `react-native-svg`:
-  each piece starts off-centre (top from above, left from the lower left, right from the lower right), turned 30 to
-  40 degrees and at 70 % scale, and springs into place (`duration 600, dampingRatio 0.8`), 80 ms apart; the runner
-  appears in the gap as they lock. One light haptic at the lock. Then the mark rises and shrinks into the welcome
-  screen's position (same element, no cut). About 1.1 s in total. Reduce motion: the mark fades in. Replaces
-  `components/SplashIntro.tsx`. The traced paths are polygons from the PNG: if they look jagged at large sizes, ask the
-  user for the original vector (the designer's file) and swap the paths; the animation code does not change.
-- **Welcome:** the mark, one headline with the pen underline ("Train for the day you actually have."), one sentence,
-  one handwritten note, **Create an account** (white) and **I already have one** (outline). Same black, grain and type
-  as the app. Replaces `components/WelcomeScreen.tsx` / `screens/auth/welcome.tsx` content.
-- **Log in / sign up:** mark top left, "Welcome back." / "Create your account", Continue with Google first, email and
-  password below, Forgot password, one primary button at the bottom. Same for sign-up with a name field.
-- "Light design" was read as clean and minimal on the app's own dark look, so the entry matches the inside of the app
-  (the user's complaint). If the user meant a light (white) theme for these screens, only the colours change.
+## Step 6: Save as my plate
 
-## Step 6: The Adaptive card and a real 3D body
+After any logged meal: "Save as my plate". Saved plates appear first in Something else and in food search, one tap to log. Works for home food, mess and hostel cooking. Builds on the existing usuals.
 
-**Needs a decision from the user before building: where the 3D model comes from.**
+## Step 7: The plan arrives as stories
 
-- **Model options:**
-  - **A (recommended):** buy a licensed low-poly écorché (muscle) body with one mesh per muscle from Sketchfab or
-    CGTrader (standard licence that allows use in a distributed app, about $20 to $150).
-  - **B:** Z-Anatomy / BodyParts3D (free, CC BY-SA: attribution, and the derived model file must stay CC BY-SA; very
-    detailed, needs heavy decimation).
-  - **C:** commission one in Blender (fits V2 PHASE 11's Blender work).
-- **Budget:** GLB with Draco, at most 1.5 MB and 40k triangles; meshes named so they map to the app's ten muscles
-  (chest, back, shoulders, biceps, triceps, quads, hamstrings, glutes, calves, core).
-- **Stack:** `three`, `@react-three/fiber/native`, `expo-gl`, `expo-asset` (new native module: new APK). Render on
-  demand (`frameloop="demand"`), one slow quarter turn on first view then still, drag to rotate, front/back toggle.
-  60 fps on device B or it falls back to the existing 2D `BodyMap`. Same footprint as today's body map.
-- **Colour:** each muscle coloured by how much today's session (or the selected week) targets it: not trained = grey,
-  then four steps of the recovery teal or, in the recovery view, the recovery score bands. A small legend.
-- **Where:** the Adaptive card (collapsed: a small 3D thumbnail + "Full body today · 2 changes"; expanded: the model
-  large, the check-in as one row per muscle with a 4-step Segmented (None, Light, Sore, Very sore) and a readiness
-  Segmented, and each prescription change as a `PenMark`), the Tracker's Muscle recovery card, the exercise guide's
-  Muscles tab and the player's form strip.
+After setup, the plan shows as 4 tap-through cards (your week, first session, a day of food, what I watch), each drawn in by the pen, each with one Adjust button, instead of one long page.
 
-## Step 7: Rebuild, install, check
+## Step 8: Same look on every screen
 
-New EAS preview APK (expo-gl and the 3D model are native), install over USB, walk every screen against this plan and
-the mock, read crash logs (`adb logcat`), Settings > Speed numbers (Home first paint, set latency), then the user's own
-pass. Record findings in `docs/polish-findings.md`.
+Grain and top light on every card, the feature glow only on that feature's card, cut the hatch, dot grids and icon watermarks, sentence-case titles, Apple type sizes (34 / 22 / 17 / 15 / 13, nothing under 13), buttons 50 and 44 tall, plain words. Screens: Workouts, Nutrition, Tracker, More, Profile, Settings, diary, catch-up, weekly review, scanner, setups.
 
----
+## Step 9: Splash, welcome and log in
+
+The logo's three pieces (`assets/logo/logo-pieces.svg`, `lib/logoPieces.ts`) fly in and lock together, then rise into the welcome screen; welcome and log in rebuilt in the app's textured style with Google first.
+
+## Step 10: Sunday letter
+
+The weekly review gets a shareable 9:16 story card: three numbers and what changed, in the pen.
+
+## Later (after the closed beta)
+
+One buddy, weekly streak, four tabs with a + button, the 3D body (waits on the model source decision).
 
 ## Decisions log
 
 | Question | Answer | Date |
 | --- | --- | --- |
 | Burned ring goal | Active-calorie goal from how the calorie goal was set: BMR × (activity multiplier − 1.2), floor 250, editable | 2026-11-06 user |
-| Tile replacing Burned | Recommended: Session. Alternatives: Protein, Sleep | waiting on the user |
+| Tile replacing Burned | Session (recommended; the user has not objected) | 2026-11-06 |
+| Onboarding | Goal first, then how you train (gym, calisthenics, home, yoga, mobility) | 2026-11-06 user |
+| Home pot, Move path | Dropped | 2026-11-06 user |
+| Scope | Polish the current app, keep texture and glows; no full redesign | 2026-11-06 user |
 | Login and welcome | Redesign with the three-piece logo animation, entry matches the app's look | 2026-11-06 user |
 | 3D body model source | A (buy), B (free CC BY-SA) or C (commission) | waiting on the user |
 | Build model | Plan and design on Opus 5.5, build on Sonnet 5.5 | 2026-11-06 user |
