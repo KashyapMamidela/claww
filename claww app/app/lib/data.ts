@@ -1,3 +1,4 @@
+import { lastNightSleep } from './sleepTarget';
 import type { FoodProfile } from './foodProfile';
 import { suggestedWeekdayIndex } from './trainingWeek';
 import { computeRecoveryScore, proteinShare } from './engine';
@@ -360,28 +361,23 @@ export async function getLatestSleepLog(userId: string): Promise<SleepLogRow | n
 }
 
 /**
- * Whether sleep was logged today (local calendar day), not merely "ever" —
- * `getLatestSleepLog` has no date filter, so appState's `sleepLogged` was
- * being driven by "does any log exist" and stayed permanently true after
- * the very first entry, even the next day. This is the real "today"
- * check the Home card's Logged/unlogged state should reflect.
+ * Last night's sleep (polish step 1): the log whose wake time is today, else the most recent one within 18 hours
+ * (`lastNightSleep`). The old "logged since midnight" check disagreed with the Tracker whenever a night was entered
+ * the evening before, so this is now the single definition everywhere.
  */
-export async function getTodaysSleepLog(userId: string): Promise<SleepLogRow | null> {
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
+export async function getLastNightSleep(userId: string): Promise<SleepLogRow | null> {
+  const since = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
   const { data, error } = await supabase
     .from('sleep_logs')
     .select('hours, bedtime, wake_time, logged_at')
     .eq('user_id', userId)
-    .gte('logged_at', startOfToday.toISOString())
-    .order('logged_at', { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .gte('logged_at', since.toISOString())
+    .order('logged_at', { ascending: false });
   if (error) {
-    console.warn('[Claww] Failed to load today\'s sleep log:', error.message);
+    console.warn("[Claww] Failed to load last night's sleep:", error.message);
     return null;
   }
-  return data;
+  return lastNightSleep(data ?? [], new Date());
 }
 
 export async function getRecentSleepLogs(userId: string, days = 7): Promise<SleepLogRow[]> {
@@ -436,7 +432,7 @@ export interface RecoveryResult {
 export async function getRecoveryScore(userId: string): Promise<RecoveryResult | null> {
   const last24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const [sleepLog, workoutLogResult, mealsResult, profile] = await Promise.all([
-    getLatestSleepLog(userId),
+    getLastNightSleep(userId),
     supabase
       .from('workout_logs')
       .select('sets, reps_achieved, reps_prescribed, completed_at')

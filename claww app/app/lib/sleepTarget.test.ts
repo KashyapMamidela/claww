@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sleepRingPct } from './sleepTarget';
+import { lastNightSleep, sleepRingPct } from './sleepTarget';
 
 describe('sleepRingPct', () => {
   it('is 0 when no sleep is logged', () => {
@@ -48,5 +48,39 @@ describe('lastSevenNights', () => {
       now
     );
     expect(r).toEqual([null, null, null, null, 5, null, 7.5]);
+  });
+});
+
+// Polish step 1: one definition of last night's sleep.
+describe('lastNightSleep', () => {
+  const at = (d: number, h: number, m = 0) => new Date(2026, 10, d, h, m).toISOString();
+  const night = (hours: number, bed: string, wake: string, logged: string) => ({ hours, bedtime: bed, wake_time: wake, logged_at: logged });
+  const now = new Date(2026, 10, 6, 9, 0);
+
+  it('counts a night logged the evening before, because it woke up today', () => {
+    const l = night(7, at(5, 23), at(6, 6, 30), at(5, 23, 50));
+    expect(lastNightSleep([l], now)).toBe(l);
+  });
+  it('counts a night logged this morning', () => {
+    const l = night(6.5, at(5, 23, 30), at(6, 6), at(6, 7));
+    expect(lastNightSleep([l], now)).toBe(l);
+  });
+  it('prefers the log that woke today over an older one', () => {
+    const older = night(8, at(4, 23), at(5, 7), at(5, 8));
+    const today = night(5.5, at(5, 23, 30), at(6, 5), at(6, 5, 10));
+    expect(lastNightSleep([older, today], now)).toBe(today);
+  });
+  it('falls back to the most recent wake within 18 hours (an evening check)', () => {
+    const l = night(7, at(5, 23), at(6, 6), at(6, 6, 5));
+    expect(lastNightSleep([l], new Date(2026, 10, 6, 23, 50))).toBe(l); // evening: woke 17 h 50 min ago, still within 18 h
+  });
+  it('falls back across midnight for a late nap that woke less than 18 hours ago', () => {
+    const l = night(4, at(6, 19), at(6, 23), at(6, 23, 5));
+    expect(lastNightSleep([l], new Date(2026, 10, 7, 8))).toBe(l);
+  });
+  it('returns null when the newest wake is older than 18 hours, or there is nothing', () => {
+    const l = night(7, at(4, 23), at(5, 6), at(5, 7));
+    expect(lastNightSleep([l], now)).toBeNull();
+    expect(lastNightSleep([], now)).toBeNull();
   });
 });

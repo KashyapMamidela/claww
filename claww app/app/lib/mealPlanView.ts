@@ -16,7 +16,7 @@ export interface LoggedLike {
   protein_g: number | null;
 }
 
-export type SlotState = 'as_planned' | 'swapped' | 'extra' | 'skipped' | 'up_next' | 'later' | 'unplanned';
+export type SlotState = 'as_planned' | 'swapped' | 'extra' | 'skipped' | 'up_next' | 'missed' | 'later' | 'unplanned';
 
 export interface SlotView {
   slot: MealSlot;
@@ -47,6 +47,8 @@ export function slotViews(plan: DayPlan | null, logged: LoggedLike[], hour: numb
     let state: SlotState;
     if (entry) state = entry.plan_status === 'skipped' ? 'skipped' : entry.plan_status === 'as_planned' ? 'as_planned' : entry.plan_status === 'swapped' ? 'swapped' : planned ? 'swapped' : 'extra';
     else if (slot === next) state = 'up_next';
+    // Polish step 1: a meal whose window has passed with no answer is missed, not "later". It keeps its card.
+    else if (hour >= WINDOW_END[slot]) state = 'missed';
     else state = planned ? 'later' : 'unplanned';
     return { slot, planned, logged: entry, state };
   });

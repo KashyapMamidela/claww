@@ -4,7 +4,7 @@
 // the app behaves exactly as it did before the engine existed.
 
 import { supabase } from './supabase';
-import { getProfile, getTodaysSleepLog } from './data';
+import { getProfile, getLastNightSleep } from './data';
 import { initialState, proteinShare, type Command, type ExerciseState as EngineState, type Readiness } from './engine';
 import { catalogKey, type Catalog, type CatalogEntry, type Checkin, type LoggedSet } from './muscleRecovery';
 import type { PrescribedExercise, SessionOutcome } from './sessionPrescription';
@@ -238,7 +238,7 @@ export async function getLastWeights(userId: string, names: string[]): Promise<R
  * not data).
  */
 export async function getRecoveryInputs(userId: string): Promise<{ sleepHours: number | null; proteinPct: number | null }> {
-  const [sleep, profile] = await Promise.all([getTodaysSleepLog(userId), getProfile(userId)]);
+  const [sleep, profile] = await Promise.all([getLastNightSleep(userId), getProfile(userId)]);
   const target = profile?.personalization_profile?.nutritionDefaults?.protein_g ?? null;
   let proteinPct: number | null = null;
   if (target && target > 0) {

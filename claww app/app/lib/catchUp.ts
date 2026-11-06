@@ -52,7 +52,7 @@ export function elseChoices(slot: Slot, diet: PlanDiet, planned: PlannedMeal | n
   return out;
 }
 
-const SKIPPED: SavedMeal = { description: 'Skipped', calories: 0, protein_g: 0, carbs_g: 0, fats_g: 0, planStatus: 'skipped' };
+export const SKIPPED: SavedMeal = { description: 'Skipped', calories: 0, protein_g: 0, carbs_g: 0, fats_g: 0, planStatus: 'skipped' };
 
 /** What to save for an answer; null when it cannot be resolved (or is the photo, which the scanner saves itself). */
 export function mealForAnswer(

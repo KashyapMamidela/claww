@@ -49,4 +49,16 @@ describe('"Ate as planned"', () => {
     expect(m.nutrients.sodiumMg === null || typeof m.nutrients.sodiumMg === 'number').toBe(true);
     expect(itemsText(first).length).toBeGreaterThan(5);
   });
+
+  // Polish step 1: a meal whose window passed with no answer is missed, and keeps its card.
+  it('marks an unlogged breakfast as missed at 13:10 while lunch is up next', () => {
+    expect(slotViews(plan, [], 13).map((v) => v.state)).toEqual(['missed', 'up_next', 'later']);
+  });
+  it('a skipped breakfast is no longer missed', () => {
+    expect(slotViews(plan, [log('breakfast', 'skipped')], 13).map((v) => v.state)).toEqual(['skipped', 'up_next', 'later']);
+  });
+  it('dinner is never missed, and a logged lunch leaves dinner up next in the afternoon', () => {
+    expect(slotViews(plan, [log('breakfast', 'as_planned'), log('lunch', 'as_planned')], 23)[2].state).toBe('up_next');
+    expect(slotViews(plan, [], 17).map((v) => v.state)).toEqual(['missed', 'missed', 'up_next']);
+  });
 });

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Dimensions, Modal, Pressable, View } from 'react-native';
+import { Dimensions, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -59,14 +59,17 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={close} statusBarTranslucent>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        <Pressable onPress={close} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} accessibilityLabel="Close" />
+        {/* Polish step 1: the sheet rides above the keyboard so a text field and its first results stay visible. */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1, justifyContent: 'flex-end' }}
+        >
+        <Pressable onPress={close} style={StyleSheet.absoluteFill} accessibilityLabel="Close">
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} />
+        </Pressable>
         <Animated.View
           style={[
             {
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
               maxHeight: SCREEN_H * maxHeightFraction,
               backgroundColor: COLORS.card,
               borderTopLeftRadius: 24,
@@ -85,6 +88,7 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
           </GestureDetector>
           {children}
         </Animated.View>
+        </KeyboardAvoidingView>
       </GestureHandlerRootView>
     </Modal>
   );

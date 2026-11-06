@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeWeekdayStates,
+  heroKicker,
   defaultWeekdays,
   isWeekdayPlan,
   localWeekday,
@@ -126,5 +127,27 @@ describe('suggestedWeekdayIndex', () => {
   });
   it('is null without weekday labels', () => {
     expect(suggestedWeekdayIndex(['Day 1'], THU)).toBeNull();
+  });
+});
+
+// Polish step 1: the Workouts hero never says TODAY for another weekday.
+describe('heroKicker', () => {
+  const labels = ['Monday', 'Wednesday'];
+  const FRI = new Date(2026, 9, 9, 10, 0); // a rest day
+  it('says missed Monday on a Friday rest day, never TODAY', () => {
+    expect(heroKicker(labels, 'Monday', 'Full Body', 'missed', true, FRI)).toBe('MISSED MONDAY · DO IT TODAY');
+  });
+  it('says upcoming for a later planned day', () => {
+    const TUE = new Date(2026, 9, 6, 10, 0);
+    expect(heroKicker(labels, 'Wednesday', 'Upper', 'upcoming', false, TUE)).toBe('UPCOMING · WEDNESDAY · UPPER');
+  });
+  it('says TODAY on the planned weekday and DONE for a finished earlier day', () => {
+    const WED = new Date(2026, 9, 7, 10, 0);
+    expect(heroKicker(labels, 'Wednesday', 'Upper', 'suggested', true, WED)).toBe('TODAY · UPPER');
+    expect(heroKicker(labels, 'Monday', 'Full Body', 'completed', false, WED)).toBe('DONE MONDAY · FULL BODY');
+  });
+  it('keeps the old wording on Day 1 / Day 2 plans', () => {
+    expect(heroKicker(['Day 1', 'Day 2'], 'Day 2', 'Pull', 'upcoming', false, FRI)).toBe('DAY 2 · PULL');
+    expect(heroKicker(['Day 1', 'Day 2'], 'Day 1', 'Push', 'suggested', true, FRI)).toBe('TODAY · PUSH');
   });
 });

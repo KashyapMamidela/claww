@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { greetingFor } from './greeting';
+import { greetingFor, greetingName } from './greeting';
 
 function at(hour: number, minute: number): Date {
   return new Date(2026, 9, 10, hour, minute, 0);
@@ -19,5 +19,18 @@ describe('greetingFor', () => {
     [23, 59, 'Good night'],
   ])('%i:%i → %s', (hour, minute, expected) => {
     expect(greetingFor(at(hour, minute))).toBe(expected);
+  });
+});
+
+describe('greetingName', () => {
+  it('capitalises each word and trims', () => {
+    expect(greetingName('kashyap')).toBe('Kashyap');
+    expect(greetingName('  kashyap  mamidela ')).toBe('Kashyap Mamidela');
+    expect(greetingName('Priya')).toBe('Priya');
+  });
+  it('falls back to there when there is no name', () => {
+    expect(greetingName('')).toBe('there');
+    expect(greetingName('   ')).toBe('there');
+    expect(greetingName(null)).toBe('there');
   });
 });

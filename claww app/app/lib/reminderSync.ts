@@ -3,7 +3,7 @@ import {
   getProfile,
   getSuggestedDayIndex,
   getTodaysMealLogs,
-  getTodaysSleepLog,
+  getLastNightSleep,
   getTodaysWaterMl,
   getWorkoutDayEvents,
 } from './data';
@@ -25,7 +25,7 @@ async function buildTodayState(userId: string): Promise<TodayState> {
   const [workout, meals, sleep, waterMl] = await Promise.all([
     getLatestWorkout(userId),
     getTodaysMealLogs(userId),
-    getTodaysSleepLog(userId),
+    getLastNightSleep(userId),
     getTodaysWaterMl(userId),
   ]);
   let todaysSession: string | null = null;

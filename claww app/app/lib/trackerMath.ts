@@ -216,13 +216,20 @@ export interface PersonalRecord {
   achievedAt: string;
 }
 
-/** Each exercise's best set (highest estimated 1RM, or most reps for bodyweight), the most recent records first. */
+/**
+ * Each exercise's best set, the most recent records first. A loaded set (weight above 0) is scored by estimated 1RM; a
+ * bodyweight-only set by its reps, and it only counts while the exercise has no loaded set at all: a user who once did
+ * 20 push-ups and now bench presses 60 kg should see the bench press, not the push-ups.
+ */
 export function personalRecords(logs: TrainLog[], limit = 3): PersonalRecord[] {
   const best = new Map<string, PersonalRecord>();
+  const hasLoaded = new Set<string>();
+  for (const l of logs) if (l.reps > 0 && l.weight > 0) hasLoaded.add(catalogKey(l.exerciseName));
   for (const l of logs) {
     if (!(l.reps > 0)) continue;
-    const score = l.weight > 0 ? epley1RM(l.weight, l.reps) : l.reps;
     const key = catalogKey(l.exerciseName);
+    if (l.weight <= 0 && hasLoaded.has(key)) continue;
+    const score = l.weight > 0 ? epley1RM(l.weight, l.reps) : l.reps;
     const cur = best.get(key);
     const better = !cur || score > cur.score || (score === cur.score && l.completedAt < cur.achievedAt);
     if (better) best.set(key, { exerciseName: l.exerciseName, weight: l.weight, reps: l.reps, score, achievedAt: l.completedAt });

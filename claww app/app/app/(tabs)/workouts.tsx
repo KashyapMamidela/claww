@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { useWorkoutSession } from '../../lib/workoutSession';
@@ -34,7 +35,7 @@ import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
 import { CompletedDayCard, MissedDayCard, SkippedDayCard } from '../../components/PastDayCards';
 import { computeDayStates } from '../../lib/workoutDayState';
-import { computeWeekdayStates } from '../../lib/trainingWeek';
+import { computeWeekdayStates, heroKicker } from '../../lib/trainingWeek';
 import { useRenderCount } from '../../lib/perf';
 import { refreshReminders } from '../../lib/reminderSync';
 import { beginSession } from '../../lib/sessionStart';
@@ -48,6 +49,8 @@ import { WeekStripView } from '../../components/workouts/WeekStripView';
 import { ExerciseRow } from '../../components/workouts/ExerciseRow';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
 import { weekStrip } from '../../lib/weekStrip';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { OLD_PLAN_CARD_KEY, showOldPlanCard } from '../../lib/planAge';
 import { marksFor } from '../../lib/planMarks';
 import { loadDayPrescription } from '../../lib/todayPlan';
 import { BLUEPRINTS } from '../../lib/engine';
@@ -61,12 +64,13 @@ const A3 = COLORS.blueDeep;
 function WorkoutsEmptyState() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabPad40 = useTabBottomPad(40);
   return (
     <View
       style={{
         paddingHorizontal: 16,
         paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 40,
+        paddingBottom: tabPad40,
         gap: 16,
       }}
     >
@@ -134,6 +138,7 @@ export default function WorkoutsTab() {
   useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
+  const tabPad100 = useTabBottomPad(100);
   const { status: sessionStatus, startSession } = useWorkoutSession();
   const router = useRouter();
   // Home's plan card links here with ?day=N so the same day it shows is the
@@ -146,6 +151,11 @@ export default function WorkoutsTab() {
   const [events, setEvents] = useState<WorkoutDayEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
+  // Polish step 1: a plan made by the old builder gets a one-time offer to rebuild it.
+  const [dismissedOldPlan, setDismissedOldPlan] = useState<string | null | undefined>(undefined);
+  useEffect(() => {
+    AsyncStorage.getItem(OLD_PLAN_CARD_KEY).then((v) => setDismissedOldPlan(v)).catch(() => setDismissedOldPlan(null));
+  }, []);
   const [starting, setStarting] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
   const [recoveryHints, setRecoveryHints] = useState<Record<string, string>>({});
@@ -388,7 +398,7 @@ export default function WorkoutsTab() {
           style={{
             paddingHorizontal: 16,
             paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-            paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 100,
+            paddingBottom: tabPad100,
             gap: 16,
           }}
         >
@@ -497,6 +507,26 @@ export default function WorkoutsTab() {
             </View>
           ) : null}
 
+          {dismissedOldPlan !== undefined && showOldPlanCard(workout, dismissedOldPlan) ? (
+            <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: 16, gap: 10 }}>
+              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Your plan was made with the old builder</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>The new one builds full sessions around your goal, days and time. Rebuild it?</Text>
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Button variant="primary" size="md" onPress={() => router.push('/workout-setup')}>Rebuild my plan</Button>
+                <Button
+                  variant="secondary"
+                  size="md"
+                  onPress={() => {
+                    setDismissedOldPlan(workout.id);
+                    AsyncStorage.setItem(OLD_PLAN_CARD_KEY, workout.id).catch(() => {});
+                  }}
+                >
+                  Not now
+                </Button>
+              </View>
+            </View>
+          ) : null}
+
           {strip ? (
             <WeekStripView strip={strip} selectedPlanIndex={selectedDay} onSelect={setSelectedDay} />
           ) : (
@@ -543,7 +573,7 @@ export default function WorkoutsTab() {
 
           <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
-              {`${isSuggested ? 'TODAY' : day.day.toUpperCase()} \u00b7 ${day.focus.toUpperCase()}`}
+              {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
             <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
@@ -566,7 +596,7 @@ export default function WorkoutsTab() {
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ color: A, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{isSuggested ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
+              <Text style={{ color: A, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
               {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 18, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
             </View>
             <View style={{ gap: 10 }}>

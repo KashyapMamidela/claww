@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { adaptiveSummary } from '../../lib/adaptiveSummary';
 import { Pressable, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
@@ -90,7 +91,7 @@ export function AdaptiveCard() {
 
   const changed = planned.prescribed.filter((p) => p.managed && commandPill(p.prescription.commands).tone !== 'hold').length;
   const answered = Object.values(checkins).filter((c) => c.soreness !== null || c.readiness !== null).length;
-  const summary = `${day.focus} today · ${changed === 0 ? 'plan as written' : `${changed} ${changed === 1 ? 'change' : 'changes'} from your plan`}${answered > 0 ? ' · check-in saved' : ''}`;
+  const summary = adaptiveSummary({ dayLabels: workout.plan.days.map((d) => d.day), focus: day.focus, dayLabel: day.day, changed, answered, now: new Date() });
 
   const setCheckin = (muscle: string, patch: Partial<Checkin>) => {
     const next = { ...checkins, [muscle]: { ...(checkins[muscle] ?? { soreness: null, readiness: null }), ...patch } };

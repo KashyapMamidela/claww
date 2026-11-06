@@ -246,6 +246,9 @@ export const WEEKLY_SETS: Record<BlueprintGoal, { min: number; max: number }> = 
   general: { min: 4, max: 20 },
 };
 
+/** The fewest exercises a day may keep when it is trimmed to fit the time. */
+export const MIN_EXERCISES_PER_DAY = 3;
+
 export function sessionMinutes(day: FilledDay): number {
   const seconds = day.slots.reduce((sum, s) => sum + s.sets * (WORK_SECONDS_PER_SET + s.restSec), 0);
   return Math.round(seconds / 60 + WARMUP_MINUTES);
@@ -339,7 +342,8 @@ export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMin
     for (const d of days) {
       const note = (m: string) => adjustments.push(`${d.name}: ${m}`);
       for (let i = d.slots.length - 1; i >= 0 && sessionMinutes(d) > limit; i--) {
-        if (d.slots[i].optional) {
+        // Never fewer than 3 exercises in a day, whatever the time limit (a 2-exercise "Full body" day is not a session).
+        if (d.slots[i].optional && d.slots.length > MIN_EXERCISES_PER_DAY) {
           dropped.push({ day: d.name, pattern: d.slots[i].pattern, reason: 'time' });
           note(`dropped optional ${d.slots[i].pattern}`);
           d.slots.splice(i, 1);
@@ -353,7 +357,7 @@ export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMin
       }
       for (let guard = 0; guard < 20 && sessionMinutes(d) > limit; guard++) {
         const idx = [...d.slots].map((s, i) => ({ s, i })).reverse().find((x) => x.s.role === 'isolation');
-        if (!idx || d.slots.length <= 3) break;
+        if (!idx || d.slots.length <= MIN_EXERCISES_PER_DAY) break;
         dropped.push({ day: d.name, pattern: idx.s.pattern, reason: 'time' });
         note(`dropped ${idx.s.exercise.name}`);
         d.slots.splice(idx.i, 1);
@@ -366,7 +370,7 @@ export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMin
       }
       for (let guard = 0; guard < 20 && sessionMinutes(d) > limit; guard++) {
         const idx = [...d.slots].map((s, i) => ({ s, i })).reverse().find((x) => x.s.role !== 'main');
-        if (!idx || d.slots.length <= 3) break;
+        if (!idx || d.slots.length <= MIN_EXERCISES_PER_DAY) break;
         dropped.push({ day: d.name, pattern: idx.s.pattern, reason: 'time' });
         note(`dropped ${idx.s.exercise.name}`);
         d.slots.splice(idx.i, 1);

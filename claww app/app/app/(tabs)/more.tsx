@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
+import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { signOut } from '../../lib/auth';
@@ -32,6 +33,7 @@ interface MenuRow {
 export default function MoreTab() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabPad32 = useTabBottomPad(32);
   const { userId, userName, xp, streak } = useAppState();
   const openProfile = () => router.push('/profile');
   const openSettings = () => router.push('/settings');
@@ -91,7 +93,7 @@ export default function MoreTab() {
         style={{
           paddingHorizontal: 16,
           paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-          paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+          paddingBottom: tabPad32,
           gap: 16,
         }}
       >

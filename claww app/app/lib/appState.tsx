@@ -13,7 +13,7 @@ import {
   getProfile,
   getRecoveryScore,
   getTodaysMealLogs,
-  getTodaysSleepLog,
+  getLastNightSleep,
   getUserXp,
   insertSleepLog,
   saveMeal,
@@ -102,7 +102,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       const [profile, rec, todaySleepLog, todaysMeals, latestWorkout, userXp, loadedStreak] = await Promise.all([
         getProfile(uid),
         getRecoveryScore(uid),
-        getTodaysSleepLog(uid),
+        getLastNightSleep(uid),
         getTodaysMealLogs(uid),
         getLatestWorkout(uid),
         getUserXp(uid),

@@ -1,3 +1,6 @@
+import { moveDayItemLabel } from '../../lib/penDays';
+import { greetingName } from '../../lib/greeting';
+import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -32,6 +35,7 @@ import { activeFor, type PenMark as StoredMark } from '../../lib/engine';
 import { dateKey } from '../../lib/planStreak';
 import { loadDayPrescription } from '../../lib/todayPlan';
 import { Skeleton } from '../../components/ui/Skeleton';
+import { useProfile } from '../../lib/profile';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { greetingFor, type Greeting } from '../../lib/greeting';
 import { SLEEP_TARGET_HOURS, sleepRingPct } from '../../lib/sleepTarget';
@@ -117,12 +121,13 @@ function AiCard({ children }: { children: React.ReactNode }) {
 
 function HomeLoadingSkeleton() {
   const insets = useSafeAreaInsets();
+  const tabPad28 = useTabBottomPad(28);
   return (
     <View
       style={{
         paddingHorizontal: 16,
         paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 28,
+        paddingBottom: tabPad28,
         gap: 14,
       }}
     >
@@ -146,6 +151,7 @@ function HomeEmptyState() {
   const { userId, userName, sleepLogged, streak } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabPad28 = useTabBottomPad(28);
   const steps = useTodaySteps();
   const [sleepModalOpen, setSleepModalOpen] = useState(false);
 
@@ -154,14 +160,14 @@ function HomeEmptyState() {
       style={{
         paddingHorizontal: 16,
         paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 28,
+        paddingBottom: tabPad28,
         gap: 14,
       }}
     >
       <View>
         <SectionLabel color={COLORS.blue}>DAY ONE</SectionLabel>
         <Display style={{ marginTop: 4 }}>
-          Welcome,{'\n'}{userName || 'there'}.
+          Welcome,{'\n'}{greetingName(userName)}.
         </Display>
         <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
           No recovery score yet — <Text style={{ color: COLORS.indigo, fontWeight: '700' }}>log tonight's sleep</Text> to unlock one.
@@ -298,12 +304,17 @@ function HomePopulated() {
   const { userId, userName, recovery, meals, xp, streak, todaySleep } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabPad28 = useTabBottomPad(28);
   const greeting = useGreeting();
   const recoveryColor = recovery?.band === 'Low' ? COLORS.danger : recovery?.band === 'High' ? COLORS.green : COLORS.amber;
 
   const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
   const [suggestedDayIndex, setSuggestedDayIndex] = useState(0);
-  const [targetKcal, setTargetKcal] = useState(2000); // generic fallback until user sets real targets, matches Nutrition tab
+  // Polish step 1: the calorie target comes from the cached profile (already loaded elsewhere), never a fallback number.
+  // Until it is known the Nutrition row is a skeleton; with no target set it says so instead of guessing.
+  const { profile: targetProfile, loading: targetLoading } = useProfile(userId);
+  const targetKcal: number | null = targetProfile?.personalization_profile?.nutritionDefaults?.calories ?? null;
+  const kcalPending = targetLoading && !targetProfile;
   // The lowest per-muscle recovery score among today's muscles, when it is worth a mention (V2 PHASE 7.5).
   const [tiredMuscle, setTiredMuscle] = useState<{ muscle: string; band: string } | null>(null);
   // NG PHASE 2: today's session for the Workout ring, and the usual training time for its note.
@@ -369,7 +380,6 @@ function HomePopulated() {
           setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
         }
         const targets = profile?.personalization_profile?.nutritionDefaults;
-        if (targets) setTargetKcal(targets.calories);
         setProteinTarget(targets?.protein_g ?? null);
         setUsualTime(profile?.personalization_profile?.workoutDefaults?.usualTrainingTime ?? null);
       });
@@ -385,8 +395,8 @@ function HomePopulated() {
   // Unclamped — ProgressRing needs the real value (over 100%) to render the
   // "shadow" overflow arc that shows a day that blew past target, not just
   // a ring that looks identically full whether you hit or tripled it.
-  const nutritionPctRaw = nutritionRingPctRaw(consumedKcal, targetKcal);
-  const nutritionPct = nutritionRingPct(consumedKcal, targetKcal);
+  const nutritionPctRaw = nutritionRingPctRaw(consumedKcal, targetKcal ?? 0);
+  const nutritionPct = nutritionRingPct(consumedKcal, targetKcal ?? 0);
 
   const sleepHours = todaySleep?.hours ?? null;
   const sleepPct = sleepRingPct(sleepHours);
@@ -425,7 +435,7 @@ function HomePopulated() {
   });
   const consumedProtein = meals.reduce((s, m) => s + (m.protein_g ?? 0), 0);
   const proteinLeft = proteinTarget ? Math.max(0, proteinTarget - consumedProtein) : null;
-  const kcalLeft = Math.max(0, targetKcal - consumedKcal);
+  const kcalLeft = targetKcal === null ? null : Math.max(0, targetKcal - consumedKcal);
   const coach: CoachSegment[] = coachLine({
     sleepHours,
     sessionPlanned,
@@ -441,14 +451,14 @@ function HomePopulated() {
       style={{
         paddingHorizontal: 16,
         paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 28,
+        paddingBottom: tabPad28,
         gap: 14,
       }}
     >
       <View>
         <SectionLabel color={COLORS.green}>{`TODAY · ${clockLabel(now)}`}</SectionLabel>
         <Display style={{ marginTop: 4 }}>
-          {greeting},{'\n'}{userName || 'there'}.
+          {greeting},{'\n'}{greetingName(userName)}.
         </Display>
         <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, lineHeight: 22, fontFamily: FONT }}>
@@ -487,7 +497,7 @@ function HomePopulated() {
           <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`NEXT MEAL · ${nextMeal.toUpperCase()}`}</Text>
           <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{nextMeal}</Text>
           <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 14, marginTop: 4, fontFamily: FONT }}>
-            {Math.round(kcalLeft).toLocaleString('en-IN')} kcal left today
+            {kcalLeft !== null ? `${Math.round(kcalLeft).toLocaleString('en-IN')} kcal left today` : 'Set your targets to see what is left'}
             {proteinLeft !== null ? ` · ${Math.round(proteinLeft)} g protein` : ''}
           </Text>
           <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 14 }}>
@@ -517,7 +527,7 @@ function HomePopulated() {
                   key={m.id}
                   area={m.area}
                   context={m.target.exercise ? today?.focus : m.target.meal}
-                  item={m.target.exercise ?? (m.kind === 'hold' ? 'This week' : m.target.meal ? m.target.meal.charAt(0).toUpperCase() + m.target.meal.slice(1) : m.kind === 'change_number' ? 'Calories' : 'Plan')}
+                  item={m.target.exercise ?? (m.kind === 'hold' ? 'This week' : m.target.meal ? m.target.meal.charAt(0).toUpperCase() + m.target.meal.slice(1) : m.kind === 'change_number' ? 'Calories' : m.kind === 'move_day' ? moveDayItemLabel(latestWorkout?.plan.days ?? [], m.oldValue, m.newValue) : 'Plan')}
                   oldValue={m.oldValue}
                   newValue={m.newValue}
                   note={m.note}
@@ -582,7 +592,7 @@ function HomePopulated() {
                     color: AREA_COLORS.sleep,
                     note: null as string | null,
                   },
-                  { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: `/ ${targetKcal} kcal`, pct: nutritionPct, color: AREA_COLORS.nutrition, note: null as string | null },
+                  { label: 'Nutrition', value: `${Math.round(consumedKcal)}`, sub: targetKcal === null ? 'no target set' : `/ ${targetKcal} kcal`, pct: nutritionPct, color: AREA_COLORS.nutrition, note: null as string | null },
                 ]
               : [
                   {
@@ -596,7 +606,7 @@ function HomePopulated() {
                   {
                     label: 'Nutrition',
                     value: Math.round(consumedKcal).toLocaleString('en-IN'),
-                    sub: `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
+                    sub: targetKcal === null ? 'no target set' : `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
                     pct: nutritionPct,
                     color: AREA_COLORS.nutrition,
                     note: nutritionNote(meals.map((m) => m.meal_type ?? '').filter(Boolean)) as string | null,
@@ -617,10 +627,14 @@ function HomePopulated() {
                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: s.color }} />
                     <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
                   </View>
-                  <Text style={{ fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
-                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{s.value} </Text>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 11 }}>{s.sub}</Text>
-                  </Text>
+                  {s.label === 'Nutrition' && kcalPending ? (
+                    <Skeleton width={90} height={12} borderRadius={4} />
+                  ) : (
+                    <Text style={{ fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
+                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{s.value} </Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 11 }}>{s.sub}</Text>
+                    </Text>
+                  )}
                 </View>
                 <ProgressBar pct={s.pct} color={s.color} />
                 {s.note ? (
