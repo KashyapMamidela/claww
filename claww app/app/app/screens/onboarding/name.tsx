@@ -25,7 +25,7 @@ export default function OnboardingName() {
         <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.green }} />
-            <Text style={{ color: COLORS.green, fontSize: 10, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.green, fontSize: 11, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>
               LET'S GET STARTED
             </Text>
           </View>

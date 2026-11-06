@@ -46,7 +46,7 @@ export default function OnboardingAge() {
       <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-          <Text style={{ color: A, fontSize: 10, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>
+          <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>
             {name ? `NICE TO MEET YOU, ${String(name).toUpperCase()}` : 'STEP TWO'}
           </Text>
         </View>

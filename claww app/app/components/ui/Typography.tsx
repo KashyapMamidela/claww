@@ -35,7 +35,7 @@ export const Display = makeVariant({
 
 /** Card/hero headline — "Upper Body Hypertrophy", section-level heading. 20-22px. */
 export const Heading = makeVariant({
-  fontSize: 21,
+  fontSize: 20,
   fontWeight: '800',
   letterSpacing: -0.3,
   lineHeight: 25,
@@ -65,7 +65,7 @@ export const Body = makeVariant({
 
 /** Small uppercase section label — "YOUR PLAN", "TODAY". 10-11px. Prefer SectionLabel when a leading dot is wanted. */
 export const Eyebrow = makeVariant({
-  fontSize: 10.5,
+  fontSize: 11,
   fontWeight: '700',
   letterSpacing: 0.6,
   color: COLORS.fgGray,
@@ -75,7 +75,7 @@ export const Eyebrow = makeVariant({
 
 /** Smallest meta text — timestamps, sub-labels, disclaimers. 10-11px. */
 export const Caption = makeVariant({
-  fontSize: 10.5,
+  fontSize: 11,
   fontWeight: '400',
   letterSpacing: 0.05,
   lineHeight: 15,

@@ -22,7 +22,8 @@ export interface TintTileProps {
   accessibilityLabel?: string;
 }
 
-export function TintTile({ color, watermark, children, style, padding = 14, radius = 18, accessibilityLabel }: TintTileProps) {
+// Polish step 8: the glow, tinted border and under-glow only. The dot grid and the icon watermark were cut.
+export function TintTile({ color, watermark: _watermark, children, style, padding = 14, radius = 18, accessibilityLabel }: TintTileProps) {
   const decoration = (
     <>
       <LinearGradient
@@ -32,19 +33,6 @@ export function TintTile({ color, watermark, children, style, padding = 14, radi
         end={{ x: 0.35, y: 0.75 }}
         style={StyleSheet.absoluteFill}
       />
-      <Svg pointerEvents="none" width={56} height={40} style={styles.dots}>
-        <Defs>
-          <Pattern id="dots" width={8} height={8} patternUnits="userSpaceOnUse">
-            <Circle cx={2} cy={2} r={1} fill={tint(color, 0.35)} />
-          </Pattern>
-        </Defs>
-        <Rect width={56} height={40} fill="url(#dots)" />
-      </Svg>
-      {watermark ? (
-        <View pointerEvents="none" style={styles.watermark}>
-          <Icon name={watermark} size={64} color={tint(color, 0.09)} strokeWidth={1.5} />
-        </View>
-      ) : null}
     </>
   );
 
@@ -72,7 +60,4 @@ function glow(color: string): ViewStyle {
   })!;
 }
 
-const styles = StyleSheet.create({
-  dots: { position: 'absolute', top: 6, right: 6 },
-  watermark: { position: 'absolute', right: -8, bottom: -10 },
-});
+

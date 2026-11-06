@@ -30,7 +30,7 @@ function MacroPill({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.04)', alignItems: 'center' }}>
       <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
-      <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '700', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
     </View>
   );
 }
@@ -79,7 +79,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
 
       {remaining ? (
         <View style={{ gap: 6 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEFT TODAY</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEFT TODAY</Text>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             <MacroPill label="KCAL" value={String(Math.round(remaining.calories))} />
             <MacroPill label="PROTEIN" value={`${Math.round(remaining.protein_g)} g`} />
@@ -93,7 +93,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
           {prefChips.map((p) => (
             <View key={p} style={{ paddingHorizontal: 9, paddingVertical: 4, borderRadius: 100, backgroundColor: tint(C, 0.12) }}>
-              <Text style={{ color: C, fontSize: 10.5, fontWeight: '700', fontFamily: FONT }}>{p}</Text>
+              <Text style={{ color: C, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{p}</Text>
             </View>
           ))}
         </View>
@@ -111,7 +111,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
         <PressScale onPress={() => ask()} disabled={loading} accessibilityRole="button">
           <View style={{ height: 44, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: tint(C, 0.14), borderWidth: 1, borderColor: tint(C, 0.3) }}>
             <Icon name="sparkles" size={14} color={C} />
-            <Text style={{ color: C, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>
+            <Text style={{ color: C, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
               {loading ? 'Finding options…' : preference.trim() ? 'Suggest based on this' : 'Suggest 3 meals for me'}
             </Text>
           </View>
@@ -119,7 +119,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
       ) : (
         <>
           {generic ? (
-            <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontFamily: FONT }}>Couldn't reach suggestions just now, so this is a typical portion instead.</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>Couldn't reach suggestions just now, so this is a typical portion instead.</Text>
           ) : null}
           {options.map((o) => (
             <View key={o.description} style={{ padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: o.bestFit ? tint(C, 0.45) : 'rgba(255,255,255,0.08)', gap: 8 }}>
@@ -127,7 +127,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
                 <Text style={{ flex: 1, color: '#fff', fontSize: 14, fontWeight: '800', lineHeight: 19, fontFamily: FONT }}>{o.description}</Text>
                 {o.bestFit && !generic ? (
                   <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100, backgroundColor: tint(C, 0.18) }}>
-                    <Text style={{ color: C, fontSize: 9.5, fontWeight: '800', letterSpacing: 0.4, fontFamily: FONT }}>BEST FIT</Text>
+                    <Text style={{ color: C, fontSize: 11, fontWeight: '800', letterSpacing: 0.4, fontFamily: FONT }}>BEST FIT</Text>
                   </View>
                 ) : null}
               </View>
@@ -139,7 +139,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Icon name="clock" size={12} color="#71717A" />
-                <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>{o.prep_minutes} min</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{o.prep_minutes} min</Text>
               </View>
               <Text style={{ color: '#A1A1AA', fontSize: 12, lineHeight: 17, fontFamily: FONT }}>{o.why}</Text>
               <PressScale

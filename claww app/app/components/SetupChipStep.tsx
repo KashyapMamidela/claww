@@ -42,7 +42,7 @@ export function SetupChipStep<T extends string>({
       <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: accent }} />
-          <Text style={{ color: accent, fontSize: 10, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>{eyebrow}</Text>
+          <Text style={{ color: accent, fontSize: 11, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>{eyebrow}</Text>
         </View>
         <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           {title}

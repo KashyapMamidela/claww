@@ -67,7 +67,7 @@ export function BarChart({ values, color, height = 120, goal = null, highlightIn
       {labels && width > 0 ? (
         <View style={{ flexDirection: 'row', marginTop: 6 }}>
           {labels.map((l, i) => (
-            <Text key={i} numberOfLines={1} style={{ width: barW + (i < labels.length - 1 ? gap : 0), color: COLORS.textMuted, fontSize: 9.5, textAlign: 'center', fontFamily: FONT }}>
+            <Text key={i} numberOfLines={1} style={{ width: barW + (i < labels.length - 1 ? gap : 0), color: COLORS.textMuted, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>
               {l}
             </Text>
           ))}

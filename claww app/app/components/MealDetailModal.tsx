@@ -80,7 +80,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                 ) : null}
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{meal.meal_type ?? 'Meal'}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
                     {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     {meal.estimated ? ' · estimated' : ''}
                   </Text>
@@ -107,7 +107,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                       paddingHorizontal: 12,
                     }}
                   >
-                    <Text style={{ color: COLORS.textMuted, fontSize: 10, fontFamily: FONT }}>{s.label}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
                     <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
                   </View>
                 ))}

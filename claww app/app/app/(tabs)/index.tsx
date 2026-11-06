@@ -125,7 +125,7 @@ function AiCard({ children }: { children: React.ReactNode }) {
         </View>
         <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
       </View>
-      <Text style={{ color: '#A1A1AA', fontSize: 12.5, lineHeight: 19, fontFamily: FONT }}>{children}</Text>
+      <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>{children}</Text>
     </View>
   );
 }
@@ -217,7 +217,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', marginBottom: 4, fontFamily: FONT }}>
             Nothing logged yet — that's normal
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 12.5, lineHeight: 19, maxWidth: 260, textAlign: 'center', fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, maxWidth: 260, textAlign: 'center', fontFamily: FONT }}>
             Generate a plan built around your onboarding answers and today's progress ring starts filling in.
           </Text>
         </View>
@@ -230,7 +230,7 @@ function HomeEmptyState() {
           onPress={() => router.push('/workout-setup')}
           icon={<Icon name="wand-2" size={16} color="#fff" />}
         >
-          Generate My First Plan
+          Generate my first plan
         </Button>
       </View>
 
@@ -269,7 +269,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginBottom: 2, fontFamily: FONT }}>
             {sleepLogged ? 'Recovery is calculating…' : "Log tonight's sleep"}
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11.5, lineHeight: 16, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
               : "Unlocks your Recovery Score — a sleep and protein based estimate to guide today's training."}
@@ -583,7 +583,7 @@ function HomePopulated() {
             trackColor="rgba(255,255,255,0.055)"
           >
             <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', fontFamily: FONT }}>{dailyGoalPct}%</Text>
-            <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily Goal</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
             {(RINGS_V1

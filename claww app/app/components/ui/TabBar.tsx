@@ -88,7 +88,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               </View>
               <Text
                 style={{
-                  fontSize: 9.5,
+                  fontSize: 11,
                   fontFamily: FONT,
                   fontWeight: isActive ? '700' : '400',
                   color: isActive ? accent : COLORS.textMuted,

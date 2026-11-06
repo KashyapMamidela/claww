@@ -114,7 +114,7 @@ export default function ForgotPasswordScreen() {
                   fontFamily: FONT,
                 }}
               />
-              {error ? <Text style={{ color: COLORS.danger, fontSize: 12.5, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
+              {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
               <View style={{ marginTop: 24 }}>
                 <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
                   {loading ? 'Sending…' : 'Send reset link'}

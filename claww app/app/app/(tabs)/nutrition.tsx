@@ -394,7 +394,7 @@ export default function NutritionTab() {
                         <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{itemsText(m)}</Text>
                         <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
-                        {old ? <Text style={{ color: COLORS.fg, fontSize: 19, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
+                        {old ? <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
                         <View style={{ flexDirection: 'row', gap: 10, alignItems: 'center' }}>
                           <View style={{ flex: 1.3 }}>
                             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => ateAsPlanned(m)} icon={<Icon name="check" size={16} color="#fff" />}>

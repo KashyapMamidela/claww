@@ -32,9 +32,9 @@ export function TrackerCard({ label, color, right, children, onPress, accentStri
       }}
     >
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <Text style={{ color, fontSize: 10, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          {right ? <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontFamily: FONT }}>{right}</Text> : null}
+          {right ? <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{right}</Text> : null}
           {onPress ? <Icon name="chevron-right" size={13} color="#52525B" /> : null}
         </View>
       </View>

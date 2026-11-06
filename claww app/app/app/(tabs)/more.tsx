@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { Surface } from '../../components/ui/Surface';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -138,7 +139,7 @@ export default function MoreTab() {
           <Icon name="chevron-right" size={17} color="#71717A" />
         </TouchableOpacity>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Surface radius={16} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
@@ -164,24 +165,24 @@ export default function MoreTab() {
                 >
                   <Text style={{ fontSize: 20 }}>{b.icon}</Text>
                 </View>
-                <Text style={{ color: '#A1A1AA', fontSize: 8.5, textAlign: 'center', lineHeight: 10, fontFamily: FONT }}>{b.label}</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 10, fontFamily: FONT }}>{b.label}</Text>
               </Animated.View>
             ))}
           </View>
           <TouchableOpacity onPress={openProfile} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <Text style={{ color: COLORS.amber, fontSize: 11.5, fontWeight: '600', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.amber, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>
               View all {achievements.length} in Profile
             </Text>
             <Icon name="chevron-right" size={13} color={COLORS.amber} />
           </TouchableOpacity>
-        </View>
+        </Surface>
 
         {sections.map((section) => (
           <View key={section.title}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 9.5, fontWeight: '700', letterSpacing: 1, marginBottom: 6, paddingLeft: 2, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 1, marginBottom: 6, paddingLeft: 2, fontFamily: FONT }}>
               {section.title}
             </Text>
-            <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
+            <Surface radius={16} padding={16}>
               {section.rows.map((row, i) => (
                 <TouchableOpacity
                   key={row.label}
@@ -213,16 +214,16 @@ export default function MoreTab() {
                   </View>
                   <View style={{ flex: 1 }}>
                     <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{row.label}</Text>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 10.5, marginTop: 1, fontFamily: FONT }}>{row.sub}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{row.sub}</Text>
                   </View>
                   <Icon name="chevron-right" size={15} color="#71717A" />
                 </TouchableOpacity>
               ))}
-            </View>
+            </Surface>
           </View>
         ))}
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 14, overflow: 'hidden' }}>
+        <Surface radius={14} padding={16}>
           <TouchableOpacity activeOpacity={0.8} onPress={signOut} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 13 }}>
             <View
               style={{
@@ -238,13 +239,13 @@ export default function MoreTab() {
             >
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ color: '#EF4444', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Sign Out</Text>
+            <Text style={{ color: '#EF4444', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Sign out</Text>
           </TouchableOpacity>
-        </View>
+        </Surface>
 
         <View style={{ alignItems: 'center', marginTop: 4 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 10.5, fontFamily: FONT }}>CLAWW · v{appVersion} · Built with 💙</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 10, marginTop: 3, fontFamily: FONT }}>© 2026 CLAWW. All rights reserved.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>CLAWW · v{appVersion} · Built with 💙</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 3, fontFamily: FONT }}>© 2026 CLAWW. All rights reserved.</Text>
         </View>
       </View>
     </ScrollView>

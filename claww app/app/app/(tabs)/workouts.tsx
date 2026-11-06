@@ -77,7 +77,7 @@ function WorkoutsEmptyState() {
       <View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-          <Text style={{ color: A, fontSize: 10, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WORKOUTS</Text>
+          <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WORKOUTS</Text>
         </View>
         <Display>No plan yet</Display>
       </View>
@@ -127,7 +127,7 @@ function WorkoutsEmptyState() {
           icon={<Icon name="wand-2" size={16} color="#fff" />}
           style={{ marginTop: 4 }}
         >
-          Generate My First Plan
+          Generate my first plan
         </Button>
       </View>
     </View>
@@ -431,7 +431,7 @@ export default function WorkoutsTab() {
                 }}
               >
                 <Icon name="repeat" size={12} color="#A1A1AA" />
-                <Text style={{ color: '#A1A1AA', fontSize: 11.5, fontWeight: '700', fontFamily: FONT }}>Regenerate</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Regenerate</Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -450,8 +450,8 @@ export default function WorkoutsTab() {
               }}
             >
               <Icon name="wand-2" size={22} color={A} />
-              <Text style={{ color: '#fff', fontSize: 13.5, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11.5, fontFamily: FONT }}>Usually takes a few seconds</Text>
+              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Usually takes a few seconds</Text>
             </View>
           ) : showRegenCard ? (
             <View
@@ -490,7 +490,7 @@ export default function WorkoutsTab() {
                       borderColor: 'rgba(59,130,246,0.35)',
                     }}
                   >
-                    <Text style={{ color: A, fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{label}</Text>
+                    <Text style={{ color: A, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -563,7 +563,7 @@ export default function WorkoutsTab() {
                     ) : suggested && !active ? (
                       <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} />
                     ) : null}
-                    <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>{d.day}</Text>
+                    <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.day}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -640,12 +640,12 @@ export default function WorkoutsTab() {
               }}
             >
               <Icon name="plus" size={14} color="#A1A1AA" />
-              <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Add Exercise</Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Add exercise</Text>
             </TouchableOpacity>
           </View>
 
           {workout.plan.notes ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 11.5, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
               {workout.plan.notes}
             </Text>
           ) : null}
@@ -719,7 +719,7 @@ export default function WorkoutsTab() {
             }}
           >
             <Icon name="activity" size={14} color="#A1A1AA" />
-            <Text style={{ color: '#A1A1AA', fontSize: 12.5, fontWeight: '700', fontFamily: FONT }}>Log a Session</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Log a Session</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

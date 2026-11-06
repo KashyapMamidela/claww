@@ -98,7 +98,7 @@ export function WheelColumn({ items, initialIndex, onChange, width = 56 }: Wheel
                 transform: [{ perspective: 500 }, { rotateX }, { scale }],
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 19, fontWeight: '700', fontFamily: FONT }}>{item}</Text>
+              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700', fontFamily: FONT }}>{item}</Text>
             </Animated.View>
           );
         })}

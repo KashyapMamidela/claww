@@ -134,7 +134,7 @@ export default function WelcomeScreen({ onGetStarted }: WelcomeScreenProps) {
             activeOpacity={0.8}
             onPress={onGetStarted}
           >
-            <Text style={styles.buttonText}>Get Started</Text>
+            <Text style={styles.buttonText}>Get started</Text>
           </TouchableOpacity>
         </Animated.View>
       </View>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Surface } from '../components/ui/Surface';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -52,15 +53,15 @@ export default function AboutScreen() {
           <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{getAppVersionLabel()}</Text>
         </View>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 16 }}>
+        <Surface radius={16} padding={16}>
           <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 20, fontFamily: FONT }}>
             CLAWW builds your workout and nutrition plans from real constraints — your equipment,
             experience, and injuries — then adapts them to what you actually log, not just what you
             said you'd do.
           </Text>
-        </View>
+        </Surface>
 
-        <Text style={{ color: COLORS.textFaint, fontSize: 10.5, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
           © 2026 CLAWW. All rights reserved.
         </Text>
       </View>

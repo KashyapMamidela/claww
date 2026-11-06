@@ -75,7 +75,7 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
             }}
           >
             <Icon name="download" size={16} color="#A1A1AA" />
-            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Download My Data</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Download my data</Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>
 
@@ -98,7 +98,7 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
             }}
           >
             <Icon name="trash-2" size={16} color={COLORS.danger} />
-            <Text style={{ flex: 1, color: COLORS.danger, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Delete Account</Text>
+            <Text style={{ flex: 1, color: COLORS.danger, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Delete account</Text>
             <Icon name="chevron-right" size={15} color={COLORS.danger} />
           </TouchableOpacity>
 
