@@ -1,12 +1,14 @@
 # CLAWW polish plan (after the 6 Nov device test)
 
 Written 2026-11-06 (planning on Opus 5.5). **Build it on Sonnet 5.5, one step at a time, in this order.** Each step is
-its own branch `polish/<n>-<slug>`, stacked on `ng/phase-14-states-a11y-perf`, its own PR, never merged by us. Typecheck
+its own branch `polish/<n>-<slug>`, stacked on the previous polish branch (the first on `polish/0-plan`, which is
+itself on `ng/phase-14-states-a11y-perf`), its own PR, never merged by us. Typecheck
 and tests pass before every PR. Every step ends with a phone check over USB (adb is at
 `C:\Users\kashy\android-tools\platform-tools\adb.exe`; the phone must show "authorized") or, if the phone is not
 connected, a new EAS preview APK whose link goes to the user.
 
-Visual reference: `docs/design/ng15-home-welcome.html` (welcome flow, Home morning, Home at lunchtime; open it in a
+Visual reference: **`docs/design/polish/`** (every board of the design canvas, with a README mapping each board to
+its step; the boards are the spec for sizes, colours and copy). Older: `docs/design/ng15-home-welcome.html` (welcome flow, Home morning, Home at lunchtime; open it in a
 browser, the logo animation runs). The user's screenshots of the 5 Nov APK are the "before".
 
 Standing rules from `nextgen/claww-nextgen-phased-prompts.md` still apply: no new hard-coded hex outside `lib/theme.ts`,

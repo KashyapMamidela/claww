@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: your goal</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:20px;background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 30%,transparent),transparent 62%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 45%,rgba(255,255,255,0.05));box-shadow:inset 0 1px 0 rgba(255,255,255,0.09),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 30px -20px color-mix(in srgb,var(--t) 80%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.10) 1px,transparent 1.3px);background-size:9px 9px;-webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:13px;background:color-mix(in srgb,var(--t) 14%,transparent);border:1px solid color-mix(in srgb,var(--t) 28%,transparent);color:var(--t)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.rise{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div class="scr" style="{{scrStyle}}">
+  <div style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; height: 60px; padding: 0 12px; display: flex; align-items: center; gap: 8px; background: rgba(5,5,5,0.55); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08)">
+    <button type="button" aria-label="Back" class="btn" style="width: 44px; height: 44px; border-radius: 14px; background: transparent">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </button>
+    <div style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 17px; font-weight: 800">Set up your plan</span><span style="font-size: 13px; color: #9A9AA3">Step 1 of 4 · about a minute</span></div>
+  </div>
+
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; gap: 18px; padding: 76px 16px 34px">
+    <div style="display: flex; gap: 4px" aria-hidden="true">
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: #3B82F6; box-shadow: 0 0 10px #3B82F6"></span>
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1)"></span>
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1)"></span>
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1)"></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">What's your goal?</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 23px; color: #A1A1AA">Pick the one that matters most right now. You can change it any time.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px" role="radiogroup" aria-label="Your goal">
+      <sc-for list="{{goals}}" as="g" hint-placeholder-count="5">
+        <button type="button" role="radio" aria-checked="{{g.on}}" onClick="{{g.pick}}" class="{{g.cls}}" style="{{g.box}}">
+          <span class="ico" style="width: 46px; height: 46px; position: relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{g.icon}}"></path></svg>
+          </span>
+          <span style="position: relative; font-size: 17px; line-height: 22px; font-weight: 800; color: #FFFFFF">{{g.title}}</span>
+          <span style="position: relative; font-size: 13px; line-height: 18px; color: {{g.sub}}">{{g.line}}</span>
+          <span style="{{g.check}}" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+
+    <p class="pen rise" style="margin: 2px 4px 0; font-size: 26px; line-height: 30px; transform: rotate(-1.5deg)">{{note}}</p>
+
+    <button type="button" class="btn btn-p" style="margin-top: auto; width: 100%">Continue
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+    </button>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pick: 'muscle' };
+  }
+  renderVals() {
+    const defs = [
+      { id: 'fat', title: 'Lose fat', line: 'Get leaner, keep your strength', t: '#FB923C', icon: 'M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z', note: 'lean and strong, no crash diets' },
+      { id: 'gain', title: 'Gain weight', line: 'Eat enough and grow', t: '#F59E0B', icon: 'M3 17l6-6 4 4 8-8M15 7h6v6', note: 'we make sure you eat enough' },
+      { id: 'muscle', title: 'Build muscle', line: 'Look bigger and fuller', t: '#3B82F6', icon: 'M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12', note: 'slow and steady builds it' },
+      { id: 'strong', title: 'Get stronger', line: 'Lift heavier, week by week', t: '#F472B6', icon: 'M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2z', note: 'numbers that go up every week' },
+      { id: 'fit', title: 'Stay fit and healthy', line: 'Feel good, sleep well, keep moving', t: '#2DD4BF', icon: 'M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7z', note: 'a little every day adds up' }
+    ];
+    const pick = this.state.pick;
+    let note = '';
+    let glow = 'rgba(59,130,246,0.16)';
+    const goals = defs.map((d, i) => {
+      const on = d.id === pick;
+      if (on) { note = d.note; glow = d.t + '33'; }
+      const wide = i === defs.length - 1;
+      return {
+        title: d.title, line: d.line, icon: d.icon,
+        on: on ? 'true' : 'false',
+        cls: on ? 'tint dots' : 'card',
+        sub: on ? 'rgba(255,255,255,0.75)' : '#9A9AA3',
+        box: '--t: ' + d.t + '; text-align: left; cursor: pointer; padding: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-height: ' + (wide ? '0' : '138px') + ';' + (wide ? ' grid-column: span 2; flex-direction: row; align-items: center; flex-wrap: wrap; column-gap: 12px;' : ''),
+        check: 'position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 12px; display: ' + (on ? 'flex' : 'none') + '; align-items: center; justify-content: center; background: ' + d.t + '; box-shadow: 0 0 12px ' + d.t,
+        pick: () => this.setState({ pick: d.id })
+      };
+    });
+    return { goals, note, scrStyle: 'width: 390px; height: 844px; --glow: ' + glow };
+  }
+}
+</script>
+</body>
+</html>

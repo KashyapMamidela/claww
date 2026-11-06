@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Onboarding: how you train</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.tint::after,.hero::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:20px;background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 30%,transparent),transparent 62%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 45%,rgba(255,255,255,0.05));box-shadow:inset 0 1px 0 rgba(255,255,255,0.09),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 30px -20px color-mix(in srgb,var(--t) 80%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.10) 1px,transparent 1.3px);background-size:9px 9px;-webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);background:linear-gradient(140deg,#0F172A,#1E3A5F 60%,#1D4ED8);box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px rgba(29,78,216,0.9),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out .6s 1 both;pointer-events:none}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:13px;background:color-mix(in srgb,var(--t) 14%,transparent);border:1px solid color-mix(in srgb,var(--t) 28%,transparent);color:var(--t)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; --glow: rgba(59,130,246,0.16)">
+  <div style="position: absolute; top: 0; left: 0; right: 0; z-index: 5; height: 60px; padding: 0 12px; display: flex; align-items: center; gap: 8px; background: rgba(5,5,5,0.55); backdrop-filter: blur(22px); border-bottom: 1px solid rgba(255,255,255,0.08)">
+    <a href="Goal.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: #FFFFFF">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </a>
+    <div style="flex-grow: 1; display: flex; flex-direction: column"><span style="font-size: 17px; font-weight: 800">Set up your plan</span><span style="font-size: 13px; color: #9A9AA3">Step 2 of 4 · about a minute</span></div>
+  </div>
+
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; gap: 16px; padding: 76px 16px 34px">
+    <div style="display: flex; gap: 4px" aria-hidden="true">
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: #3B82F6"></span>
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: #3B82F6; box-shadow: 0 0 10px #3B82F6"></span>
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1)"></span>
+      <span style="flex: 1; height: 4px; border-radius: 2px; background: rgba(255,255,255,0.1)"></span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">How do you like to train?</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 23px; color: #A1A1AA">Pick any. We mix them into one week.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <sc-for list="{{styles}}" as="s" hint-placeholder-count="5">
+        <button type="button" aria-pressed="{{s.on}}" onClick="{{s.toggle}}" class="{{s.cls}}" style="{{s.box}}">
+          <span class="ico" style="width: 44px; height: 44px; position: relative">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{s.icon}}"></path></svg>
+          </span>
+          <span style="position: relative; font-size: 17px; line-height: 22px; font-weight: 800">{{s.title}}</span>
+          <span style="position: relative; font-size: 13px; line-height: 18px; color: {{s.sub}}">{{s.line}}</span>
+          <span style="{{s.check}}" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"></path></svg>
+          </span>
+        </button>
+      </sc-for>
+    </div>
+
+    <section class="hero" style="padding: 16px">
+      <span class="sheen"></span>
+      <span style="position: relative; display: block; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75)">Your week</span>
+      <span style="position: relative; display: block; margin-top: 4px; font-size: 20px; line-height: 26px; font-weight: 900; letter-spacing: -0.3px">{{preview}}</span>
+      <span style="position: relative; display: flex; gap: 6px; margin-top: 12px">
+        <sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+          <span style="{{d.style}}">{{d.l}}</span>
+        </sc-for>
+      </span>
+    </section>
+
+    <p class="pen" style="margin: 0 4px; font-size: 25px; line-height: 29px; transform: rotate(-1.5deg)">{{note}}</p>
+
+    <button type="button" class="btn btn-p" style="margin-top: auto; width: 100%">Continue
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
+    </button>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { on: { gym: true, cali: false, home: false, yoga: true, mob: false } };
+  }
+  renderVals() {
+    const defs = [
+      { id: 'gym', title: 'Gym', line: 'Machines and free weights', t: '#3B82F6', icon: 'M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12', tag: 'G' },
+      { id: 'cali', title: 'Calisthenics', line: 'Pull-ups, dips, bodyweight', t: '#F472B6', icon: 'M4 5h16M8 5v4M16 5v4M12 11a2 2 0 1 0 0 .01M9 21l3-6 3 6M12 15v-2', tag: 'C' },
+      { id: 'home', title: 'Home workout', line: 'A mat, maybe dumbbells', t: '#F59E0B', icon: 'M3 11l9-7 9 7M5 10v10h14V10M10 20v-5h4v5', tag: 'H' },
+      { id: 'yoga', title: 'Yoga', line: 'Flows, balance, breathing', t: '#2DD4BF', icon: 'M12 4a2 2 0 1 0 0 .01M4 20c2-1 5-2 8-2s6 1 8 2M12 8v10M8 11l4-2 4 2', tag: 'Y' },
+      { id: 'mob', title: 'Mobility', line: 'Stretch, loosen up, move better', t: '#818CF8', icon: 'M4 12c3-5 5-5 8 0s5 5 8 0', tag: 'M' }
+    ];
+    const on = this.state.on;
+    const styles = defs.map((d, i) => {
+      const sel = !!on[d.id];
+      const wide = i === defs.length - 1;
+      return {
+        title: d.title, line: d.line, icon: d.icon,
+        on: sel ? 'true' : 'false',
+        cls: sel ? 'tint dots' : 'card',
+        sub: sel ? 'rgba(255,255,255,0.75)' : '#9A9AA3',
+        box: '--t: ' + d.t + '; text-align: left; cursor: pointer; padding: 14px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-height: ' + (wide ? '0' : '124px') + ';' + (wide ? ' grid-column: span 2; flex-direction: row; align-items: center; flex-wrap: wrap; column-gap: 12px;' : ''),
+        check: 'position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 12px; display: ' + (sel ? 'flex' : 'none') + '; align-items: center; justify-content: center; background: ' + d.t + '; box-shadow: 0 0 12px ' + d.t,
+        toggle: () => this.setState({ on: { ...on, [d.id]: !on[d.id] } })
+      };
+    });
+    const picked = defs.filter((d) => on[d.id]);
+    let preview = 'Pick at least one';
+    let note = 'pick what you enjoy, you will keep doing it';
+    let pattern = ['', '', '', '', '', '', ''];
+    if (picked.length === 1) {
+      preview = '4 days of ' + picked[0].title.toLowerCase();
+      note = 'one style, done well';
+      pattern = [picked[0], null, picked[0], null, picked[0], picked[0], null];
+    } else if (picked.length >= 2) {
+      const main = picked[0];
+      const rest = picked.slice(1);
+      preview = '3 days ' + main.title.toLowerCase() + ', ' + rest.map((r) => r.title.toLowerCase()).join(' and ') + ' on the others';
+      note = 'the mix keeps you strong and loose';
+      pattern = [main, rest[0], main, null, main, rest[1 % rest.length], null];
+    }
+    const names = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const week = names.map((l, i) => {
+      const p = pattern[i];
+      return {
+        l,
+        style: 'flex: 1; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; ' +
+          (p ? 'background: ' + p.t + '; color: #050505; box-shadow: 0 0 10px ' + p.t + '88' : 'background: rgba(255,255,255,0.10); color: rgba(255,255,255,0.6)')
+      };
+    });
+    return { styles, preview, note, week };
+  }
+}
+</script>
+</body>
+</html>

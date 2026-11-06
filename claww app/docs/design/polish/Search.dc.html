@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Search food</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button,input{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 30% at 50% -4%,rgba(34,197,94,0.14),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.well{display:flex;align-items:center;gap:10px;height:52px;padding:0 14px;border-radius:16px;background:#0B0B0C;border:1px solid rgba(34,197,94,0.45);box-shadow:inset 0 2px 6px rgba(0,0,0,0.7),0 0 0 4px rgba(34,197,94,0.10)}
+.well input{flex:1;min-width:0;height:44px;border:0;background:transparent;color:#FFFFFF;font-size:17px;outline:none}
+.row{position:relative;display:flex;align-items:center;gap:12px;min-height:64px;padding:10px 14px;border-radius:16px;background:linear-gradient(180deg,#18181B,#121214);border:1px solid rgba(255,255,255,0.07)}
+.add{width:40px;height:40px;flex-shrink:0;border-radius:12px;border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;font-weight:700}
+.seg{display:flex;padding:3px;gap:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08)}
+.kb{position:absolute;left:0;right:0;bottom:0;z-index:4;height:290px;padding:8px 4px 30px;background:#1F1F22;border-top:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;gap:10px}
+.kr{display:flex;justify-content:center;gap:6px}
+.k{width:32px;height:42px;border-radius:6px;background:#3A3A3E;display:flex;align-items:center;justify-content:center;font-size:19px;color:#FFFFFF;box-shadow:0 1px 0 rgba(0,0,0,0.6)}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 12px; padding: 54px 16px 0">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <a href="Nutrition.dc.html" style="min-height: 44px; display: flex; align-items: center; font-size: 17px; color: #4ADE80">Cancel</a>
+      <span style="font-size: 17px; font-weight: 800">Add to lunch</span>
+      <span style="width: 54px"></span>
+    </div>
+    <label class="well">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+      <input type="search" value="paneer" aria-label="Search food">
+      <span style="font-size: 13px; color: #9A9AA3">Hindi works too</span>
+    </label>
+    <div class="seg">
+      <sc-for list="{{tabs}}" as="t" hint-placeholder-count="3">
+        <button type="button" onClick="{{t.pick}}" style="{{t.style}}">{{t.n}}</button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <sc-for list="{{rows}}" as="r" hint-placeholder-count="4">
+        <div class="row">
+          <div style="flex-grow: 1; min-width: 0">
+            <p style="margin: 0; font-size: 16px; font-weight: 700">{{r.n}}</p>
+            <p style="margin: 2px 0 0; font-size: 13px; color: #9A9AA3">{{r.meta}}</p>
+          </div>
+          <button type="button" onClick="{{r.toggle}}" aria-label="{{r.aria}}" class="add" style="{{r.style}}">{{r.icon}}</button>
+        </div>
+      </sc-for>
+    </div>
+  </main>
+
+  <div style="position: absolute; left: 12px; right: 12px; bottom: 302px; z-index: 5; display: flex; align-items: center; gap: 12px; height: 60px; padding: 0 8px 0 16px; border-radius: 18px; background: linear-gradient(135deg,#15803D,#22C55E); box-shadow: 0 14px 28px -10px rgba(34,197,94,0.75), inset 0 1px 0 rgba(255,255,255,0.22)">
+    <div style="flex-grow: 1"><p style="margin: 0; font-size: 15px; font-weight: 800">{{count}}</p><p style="margin: 1px 0 0; font-size: 13px; color: rgba(255,255,255,0.85)">{{total}}</p></div>
+    <a href="Nutrition.dc.html" style="height: 44px; padding: 0 18px; display: flex; align-items: center; border-radius: 12px; background: rgba(0,0,0,0.25); font-size: 15px; font-weight: 800">Add</a>
+  </div>
+
+  <div class="kb" aria-hidden="true">
+    <div class="kr"><span class="k">q</span><span class="k">w</span><span class="k">e</span><span class="k">r</span><span class="k">t</span><span class="k">y</span><span class="k">u</span><span class="k">i</span><span class="k">o</span><span class="k">p</span></div>
+    <div class="kr"><span class="k">a</span><span class="k">s</span><span class="k">d</span><span class="k">f</span><span class="k">g</span><span class="k">h</span><span class="k">j</span><span class="k">k</span><span class="k">l</span></div>
+    <div class="kr"><span class="k" style="width: 44px; background: #5A5A60">⇧</span><span class="k">z</span><span class="k">x</span><span class="k">c</span><span class="k">v</span><span class="k">b</span><span class="k">n</span><span class="k">m</span><span class="k" style="width: 44px; background: #5A5A60">⌫</span></div>
+    <div class="kr"><span class="k" style="width: 84px; background: #5A5A60; font-size: 15px">123</span><span class="k" style="width: 180px; font-size: 15px">space</span><span class="k" style="width: 84px; background: #5A5A60; font-size: 15px">search</span></div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 0, picked: [0] };
+  }
+  renderVals() {
+    const s = this.state;
+    const items = [
+      ['Paneer bhurji', '1 bowl · 290 kcal · 18 g protein', 290],
+      ['Palak paneer', '1 katori · 240 kcal · 12 g protein', 240],
+      ['Paneer tikka', '6 pieces · 320 kcal · 22 g protein', 320],
+      ['Paneer paratha', '1 piece · 300 kcal · 11 g protein', 300]
+    ];
+    const rows = items.map((it, i) => {
+      const on = s.picked.includes(i);
+      return {
+        n: it[0], meta: it[1], icon: on ? '✓' : '+', aria: (on ? 'Remove ' : 'Add ') + it[0],
+        style: on ? 'color: #FFFFFF; background: linear-gradient(135deg,#15803D,#22C55E); box-shadow: 0 6px 14px -6px rgba(34,197,94,0.9)' : 'color: #4ADE80; background: rgba(34,197,94,0.12)',
+        toggle: () => this.setState({ picked: on ? s.picked.filter((x) => x !== i) : s.picked.concat(i) })
+      };
+    });
+    const tabs = ['Results', 'Recent', 'My plates'].map((n, i) => ({
+      n, pick: () => this.setState({ tab: i }),
+      style: 'flex: 1; height: 36px; border: 0; border-radius: 9px; font-size: 14px; font-weight: 700; cursor: pointer; ' + (s.tab === i ? 'color: #FFFFFF; background: #26262A; box-shadow: inset 0 1px 0 rgba(255,255,255,0.08)' : 'color: #9A9AA3; background: transparent')
+    }));
+    const kcal = s.picked.reduce((a, i) => a + items[i][2], 0);
+    return {
+      rows, tabs,
+      count: s.picked.length === 1 ? '1 item picked' : s.picked.length + ' items picked',
+      total: kcal + ' kcal · stays above the keyboard'
+    };
+  }
+}
+</script>
+</body>
+</html>

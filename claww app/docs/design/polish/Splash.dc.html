@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Welcome</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-g{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.12);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+@keyframes fromTop{0%{transform:translate(0,-140px) rotate(-38deg) scale(.7);opacity:0}45%{opacity:1}65%,100%{transform:none;opacity:1}}
+@keyframes fromLeft{0%{transform:translate(-140px,90px) rotate(40deg) scale(.7);opacity:0}45%{opacity:1}65%,100%{transform:none;opacity:1}}
+@keyframes fromRight{0%{transform:translate(140px,110px) rotate(-30deg) scale(.7);opacity:0}45%{opacity:1}65%,100%{transform:none;opacity:1}}
+@keyframes halo{0%,45%{opacity:0;transform:scale(.6)}68%{opacity:1;transform:scale(1.12)}100%{opacity:.8;transform:scale(1)}}
+@keyframes sweep{0%,64%{transform:translateX(0) skewX(-18deg)}88%,100%{transform:translateX(1100px) skewX(-18deg)}}
+.sweep{animation:sweep 3s cubic-bezier(.77,0,.175,1) infinite}
+.pt{animation:fromTop 3s cubic-bezier(.2,.9,.25,1) infinite;transform-box:fill-box;transform-origin:center}
+.pl{animation:fromLeft 3s cubic-bezier(.2,.9,.25,1) .08s infinite;transform-box:fill-box;transform-origin:center}
+.pr{animation:fromRight 3s cubic-bezier(.2,.9,.25,1) .16s infinite;transform-box:fill-box;transform-origin:center}
+.halo{animation:halo 3s ease-out infinite}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; --glow: rgba(59,130,246,0.22)">
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; padding: 0 20px 34px">
+    <div style="flex-grow: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 30px; text-align: center">
+      <div style="position: relative; width: 200px; height: 200px; display: flex; align-items: center; justify-content: center">
+        <span class="halo" style="position: absolute; width: 170px; height: 170px; border-radius: 85px; background: radial-gradient(circle, rgba(59,130,246,0.5), rgba(59,130,246,0.12) 45%, transparent 70%)"></span>
+        <svg viewBox="0 0 599 567" width="96" height="91" fill="#FFFFFF" fill-rule="evenodd" role="img" aria-label="CLAWW logo, three pieces locking together" style="position: relative; filter: drop-shadow(0 6px 18px rgba(59,130,246,0.55))">
+          <defs>
+            <clipPath id="logoClip"><use href="#lp1"></use><use href="#lp2"></use><use href="#lp3"></use></clipPath>
+            <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"></stop><stop offset=".5" stop-color="#BFDBFE" stop-opacity=".95"></stop><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"></stop></linearGradient>
+          </defs>
+          <path id="lp1" class="pt" d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"></path>
+          <path id="lp2" class="pl" d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"></path>
+          <path id="lp3" class="pr" d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"></path>
+          <g clip-path="url(#logoClip)"><rect class="sweep" x="-260" y="-40" width="220" height="660" fill="url(#shine)" transform="skewX(-18)"></rect></g>
+        </svg>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h1 style="margin: 0; font-size: 34px; line-height: 40px; font-weight: 900; letter-spacing: -1px">Your coach that<br>fits your real day</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 24px; color: #A1A1AA">Workouts and meals planned around your gym, home or hostel. It changes when you do.</p>
+      </div>
+      <p class="pen" style="margin: 0; font-size: 26px; transform: rotate(-2deg)">about a minute a day</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <a href="Goal.dc.html" class="btn btn-p">Create my plan</a>
+      <a href="Login.dc.html" class="btn btn-g">I already have an account</a>
+      <p style="margin: 4px 0 0; font-size: 13px; line-height: 18px; color: #8A8A93; text-align: center">By continuing you agree to the Terms and Privacy Policy.</p>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CLAWW plan, redrafted</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Caveat:wght@600&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#0A84FF}a:hover{color:#5EA8FF}
+</style>
+</helmet>
+<div style="width: 1240px; box-sizing: border-box; padding: 64px 72px; background: #050505; color: #F5F5F7; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 32px">
+  <div style="display: flex; flex-direction: column; gap: 12px; max-width: 940px">
+    <p style="margin: 0; font-size: 15px; color: #A1A1A6">CLAWW · plan redrafted 6 Nov 2026 · for the team</p>
+    <h1 style="margin: 0; font-size: 52px; line-height: 58px; font-weight: 800; letter-spacing: -1.4px">Polish the app we have. Fix what's wrong, keep what works.</h1>
+    <p style="margin: 0; font-size: 19px; line-height: 29px; color: #A1A1A6">No full redesign. The current look stays: the grain texture, the glow, a colour per feature. We fix the mistakes found on the phone, make onboarding start from your goal and how you train, and add the few ideas that save the most time.</p>
+    <p style="margin: 0; font-family: Caveat, cursive; font-size: 30px; color: #FFFFFF">fewer taps, clearer words, same soul</p>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+    <div style="background: linear-gradient(180deg, #17171A 0%, #0F0F11 100%); border: 1px solid #26262A; border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700">Decided</h2>
+      <ul style="margin: 0; padding-left: 20px; font-size: 16px; line-height: 25px; color: #D1D1D6">
+        <li>Polish, not redesign. Home's Today line is the one bigger change you approved.</li>
+        <li>Onboarding starts with <b style="color: #F5F5F7">your goal</b>, then <b style="color: #F5F5F7">how you train</b>: gym, calisthenics, home workout, yoga, mobility (pick more than one).</li>
+        <li>Burned becomes the outer ring; its goal comes from your calorie goal.</li>
+        <li>Keep and spread the texture and glow: one CLAWW colour for buttons and tabs, each feature its own soft glow.</li>
+      </ul>
+    </div>
+    <div style="background: linear-gradient(180deg, #17171A 0%, #0F0F11 100%); border: 1px solid #26262A; border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700">Dropped</h2>
+      <ul style="margin: 0; padding-left: 20px; font-size: 16px; line-height: 25px; color: #D1D1D6">
+        <li>"From the home pot": too heavy for what it gives. "Save as my plate" covers home food instead.</li>
+        <li>"Move" as a path: confusing. Yoga and mobility are training styles under your goal, not a separate track.</li>
+        <li>The black and white draft screens and the new tab structure.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 style="margin: 8px 0 0; font-size: 30px; line-height: 36px; font-weight: 800">Build order</h2>
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <sc-for list="{{steps}}" as="s" hint-placeholder-count="10">
+      <div style="display: grid; grid-template-columns: 52px minmax(0, 1fr) 120px; gap: 18px; align-items: start; background: linear-gradient(180deg, #151517 0%, #0F0F11 100%); border: 1px solid #232327; border-radius: 20px; padding: 20px 22px">
+        <span style="width: 40px; height: 40px; border-radius: 12px; background: #1F1F23; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800">{{s.n}}</span>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 19px; line-height: 25px; font-weight: 700">{{s.title}}</span>
+          <span style="font-size: 16px; line-height: 24px; color: #A1A1A6">{{s.what}}</span>
+        </div>
+        <span style="{{s.sizeStyle}}">{{s.size}}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+    <div style="background: linear-gradient(180deg, #17171A 0%, #0F0F11 100%); border: 1px solid #26262A; border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700">Good points kept from the research</h2>
+      <ul style="margin: 0; padding-left: 20px; font-size: 16px; line-height: 25px; color: #D1D1D6">
+        <li>Fewer taps wins: people log food 4 to 6 times a day.</li>
+        <li>Say yes, don't fill in: the app proposes, you tap once.</li>
+        <li>Show the change, not the plan: the pen is CLAWW's signature, use it only where something changed.</li>
+        <li>Never punish a bad day: missed meals and rest days get a kind one-tap answer.</li>
+        <li>Plain words a 12-year-old gets; Apple type sizes (34 / 22 / 17 / 15 / 13), buttons 50 and 44 tall.</li>
+        <li>Light on the phone: plain SVG rings and charts, one small grain image, no heavy blur.</li>
+      </ul>
+    </div>
+    <div style="background: linear-gradient(180deg, #17171A 0%, #0F0F11 100%); border: 1px solid #26262A; border-radius: 22px; padding: 26px; display: flex; flex-direction: column; gap: 10px">
+      <h2 style="margin: 0; font-size: 22px; line-height: 28px; font-weight: 700">Later, after the closed beta</h2>
+      <ul style="margin: 0; padding-left: 20px; font-size: 16px; line-height: 25px; color: #D1D1D6">
+        <li>One buddy: see a friend's ticks, one nudge a day.</li>
+        <li>Weekly streak ("4 good days this week").</li>
+        <li>Four tabs with a + button.</li>
+        <li>3D body model (waits on your choice of model).</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1240,"height":2100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sizeColor = { Small: '#30D158', Medium: '#FF9F0A', Large: '#FF6961' };
+    const raw = [
+      ['Fix what broke trust', 'The keyboard hiding food search; a missed breakfast that can’t be logged at lunch; 2,000 vs 2,461 kcal; "log your sleep" when it is logged; Home and Workouts disagreeing about today; the odd "move day" pen mark; a Full body day with 2 exercises; lower-case names; cards hidden under the tab bar.', 'Small'],
+      ['Onboarding: goal first, then how you train', 'Screen 1: your goal (lose fat, gain weight, build muscle, get stronger, stay fit). Screen 2: how you train, pick any (gym, calisthenics, home workout, yoga, mobility). Then days, time and anything that hurts. Workout setup and onboarding become one flow.', 'Medium'],
+      ['Plans for every training style', 'New plan templates for calisthenics, yoga and mobility, mixed with gym or home when you pick more than one. Needs the trainer to write and approve them, like the gym templates.', 'Large'],
+      ['Home: Today line + Burned ring', 'Today as one line through the day, buttons on the current item, missed meals stay loggable. Rings Burned, Eaten, Recovery; tiles Steps, Session, Streak.', 'Medium'],
+      ['Log from the lock screen', 'Meal reminders with "Ate it" and "Something else"; water "+250 ml"; morning "Slept 11:40 to 7:10? Yes". Most days the app never needs opening.', 'Medium'],
+      ['Save as my plate', 'After any meal, "Save as my plate"; one tap next time. Works for home food, mess and hostel cooking.', 'Small'],
+      ['Plan arrives as stories', 'Instead of one long page: your week, first session, a day of food, what I watch. Tap through, adjust on each card.', 'Medium'],
+      ['Same look on every screen', 'Grain and top light on every card, feature glow on its own card only, cut the stripes, dot grids and watermarks, sentence-case titles, Apple type sizes, plain words.', 'Medium'],
+      ['Splash, welcome and log in', 'The logo’s three pieces fly in and lock together; welcome and log in rebuilt in the app’s textured style.', 'Medium'],
+      ['Sunday letter you can share', 'The weekly review gets a 9:16 story card: three numbers and what changed, in the pen.', 'Small']
+    ];
+    const steps = raw.map((r, i) => ({
+      n: i + 1, title: r[0], what: r[1], size: r[2],
+      sizeStyle: 'justify-self: end; font-size: 15px; font-weight: 700; color: ' + sizeColor[r[2]]
+    }));
+    return { steps };
+  }
+}
+</script>
+</body>
+</html>

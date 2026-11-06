@@ -1,0 +1,44 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-11-06T20:30:00Z" },
+  "title": "CLAWW app redesign",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1240, "h": 2100, "title": "The plan, redrafted" },
+    "Splash.dc.html": { "x": 1360, "y": 0, "w": 390, "h": 844, "title": "Welcome" },
+    "Login.dc.html": { "x": 1830, "y": 0, "w": 390, "h": 844, "title": "Log in" },
+    "Goal.dc.html": { "x": 2300, "y": 0, "w": 390, "h": 844, "title": "Onboarding 1: your goal", "is_interactive": true },
+    "Train.dc.html": { "x": 2770, "y": 0, "w": 390, "h": 844, "title": "Onboarding 2: how you train", "is_interactive": true },
+    "Schedule.dc.html": { "x": 3240, "y": 0, "w": 390, "h": 844, "title": "Onboarding 3: days, time, body", "is_interactive": true },
+    "PlanStory.dc.html": { "x": 3710, "y": 0, "w": 390, "h": 844, "title": "Your plan arrives as stories", "is_interactive": true },
+    "Home.dc.html": { "x": 1360, "y": 1300, "w": 390, "h": 1260, "title": "Home: rings and the Today line", "is_interactive": true },
+    "Lock.dc.html": { "x": 1830, "y": 1300, "w": 390, "h": 844, "title": "Log from the lock screen", "is_interactive": true },
+    "Nutrition.dc.html": { "x": 2300, "y": 1300, "w": 390, "h": 1220, "title": "Nutrition" },
+    "Search.dc.html": { "x": 2770, "y": 1300, "w": 390, "h": 844, "title": "Food search, keyboard-safe" },
+    "Scan.dc.html": { "x": 3240, "y": 1300, "w": 390, "h": 1000, "title": "Scan: check your plate", "is_interactive": true },
+    "Diary.dc.html": { "x": 3710, "y": 1300, "w": 390, "h": 1100, "title": "Food diary and report" },
+    "Workouts.dc.html": { "x": 1360, "y": 2940, "w": 390, "h": 1200, "title": "Workouts" },
+    "Player.dc.html": { "x": 1830, "y": 2940, "w": 390, "h": 844, "title": "In the session", "is_interactive": true },
+    "Rest.dc.html": { "x": 2300, "y": 2940, "w": 390, "h": 844, "title": "Rest between sets" },
+    "Complete.dc.html": { "x": 2770, "y": 2940, "w": 390, "h": 1040, "title": "Session complete", "is_interactive": true },
+    "Brand.dc.html": { "x": 3240, "y": 2940, "w": 860, "h": 900, "title": "App icon and notification icon" },
+    "Tracker.dc.html": { "x": 1360, "y": 4520, "w": 390, "h": 1420, "title": "Tracker", "is_interactive": true },
+    "Review.dc.html": { "x": 1830, "y": 4520, "w": 390, "h": 1000, "title": "Your week, marked up", "is_interactive": true },
+    "Profile.dc.html": { "x": 2300, "y": 4520, "w": 390, "h": 900, "title": "You (More)" }
+  },
+  "order": [
+    "Main.dc.html",
+    "Splash.dc.html", "Login.dc.html", "Goal.dc.html", "Train.dc.html", "Schedule.dc.html", "PlanStory.dc.html",
+    "Home.dc.html", "Lock.dc.html", "Nutrition.dc.html", "Search.dc.html", "Scan.dc.html", "Diary.dc.html",
+    "Workouts.dc.html", "Player.dc.html", "Rest.dc.html", "Complete.dc.html", "Brand.dc.html",
+    "Tracker.dc.html", "Review.dc.html", "Profile.dc.html"
+  ],
+  "notes": {
+    "r1": { "x": 1360, "y": -300, "text": "First run", "kind": "title1", "maxW": 2740 },
+    "r2": { "x": 1360, "y": 1000, "text": "Every day: eat and log", "kind": "title1", "maxW": 2740 },
+    "r3": { "x": 1360, "y": 2640, "text": "Training, and the logo", "kind": "title1", "maxW": 2740 },
+    "r4": { "x": 1360, "y": 4220, "text": "Progress and you", "kind": "title1", "maxW": 1330 }
+  },
+  "designSystems": []
+}

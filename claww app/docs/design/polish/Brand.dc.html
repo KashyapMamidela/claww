@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>App icon and notification icon</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+.wrap{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(60% 40% at 20% 0%,rgba(59,130,246,0.14),transparent 70%),#050505}
+.wrap::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none}
+.card{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 22px 34px -22px rgba(0,0,0,0.95);padding:22px}
+h2{margin:0;font-size:22px;line-height:28px;font-weight:800}
+.sub{margin:4px 0 0;font-size:15px;line-height:22px;color:#A1A1AA}
+.cap{margin:10px 0 0;font-size:13px;color:#9A9AA3;text-align:center}
+.icon{display:flex;align-items:center;justify-content:center;border-radius:28%;background:#000000;box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 14px 28px -12px rgba(0,0,0,0.9)}
+.bad{color:#F87171}.good{color:#4ADE80}
+code{font-family:ui-monospace,Consolas,monospace;font-size:13px;color:#BFDBFE}
+</style>
+</helmet>
+<div class="wrap" style="width: 860px; height: 900px; padding: 32px">
+  <div style="position: relative; display: flex; flex-direction: column; gap: 20px">
+    <div>
+      <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Logo in black and white</h1>
+      <p class="sub">The logo is white on black everywhere. Blue appears only as the glow in the app, never inside the icon.</p>
+    </div>
+
+    <div class="card">
+      <h2>App icon</h2>
+      <p class="sub">Black background, white logo, about 60% of the icon size so nothing is cut by round or squircle masks.</p>
+      <div style="display: flex; align-items: flex-end; gap: 36px; margin-top: 20px">
+        <div><div class="icon" style="width: 120px; height: 120px"><svg viewBox="0 0 599 567" width="72" height="68" fill="#FFFFFF" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z M359 123 L394 131 L412 159 L408 188 L377 212 L346 207 L324 177 L329 145 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg></div><p class="cap">Launcher</p></div>
+        <div><div class="icon" style="width: 120px; height: 120px; border-radius: 60px"><svg viewBox="0 0 599 567" width="66" height="62" fill="#FFFFFF" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z M359 123 L394 131 L412 159 L408 188 L377 212 L346 207 L324 177 L329 145 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg></div><p class="cap">Round mask</p></div>
+        <div><div class="icon" style="width: 120px; height: 120px; border-radius: 60px; background: #DCE7FF"><svg viewBox="0 0 599 567" width="66" height="62" fill="#1E3A8A" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z M359 123 L394 131 L412 159 L408 188 L377 212 L346 207 L324 177 L329 145 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg></div><p class="cap">Android 13 themed</p></div>
+        <div><div class="icon" style="width: 60px; height: 60px"><svg viewBox="0 0 599 567" width="36" height="34" fill="#FFFFFF" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z M359 123 L394 131 L412 159 L408 188 L377 212 L346 207 L324 177 L329 145 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg></div><p class="cap">Small</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Notification icon</h2>
+      <p class="sub">Android draws this icon from its outline only. A solid square background turns it into a grey box. It needs a white logo on a transparent background.</p>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-top: 18px">
+        <div>
+          <p style="margin: 0 0 8px; font-size: 15px; font-weight: 700" class="bad">Now</p>
+          <div style="height: 40px; padding: 0 14px; border-radius: 12px; background: #0B0B0C; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600">
+            <span>8:31</span><span style="width: 18px; height: 18px; border-radius: 3px; background: #D4D4D8"></span><span style="width: 16px; height: 16px; border-radius: 8px; border: 2px solid #71717A"></span>
+          </div>
+          <div style="margin-top: 10px; padding: 14px; border-radius: 18px; background: rgba(36,36,40,0.9); display: flex; gap: 10px; align-items: center">
+            <span style="width: 28px; height: 28px; border-radius: 14px; background: #3F3F46; display: flex; align-items: center; justify-content: center"><span style="width: 14px; height: 14px; border-radius: 2px; background: #D4D4D8"></span></span>
+            <div><p style="margin: 0; font-size: 14px; font-weight: 700">CLAWW · now</p><p style="margin: 2px 0 0; font-size: 14px; color: #C4C4CC">Breakfast: poha and 2 boiled eggs</p></div>
+          </div>
+        </div>
+        <div>
+          <p style="margin: 0 0 8px; font-size: 15px; font-weight: 700" class="good">Fixed</p>
+          <div style="height: 40px; padding: 0 14px; border-radius: 12px; background: #0B0B0C; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600">
+            <span>8:31</span><svg viewBox="0 0 599 567" width="18" height="17" fill="#FFFFFF" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z M359 123 L394 131 L412 159 L408 188 L377 212 L346 207 L324 177 L329 145 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg><span style="width: 16px; height: 16px; border-radius: 8px; border: 2px solid #71717A"></span>
+          </div>
+          <div style="margin-top: 10px; padding: 14px; border-radius: 18px; background: rgba(36,36,40,0.9); display: flex; gap: 10px; align-items: center">
+            <span style="width: 28px; height: 28px; border-radius: 14px; background: #3B82F6; box-shadow: 0 0 10px rgba(59,130,246,0.6); display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 599 567" width="16" height="15" fill="#FFFFFF" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z M359 123 L394 131 L412 159 L408 188 L377 212 L346 207 L324 177 L329 145 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg></span>
+            <div><p style="margin: 0; font-size: 14px; font-weight: 700">CLAWW · now</p><p style="margin: 2px 0 0; font-size: 14px; color: #C4C4CC">Breakfast: poha and 2 boiled eggs</p></div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top: 18px; padding: 14px 16px; border-radius: 14px; background: #0B0B0C; border: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 6px; font-size: 14px; line-height: 20px; color: #C4C4CC">
+        <span><code>assets/notification-icon.png</code> 96 × 96, white logo, transparent background, 8 px padding</span>
+        <span><code>expo-notifications</code> plugin: <code>icon</code> = that file, <code>color</code> = #3B82F6 (the circle behind it)</span>
+        <span><code>android.adaptiveIcon</code>: white logo foreground, background #000000, plus <code>monochromeImage</code> for themed icons</span>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":860,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

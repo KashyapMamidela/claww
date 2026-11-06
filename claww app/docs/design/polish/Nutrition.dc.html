@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Nutrition today</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 30% at 50% -4%,var(--glow),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:20px;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--t) 30%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 38%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 18px 30px -16px color-mix(in srgb,var(--t) 55%,transparent)}
+.lbl{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#A1A1AA}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:var(--t,#3B82F6);box-shadow:0 0 8px var(--t,#3B82F6)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-g{height:48px;border-radius:14px;font-size:15px;background:linear-gradient(180deg,#1C1C1F,#141416);border:1px solid rgba(255,255,255,0.12);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.bar{height:8px;border-radius:4px;background:#0B0B0C;box-shadow:inset 0 1px 2px rgba(0,0,0,0.7);overflow:hidden}
+.bar span{display:block;height:100%;border-radius:4px}
+.tabs{position:absolute;left:0;right:0;bottom:0;z-index:5;height:84px;padding:8px 6px 26px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:rgba(8,8,9,0.72);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.08)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#71717A}
+.tab.on{color:#FFFFFF}
+.tab.on svg{filter:drop-shadow(0 0 6px var(--t))}
+@keyframes ringIn{from{stroke-dashoffset:var(--c)}}
+.ring{animation:ringIn 900ms cubic-bezier(.23,1,.32,1) both}
+@media (prefers-reduced-motion:reduce){.ring{animation:none}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1220px; --glow: rgba(34,197,94,0.16)">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding: 58px 16px 110px">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between">
+      <div><p style="margin: 0; font-size: 15px; color: #9A9AA3">Friday 6 Nov</p><h1 style="margin: 2px 0 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Nutrition</h1></div>
+      <a href="Diary.dc.html" style="min-height: 44px; display: flex; align-items: center; font-size: 15px; font-weight: 700; color: #4ADE80">This week</a>
+    </div>
+
+    <div class="tint" style="--t: #22C55E; padding: 18px">
+      <div style="position: relative; display: flex; align-items: center; gap: 18px">
+        <svg width="128" height="128" viewBox="0 0 128 128" aria-hidden="true">
+          <circle cx="64" cy="64" r="54" fill="none" stroke="#0B0B0C" stroke-width="12"></circle>
+          <circle class="ring" cx="64" cy="64" r="54" fill="none" stroke="#22C55E" stroke-width="12" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="{{ringOff}}" transform="rotate(-90 64 64)" style="--c: 339.3; filter: drop-shadow(0 0 6px rgba(34,197,94,0.7))"></circle>
+          <text x="64" y="62" text-anchor="middle" fill="#FFFFFF" font-family="Inter" font-size="24" font-weight="900">{{eaten}}</text>
+          <text x="64" y="82" text-anchor="middle" fill="#9A9AA3" font-family="Inter" font-size="12" font-weight="600">of 2,460 kcal</text>
+        </svg>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 12px">
+          <div><div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px"><span style="font-weight: 700">Protein</span><span style="color: #9A9AA3">{{protein}} / 122 g</span></div><div class="bar"><span style="width: {{proteinPct}}; background: linear-gradient(90deg,#15803D,#4ADE80); box-shadow: 0 0 8px rgba(74,222,128,0.6)"></span></div></div>
+          <div><div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px"><span style="font-weight: 700">Carbs</span><span style="color: #9A9AA3">{{carbs}} / 300 g</span></div><div class="bar"><span style="width: {{carbsPct}}; background: linear-gradient(90deg,#B45309,#F59E0B)"></span></div></div>
+          <div><div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px"><span style="font-weight: 700">Fat</span><span style="color: #9A9AA3">{{fat}} / 70 g</span></div><div class="bar"><span style="width: {{fatPct}}; background: linear-gradient(90deg,#9D174D,#F472B6)"></span></div></div>
+        </div>
+      </div>
+      <p class="pen" style="position: relative; margin: 12px 0 0; font-size: 24px; transform: rotate(-1.2deg)">{{penNote}}</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <a href="Scan.dc.html" class="btn btn-p" style="height: 52px; font-size: 16px; background: linear-gradient(135deg,#15803D,#22C55E); box-shadow: 0 10px 24px -8px rgba(34,197,94,0.7), inset 0 1px 0 rgba(255,255,255,0.22)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"></path><circle cx="12" cy="12" r="3.5"></circle></svg>Scan a meal</a>
+      <a href="Search.dc.html" class="btn btn-g" style="height: 52px; font-size: 16px"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>Search food</a>
+    </div>
+
+    <span class="lbl" style="--t: #22C55E; margin-top: 4px"><i></i>Today's meals</span>
+    <sc-for list="{{meals}}" as="m" hint-placeholder-count="4">
+      <div class="card" style="padding: 14px 16px">
+        <div style="position: relative; display: flex; align-items: center; gap: 12px">
+          <span style="{{m.dotStyle}}"></span>
+          <div style="flex-grow: 1; min-width: 0">
+            <p style="margin: 0; font-size: 13px; color: #9A9AA3">{{m.when}}</p>
+            <p style="margin: 2px 0 0; font-size: 17px; line-height: 22px; font-weight: 700">{{m.name}}</p>
+            <p style="margin: 2px 0 0; font-size: 13px; color: #9A9AA3">{{m.meta}}</p>
+          </div>
+          <span style="{{m.tagStyle}}">{{m.tag}}</span>
+        </div>
+        <sc-if value="{{m.ask}}" hint-placeholder-val="{{ false }}">
+          <div style="position: relative; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px">
+            <button type="button" onClick="{{m.ate}}" class="btn" style="height: 44px; border-radius: 13px; font-size: 15px; background: linear-gradient(135deg,#15803D,#22C55E); box-shadow: 0 8px 18px -8px rgba(34,197,94,0.9)">Ate as planned</button>
+            <a href="Search.dc.html" class="btn btn-g" style="height: 44px">Something else</a>
+          </div>
+        </sc-if>
+      </div>
+    </sc-for>
+
+    <div class="card" style="padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+      <span style="position: relative; width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: rgba(34,197,94,0.14); color: #4ADE80"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><path d="M12 8v8M8 12h8"></path></svg></span>
+      <div style="position: relative; flex-grow: 1"><p style="margin: 0; font-size: 15px; font-weight: 700">My plates</p><p style="margin: 2px 0 0; font-size: 13px; color: #9A9AA3">Mess thali · Home dal rice · Sunday biryani</p></div>
+      <span style="position: relative; font-size: 15px; font-weight: 700; color: #4ADE80">Open</span>
+    </div>
+  </main>
+
+  <nav class="tabs" aria-label="Main">
+    <a href="Home.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"></path></svg>Home</a>
+    <a href="Workouts.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"></path></svg>Workouts</a>
+    <a href="Nutrition.dc.html" class="tab on" style="--t: #22C55E"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8a3 3 0 0 0 3 3v7M10 3v6M4 3v6a3 3 0 0 0 3 3M17 21V3c-2 1-3 4-3 7s1 4 3 4"></path></svg>Nutrition</a>
+    <a href="Tracker.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"></path></svg>Tracker</a>
+    <a href="Profile.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>More</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1220}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { lunch: false };
+  }
+  renderVals() {
+    const lunch = this.state.lunch;
+    const kcal = 490 + 160 + (lunch ? 640 : 0);
+    const p = 26 + 8 + (lunch ? 28 : 0);
+    const c = 62 + 22 + (lunch ? 88 : 0);
+    const f = 14 + 5 + (lunch ? 18 : 0);
+    const pct = (a, b) => Math.min(100, Math.round(a / b * 100)) + '%';
+    const dot = (col, on) => 'position: relative; flex-shrink: 0; width: 12px; height: 12px; border-radius: 6px; ' + (on ? 'background: ' + col + '; box-shadow: 0 0 10px ' + col : 'border: 2px solid rgba(255,255,255,0.25)');
+    const tag = (on) => 'position: relative; flex-shrink: 0; padding: 6px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; ' + (on ? 'color: #4ADE80; background: rgba(34,197,94,0.14)' : 'color: #A1A1AA; background: rgba(255,255,255,0.06)');
+    const meals = [
+      { when: 'Breakfast · 8:20', name: 'Poha and 2 boiled eggs', meta: '490 kcal · 26 g protein', tag: 'Logged', on: true, ask: false },
+      { when: 'Snack · 11:00', name: 'Banana and black coffee', meta: '160 kcal · 8 g protein', tag: 'Logged', on: true, ask: false },
+      { when: 'Lunch · 1:30', name: '3 roti, dal, curd, salad', meta: '640 kcal · 28 g protein', tag: lunch ? 'Logged' : 'Now', on: lunch, ask: !lunch },
+      { when: 'Dinner · 8:30', name: 'Rice, chicken curry, curd', meta: '720 kcal · 42 g protein', tag: 'Planned', on: false, ask: false }
+    ].map((m) => ({ ...m, dotStyle: dot('#22C55E', m.on), tagStyle: tag(m.on), ate: () => this.setState({ lunch: true }) }));
+    return {
+      meals,
+      eaten: kcal.toLocaleString('en-IN'),
+      ringOff: (339.3 * (1 - kcal / 2460)).toFixed(1),
+      protein: p, carbs: c, fat: f,
+      proteinPct: pct(p, 122), carbsPct: pct(c, 300), fatPct: pct(f, 70),
+      penNote: lunch ? 'on track, dinner closes the protein gap' : 'lunch is the big one today'
+    };
+  }
+}
+</script>
+</body>
+</html>

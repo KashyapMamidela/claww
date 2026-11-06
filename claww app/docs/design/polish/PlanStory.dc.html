@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Your plan as stories</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 40% at 50% -4%,var(--glow),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95)}
+.card::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 28%,transparent),transparent 62%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 40%,rgba(255,255,255,0.05));box-shadow:inset 0 1px 0 rgba(255,255,255,0.09),0 20px 26px -20px color-mix(in srgb,var(--t) 80%,transparent)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-g{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.12)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.rise{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</helmet>
+<div class="scr" style="{{scr}}">
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; gap: 18px; padding: 18px 16px 34px">
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px" aria-label="{{progressLabel}}">
+      <sc-for list="{{bars}}" as="b" hint-placeholder-count="4"><span style="{{b.s}}"></span></sc-for>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <p style="margin: 0; font-size: 15px; color: #A1A1AA">Your plan · {{step}} of 4</p>
+      <a href="Home.dc.html" style="min-height: 44px; display: flex; align-items: center; font-size: 15px; font-weight: 700; color: #A1A1AA">Skip</a>
+    </div>
+
+    <sc-if value="{{s0}}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; flex-direction: column; gap: 14px">
+        <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Your week</h1>
+        <div class="card" style="padding: 6px 16px">
+          <sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+            <div class="rise" style="{{d.row}}">
+              <span style="position: relative; width: 40px; font-size: 15px; font-weight: 700; color: #9A9AA3">{{d.day}}</span>
+              <span style="{{d.dot}}"></span>
+              <span style="position: relative; flex-grow: 1; font-size: 17px; font-weight: 700">{{d.what}}</span>
+              <span style="position: relative; font-size: 15px; color: #9A9AA3">{{d.min}}</span>
+            </div>
+          </sc-for>
+        </div>
+        <p class="pen" style="margin: 0 4px; font-size: 26px; transform: rotate(-1.5deg)">3 gym days, 2 yoga, 2 rest</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{s1}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Monday, your first session</h1>
+        <p style="margin: 0; font-size: 16px; color: #A1A1AA">Upper body · gym · 45 min</p>
+        <div class="tint rise" style="--t: #3B82F6; padding: 16px; display: flex; justify-content: space-between"><span style="position: relative; font-size: 17px; font-weight: 700">Bench press</span><span style="position: relative; font-size: 17px; color: #C4C4CC">4 × 6–8</span></div>
+        <div class="card rise" style="padding: 16px; display: flex; justify-content: space-between; animation-delay: .08s"><span style="position: relative; font-size: 17px; font-weight: 700">Lat pulldown</span><span style="position: relative; font-size: 17px; color: #C4C4CC">3 × 8–10</span></div>
+        <div class="card rise" style="padding: 16px; display: flex; justify-content: space-between; animation-delay: .16s"><span style="position: relative; font-size: 17px; font-weight: 700">Shoulder press</span><span style="position: relative; font-size: 17px; color: #C4C4CC">3 × 8–10</span></div>
+        <p style="margin: 0; font-size: 15px; color: #9A9AA3">and 2 more when you start</p>
+        <p class="pen" style="margin: 0 4px; font-size: 26px; transform: rotate(-1.5deg)">first week light, then it climbs</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{s2}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">A day of food</h1>
+        <p style="margin: 0; font-size: 16px; color: #A1A1AA">2,460 kcal · 122 g protein · from food you eat</p>
+        <div class="tint rise" style="--t: #22C55E; padding: 16px"><p style="position: relative; margin: 0; font-size: 13px; color: #86EFAC">Breakfast</p><p style="position: relative; margin: 4px 0 0; font-size: 17px; font-weight: 700">Poha, peanuts and 2 boiled eggs</p></div>
+        <div class="card rise" style="padding: 16px; animation-delay: .08s"><p style="position: relative; margin: 0; font-size: 13px; color: #9A9AA3">Lunch</p><p style="position: relative; margin: 4px 0 0; font-size: 17px; font-weight: 700">3 roti, dal, sabzi and curd</p></div>
+        <div class="card rise" style="padding: 16px; animation-delay: .16s"><p style="position: relative; margin: 0; font-size: 13px; color: #9A9AA3">Dinner</p><p style="position: relative; margin: 4px 0 0; font-size: 17px; font-weight: 700">Chicken curry, rice and salad</p></div>
+        <p class="pen" style="margin: 0 4px; font-size: 26px; transform: rotate(-1.5deg)">eggs close the protein gap</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{s3}}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">What I'll watch</h1>
+        <p style="margin: 0; font-size: 16px; line-height: 23px; color: #A1A1AA">When one of these changes, I mark your plan with a pen and say why. You can always undo.</p>
+        <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 14px">
+          <div style="position: relative; display: flex; gap: 12px; align-items: center"><span style="width: 9px; height: 9px; border-radius: 5px; background: #2DD4BF; box-shadow: 0 0 8px #2DD4BF"></span><span style="font-size: 17px">Short sleep two nights running</span></div>
+          <div style="position: relative; display: flex; gap: 12px; align-items: center"><span style="width: 9px; height: 9px; border-radius: 5px; background: #22C55E; box-shadow: 0 0 8px #22C55E"></span><span style="font-size: 17px">Protein low three days</span></div>
+          <div style="position: relative; display: flex; gap: 12px; align-items: center"><span style="width: 9px; height: 9px; border-radius: 5px; background: #3B82F6; box-shadow: 0 0 8px #3B82F6"></span><span style="font-size: 17px">A lift that stops going up</span></div>
+        </div>
+        <div class="tint" style="--t: #FFFFFF; padding: 16px">
+          <p style="position: relative; margin: 0; font-size: 13px; color: #9A9AA3">For example</p>
+          <p style="position: relative; margin: 6px 0 0; font-size: 17px; font-weight: 700">Bench press <span style="color: #71717A; text-decoration: line-through; font-weight: 500">62.5</span> 60 kg</p>
+          <p class="pen" style="position: relative; margin: 4px 0 0; font-size: 24px">short sleep, hold this week</p>
+        </div>
+      </div>
+    </sc-if>
+
+    <div style="margin-top: auto; display: flex; gap: 10px">
+      <button type="button" onClick="{{back}}" class="btn btn-g" style="flex: 1">{{backLabel}}</button>
+      <button type="button" onClick="{{next}}" class="btn btn-p" style="flex: 2">{{nextLabel}}</button>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { i: 0 };
+  }
+  renderVals() {
+    const i = this.state.i;
+    const glows = ['rgba(59,130,246,0.20)', 'rgba(59,130,246,0.22)', 'rgba(34,197,94,0.20)', 'rgba(45,212,191,0.18)'];
+    const color = { gym: '#3B82F6', yoga: '#2DD4BF', rest: '#52525B' };
+    const raw = [['Mon', 'gym', 'Upper body', '45 min'], ['Tue', 'yoga', 'Yoga flow', '20 min'], ['Wed', 'gym', 'Lower body', '45 min'], ['Thu', 'rest', 'Rest', ''], ['Fri', 'gym', 'Full body', '45 min'], ['Sat', 'yoga', 'Yoga and stretch', '25 min'], ['Sun', 'rest', 'Rest', '']];
+    const week = raw.map((r, n) => ({
+      day: r[0], what: r[2], min: r[3],
+      dot: 'position: relative; width: 10px; height: 10px; border-radius: 5px; background: ' + color[r[1]] + (r[1] === 'rest' ? '' : '; box-shadow: 0 0 10px ' + color[r[1]]),
+      row: 'position: relative; min-height: 50px; display: flex; align-items: center; gap: 12px; animation-delay: ' + (n * 0.1) + 's;' + (n < raw.length - 1 ? ' border-bottom: 1px solid rgba(255,255,255,0.06)' : '')
+    }));
+    const bars = [0, 1, 2, 3].map((n) => ({ s: 'height: 4px; border-radius: 2px; background: ' + (n <= i ? '#FFFFFF; box-shadow: 0 0 8px rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.14)') }));
+    return {
+      scr: 'width: 390px; height: 844px; --glow: ' + glows[i],
+      bars, week, step: i + 1, progressLabel: 'Story ' + (i + 1) + ' of 4',
+      s0: i === 0, s1: i === 1, s2: i === 2, s3: i === 3,
+      backLabel: i === 0 ? 'Change days' : 'Back',
+      nextLabel: i === 3 ? 'Start my plan' : 'Next',
+      back: () => this.setState({ i: Math.max(0, i - 1) }),
+      next: () => this.setState({ i: i === 3 ? 0 : i + 1 })
+    };
+  }
+}
+</script>
+</body>
+</html>

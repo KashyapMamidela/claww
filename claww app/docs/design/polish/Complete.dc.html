@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session complete</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(110% 36% at 50% -2%,rgba(59,130,246,0.30),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95)}
+.card::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:20px;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--t) 30%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 40%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 18px 30px -16px color-mix(in srgb,var(--t) 60%,transparent)}
+.seg{display:flex;padding:3px;gap:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-g{height:54px;border-radius:16px;font-size:16px;background:linear-gradient(180deg,#1C1C1F,#141416);border:1px solid rgba(255,255,255,0.12)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+@keyframes pop{0%{transform:scale(0.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop 500ms cubic-bezier(.23,1,.32,1) both}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1040px">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding: 64px 16px 34px">
+    <div class="pop" style="text-align: center">
+      <span style="display: inline-flex; width: 64px; height: 64px; border-radius: 32px; align-items: center; justify-content: center; background: linear-gradient(135deg,#1D4ED8,#3B82F6); box-shadow: 0 0 0 8px rgba(59,130,246,0.15), 0 0 40px rgba(59,130,246,0.7)"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"></path></svg></span>
+      <h1 style="margin: 14px 0 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Upper body, done</h1>
+      <p style="margin: 6px 0 0; font-size: 16px; color: #A1A1AA">Session 3 of 4 this week</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <div class="card" style="padding: 14px; text-align: center"><p style="position: relative; margin: 0; font-size: 22px; font-weight: 900">46 min</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">time</p></div>
+      <div class="card" style="padding: 14px; text-align: center"><p style="position: relative; margin: 0; font-size: 22px; font-weight: 900">7,840</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">kg lifted</p></div>
+      <div class="card" style="padding: 14px; text-align: center"><p style="position: relative; margin: 0; font-size: 22px; font-weight: 900; color: #FDBA74">312</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">kcal burned</p></div>
+    </div>
+
+    <div class="tint" style="--t: #F59E0B; padding: 16px; display: flex; align-items: center; gap: 14px">
+      <span style="position: relative; width: 48px; height: 48px; flex-shrink: 0; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(245,158,11,0.18); color: #FCD34D"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3"></path></svg></span>
+      <div style="position: relative"><p style="margin: 0; font-size: 13px; color: #FCD34D">New best</p><p style="margin: 2px 0 0; font-size: 17px; font-weight: 800">Bench press · 62.5 kg × 8</p><p style="margin: 2px 0 0; font-size: 13px; color: #9A9AA3">Up 2.5 kg from last week</p></div>
+    </div>
+
+    <div class="card" style="padding: 16px">
+      <div style="position: relative; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+        <span style="font-size: 17px; font-weight: 800">Muscles worked</span>
+        <div class="seg" style="width: 150px">
+          <sc-for list="{{sides}}" as="sd" hint-placeholder-count="2"><button type="button" onClick="{{sd.pick}}" style="{{sd.style}}">{{sd.n}}</button></sc-for>
+        </div>
+      </div>
+      <div style="position: relative; display: flex; align-items: center; gap: 12px; margin-top: 12px">
+        <svg width="150" height="260" viewBox="0 0 150 260" aria-label="Body map">
+          <defs><filter id="gl" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"></feGaussianBlur></filter></defs>
+          <circle cx="75" cy="22" r="15" fill="#26262A"></circle>
+          <rect x="66" y="36" width="18" height="10" rx="4" fill="#26262A"></rect>
+          <sc-for list="{{parts}}" as="p" hint-placeholder-count="10">
+            <rect x="{{p.x}}" y="{{p.y}}" width="{{p.w}}" height="{{p.h}}" rx="{{p.r}}" fill="{{p.c}}" style="{{p.st}}"></rect>
+          </sc-for>
+        </svg>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 10px">
+          <sc-for list="{{legend}}" as="lg" hint-placeholder-count="4">
+            <div style="display: flex; align-items: center; gap: 8px"><span style="{{lg.dot}}"></span><span style="flex-grow: 1; font-size: 15px; font-weight: 600">{{lg.n}}</span><span style="font-size: 13px; color: #9A9AA3">{{lg.v}}</span></div>
+          </sc-for>
+          <p style="margin: 4px 0 0; font-size: 13px; line-height: 18px; color: #9A9AA3">Brighter means more sets this week.</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 10px">
+      <p style="margin: 0; font-size: 17px; font-weight: 700">How hard was it overall?</p>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{feel}}" as="f" hint-placeholder-count="3"><button type="button" onClick="{{f.pick}}" class="btn" style="{{f.style}}">{{f.n}}</button></sc-for>
+      </div>
+      <p class="pen" style="margin: 0 4px; font-size: 24px; transform: rotate(-1.2deg)">{{note}}</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 10px">
+      <button type="button" class="btn btn-g">Share</button>
+      <a href="Home.dc.html" class="btn btn-p">Back to today</a>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1040}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { side: 0, feel: 1 };
+  }
+  renderVals() {
+    const s = this.state;
+    const heat = (v) => v === 0 ? '#26262A' : v === 1 ? '#1E3A8A' : v === 2 ? '#2563EB' : '#60A5FA';
+    const glow = (v) => v >= 2 ? 'filter: drop-shadow(0 0 ' + (v * 3) + 'px rgba(59,130,246,0.85))' : '';
+    const front = [
+      ['Shoulders', 36, 48, 24, 20, 10, 3], ['Shoulders', 90, 48, 24, 20, 10, 3],
+      ['Chest', 50, 50, 24, 30, 8, 3], ['Chest', 76, 50, 24, 30, 8, 3],
+      ['Arms', 28, 72, 16, 54, 8, 2], ['Arms', 106, 72, 16, 54, 8, 2],
+      ['Core', 56, 84, 38, 52, 10, 1],
+      ['Legs', 52, 142, 21, 92, 10, 0], ['Legs', 77, 142, 21, 92, 10, 0]
+    ];
+    const back = [
+      ['Shoulders', 36, 48, 24, 20, 10, 2], ['Shoulders', 90, 48, 24, 20, 10, 2],
+      ['Back', 50, 50, 50, 46, 10, 3],
+      ['Arms', 28, 72, 16, 54, 8, 1], ['Arms', 106, 72, 16, 54, 8, 1],
+      ['Lower back', 58, 100, 34, 36, 8, 1],
+      ['Legs', 52, 142, 21, 92, 10, 0], ['Legs', 77, 142, 21, 92, 10, 0]
+    ];
+    const set = s.side === 0 ? front : back;
+    const parts = set.map((p) => ({ x: p[1], y: p[2], w: p[3], h: p[4], r: p[5], c: heat(p[6]), st: glow(p[6]) }));
+    const legend = (s.side === 0
+      ? [['Chest', '12 sets', 3], ['Shoulders', '9 sets', 3], ['Arms', '6 sets', 2], ['Legs', 'Saturday', 0]]
+      : [['Back', '11 sets', 3], ['Shoulders', '6 sets', 2], ['Lower back', '3 sets', 1], ['Legs', 'Saturday', 0]]
+    ).map((l) => ({ n: l[0], v: l[1], dot: 'width: 10px; height: 10px; border-radius: 5px; flex-shrink: 0; background: ' + heat(l[2]) + '; ' + (l[2] >= 2 ? 'box-shadow: 0 0 8px ' + heat(l[2]) : '') }));
+    const sides = ['Front', 'Back'].map((n, i) => ({
+      n, pick: () => this.setState({ side: i }),
+      style: 'flex: 1; height: 32px; border: 0; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; ' + (s.side === i ? 'color: #FFFFFF; background: #26262A' : 'color: #9A9AA3; background: transparent')
+    }));
+    const feelCols = ['#22C55E', '#3B82F6', '#FB923C'];
+    const feel = ['Easy', 'Just right', 'Very hard'].map((n, i) => ({
+      n, pick: () => this.setState({ feel: i }),
+      style: 'height: 50px; border-radius: 15px; font-size: 15px; ' + (s.feel === i ? 'color: #FFFFFF; background: color-mix(in srgb, ' + feelCols[i] + ' 30%, #131315); border: 1px solid ' + feelCols[i] + '; box-shadow: 0 8px 18px -8px ' + feelCols[i] : 'color: #A1A1AA; background: linear-gradient(180deg,#19191C,#131315); border: 1px solid rgba(255,255,255,0.09)')
+    }));
+    const notes = ['next time I add a set', 'keep this weight next week', 'lighter on Monday, sleep well'];
+    return { parts, legend, sides, feel, note: notes[s.feel] };
+  }
+}
+</script>
+</body>
+</html>

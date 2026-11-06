@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Workouts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 30% at 50% -4%,rgba(59,130,246,0.18),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95)}
+.card::after,.tint::after,.hero::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:20px;background:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--t) 28%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 36%,transparent);box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 18px 30px -16px color-mix(in srgb,var(--t) 55%,transparent)}
+.hero{position:relative;overflow:hidden;border-radius:24px;background:linear-gradient(150deg,#0F172A 0%,#1E3A5F 55%,#1D4ED8 120%);border:1px solid rgba(96,165,250,0.35);box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 24px 40px -18px rgba(59,130,246,0.7)}
+.sheen{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,0.10) 45%,transparent 60%);pointer-events:none}
+.lbl{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#A1A1AA}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:var(--t,#3B82F6);box-shadow:0 0 8px var(--t,#3B82F6)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-w{height:52px;border-radius:15px;font-size:17px;color:#0F172A;background:linear-gradient(180deg,#FFFFFF,#DCE7FF);box-shadow:0 10px 22px -10px rgba(255,255,255,0.6)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.tabs{position:absolute;left:0;right:0;bottom:0;z-index:5;height:84px;padding:8px 6px 26px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:rgba(8,8,9,0.72);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.08)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#71717A}
+.tab.on{color:#FFFFFF}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1200px">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding: 58px 16px 110px">
+    <div><p style="margin: 0; font-size: 15px; color: #9A9AA3">Week 2 of your plan</p><h1 style="margin: 2px 0 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Workouts</h1></div>
+
+    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px">
+      <sc-for list="{{week}}" as="d" hint-placeholder-count="7">
+        <button type="button" onClick="{{d.pick}}" style="{{d.style}}"><span style="font-size: 12px; font-weight: 600; opacity: .7">{{d.l}}</span><span style="font-size: 17px; font-weight: 800">{{d.n}}</span><span style="{{d.dot}}"></span></button>
+      </sc-for>
+    </div>
+
+    <div class="hero" style="padding: 20px">
+      <div class="sheen"></div>
+      <div style="position: relative">
+        <p style="margin: 0; font-size: 13px; font-weight: 600; color: #BFDBFE">{{dayLabel}}</p>
+        <p style="margin: 4px 0 0; font-size: 28px; line-height: 33px; font-weight: 900; letter-spacing: -0.5px">{{title}}</p>
+        <p style="margin: 6px 0 0; font-size: 15px; color: #DBEAFE">{{meta}}</p>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px">
+          <sc-for list="{{muscles}}" as="mu" hint-placeholder-count="3"><span style="padding: 6px 10px; border-radius: 10px; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.12)">{{mu}}</span></sc-for>
+        </div>
+        <a href="Player.dc.html" class="btn btn-w" style="margin-top: 18px">{{cta}}</a>
+      </div>
+    </div>
+
+    <span class="lbl" style="margin-top: 4px"><i></i>In this session</span>
+    <div class="card" style="padding: 4px 16px">
+      <sc-for list="{{moves}}" as="mv" hint-placeholder-count="5">
+        <div style="position: relative; display: flex; align-items: center; gap: 12px; min-height: 64px; border-bottom: 1px solid rgba(255,255,255,0.06)">
+          <span style="width: 40px; height: 40px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #93C5FD; background: rgba(59,130,246,0.14)">{{mv.i}}</span>
+          <div style="flex-grow: 1; min-width: 0"><p style="margin: 0; font-size: 16px; font-weight: 700">{{mv.n}}</p><p style="margin: 2px 0 0; font-size: 13px; color: #9A9AA3">{{mv.s}}</p></div>
+          <span class="pen" style="font-size: 20px; color: #FDE68A; text-shadow: 0 0 10px rgba(253,230,138,0.45)">{{mv.pen}}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <span class="lbl" style="--t: #FB923C; margin-top: 4px"><i></i>Activity recorded this week</span>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+      <div class="tint" style="--t: #FB923C; padding: 14px"><p style="position: relative; margin: 0; font-size: 13px; color: #FDBA74">Walk · Wed</p><p style="position: relative; margin: 4px 0 0; font-size: 20px; font-weight: 900">42 min</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">4.1 km · 190 kcal</p></div>
+      <div class="tint" style="--t: #2DD4BF; padding: 14px"><p style="position: relative; margin: 0; font-size: 13px; color: #5EEAD4">Yoga · Thu</p><p style="position: relative; margin: 4px 0 0; font-size: 20px; font-weight: 900">25 min</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">Hips and back · 80 kcal</p></div>
+    </div>
+    <button type="button" class="btn" style="height: 48px; border-radius: 14px; font-size: 15px; background: linear-gradient(180deg,#1C1C1F,#141416); border: 1px solid rgba(255,255,255,0.12)">+ Add an activity</button>
+  </main>
+
+  <nav class="tabs" aria-label="Main">
+    <a href="Home.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"></path></svg>Home</a>
+    <a href="Workouts.dc.html" class="tab on"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="filter: drop-shadow(0 0 6px #3B82F6)"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"></path></svg>Workouts</a>
+    <a href="Nutrition.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8a3 3 0 0 0 3 3v7M10 3v6M4 3v6a3 3 0 0 0 3 3M17 21V3c-2 1-3 4-3 7s1 4 3 4"></path></svg>Nutrition</a>
+    <a href="Tracker.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"></path></svg>Tracker</a>
+    <a href="Profile.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>More</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1200}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { day: 4 };
+  }
+  renderVals() {
+    const d = this.state.day;
+    const plan = [
+      { t: 'Lower body', k: 'gym', done: true },
+      { t: 'Rest', k: 'rest' },
+      { t: 'Push day', k: 'gym', done: true },
+      { t: 'Yoga flow', k: 'yoga', done: true },
+      { t: 'Upper body', k: 'gym' },
+      { t: 'Legs and core', k: 'gym' },
+      { t: 'Rest', k: 'rest' }
+    ];
+    const col = { gym: '#3B82F6', yoga: '#2DD4BF', rest: '#52525B' };
+    const letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    const week = plan.map((p, i) => ({
+      l: letters[i], n: 2 + i,
+      style: 'height: 68px; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; color: #FFFFFF; ' +
+        (i === d ? 'border: 1px solid rgba(96,165,250,0.7); background: linear-gradient(150deg, rgba(29,78,216,0.7), rgba(59,130,246,0.3)); box-shadow: 0 10px 18px -10px rgba(59,130,246,0.95)' : 'border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg,#1A1A1D,#131315)'),
+      dot: 'width: 6px; height: 6px; border-radius: 3px; margin-top: 2px; ' + (p.done ? 'background: #22C55E; box-shadow: 0 0 6px #22C55E' : 'background: ' + col[p.k]),
+      pick: () => this.setState({ day: i })
+    }));
+    const sets = {
+      gym: [['B', 'Bench press', '4 × 8 · 62.5 kg', '↑ 2.5'], ['R', 'Seated row', '3 × 10 · 45 kg', ''], ['S', 'Shoulder press', '3 × 10 · 14 kg', ''], ['P', 'Pull downs', '3 × 12 · 40 kg', 'easy?'], ['C', 'Plank', '3 × 40 s', '']],
+      yoga: [['1', 'Cat and cow', '1 min', ''], ['2', 'Low lunge', '1 min each side', ''], ['3', 'Pigeon', '90 s each side', 'go slow'], ['4', 'Child pose', '2 min', '']],
+      rest: [['W', 'Easy walk', '20 to 30 min', 'optional'], ['S', 'Stretch', '10 min', '']]
+    };
+    const p = plan[d];
+    const moves = sets[p.k].map((m) => ({ i: m[0], n: m[1], s: m[2], pen: m[3] }));
+    return {
+      week, moves,
+      dayLabel: (d === 4 ? 'Today · ' : '') + ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][d] + ' · 6 pm',
+      title: p.t,
+      meta: p.k === 'rest' ? 'Rest day. Light moving helps you recover.' : p.k === 'yoga' ? '25 min · mat at home' : '45 min · gym · 5 moves',
+      muscles: p.k === 'gym' ? (p.t === 'Upper body' ? ['Chest', 'Back', 'Shoulders'] : ['Legs', 'Glutes', 'Core']) : p.k === 'yoga' ? ['Hips', 'Lower back'] : ['Recovery'],
+      cta: p.done ? 'See what you did' : p.k === 'rest' ? 'Start a walk' : 'Start session'
+    };
+  }
+}
+</script>
+</body>
+</html>

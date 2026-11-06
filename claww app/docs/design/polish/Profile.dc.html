@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>You and settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 30% at 50% -4%,rgba(244,114,182,0.14),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.row{position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.row:last-child{border-bottom:0}
+.ico{width:32px;height:32px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.tabs{position:absolute;left:0;right:0;bottom:0;z-index:5;height:84px;padding:8px 6px 26px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:rgba(8,8,9,0.72);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.08)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:600;color:#71717A}
+.tab.on{color:#FFFFFF}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 900px">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding: 58px 16px 110px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <span style="width: 64px; height: 64px; flex-shrink: 0; border-radius: 32px; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 900; background: linear-gradient(135deg,#1D4ED8,#3B82F6); box-shadow: 0 0 0 3px #050505, 0 0 0 5px rgba(96,165,250,0.5), 0 10px 24px -8px rgba(59,130,246,0.7)">K</span>
+      <div style="flex-grow: 1"><h1 style="margin: 0; font-size: 26px; line-height: 31px; font-weight: 900; letter-spacing: -0.5px">Kashyap</h1><p style="margin: 2px 0 0; font-size: 15px; color: #9A9AA3">Build muscle · Gym and yoga</p></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+      <div class="card" style="padding: 12px; text-align: center"><p style="position: relative; margin: 0; font-size: 20px; font-weight: 900; color: #F9A8D4">5 days</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">streak</p></div>
+      <div class="card" style="padding: 12px; text-align: center"><p style="position: relative; margin: 0; font-size: 20px; font-weight: 900">23</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">sessions</p></div>
+      <div class="card" style="padding: 12px; text-align: center"><p style="position: relative; margin: 0; font-size: 20px; font-weight: 900">−1.6 kg</p><p style="position: relative; margin: 2px 0 0; font-size: 13px; color: #9A9AA3">since start</p></div>
+    </div>
+
+    <p style="margin: 6px 4px 0; font-size: 13px; font-weight: 600; color: #A1A1AA">Your plan</p>
+    <div class="card">
+      <a href="Goal.dc.html" class="row"><span class="ico" style="background: rgba(59,130,246,0.16); color: #93C5FD"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Goal and training style</span><span style="font-size: 15px; color: #9A9AA3">Muscle</span></a>
+      <a href="Schedule.dc.html" class="row"><span class="ico" style="background: rgba(59,130,246,0.16); color: #93C5FD"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="3"></rect><path d="M4 10h16M9 3v4M15 3v4"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Days and time</span><span style="font-size: 15px; color: #9A9AA3">4 days · 45 min</span></a>
+      <div class="row"><span class="ico" style="background: rgba(34,197,94,0.16); color: #86EFAC"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8a3 3 0 0 0 3 3v7M10 3v6M4 3v6a3 3 0 0 0 3 3"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Food you eat</span><span style="font-size: 15px; color: #9A9AA3">Mess · eggs ok</span></div>
+      <div class="row"><span class="ico" style="background: rgba(251,146,60,0.16); color: #FDBA74"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3c3 4 5 6 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Daily goals</span><span style="font-size: 15px; color: #9A9AA3">2,460 · burn 410</span></div>
+    </div>
+
+    <p style="margin: 6px 4px 0; font-size: 13px; font-weight: 600; color: #A1A1AA">App</p>
+    <div class="card">
+      <div class="row"><span class="ico" style="background: rgba(129,140,248,0.16); color: #C7D2FE"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Lock screen logging</span>
+        <button type="button" role="switch" aria-checked="{{lockAttr}}" onClick="{{toggleLock}}" style="{{lockStyle}}"><span style="{{knob}}"></span></button>
+      </div>
+      <div class="row"><span class="ico" style="background: rgba(45,212,191,0.16); color: #99F6E4"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Health Connect</span><span style="font-size: 15px; color: #4ADE80">On</span></div>
+      <div class="row"><span class="ico" style="background: rgba(255,255,255,0.08); color: #D4D4D8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h10M4 17h7"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Units and language</span><span style="font-size: 15px; color: #9A9AA3">kg · English</span></div>
+      <div class="row"><span class="ico" style="background: rgba(255,255,255,0.08); color: #D4D4D8"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="10" width="14" height="10" rx="3"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg></span><span style="flex-grow: 1; font-size: 16px; font-weight: 600">Privacy and your data</span></div>
+    </div>
+
+    <p class="pen" style="margin: 0 4px; font-size: 23px; transform: rotate(-1deg); color: #A1A1AA; text-shadow: none">change anything, the plan redraws itself</p>
+    <button type="button" style="height: 48px; border: 0; background: transparent; font-size: 16px; font-weight: 700; color: #F87171; cursor: pointer">Log out</button>
+  </main>
+
+  <nav class="tabs" aria-label="Main">
+    <a href="Home.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"></path></svg>Home</a>
+    <a href="Workouts.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 10v4M21 10v4M6 12h12"></path></svg>Workouts</a>
+    <a href="Nutrition.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 3v8a3 3 0 0 0 3 3v7M10 3v6M4 3v6a3 3 0 0 0 3 3M17 21V3c-2 1-3 4-3 7s1 4 3 4"></path></svg>Nutrition</a>
+    <a href="Tracker.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-7 4 14 3-7h4"></path></svg>Tracker</a>
+    <a href="Profile.dc.html" class="tab on"><svg width="24" height="24" viewBox="0 0 24 24" fill="#F472B6" aria-hidden="true" style="filter: drop-shadow(0 0 6px #F472B6)"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg>More</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":900}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { lock: true };
+  }
+  renderVals() {
+    const on = this.state.lock;
+    return {
+      lockAttr: on ? 'true' : 'false',
+      toggleLock: () => this.setState({ lock: !on }),
+      lockStyle: 'position: relative; width: 52px; height: 32px; flex-shrink: 0; border: 0; border-radius: 16px; cursor: pointer; transition: background 180ms; ' + (on ? 'background: linear-gradient(135deg,#1D4ED8,#3B82F6); box-shadow: 0 0 12px -2px rgba(59,130,246,0.8)' : 'background: #2A2A2E'),
+      knob: 'position: absolute; top: 3px; left: 3px; width: 26px; height: 26px; border-radius: 13px; background: #FFFFFF; box-shadow: 0 2px 4px rgba(0,0,0,0.4); transition: transform 180ms cubic-bezier(.23,1,.32,1); transform: translateX(' + (on ? 20 : 0) + 'px)'
+    };
+  }
+}
+</script>
+</body>
+</html>

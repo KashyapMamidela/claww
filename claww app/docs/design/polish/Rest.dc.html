@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Rest timer</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(70% 36% at 50% 34%,rgba(45,212,191,0.22),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),0 22px 34px -22px rgba(0,0,0,0.95)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-g{height:52px;border-radius:16px;font-size:16px;background:linear-gradient(180deg,#1C1C1F,#141416);border:1px solid rgba(255,255,255,0.12);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06)}
+.btn-p{height:56px;border-radius:17px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.7),inset 0 1px 0 rgba(255,255,255,0.22)}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+@keyframes breathe{0%,100%{transform:scale(0.96);opacity:.55}50%{transform:scale(1.04);opacity:1}}
+.halo{position:absolute;inset:-18px;border-radius:50%;background:radial-gradient(circle,rgba(45,212,191,0.28),transparent 66%);animation:breathe 4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.halo{animation:none}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px">
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 70px 16px 34px">
+    <p style="margin: 0; font-size: 17px; font-weight: 700; color: #5EEAD4">Rest</p>
+    <div style="position: relative; width: 250px; height: 250px; margin-top: 6px">
+      <div class="halo"></div>
+      <svg width="250" height="250" viewBox="0 0 250 250" style="position: relative" aria-hidden="true">
+        <circle cx="125" cy="125" r="108" fill="none" stroke="#0E0E10" stroke-width="14"></circle>
+        <circle cx="125" cy="125" r="108" fill="none" stroke="#2DD4BF" stroke-width="14" stroke-linecap="round" stroke-dasharray="678.6" stroke-dashoffset="{{off}}" transform="rotate(-90 125 125)" style="filter: drop-shadow(0 0 8px rgba(45,212,191,0.8)); transition: stroke-dashoffset 300ms cubic-bezier(.23,1,.32,1)"></circle>
+      </svg>
+      <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center">
+        <span style="font-size: 64px; line-height: 68px; font-weight: 900; letter-spacing: -2px">{{time}}</span>
+        <span style="font-size: 15px; color: #9A9AA3">of {{total}}</span>
+      </div>
+    </div>
+    <p class="pen" style="margin: 0; font-size: 25px; transform: rotate(-1.5deg)">breathe out slow, drink some water</p>
+
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; width: 100%">
+      <button type="button" onClick="{{minus}}" class="btn btn-g">− 15 s</button>
+      <button type="button" onClick="{{plus}}" class="btn btn-g">+ 15 s</button>
+    </div>
+
+    <div class="card" style="width: 100%; padding: 14px 16px; display: flex; align-items: center; gap: 12px; margin-top: auto">
+      <span style="position: relative; width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #93C5FD; background: rgba(59,130,246,0.14)">S</span>
+      <div style="position: relative; flex-grow: 1"><p style="margin: 0; font-size: 13px; color: #9A9AA3">Up next</p><p style="margin: 2px 0 0; font-size: 17px; font-weight: 700">Shoulder press · 3 × 10</p><p style="margin: 2px 0 0; font-size: 13px; color: #9A9AA3">14 kg dumbbells</p></div>
+    </div>
+    <a href="Complete.dc.html" class="btn btn-p" style="width: 100%">Skip rest</a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { total: 90, left: 64 };
+  }
+  renderVals() {
+    const s = this.state;
+    const mm = Math.floor(s.left / 60);
+    const ss = String(s.left % 60).padStart(2, '0');
+    const tm = Math.floor(s.total / 60) + ':' + String(s.total % 60).padStart(2, '0');
+    return {
+      time: mm + ':' + ss, total: tm,
+      off: (678.6 * (1 - s.left / s.total)).toFixed(1),
+      plus: () => this.setState({ total: s.total + 15, left: s.left + 15 }),
+      minus: () => this.setState({ total: Math.max(15, s.total - 15), left: Math.max(0, s.left - 15) })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 22% at 50% -2%,var(--glow),transparent 72%),radial-gradient(90% 20% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:22px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 26%,transparent),transparent 62%),linear-gradient(180deg,#1A1A1D,#121214);border:1px solid color-mix(in srgb,var(--t) 32%,rgba(255,255,255,0.05));box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 26px -20px color-mix(in srgb,var(--t) 85%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.09) 1px,transparent 1.3px);background-size:9px 9px;-webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lbl{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--c)}
+.lbl i{display:block;width:7px;height:7px;border-radius:4px;background:currentColor;box-shadow:0 0 8px currentColor}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.bar{height:5px;border-radius:3px;background:rgba(255,255,255,0.07);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:3px;background:var(--c);box-shadow:0 0 8px var(--c)}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(255,255,255,0.14)}50%{box-shadow:0 0 0 8px rgba(255,255,255,0.04)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tab{width:68px;min-height:48px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;color:#8A8A93}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1260px; --glow: rgba(59,130,246,0.14)">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding: 14px 16px 120px">
+    <div style="display: flex; align-items: center; justify-content: space-between; height: 48px">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <span style="width: 36px; height: 36px; border-radius: 11px; background: linear-gradient(135deg,#1D4ED8,#3B82F6); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 14px -6px rgba(59,130,246,0.8)">
+          <svg viewBox="0 0 599 567" width="20" height="19" fill="#FFFFFF" fill-rule="evenodd" aria-hidden="true"><path d="M251 7 L237 22 L167 134 L162 145 L160 156 L164 172 L172 181 L182 185 L233 181 L258 181 L282 186 L310 200 L365 244 L373 247 L386 247 L393 244 L402 235 L436 171 L438 151 L432 135 L362 23 L350 9 L337 2 L325 0 L265 1 Z M359 123 L376 123 L394 131 L406 144 L412 159 L412 176 L408 188 L394 204 L377 212 L359 212 L346 207 L330 192 L324 177 L324 157 L329 145 L340 132 Z"></path><path d="M119 180 L104 180 L93 183 L74 197 L6 301 L0 320 L1 333 L7 348 L71 452 L80 462 L95 468 L110 466 L116 463 L124 455 L247 283 L258 263 L260 256 L259 240 L256 234 L248 227 L240 224 L187 223 L171 220 L162 215 L134 186 Z"></path><path d="M527 205 L514 193 L501 187 L486 185 L471 189 L466 192 L457 202 L436 260 L424 282 L411 296 L401 302 L384 305 L370 302 L355 295 L341 294 L330 299 L324 306 L322 313 L323 319 L330 328 L399 348 L415 357 L421 363 L427 375 L426 390 L419 404 L390 438 L339 488 L328 496 L322 498 L316 497 L312 489 L315 476 L321 464 L351 417 L353 403 L349 394 L339 387 L323 384 L287 384 L272 386 L262 389 L246 398 L123 515 L120 522 L120 528 L128 542 L144 556 L156 562 L174 566 L423 566 L446 560 L460 551 L473 537 L594 341 L597 330 L597 319 L592 303 Z"></path></svg>
+        </span>
+        <span style="font-size: 15px; font-weight: 600; color: #A1A1AA">Friday 6 Nov · 8:16</span>
+      </div>
+      <a href="Review.dc.html" aria-label="Your week" style="width: 44px; height: 44px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: linear-gradient(180deg,#19191C,#131315); display: flex; align-items: center; justify-content: center">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D4D4D8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg>
+      </a>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.9px">Good morning, Kashyap</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 24px; color: #A1A1AA">You slept <b style="color: #FFFFFF">8 h 40</b>. Today is upper body, and you have <b style="color: #FFFFFF">122 g protein</b> to go.</p>
+      <p class="pen" style="margin: 0; font-size: 24px; transform: rotate(-1.5deg); transform-origin: left">well rested, the bench goes up</p>
+    </div>
+
+    <section class="card dots" style="padding: 18px 16px 16px">
+      <div style="position: relative; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px">
+        <span style="font-size: 17px; font-weight: 800">Daily progress</span>
+        <span style="font-size: 13px; font-weight: 700; color: #9A9AA3">{{goalPct}} of today</span>
+      </div>
+      <div style="position: relative; display: flex; align-items: center; gap: 16px">
+        <svg width="132" height="132" viewBox="0 0 140 140" role="img" aria-label="{{ringsLabel}}" style="flex-shrink: 0; filter: drop-shadow(0 0 10px rgba(251,146,60,0.25))">
+          <circle cx="70" cy="70" r="60" fill="none" stroke="#FB923C" stroke-opacity=".14" stroke-width="11"></circle>
+          <circle class="ring" cx="70" cy="70" r="60" fill="none" stroke="#FB923C" stroke-width="11" stroke-linecap="round" stroke-dasharray="{{burnDash}}" transform="rotate(-90 70 70)"></circle>
+          <circle cx="70" cy="70" r="45" fill="none" stroke="#22C55E" stroke-opacity=".14" stroke-width="11"></circle>
+          <circle class="ring" cx="70" cy="70" r="45" fill="none" stroke="#22C55E" stroke-width="11" stroke-linecap="round" stroke-dasharray="{{eatDash}}" transform="rotate(-90 70 70)"></circle>
+          <circle cx="70" cy="70" r="30" fill="none" stroke="#2DD4BF" stroke-opacity=".14" stroke-width="11"></circle>
+          <circle class="ring" cx="70" cy="70" r="30" fill="none" stroke="#2DD4BF" stroke-width="11" stroke-linecap="round" stroke-dasharray="179 189" transform="rotate(-90 70 70)"></circle>
+        </svg>
+        <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 12px">
+          <div><div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl" style="--c: #FB923C"><i></i>Burned</span><span style="font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums">120 <span style="font-size: 13px; color: #9A9AA3; font-weight: 600">/ 410</span></span></div></div>
+          <div><div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl" style="--c: #22C55E"><i></i>Eaten</span><span style="font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums">{{eaten}} <span style="font-size: 13px; color: #9A9AA3; font-weight: 600">/ 2,460</span></span></div></div>
+          <div><div style="display: flex; justify-content: space-between; align-items: baseline"><span class="lbl" style="--c: #2DD4BF"><i></i>Recovery</span><span style="font-size: 17px; font-weight: 800">94 <span style="font-size: 13px; color: #9A9AA3; font-weight: 600">good</span></span></div></div>
+        </div>
+      </div>
+      <div style="position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px">
+        <a href="Tracker.dc.html" class="tint" style="--t: #F59E0B; padding: 12px; display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="position: relative; --c: #FBBF24"><i></i>Steps</span><span style="position: relative; font-size: 20px; font-weight: 900">2,169</span><span class="bar" style="position: relative; --c: #F59E0B"><b style="width: 22%"></b></span></a>
+        <a href="Workouts.dc.html" class="tint" style="--t: #3B82F6; padding: 12px; display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="position: relative; --c: #60A5FA"><i></i>Session</span><span style="position: relative; font-size: 20px; font-weight: 900">6 pm</span><span class="bar" style="position: relative; --c: #3B82F6"><b style="width: 0%"></b></span></a>
+        <a href="Review.dc.html" class="tint" style="--t: #F472B6; padding: 12px; display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="position: relative; --c: #F9A8D4"><i></i>Streak</span><span style="position: relative; font-size: 20px; font-weight: 900">5 days</span><span class="bar" style="position: relative; --c: #F472B6"><b style="width: 71%"></b></span></a>
+      </div>
+    </section>
+
+    <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 4px"><h2 style="margin: 0; font-size: 22px; font-weight: 900; letter-spacing: -0.3px">Today</h2><a href="Workouts.dc.html" style="min-height: 44px; display: flex; align-items: center; font-size: 15px; font-weight: 700; color: #9A9AA3">Plan</a></div>
+    <section class="card" style="padding: 16px 16px 6px">
+      <div style="position: relative; display: grid; grid-template-columns: 44px 18px minmax(0, 1fr); column-gap: 10px">
+        <span style="font-size: 13px; color: #9A9AA3; padding-top: 2px; font-variant-numeric: tabular-nums">8:30</span>
+        <span style="display: flex; flex-direction: column; align-items: center"><span class="{{bNodeCls}}" style="{{bNode}}"></span><span style="flex-grow: 1; width: 2px; background: rgba(255,255,255,0.09)"></span></span>
+        <div style="padding-bottom: 18px; display: flex; flex-direction: column; gap: 4px">
+          <span style="font-size: 17px; font-weight: 800">Breakfast</span>
+          <span style="font-size: 15px; line-height: 21px; color: {{bLineColor}}">{{bLine}}</span>
+          <sc-if value="{{bOpen}}" hint-placeholder-val="{{ true }}">
+            <div style="display: flex; gap: 8px; margin-top: 8px">
+              <button type="button" onClick="{{ate}}" class="btn" style="height: 44px; padding: 0 16px; border-radius: 13px; font-size: 15px; background: linear-gradient(135deg,#15803D,#22C55E); box-shadow: 0 8px 18px -8px rgba(34,197,94,0.8), inset 0 1px 0 rgba(255,255,255,0.2)">Ate as planned</button>
+              <a href="Search.dc.html" class="btn" style="height: 44px; padding: 0 16px; border-radius: 13px; font-size: 15px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #4ADE80">Something else</a>
+            </div>
+          </sc-if>
+        </div>
+      </div>
+      <div style="position: relative; display: grid; grid-template-columns: 44px 18px minmax(0, 1fr); column-gap: 10px">
+        <span style="font-size: 13px; color: #9A9AA3; padding-top: 2px">13:30</span>
+        <span style="display: flex; flex-direction: column; align-items: center"><span style="width: 14px; height: 14px; margin-top: 3px; border-radius: 7px; border: 2px solid #52525B"></span><span style="flex-grow: 1; width: 2px; background: rgba(255,255,255,0.09)"></span></span>
+        <div style="padding-bottom: 18px"><span style="font-size: 17px; font-weight: 800">Lunch</span><br><span style="font-size: 15px; line-height: 21px; color: #9A9AA3">3 roti, dal, sabzi and curd</span></div>
+      </div>
+      <div style="position: relative; display: grid; grid-template-columns: 44px 18px minmax(0, 1fr); column-gap: 10px">
+        <span style="font-size: 13px; color: #9A9AA3; padding-top: 2px">18:00</span>
+        <span style="display: flex; flex-direction: column; align-items: center"><span style="width: 14px; height: 14px; margin-top: 3px; border-radius: 7px; border: 2px solid #3B82F6; box-shadow: 0 0 8px rgba(59,130,246,0.6)"></span><span style="flex-grow: 1; width: 2px; background: rgba(255,255,255,0.09)"></span></span>
+        <div style="padding-bottom: 18px; display: flex; flex-direction: column; gap: 6px">
+          <span style="font-size: 17px; font-weight: 800">Upper body · 45 min</span>
+          <span style="font-size: 15px; color: #C4C4CC">Bench press <span style="color: #71717A; text-decoration: line-through">60</span> <b style="color: #FFFFFF">62.5 kg</b></span>
+          <span class="pen" style="font-size: 21px">slept well, one step up</span>
+        </div>
+      </div>
+      <div style="position: relative; display: grid; grid-template-columns: 44px 18px minmax(0, 1fr); column-gap: 10px">
+        <span style="font-size: 13px; color: #9A9AA3; padding-top: 2px">20:30</span>
+        <span style="display: flex; flex-direction: column; align-items: center"><span style="width: 14px; height: 14px; margin-top: 3px; border-radius: 7px; border: 2px solid #52525B"></span><span style="flex-grow: 1; width: 2px; background: rgba(255,255,255,0.09)"></span></span>
+        <div style="padding-bottom: 18px"><span style="font-size: 17px; font-weight: 800">Dinner</span><br><span style="font-size: 15px; color: #9A9AA3">Chicken curry, rice and salad</span></div>
+      </div>
+      <div style="position: relative; display: grid; grid-template-columns: 44px 18px minmax(0, 1fr); column-gap: 10px">
+        <span style="font-size: 13px; color: #9A9AA3; padding-top: 2px">23:00</span>
+        <span style="display: flex; flex-direction: column; align-items: center"><span style="width: 14px; height: 14px; margin-top: 3px; border-radius: 7px; border: 2px solid #818CF8"></span></span>
+        <div style="padding-bottom: 14px"><span style="font-size: 17px; font-weight: 800">Sleep by 11</span><br><span style="font-size: 15px; color: #9A9AA3">Up at 7, that's 8 hours</span></div>
+      </div>
+    </section>
+
+    <section class="card" style="padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+      <span style="position: relative; width: 44px; height: 44px; border-radius: 13px; background: rgba(56,189,248,0.12); border: 1px solid rgba(56,189,248,0.28); display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.7s6 6.5 6 11.3a6 6 0 0 1-12 0c0-4.8 6-11.3 6-11.3z"></path></svg></span>
+      <div style="position: relative; flex-grow: 1; display: flex; flex-direction: column; gap: 6px">
+        <span style="font-size: 15px; font-weight: 800">{{water}} L <span style="color: #9A9AA3; font-weight: 600">of 2 L</span></span>
+        <span style="display: flex; gap: 3px"><sc-for list="{{segs}}" as="s" hint-placeholder-count="8"><span style="{{s.st}}"></span></sc-for></span>
+      </div>
+      <button type="button" onClick="{{addWater}}" aria-label="Add 250 ml of water" class="btn" style="position: relative; width: 48px; height: 48px; border-radius: 15px; background: linear-gradient(135deg,#0369A1,#38BDF8); box-shadow: 0 8px 18px -8px rgba(56,189,248,0.9)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+    </section>
+  </main>
+
+  <nav aria-label="Tabs" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; height: 86px; display: flex; justify-content: space-around; padding-top: 8px; background: rgba(8,8,9,0.82); backdrop-filter: blur(22px); border-top: 1px solid rgba(255,255,255,0.08)">
+    <a href="Home.dc.html" aria-current="page" class="tab" style="color: #FFFFFF"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Home</a>
+    <a href="Workouts.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12"></path></svg>Workouts</a>
+    <a href="Nutrition.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7c-2-3-7-2-7 3 0 6 4 11 7 11s7-5 7-11c0-5-5-6-7-3zM12 7c0-2 1-4 3-4"></path></svg>Nutrition</a>
+    <a href="Tracker.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Tracker</a>
+    <a href="Profile.dc.html" class="tab"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"></rect><rect x="13" y="4" width="7" height="7" rx="2"></rect><rect x="4" y="13" width="7" height="7" rx="2"></rect><rect x="13" y="13" width="7" height="7" rx="2"></rect></svg>More</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1260}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { ate: false, water: 2 };
+  }
+  renderVals() {
+    const ate = this.state.ate;
+    const w = this.state.water;
+    const eaten = ate ? 490 : 0;
+    const burnC = 2 * Math.PI * 60, eatC = 2 * Math.PI * 45;
+    const burnPct = 120 / 410, eatPct = eaten / 2460;
+    const goal = Math.round(((burnPct + eatPct + 0.94) / 3) * 100);
+    const segs = Array.from({ length: 8 }, (_, i) => ({ st: 'flex: 1; height: 6px; border-radius: 3px; background: ' + (i < w ? '#38BDF8; box-shadow: 0 0 6px rgba(56,189,248,0.7)' : 'rgba(255,255,255,0.08)') }));
+    return {
+      eaten: ate ? '490' : '0',
+      burnDash: (burnC * burnPct).toFixed(1) + ' ' + burnC.toFixed(1),
+      eatDash: (eatC * Math.max(eatPct, 0.001)).toFixed(1) + ' ' + eatC.toFixed(1),
+      goalPct: goal + '%',
+      ringsLabel: 'Burned 120 of 410 kcal, eaten ' + eaten + ' of 2460 kcal, recovery 94',
+      bOpen: !ate,
+      bLine: ate ? 'Done · 490 kcal, 26 g protein' : 'Now · poha, peanuts and 2 boiled eggs',
+      bLineColor: ate ? '#4ADE80' : '#C4C4CC',
+      bNodeCls: ate ? '' : 'pulse',
+      bNode: ate ? 'width: 14px; height: 14px; margin-top: 3px; border-radius: 7px; background: #22C55E; box-shadow: 0 0 10px #22C55E' : 'width: 14px; height: 14px; margin-top: 3px; border-radius: 7px; border: 2px solid #FFFFFF',
+      ate: () => this.setState({ ate: true }),
+      water: (w * 0.25).toFixed(2).replace(/0$/, ''),
+      segs,
+      addWater: () => this.setState({ water: Math.min(8, w + 1) })
+    };
+  }
+}
+</script>
+</body>
+</html>

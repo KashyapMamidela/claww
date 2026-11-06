@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Coach review</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 30% at 50% -4%,rgba(59,130,246,0.18),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95)}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.14;mix-blend-mode:overlay;pointer-events:none}
+.pen{font-family:Caveat,cursive;font-weight:700;color:#FFFFFF;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.strike{position:relative;color:#8A8A93}
+.strike::after{content:"";position:absolute;left:-3px;right:-3px;top:52%;height:2px;border-radius:1px;background:#FDE68A;transform:rotate(-2deg);box-shadow:0 0 6px rgba(253,230,138,0.6)}
+@keyframes draw{from{stroke-dashoffset:200}}
+.scribble{stroke-dasharray:200;animation:draw 700ms cubic-bezier(.23,1,.32,1) both}
+@media (prefers-reduced-motion:reduce){.scribble{animation:none}}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 1000px">
+  <main style="position: relative; z-index: 1; display: flex; flex-direction: column; gap: 16px; padding: 54px 16px 34px">
+    <div style="display: flex; align-items: center; gap: 4px">
+      <a href="Home.dc.html" aria-label="Back" style="width: 44px; height: 44px; margin-left: -10px; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a>
+      <span style="font-size: 17px; font-weight: 800">Coach review</span>
+    </div>
+    <div>
+      <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Notes on your plan</h1>
+      <p style="margin: 6px 0 0; font-size: 16px; line-height: 23px; color: #A1A1AA">I marked up three things after this week. Keep what you like.</p>
+    </div>
+
+    <sc-for list="{{items}}" as="it" hint-placeholder-count="3">
+      <div class="card" style="{{it.cardStyle}}">
+        <div style="position: relative">
+          <p style="margin: 0; font-size: 13px; color: #9A9AA3">{{it.area}}</p>
+          <p style="margin: 6px 0 0; font-size: 17px; line-height: 24px; font-weight: 700"><span class="strike">{{it.old}}</span></p>
+          <div style="display: flex; align-items: flex-start; gap: 6px; margin-top: 4px">
+            <svg width="30" height="24" viewBox="0 0 30 24" fill="none" aria-hidden="true"><path class="scribble" d="M2 4c4 10 12 15 24 14m0 0-5-5m5 5-6 4" stroke="#FDE68A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            <span class="pen" style="font-size: 26px; line-height: 28px; color: #FDE68A; text-shadow: 0 0 12px rgba(253,230,138,0.5)">{{it.pen}}</span>
+          </div>
+          <p style="margin: 8px 0 0; font-size: 15px; line-height: 22px; color: #C4C4CC">{{it.why}}</p>
+          <sc-if value="{{it.open}}" hint-placeholder-val="{{ true }}">
+            <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px">
+              <button type="button" onClick="{{it.take}}" class="btn" style="height: 44px; border-radius: 13px; font-size: 15px; background: linear-gradient(135deg,#1D4ED8,#3B82F6); box-shadow: 0 8px 18px -8px rgba(59,130,246,0.9)">Use this</button>
+              <button type="button" onClick="{{it.keep}}" class="btn" style="height: 44px; border-radius: 13px; font-size: 15px; background: linear-gradient(180deg,#1C1C1F,#141416); border: 1px solid rgba(255,255,255,0.12)">Keep mine</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{it.closed}}" hint-placeholder-val="{{ false }}">
+            <p style="margin: 12px 0 0; font-size: 15px; font-weight: 700; color: {{it.doneCol}}">{{it.doneText}}</p>
+          </sc-if>
+        </div>
+      </div>
+    </sc-for>
+
+    <a href="Home.dc.html" class="btn btn-p" style="margin-top: 4px">{{cta}}</a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { pick: [null, null, null] };
+  }
+  renderVals() {
+    const p = this.state.pick;
+    const base = [
+      { area: 'Dinner · weekdays', old: '2 katori rice, chicken curry', pen: '1 katori rice + 2 roti', why: 'Same food, steadier energy at night. Protein stays the same.' },
+      { area: 'Saturday · legs', old: 'Squats 4 × 8 at 50 kg', pen: 'start at 45, your knee said so', why: 'You marked knee pain twice. We build back up over 2 weeks.' },
+      { area: 'Sleep', old: 'Sleep by 11:00 pm', pen: '11:30 is fine, just keep it', why: 'You slept at 11:40 most nights. A time you can keep beats a perfect one.' }
+    ];
+    const set = (i, v) => { const n = p.slice(); n[i] = v; this.setState({ pick: n }); };
+    const items = base.map((b, i) => ({
+      ...b,
+      open: p[i] === null, closed: p[i] !== null,
+      doneText: p[i] === 'take' ? '✓ Added to your plan' : 'Kept your version',
+      doneCol: p[i] === 'take' ? '#60A5FA' : '#A1A1AA',
+      cardStyle: 'padding: 16px; ' + (p[i] === 'take' ? 'border-color: rgba(96,165,250,0.5); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 18px 30px -16px rgba(59,130,246,0.6)' : ''),
+      take: () => set(i, 'take'), keep: () => set(i, 'keep')
+    }));
+    const left = p.filter((x) => x === null).length;
+    return { items, cta: left ? left + ' left · decide later' : 'Done, update my plan' };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Log in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Caveat:wght@500;700&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button,input{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.07;pointer-events:none;z-index:0}
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;border:0;font-weight:800;color:#FFFFFF;cursor:pointer}
+.btn-p{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);box-shadow:0 10px 24px -8px rgba(59,130,246,0.65),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-g{height:54px;border-radius:16px;font-size:17px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.12);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06)}
+.well{display:flex;align-items:center;gap:10px;height:56px;padding:0 16px;border-radius:16px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 2px 6px rgba(0,0,0,0.7)}
+.well input{flex:1;height:44px;border:0;background:transparent;color:#FFFFFF;font-size:17px;outline:none}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px; --glow: rgba(59,130,246,0.18)">
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; gap: 22px; padding: 24px 20px 34px">
+    <a href="Splash.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; margin-left: -8px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+    </a>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <h1 style="margin: 0; font-size: 32px; line-height: 38px; font-weight: 900; letter-spacing: -0.8px">Welcome back</h1>
+      <p style="margin: 0; font-size: 16px; line-height: 23px; color: #A1A1AA">Pick up your plan where you left it.</p>
+    </div>
+    <button type="button" class="btn btn-g">
+      <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"></path><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"></path><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"></path><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"></path></svg>
+      Continue with Google
+    </button>
+    <div style="display: flex; align-items: center; gap: 12px; color: #8A8A93; font-size: 13px"><span style="flex: 1; height: 1px; background: rgba(255,255,255,0.08)"></span>or with email<span style="flex: 1; height: 1px; background: rgba(255,255,255,0.08)"></span></div>
+    <div style="display: flex; flex-direction: column; gap: 12px">
+      <label class="well"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A8A93" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"></rect><path d="m3 7 9 6 9-6"></path></svg><input type="email" placeholder="Email" aria-label="Email"></label>
+      <label class="well"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A8A93" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="3"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><input type="password" placeholder="Password" aria-label="Password"></label>
+      <a href="Login.dc.html" style="align-self: flex-end; min-height: 44px; display: flex; align-items: center; font-size: 15px; font-weight: 600; color: #60A5FA">Forgot password?</a>
+    </div>
+    <a href="Home.dc.html" class="btn btn-p" style="margin-top: auto">Log in</a>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

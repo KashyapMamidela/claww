@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Log from the lock screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap">
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;background:radial-gradient(80% 50% at 80% 10%,rgba(59,130,246,0.30),transparent 70%),radial-gradient(70% 45% at 10% 90%,rgba(34,197,94,0.18),transparent 70%),#07090D}
+.scr::before{content:"";position:absolute;inset:0;background-image:url(/_blob/4e9e6ff79a1ba60f0501b64e43afb1e9);background-size:256px 256px;opacity:.09;pointer-events:none;z-index:0}
+.note{position:relative;overflow:hidden;width:100%;border-radius:24px;background:rgba(36,36,40,0.72);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,0.10);box-shadow:inset 0 1px 0 rgba(255,255,255,0.10),0 18px 30px -18px rgba(0,0,0,0.9);padding:14px 16px}
+.act{height:44px;border-radius:13px;border:0;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#FFFFFF;cursor:pointer}
+.app{width:24px;height:24px;border-radius:7px;background:linear-gradient(135deg,#1D4ED8,#3B82F6);display:flex;align-items:center;justify-content:center;box-shadow:0 0 10px rgba(59,130,246,0.6)}
+</style>
+</helmet>
+<div class="scr" style="width: 390px; height: 844px">
+  <main style="position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 70px 12px 34px">
+    <p style="margin: 0; font-size: 17px; font-weight: 600; color: rgba(255,255,255,0.85)">Friday 6 November</p>
+    <p style="margin: 0 0 30px; font-size: 88px; line-height: 92px; font-weight: 700; letter-spacing: -3px">8:31</p>
+
+    <div class="note">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <span class="app"><svg viewBox="0 0 599 567" width="14" height="13" fill="#FFFFFF" fill-rule="evenodd" aria-hidden="true"><path d="M251 7 L167 134 L160 156 L172 181 L233 181 L282 186 L365 244 L386 247 L402 235 L436 171 L432 135 L362 23 L337 2 L265 1 Z"></path><path d="M119 180 L74 197 L6 301 L1 333 L71 452 L95 468 L124 455 L247 283 L260 256 L248 227 L187 223 L162 215 Z"></path><path d="M527 205 L501 187 L466 192 L436 260 L401 302 L370 302 L341 294 L322 313 L399 348 L427 375 L419 404 L339 488 L316 497 L321 464 L351 417 L339 387 L287 384 L246 398 L123 515 L128 542 L174 566 L423 566 L473 537 L594 341 L592 303 Z"></path></svg></span>
+        <span style="flex-grow: 1; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75)">CLAWW</span>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.6)">now</span>
+      </div>
+      <p style="margin: 8px 0 0; font-size: 17px; line-height: 22px; font-weight: 700">{{title}}</p>
+      <p style="margin: 2px 0 0; font-size: 15px; line-height: 20px; color: rgba(255,255,255,0.8)">{{body}}</p>
+      <sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px">
+          <button type="button" onClick="{{ate}}" class="act" style="background: linear-gradient(135deg,#15803D,#22C55E); box-shadow: 0 8px 18px -8px rgba(34,197,94,0.9)">Ate it</button>
+          <a href="Search.dc.html" class="act" style="background: rgba(255,255,255,0.12)">Something else</a>
+        </div>
+      </sc-if>
+    </div>
+
+    <div class="note" style="display: flex; align-items: center; gap: 12px">
+      <div style="flex-grow: 1"><p style="margin: 0; font-size: 15px; font-weight: 700">Water · {{water}} of 2 L</p><p style="margin: 2px 0 0; font-size: 13px; color: rgba(255,255,255,0.6)">CLAWW · 7:58</p></div>
+      <button type="button" onClick="{{addWater}}" class="act" style="padding: 0 16px; background: rgba(56,189,248,0.22); color: #7DD3FC">+ 250 ml</button>
+    </div>
+
+    <div class="note" style="display: flex; align-items: center; gap: 12px">
+      <div style="flex-grow: 1"><p style="margin: 0; font-size: 15px; font-weight: 700">{{sleepTitle}}</p><p style="margin: 2px 0 0; font-size: 13px; color: rgba(255,255,255,0.6)">CLAWW · 7:15</p></div>
+      <sc-if value="{{sleepOpen}}" hint-placeholder-val="{{ true }}">
+        <button type="button" onClick="{{sleepYes}}" class="act" style="padding: 0 18px; background: rgba(129,140,248,0.25); color: #C7D2FE">Yes</button>
+      </sc-if>
+    </div>
+
+    <p style="margin: auto 0 0; font-size: 15px; line-height: 21px; color: rgba(255,255,255,0.65); text-align: center; max-width: 300px">Meals, water and sleep in one tap, without opening the app.</p>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { done: false, water: 2, slept: false };
+  }
+  renderVals() {
+    const s = this.state;
+    return {
+      open: !s.done,
+      title: s.done ? 'Breakfast logged' : 'Breakfast: poha and 2 boiled eggs',
+      body: s.done ? '490 kcal, 26 g protein. Lunch is roti, dal and curd.' : 'From your plan · 490 kcal · 26 g protein',
+      ate: () => this.setState({ done: true }),
+      water: (s.water * 0.25).toString(),
+      addWater: () => this.setState({ water: Math.min(8, s.water + 1) }),
+      sleepOpen: !s.slept,
+      sleepTitle: s.slept ? 'Sleep saved · 7 h 30' : 'Slept 11:40 pm to 7:10 am?',
+      sleepYes: () => this.setState({ slept: true })
+    };
+  }
+}
+</script>
+</body>
+</html>
