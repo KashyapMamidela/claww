@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { Surface } from '../components/ui/Surface';
 import { Platform, ScrollView, Share, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -186,7 +187,7 @@ export default function ProfileScreen() {
           <Badge color={P}>MY PROFILE</Badge>
         </View>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: COLORS.amberBorder, borderRadius: 16, padding: 16 }}>
+        <Surface radius={16} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
             <LinearGradient
               colors={['#FF4500', P]}
@@ -223,7 +224,7 @@ export default function ProfileScreen() {
               />
             </View>
           </View>
-        </View>
+        </Surface>
 
         <View style={{ flexDirection: 'row', gap: 8 }}>
           {stats.map((s) => (
@@ -248,7 +249,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Surface radius={16} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
@@ -274,9 +275,9 @@ export default function ProfileScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </Surface>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Surface radius={16} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Body stats</Text>
           </View>
@@ -298,9 +299,9 @@ export default function ProfileScreen() {
               </View>
             ))}
           </View>
-        </View>
+        </Surface>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
+        <Surface radius={16} padding={16}>
           {menuItems.map((item, i) => (
             <TouchableOpacity
               key={item.label}
@@ -401,7 +402,7 @@ export default function ProfileScreen() {
             </View>
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete account</Text>
           </TouchableOpacity>
-        </View>
+        </Surface>
 
         {exportError ? <ErrorCard message={exportError} onRetry={handleExportData} retrying={exporting} /> : null}
       </View>

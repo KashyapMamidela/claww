@@ -21,9 +21,8 @@ all tests pass on every branch. **Nothing has been tried on a phone yet** (the p
 ## Needs the user (the live database and functions)
 
 1. ~~Run `database/seed_calisthenics.sql`~~ Done on the live project (10 exercises, all with metadata and form steps).
-2. Redeploy `generate-plan` (it now builds yoga, mobility, calisthenics and mixed weeks):
-   `supabase functions deploy generate-plan`.
-3. Then build a new APK (icons, notification icon, notification buttons, native small icon).
+2. ~~Redeploy `generate-plan`~~ Done (version 34, 7 Nov 2026).
+3. ~~Build an APK~~ Done: preview build f60f8fbc (all steps up to the type scale and welcome rebuild).
 
 
 ## Known limits
@@ -40,3 +39,7 @@ the dot grid and icon watermark cut from the feature tiles, Welcome, Log in and 
 button, no emoji), the Home, Nutrition and Workouts rebuilds from steps 1 to 7.
 Not done: moving every remaining plain card (`#151517` views) onto `Surface` for the grain and top light, and the setup,
 settings and diary screens one by one against their boards. That is a screen-by-screen pass best done with the phone in hand.
+
+
+Update 7 Nov: 13 more plain cards (Settings, Profile, More, About, the week calendar) moved onto `Surface`. 35 more with multi-line or
+dashed styles remain; they work, they just lack the grain and top light.

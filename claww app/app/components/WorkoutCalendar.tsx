@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { Surface } from './ui/Surface';
 import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
@@ -117,7 +118,7 @@ export function WorkoutCalendar() {
   const skippedThisMonth = events.filter((e) => e.status === 'skipped').length;
 
   return (
-    <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, padding: 16 }}>
+    <Surface radius={16} padding={16}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week</Text>
         <TouchableOpacity activeOpacity={0.8} onPress={() => setShowMonth((s) => !s)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -172,6 +173,6 @@ export function WorkoutCalendar() {
           </View>
         </View>
       )}
-    </View>
+    </Surface>
   );
 }

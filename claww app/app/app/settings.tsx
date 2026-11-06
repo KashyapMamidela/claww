@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { Surface } from '../components/ui/Surface';
 import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -110,7 +111,7 @@ export default function SettingsScreen() {
           <Badge color={P}>SETTINGS</Badge>
         </View>
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Surface radius={16} padding={16}>
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT, marginBottom: 4 }}>Today's generation usage</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT, marginBottom: 14 }}>
             Resets at midnight. Hitting a limit means try again tomorrow.
@@ -135,10 +136,10 @@ export default function SettingsScreen() {
               </View>
             </View>
           ))}
-        </View>
+        </Surface>
 
         {notificationsSupported ? (
-          <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+          <Surface radius={16} padding={16}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="bell" size={16} color={COLORS.blue} />
@@ -159,10 +160,10 @@ export default function SettingsScreen() {
                 Notifications are blocked for CLAWW in your device settings — enable them there first.
               </Text>
             ) : null}
-          </View>
+          </Surface>
         ) : null}
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14 }}>
+        <Surface radius={16} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(34,197,94,0.14)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="camera" size={16} color={COLORS.green} />
@@ -182,7 +183,7 @@ export default function SettingsScreen() {
               }}
             />
           </View>
-        </View>
+        </Surface>
 
         {notificationsSupported && SHOW_DEV_TOOLS ? (
           <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
@@ -214,7 +215,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ) : null}
 
-        <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
+        <Surface radius={16} padding={16}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={signOut}
@@ -225,7 +226,7 @@ export default function SettingsScreen() {
             </View>
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign out</Text>
           </TouchableOpacity>
-        </View>
+        </Surface>
       </View>
     </ScrollView>
   );
