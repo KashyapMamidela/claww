@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { notificationsSupported } from '../../../lib/notifications';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -68,9 +67,8 @@ export default function WorkoutSetupSchedule() {
 
     generatePlan();
     bumpXp(50); // matches awardXp(userId, 50, 'plan_generated') in generateWorkoutPlan
-    // First-run onboarding ends with the reminder soft-ask (V2 PHASE 3.2); web has no local notifications.
-    if (onboarding === '1') router.replace(notificationsSupported ? '/screens/onboarding/reminders' : '/(tabs)');
-    else router.dismissTo('/(tabs)/workouts');
+    // Polish step 7: the plan arrives as four stories. They end with the reminder soft-ask during onboarding.
+    router.replace({ pathname: '/plan-story', params: onboarding === '1' ? { onboarding: '1' } : {} });
   };
 
   return (
