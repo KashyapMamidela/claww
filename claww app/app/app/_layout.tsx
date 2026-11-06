@@ -16,6 +16,7 @@ import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
 import { notificationsSupported, type ReminderType } from '../lib/notifications';
 import { refreshReminders } from '../lib/reminderSync';
+import { isLockAction, runLockAction } from '../lib/lockActionRunner';
 import { SplashIntro } from '../components/SplashIntro';
 import { initSentry } from '../lib/sentry';
 import { initAnalytics, identify, resetAnalytics } from '../lib/analytics';
@@ -98,7 +99,23 @@ function RootLayout() {
 
   useEffect(() => {
     if (!notificationsSupported) return;
+    // Polish step 5: the buttons on meal, water and sleep reminders log without opening the app.
+    const openNutrition = (slot: string) => router.push({ pathname: '/(tabs)/nutrition', params: { search: slot } } as never);
+    const handle = (response: Notifications.NotificationResponse) => {
+      if (isLockAction(response.actionIdentifier)) {
+        runLockAction(response, openNutrition).catch(() => {});
+        return true;
+      }
+      return false;
+    };
+    // A button pressed while the app was closed is delivered as the last response when it starts.
+    Notifications.getLastNotificationResponseAsync()
+      .then((last) => {
+        if (last) handle(last);
+      })
+      .catch(() => {});
     const subscription = Notifications.addNotificationResponseReceivedListener((response) => {
+      if (handle(response)) return;
       const type = response.notification.request.content.data?.type as ReminderType | undefined;
       const route = type ? REMINDER_ROUTES[type] : undefined;
       if (route) router.push(route as never);

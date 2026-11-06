@@ -4,6 +4,7 @@ import {
   getSuggestedDayIndex,
   getTodaysMealLogs,
   getLastNightSleep,
+  getLatestSleepLog,
   getTodaysWaterMl,
   getWorkoutDayEvents,
 } from './data';
@@ -11,6 +12,7 @@ import { cancelAllReminders, ensureNotificationChannels, hasNotificationPermissi
 import { normalizeReminderSettings, planReminders, type TodayState } from './reminderPlan';
 import { unanswered } from './dayMoments';
 import { registerPushToken } from './pushTokens';
+import { sleepGuess } from './lockActions';
 import { isWeekdayPlan, weekdayIndex } from './trainingWeek';
 
 /** Matches WaterWidget's target. */
@@ -19,14 +21,22 @@ const WATER_TARGET_ML = 2000;
 let running: Promise<void> | null = null;
 let again = false;
 
+/** The morning question, "Slept 11:40 pm to 7:10 am?", copied from the last logged night. */
+function guessFrom(last: { bedtime: string | null; wake_time: string | null } | null): TodayState['sleepGuess'] {
+  if (!last?.bedtime || !last.wake_time) return null;
+  const g = sleepGuess(new Date(last.bedtime), new Date(last.wake_time), new Date());
+  return g ? { label: g.label, bed: g.bed.toISOString(), wake: g.wake.toISOString() } : null;
+}
+
 async function buildTodayState(userId: string): Promise<TodayState> {
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
-  const [workout, meals, sleep, waterMl] = await Promise.all([
+  const [workout, meals, sleep, waterMl, lastLogged] = await Promise.all([
     getLatestWorkout(userId),
     getTodaysMealLogs(userId),
     getLastNightSleep(userId),
     getTodaysWaterMl(userId),
+    getLatestSleepLog(userId),
   ]);
   let todaysSession: string | null = null;
   let sessionDoneOrSkippedToday = false;
@@ -54,6 +64,7 @@ async function buildTodayState(userId: string): Promise<TodayState> {
     waterMlToday: waterMl,
     waterTargetMl: WATER_TARGET_ML,
     unansweredMeals: unanswered(meals.map((m) => m.meal_type)).length,
+    sleepGuess: guessFrom(lastLogged),
   };
 }
 

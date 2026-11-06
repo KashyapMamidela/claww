@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
@@ -46,6 +46,8 @@ export default function NutritionTab() {
   const { userId, meals, saveMeal, removeMeal } = useAppState();
   const penMarks = usePenMarks(7);
   const router = useRouter();
+  // Polish step 5: "Something else" on a meal reminder opens the + sheet for that meal.
+  const { search } = useLocalSearchParams<{ search?: string }>();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
   const [targets, setTargets] = useState<NutritionDefaults | null>(null);
@@ -146,6 +148,13 @@ export default function NutritionTab() {
     setUndo(null);
     await removeMeal(id);
   };
+
+  useEffect(() => {
+    if (!search || !['breakfast', 'lunch', 'dinner'].includes(search)) return;
+    setSearchFor((search.charAt(0).toUpperCase() + search.slice(1)) as MealType);
+    setSearchOpen(true);
+    router.setParams({ search: undefined });
+  }, [search, router]);
 
   const slots = useMemo(() => slotViews(plan, meals, hour), [plan, meals, hour]);
   const upSlot = slots.find((v) => v.state === 'up_next') ?? null;

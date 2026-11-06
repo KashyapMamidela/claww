@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { REMINDER_ID_PREFIX, type PlannedReminder } from './reminderPlan';
+import { CATEGORY_ACTIONS } from './lockActions';
 
 // Local reminders. Since V2 PHASE 3.3 they're "smart": lib/reminderPlan.ts
 // decides what to schedule from the user's per-type settings and today's
@@ -38,6 +39,7 @@ let channelsReady: Promise<void> | null = null;
  */
 export function ensureNotificationChannels(): Promise<void> {
   if (Platform.OS !== 'android') return Promise.resolve();
+  registerLockCategories();
   if (!channelsReady) {
     channelsReady = Notifications.setNotificationChannelAsync(REMINDER_CHANNEL_ID, {
       name: 'Reminders',
@@ -107,8 +109,23 @@ export async function scheduleReminderPlan(plan: PlannedReminder[]): Promise<voi
   for (const r of plan) {
     await Notifications.scheduleNotificationAsync({
       identifier: r.id,
-      content: { title: r.title, body: r.body, data: { type: r.routeType } },
+      content: { title: r.title, body: r.body, data: { type: r.routeType, ...(r.data ?? {}) }, ...(r.category ? { categoryIdentifier: r.category } : {}) },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: r.date, channelId: REMINDER_CHANNEL_ID },
+    });
+  }
+}
+
+/** Polish step 5: the buttons on meal, water and sleep reminders. Registered once; "Something else" opens the app, the rest log without opening it. */
+let categoriesRegistered = false;
+function registerLockCategories(): void {
+  if (categoriesRegistered) return;
+  categoriesRegistered = true;
+  for (const [id, actions] of Object.entries(CATEGORY_ACTIONS)) {
+    Notifications.setNotificationCategoryAsync(
+      id,
+      actions.map((a) => ({ identifier: a.identifier, buttonTitle: a.buttonTitle, options: { opensAppToForeground: a.opensApp } }))
+    ).catch(() => {
+      categoriesRegistered = false;
     });
   }
 }
