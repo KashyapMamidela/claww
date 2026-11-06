@@ -135,6 +135,23 @@ export const AREA_COLORS = {
 
 export type Area = keyof typeof AREA_COLORS;
 
+/** Polish step 2: each onboarding choice borrows an area colour, so the glow when picked matches the feature it leads to. */
+export const GOAL_COLORS = {
+  fat: AREA_COLORS.burned,
+  gain: AREA_COLORS.steps,
+  muscle: AREA_COLORS.workouts,
+  strong: AREA_COLORS.streak,
+  fit: AREA_COLORS.recovery,
+} as const;
+
+export const STYLE_COLORS = {
+  gym: AREA_COLORS.workouts,
+  calisthenics: AREA_COLORS.streak,
+  home: AREA_COLORS.steps,
+  yoga: AREA_COLORS.recovery,
+  mobility: AREA_COLORS.sleep,
+} as const;
+
 /** An area color at low opacity, for icon wells and tinted strips (0..1). */
 export function tint(hex: string, opacity: number): string {
   const m = /^#([0-9a-fA-F]{6})$/.exec(hex);

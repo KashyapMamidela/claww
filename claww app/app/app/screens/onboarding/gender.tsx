@@ -20,7 +20,7 @@ export default function OnboardingGender() {
     setGender(id);
     setTimeout(() => {
       router.push({
-        pathname: '/screens/onboarding/reveal',
+        pathname: '/screens/onboarding/goal',
         params: { name: name ?? '', age: age ?? '', gender: id },
       });
     }, 260);
@@ -28,7 +28,7 @@ export default function OnboardingGender() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={2} accent={COLORS.blue} showBack />
+      <OnboardingTopBar step={2} totalSteps={6} accent={COLORS.blue} showBack />
       <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.purple }} />

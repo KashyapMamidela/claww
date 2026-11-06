@@ -26,6 +26,8 @@ export function computeNutritionSample(input: {
   gender: string | null;
   goal: Goal | null;
   activityLevel: ActivityLevel;
+  /** Polish step 2: the Gain weight goal eats a larger surplus (500 kcal) than Build muscle (300). */
+  gainWeight?: boolean;
 }): NutritionDefaults {
   const bmrMale = 10 * input.weight + 6.25 * input.height - 5 * input.age + 5;
   const bmrFemale = 10 * input.weight + 6.25 * input.height - 5 * input.age - 161;
@@ -34,7 +36,7 @@ export function computeNutritionSample(input: {
   const activityMultiplier: Record<ActivityLevel, number> = { sedentary: 1.2, moderate: 1.45, active: 1.7 };
   const tdee = bmr * activityMultiplier[input.activityLevel];
 
-  const goalAdjustment = input.goal === 'fat_loss' ? -500 : input.goal === 'muscle_gain' ? 300 : 0;
+  const goalAdjustment = input.goal === 'fat_loss' ? -500 : input.goal === 'muscle_gain' ? (input.gainWeight ? 500 : 300) : 0;
   const calories = Math.round(Math.max(1200, tdee + goalAdjustment));
 
   // Protein floor scales with goal, like a coach would set it — a cutting

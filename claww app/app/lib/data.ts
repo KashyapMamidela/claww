@@ -46,6 +46,8 @@ export interface WorkoutDefaults {
   trainingDays?: string[];
   /** Usual time of day the user trains, "HH:MM" 24-hour (V2 PHASE 6.1); optional. */
   usualTrainingTime?: string;
+  /** Polish step 2: how the user likes to train, in the order picked (first is the main style): gym, calisthenics, home, yoga, mobility. */
+  styles?: string[];
   /** 'auto' lets the LLM choose within its existing judgment, same as
    * before this existed — the other values are a hard constraint passed
    * into the prompt, not another exercise-picking `suggestion`. */
@@ -67,6 +69,8 @@ export interface PersonalizationProfile {
   age?: number | null;
   gender?: string | null;
   workoutDefaults?: WorkoutDefaults | null;
+  /** Polish step 2: the goal picked in onboarding (fat, gain, muscle, strong, fit); the profile goal column keeps the four-value mapping. */
+  goalChoice?: string;
   nutritionDefaults?: NutritionDefaults | null;
   dietaryRestrictions?: DietaryRestriction[];
   /** Per-type reminder switches and times (V2 PHASE 3.3); read through normalizeReminderSettings. */

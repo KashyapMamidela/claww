@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, FONT } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { basicsSummary, hasBasics, profileBasics, useProfile } from '../lib/profile';
@@ -67,6 +67,9 @@ const goalFromProfile = (g: string | null | undefined): Goal => (g === 'muscle_g
 
 export default function WorkoutSetup() {
   const router = useRouter();
+  // Polish step 2: during onboarding the goal and how they train were already asked, so this screen asks the rest.
+  const { onboarding } = useLocalSearchParams<{ onboarding?: string }>();
+  const inOnboarding = onboarding === '1';
   const { userId } = useAppState();
   const { profile, loading } = useProfile(userId);
   const basics = profileBasics(profile);
@@ -138,7 +141,7 @@ export default function WorkoutSetup() {
       setError('Could not save your answers. Check your connection and try again.');
       return;
     }
-    router.push({ pathname: '/screens/workout-setup/schedule', params: { planDays: String(card.days) } });
+    router.push({ pathname: '/screens/workout-setup/schedule', params: { planDays: String(card.days), ...(inOnboarding ? { onboarding: '1' } : {}) } });
   };
 
   return (
@@ -149,7 +152,7 @@ export default function WorkoutSetup() {
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Build your workout plan</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Step 1 of 2 · about 1 minute</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{inOnboarding ? 'Set up your plan · step 3 of 4 · about a minute' : 'Step 1 of 2 · about 1 minute'}</Text>
         </View>
       </View>
 
@@ -164,6 +167,8 @@ export default function WorkoutSetup() {
             </View>
           ) : null}
 
+          {inOnboarding ? null : (
+            <>
           <SectionLabel color={A}>YOUR GOAL</SectionLabel>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {GOALS.map((g) => {
@@ -185,6 +190,9 @@ export default function WorkoutSetup() {
             })}
           </View>
 
+            </>
+          )}
+
           <SectionLabel color={A}>DAYS A WEEK YOU CAN TRAIN</SectionLabel>
           <View style={{ flexDirection: 'row', gap: 8 }} accessibilityRole="radiogroup">
             {[2, 3, 4, 5, 6].map((n) => {
@@ -199,6 +207,8 @@ export default function WorkoutSetup() {
             })}
           </View>
 
+          {inOnboarding ? null : (
+            <>
           <SectionLabel color={A}>WHERE YOU TRAIN</SectionLabel>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {PLACES.map((p) => (
@@ -207,6 +217,9 @@ export default function WorkoutSetup() {
               </Chip>
             ))}
           </View>
+
+            </>
+          )}
 
           <SectionLabel color={A}>HOW LONG HAVE YOU TRAINED?</SectionLabel>
           <Segmented

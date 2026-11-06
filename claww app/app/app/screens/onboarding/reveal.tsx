@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { cleanStyles, equipmentFromStyles, goalOption } from '../../../lib/onboardingChoices';
 import { Animated, Image, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -10,7 +11,6 @@ import { supabase } from '../../../lib/supabase';
 import { useAppState } from '../../../lib/appState';
 import { MEDICAL_DISCLAIMER_ACK_LABEL, MEDICAL_DISCLAIMER_BODY } from '../../../lib/medicalDisclaimer';
 import { track, AnalyticsEvent } from '../../../lib/analytics';
-import { notificationsSupported } from '../../../lib/notifications';
 import { invalidateProfile } from '../../../lib/profileStore';
 
 const GENDER_ACCENTS: Record<string, string> = {
@@ -21,7 +21,7 @@ const GENDER_ACCENTS: Record<string, string> = {
 
 export default function OnboardingReveal() {
   const router = useRouter();
-  const { name, age, gender } = useLocalSearchParams<{ name: string; age: string; gender: string }>();
+  const { name, age, gender, goalChoice, styles } = useLocalSearchParams<{ name: string; age: string; gender: string; goalChoice: string; styles: string }>();
   const { setUserName } = useAppState();
   const [saving, setSaving] = useState(false);
   const [disclaimerAcked, setDisclaimerAcked] = useState(false);
@@ -38,6 +38,7 @@ export default function OnboardingReveal() {
     setSaving(true);
 
     setUserName((name ?? '').trim());
+    const trainStyles = cleanStyles((styles ?? '').split(',').filter(Boolean));
 
     // Persist to Supabase when a session exists; onboarding currently runs
     // before sign-up, so skip silently otherwise.
@@ -50,7 +51,9 @@ export default function OnboardingReveal() {
           name: name ?? '',
           age: age ? Number(age) : null,
           gender: gender ?? null,
-          workoutDefaults: null,
+          // Polish step 2: the goal and how the user trains were asked first; setup then asks days, time and injuries.
+          goalChoice: goalOption(goalChoice)?.id ?? 'muscle',
+          workoutDefaults: { modalities: ['strength' as const], activityLevel: 'moderate' as const, styles: trainStyles },
           nutritionDefaults: null,
         };
         const { error } = await supabase
@@ -59,6 +62,8 @@ export default function OnboardingReveal() {
             name: name ?? '',
             age: age ? Number(age) : null,
             gender: gender ?? null,
+            goal: goalOption(goalChoice)?.goal ?? 'muscle_gain',
+            equipment: equipmentFromStyles(trainStyles),
             personalization_profile: personalizationProfile,
             medical_disclaimer_acknowledged_at: new Date().toISOString(),
           })
@@ -73,15 +78,16 @@ export default function OnboardingReveal() {
     }
 
     track(AnalyticsEvent.OnboardingCompleted);
-    // Last onboarding step is the reminder soft-ask (V2 PHASE 3.2); web has no local notifications.
-    router.replace(notificationsSupported ? '/screens/onboarding/reminders' : '/(tabs)');
+    // Then days, time and anything that hurts (the same setup screen, goal and place already answered), then the
+    // reminder soft-ask (V2 PHASE 3.2) from the schedule screen.
+    router.replace({ pathname: '/workout-setup', params: { onboarding: '1' } });
   };
 
   const genderLabel = gender ? gender.charAt(0).toUpperCase() + gender.slice(1) : null;
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={3} accent={accent} />
+      <OnboardingTopBar step={5} totalSteps={6} accent={accent} />
       <View style={{ flex: 1, paddingHorizontal: 24, paddingBottom: 30, alignItems: 'center', justifyContent: 'center' }}>
         <Animated.View
           style={{
