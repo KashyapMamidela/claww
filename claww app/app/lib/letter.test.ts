@@ -23,7 +23,7 @@ describe('the Sunday letter', () => {
   });
   it('lists climbs first, skips undone and holds, and stops at the limit', () => {
     const marks = [
-      mark({ id: 'a', target: { key: 'c', field: 'calories' } as PenMark['target'], oldValue: '2400', newValue: '2300' }),
+      mark({ id: 'a', target: { key: 'calories', field: 'calories' } as PenMark['target'], oldValue: '2400', newValue: '2300' }),
       mark({ id: 'b', status: 'undone' }),
       mark({ id: 'c', kind: 'hold', oldValue: null, newValue: 'hold' }),
       mark({ id: 'd' }),
