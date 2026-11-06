@@ -36,6 +36,8 @@ export const COLORS = {
   blue: '#3B82F6',
   blueMid: '#2563EB',
   blueDeep: '#1D4ED8',
+  /** Pale blue: the band of light that crosses the logo on the welcome animation. */
+  blueTint: '#BFDBFE',
   blueDim: 'rgba(59,130,246,0.14)',
   blueBorder: 'rgba(59,130,246,0.30)',
 
