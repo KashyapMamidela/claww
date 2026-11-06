@@ -13,6 +13,15 @@ export interface NutritionDefaults {
   fats_g: number;
 }
 
+export const ACTIVITY_MULTIPLIER: Record<ActivityLevel, number> = { sedentary: 1.2, moderate: 1.45, active: 1.7 };
+
+/** Mifflin-St Jeor resting energy; 'other' or unknown takes the average of the male and female figures. */
+export function bmrFor(input: { height: number; weight: number; age: number; gender: string | null }): number {
+  const bmrMale = 10 * input.weight + 6.25 * input.height - 5 * input.age + 5;
+  const bmrFemale = 10 * input.weight + 6.25 * input.height - 5 * input.age - 161;
+  return input.gender === 'male' ? bmrMale : input.gender === 'female' ? bmrFemale : (bmrMale + bmrFemale) / 2;
+}
+
 /**
  * Mifflin-St Jeor BMR -> TDEE -> goal-adjusted calories -> macro split.
  * Deterministic and instant — no LLM involved, this is a solved formula,
@@ -29,12 +38,8 @@ export function computeNutritionSample(input: {
   /** Polish step 2: the Gain weight goal eats a larger surplus (500 kcal) than Build muscle (300). */
   gainWeight?: boolean;
 }): NutritionDefaults {
-  const bmrMale = 10 * input.weight + 6.25 * input.height - 5 * input.age + 5;
-  const bmrFemale = 10 * input.weight + 6.25 * input.height - 5 * input.age - 161;
-  const bmr = input.gender === 'male' ? bmrMale : input.gender === 'female' ? bmrFemale : (bmrMale + bmrFemale) / 2;
-
-  const activityMultiplier: Record<ActivityLevel, number> = { sedentary: 1.2, moderate: 1.45, active: 1.7 };
-  const tdee = bmr * activityMultiplier[input.activityLevel];
+  const bmr = bmrFor(input);
+  const tdee = bmr * ACTIVITY_MULTIPLIER[input.activityLevel];
 
   const goalAdjustment = input.goal === 'fat_loss' ? -500 : input.goal === 'muscle_gain' ? (input.gainWeight ? 500 : 300) : 0;
   const calories = Math.round(Math.max(1200, tdee + goalAdjustment));
