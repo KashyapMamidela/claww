@@ -77,6 +77,8 @@ export interface PersonalizationProfile {
   reminders?: Partial<ReminderSettings>;
   /** Daily steps goal (V2 PHASE 4.2); DEFAULT_STEPS_GOAL when unset. */
   stepsGoal?: number;
+  /** Polish step 4: the Burned ring's goal in kcal when the user set one; otherwise derived from the profile (lib/burnGoal.ts). */
+  burnedGoal?: number;
   /** NG PHASE 9: the user agreed (Settings, default off) to share scan corrections to train the scanner. */
   scanTraining?: boolean;
   /** Exam week (NG PHASE 12): days in this range neither count toward nor break the plan streak. */
@@ -152,6 +154,18 @@ export async function saveFoodProfile(userId: string, foodProfile: FoodProfile):
   invalidateProfile();
   if (error) {
     console.warn('[Claww] Failed to save food profile:', error.message);
+    return false;
+  }
+  return true;
+}
+
+export async function saveBurnedGoal(userId: string, burnedGoal: number): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), burnedGoal };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
+  if (error) {
+    console.warn('[Claww] Failed to save burned goal:', error.message);
     return false;
   }
   return true;

@@ -2,9 +2,9 @@ import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
-import { getProfile, getTodayWorkoutStats, saveStepsGoal } from '../lib/data';
+import { getProfile, saveStepsGoal } from '../lib/data';
 import { DEFAULT_STEPS_GOAL } from '../lib/activityMath';
-import { burnedKcal, stepsProgress } from '../lib/dayStats';
+import { stepsProgress } from '../lib/dayStats';
 import type { StepsResult } from '../lib/steps';
 import { useAppState } from '../lib/appState';
 import { Icon } from './ui/Icon';
@@ -58,6 +58,8 @@ export interface HomeStatTilesProps {
   userId: string | null;
   steps: StepsResult;
   streak: number;
+  /** Polish step 4: the Session tile replaces Burned (Burned is now the outer ring). */
+  session: { value: string; sub: string; onPress?: () => void };
 }
 
 /**
@@ -65,12 +67,10 @@ export interface HomeStatTilesProps {
  * its data. Steps and Streak open elevated detail sheets; Burned doesn't
  * (a phone's burn estimate is rough, and a big chart of it invites distrust).
  */
-export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
+export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesProps) {
   const [goal, setGoal] = useState(DEFAULT_STEPS_GOAL);
   const [weightKg, setWeightKg] = useState<number | null>(null);
   const [heightCm, setHeightCm] = useState<number | null>(null);
-  // Calories of sessions and activities logged today, so Burned counts them (once; see lib/dayStats).
-  const [loggedKcal, setLoggedKcal] = useState(0);
   const { streakStats } = useAppState();
   const [stepsOpen, setStepsOpen] = useState(false);
   const [streakOpen, setStreakOpen] = useState(false);
@@ -85,10 +85,6 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
         setWeightKg(p?.weight ?? null);
         setHeightCm(p?.height ?? null);
       });
-      getProfile(userId).then(async (p) => {
-        const stats = await getTodayWorkoutStats(userId, p?.weight ?? null);
-        if (!cancelled) setLoggedKcal(stats.calorieBurn);
-      });
       return () => {
         cancelled = true;
       };
@@ -101,8 +97,6 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
   };
 
   const pct = stepsProgress(steps.available ? steps.steps : null, goal);
-  const burnedResult = burnedKcal({ healthConnectKcal: steps.available ? steps.caloriesBurned : null, steps: steps.available ? steps.steps : null, loggedKcal, weightKg });
-  const burned = burnedResult.kcal;
   const week = (streakStats?.grid ?? []).slice(-7).map((d) => d.counts);
 
   return (
@@ -125,10 +119,8 @@ export function HomeStatTiles({ userId, steps, streak }: HomeStatTilesProps) {
           )}
         </Tile>
 
-        <Tile icon="flame" color={AREA_COLORS.burned} label="BURNED" value={burned !== null ? burned.toLocaleString() : '—'} a11y={`Burned ${burned ?? 'unknown'} kilocalories`}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>
-            {burned === null ? 'not tracked yet' : burnedResult.source === 'health-connect' ? 'kcal active' : 'kcal est.'}
-          </Text>
+        <Tile icon="clock" color={AREA_COLORS.workouts} label="SESSION" value={session.value} onPress={session.onPress} a11y={`Session: ${session.value}, ${session.sub}`}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }} numberOfLines={1}>{session.sub}</Text>
         </Tile>
 
         <Tile

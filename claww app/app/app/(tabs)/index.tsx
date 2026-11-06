@@ -1,7 +1,7 @@
 import { moveDayItemLabel } from '../../lib/penDays';
 import { greetingName } from '../../lib/greeting';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -27,8 +27,19 @@ import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
-import { CatchUpBanner } from '../../components/nutrition/CatchUpBanner';
-import { clockLabel, heroFor, nextMealFor, usualMinutesOf } from '../../lib/homeMoment';
+import { TodayLine } from '../../components/home/TodayLine';
+import { FoodSearchSheet } from '../../components/nutrition/FoodSearchSheet';
+import { BottomSheet } from '../../components/ui/BottomSheet';
+import { Stepper } from '../../components/ui/Stepper';
+import { doneCount, sessionTile, todayLine, type TodayMealInput } from '../../lib/todayLine';
+import { slotViews, type MealSlot } from '../../lib/mealPlanView';
+import { ensureMealPlans, replanToday, type StoredPlan } from '../../lib/mealPlanData';
+import { plannedToMeal } from '../../lib/mealPlanMeal';
+import { SKIPPED } from '../../lib/catchUp';
+import type { MealType } from '../../lib/data';
+import { useBurnedToday } from '../../lib/useBurnedToday';
+import { BURN_GOAL_FLOOR, BURN_GOAL_MAX, burnedPct, stepBurnedGoal } from '../../lib/burnGoal';
+import { clockLabel, usualMinutesOf } from '../../lib/homeMoment';
 import { marksFor, type PlanMark } from '../../lib/planMarks';
 import { decideMark, getMarks, recordEngineMarks, syncPenMarks } from '../../lib/penData';
 import { activeFor, type PenMark as StoredMark } from '../../lib/engine';
@@ -223,7 +234,7 @@ function HomeEmptyState() {
         </Button>
       </View>
 
-      <HomeStatTiles userId={userId} steps={steps} streak={streak} />
+      <HomeStatTiles userId={userId} steps={steps} streak={streak} session={{ value: '—', sub: 'no plan yet' }} />
 
       <WaterRow userId={userId} />
 
@@ -301,7 +312,7 @@ function HomeEmptyState() {
 
 function HomePopulated() {
   useFirstPaint('home');
-  const { userId, userName, recovery, meals, xp, streak, todaySleep } = useAppState();
+  const { userId, userName, recovery, meals, streak, todaySleep, saveMeal } = useAppState();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
@@ -333,6 +344,16 @@ function HomePopulated() {
   const [proteinTarget, setProteinTarget] = useState<number | null>(null);
   const [sleepOpen, setSleepOpen] = useState(false);
   const steps = useTodaySteps();
+  const burn = useBurnedToday(userId, steps);
+  const [burnSheet, setBurnSheet] = useState(false);
+
+  // Polish step 4: the Today line acts on the day's meal plan, the same plan the Nutrition tab shows.
+  const [plan, setPlan] = useState<StoredPlan | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchFor, setSearchFor] = useState<MealType | null>(null);
+  const [logging, setLogging] = useState(false);
+  const mealsRef = useRef(meals);
+  mealsRef.current = meals;
 
   // xp/streak come from AppState directly — they update live as XP events
   // fire (set completed, meal logged, sleep logged, plan generated) instead
@@ -341,6 +362,14 @@ function HomePopulated() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
+      ensureMealPlans(userId).then(async (p) => {
+        if (cancelled) return;
+        setPlan(p);
+        if (p && mealsRef.current.some((m) => m.plan_status !== 'as_planned')) {
+          const re = await replanToday(userId, mealsRef.current);
+          if (re && !cancelled) setPlan(re);
+        }
+      });
       Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(async ([w, profile]) => {
         const dayEvents = w ? await getWorkoutDayEvents(userId, w.id) : [];
         if (cancelled) return;
@@ -402,12 +431,13 @@ function HomePopulated() {
   const sleepPct = sleepRingPct(sleepHours);
   const recoveryPct = recovery?.score ?? 0;
   const workoutPct = workoutRingPct(workoutToday);
+  const burnedPctValue = burnedPct(burn.burned.kcal, burn.goal);
   // NG PHASE 2: Workout / Nutrition / Recovery; RINGS_V1 brings back the V2 Recovery / Sleep / Nutrition average.
   const dailyGoalPct = RINGS_V1
     ? recovery
       ? Math.round((recoveryPct + nutritionPct + sleepPct) / 3)
       : 0
-    : averageRings(workoutPct, nutritionPct, recoveryRingPct(recovery?.score));
+    : averageRings(burnedPctValue, nutritionPct, recoveryRingPct(recovery?.score));
 
   const planDays = latestWorkout?.plan.days ?? [];
   const today = planDays[suggestedDayIndex] ?? planDays[0];
@@ -422,17 +452,7 @@ function HomePopulated() {
 
   // NG PHASE 12: the coach line, the hero for this moment, and what is left to eat today.
   const now = new Date();
-  const mealsLogged = meals.map((m) => m.meal_type ?? '').filter(Boolean);
-  const nextMeal = nextMealFor(mealsLogged, now.getHours());
   const sessionPlanned = workoutToday.planned && !!today;
-  const hero = heroFor({
-    hour: now.getHours(),
-    minute: now.getMinutes(),
-    sessionPlanned,
-    sessionDone: workoutToday.completed,
-    mealLeft: nextMeal !== null,
-    usualMinutes: usualMinutesOf(usualTime),
-  });
   const consumedProtein = meals.reduce((s, m) => s + (m.protein_g ?? 0), 0);
   const proteinLeft = proteinTarget ? Math.max(0, proteinTarget - consumedProtein) : null;
   const kcalLeft = targetKcal === null ? null : Math.max(0, targetKcal - consumedKcal);
@@ -445,6 +465,43 @@ function HomePopulated() {
     hour: now.getHours(),
   });
   const sessionMinutes = today ? Math.round((today.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0) * 130) / 60 + 5) : 0;
+
+  // The Today line: the same slot states as the Nutrition tab, so the two always agree.
+  const slotsView = slotViews(plan, meals, now.getHours());
+  const todayMeals: TodayMealInput[] = slotsView.map((v) => ({
+    slot: v.slot,
+    state: v.state,
+    plannedName: v.planned?.name ?? null,
+    loggedLine: v.logged ? `${Math.round(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
+  }));
+  const sessionItem = sessionPlanned && today
+    ? { name: today.focus, minutes: sessionMinutes, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), markLine: marks[0] ? `${marks[0].name} ${marks[0].newText}` : null }
+    : null;
+  const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: sessionItem, sleepTargetHours: SLEEP_TARGET_HOURS });
+  const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: today?.focus ?? '' });
+  const typeOf = (slot: MealSlot) => (slot.charAt(0).toUpperCase() + slot.slice(1)) as MealType;
+  const replanAfter = async (row: Awaited<ReturnType<typeof saveMeal>>) => {
+    if (row && userId) replanToday(userId, [...meals, row]).then((p) => p && setPlan(p));
+  };
+  const ateAsPlanned = async (slot: MealSlot) => {
+    const planned = plan?.meals.find((m) => m.meal === slot);
+    if (!planned || logging) return;
+    setLogging(true);
+    const row = await saveMeal(typeOf(slot), plannedToMeal(planned));
+    setLogging(false);
+    await replanAfter(row);
+  };
+  const skipMeal = async (slot: MealSlot) => {
+    if (logging) return;
+    setLogging(true);
+    const row = await saveMeal(typeOf(slot), SKIPPED);
+    setLogging(false);
+    await replanAfter(row);
+  };
+  const somethingElse = (slot: MealSlot) => {
+    setSearchFor(typeOf(slot));
+    setSearchOpen(true);
+  };
 
   return (
     <View
@@ -471,44 +528,6 @@ function HomePopulated() {
         </TouchableOpacity>
       </View>
 
-
-      {hero === 'session' && today ? (
-        <Hero variant="blue" accessibilityLabel={`Your plan today: ${today.focus}`}>
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
-            {planCardLabel ? `YOUR PLAN · ${planCardLabel}${usualTime ? ` · ${clockLabel(new Date(2000, 0, 1, Number(usualTime.slice(0, 2)), Number(usualTime.slice(3, 5))))}` : ''}` : 'YOUR PLAN'}
-          </Text>
-          <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{today.focus}</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 14, marginTop: 4, fontFamily: FONT }}>
-            {today.exercises.length} exercise{today.exercises.length === 1 ? '' : 's'} · about {sessionMinutes} min
-          </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 14 }}>
-            <Button
-              variant="secondary"
-              size="md"
-              onPress={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
-              icon={<Icon name="play" size={14} color={COLORS.blue} />}
-            >
-              Start
-            </Button>
-          </View>
-        </Hero>
-      ) : hero === 'meal' && nextMeal ? (
-        <Hero variant="green" accessibilityLabel={`Next meal: ${nextMeal}`}>
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`NEXT MEAL · ${nextMeal.toUpperCase()}`}</Text>
-          <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{nextMeal}</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 14, marginTop: 4, fontFamily: FONT }}>
-            {kcalLeft !== null ? `${Math.round(kcalLeft).toLocaleString('en-IN')} kcal left today` : 'Set your targets to see what is left'}
-            {proteinLeft !== null ? ` · ${Math.round(proteinLeft)} g protein` : ''}
-          </Text>
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 14 }}>
-            <Button variant="secondary" size="md" onPress={() => router.push({ pathname: '/meal-log', params: { mealType: nextMeal } })} icon={<Icon name="plus" size={14} color={COLORS.green} />}>
-              Log it
-            </Button>
-          </View>
-        </Hero>
-      ) : null}
-
-      <CatchUpBanner />
 
       {penToday.length > 0 || (marks.length > 0 && !workoutToday.completed && today) ? (
         <Surface padding={16}>
@@ -544,21 +563,7 @@ function HomePopulated() {
 
       {/* NG PHASE 1: the first real use of Surface (grain, top light, soft shadow). Data unchanged. */}
       <Surface padding={17}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Daily Progress</Text>
-          <View
-            style={{
-              backgroundColor: 'rgba(245,158,11,0.14)',
-              borderWidth: 1,
-              borderColor: 'rgba(245,158,11,0.28)',
-              borderRadius: 7,
-              paddingHorizontal: 9,
-              paddingVertical: 3,
-            }}
-          >
-            <Text style={{ fontSize: 11, fontWeight: '700', color: COLORS.amber, fontFamily: FONT }}>✦ {xp} CLAWW</Text>
-          </View>
-        </View>
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', marginBottom: 14, fontFamily: FONT }}>Daily progress</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
           <ProgressRing
             size={164}
@@ -570,7 +575,7 @@ function HomePopulated() {
                     { r: 42, strokeWidth: 7, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
                   ]
                 : [
-                    { r: 72, strokeWidth: 8, color: AREA_COLORS.workouts, pct: workoutPct },
+                    { r: 72, strokeWidth: 8, color: AREA_COLORS.burned, pct: burnedPctValue },
                     { r: 57, strokeWidth: 8, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
                     { r: 42, strokeWidth: 8, color: AREA_COLORS.recovery, pct: recoveryPct },
                   ]
@@ -596,15 +601,15 @@ function HomePopulated() {
                 ]
               : [
                   {
-                    label: 'Workout',
-                    value: workoutRowText.value,
-                    sub: workoutRowText.unit,
-                    pct: workoutPct,
-                    color: AREA_COLORS.workouts,
-                    note: workoutRowText.note as string | null,
+                    label: 'Burned',
+                    value: burn.burned.kcal !== null ? burn.burned.kcal.toLocaleString('en-IN') : '—',
+                    sub: burn.goal !== null ? `/ ${burn.goal.toLocaleString('en-IN')} kcal` : 'kcal',
+                    pct: burnedPctValue,
+                    color: AREA_COLORS.burned,
+                    note: (burn.burned.kcal === null ? 'not tracked yet' : burn.burned.source === 'health-connect' ? 'active, from your watch or phone' : 'estimated from steps and training') as string | null,
                   },
                   {
-                    label: 'Nutrition',
+                    label: 'Eaten',
                     value: Math.round(consumedKcal).toLocaleString('en-IN'),
                     sub: targetKcal === null ? 'no target set' : `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
                     pct: nutritionPct,
@@ -621,13 +626,13 @@ function HomePopulated() {
                   },
                 ]
             ).map((s) => (
-              <View key={s.label}>
+              <TouchableOpacity key={s.label} activeOpacity={s.label === 'Burned' ? 0.7 : 1} disabled={s.label !== 'Burned'} onPress={() => setBurnSheet(true)} accessibilityRole={s.label === 'Burned' ? 'button' : undefined} accessibilityLabel={s.label === 'Burned' ? 'Burned goal. Tap to change it.' : undefined}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: s.color }} />
                     <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
                   </View>
-                  {s.label === 'Nutrition' && kcalPending ? (
+                  {(s.label === 'Nutrition' || s.label === 'Eaten') && kcalPending ? (
                     <Skeleton width={90} height={12} borderRadius={4} />
                   ) : (
                     <Text style={{ fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
@@ -642,13 +647,27 @@ function HomePopulated() {
                     {s.note}
                   </Text>
                 ) : null}
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
         <View style={{ height: 1, backgroundColor: COLORS.border, marginTop: 16, marginBottom: 14 }} />
-        <HomeStatTiles userId={userId} steps={steps} streak={streak} />
+        <HomeStatTiles
+          userId={userId}
+          steps={steps}
+          streak={streak}
+          session={{ ...sessionTileValue, onPress: sessionPlanned ? () => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } }) : undefined }}
+        />
       </Surface>
+
+      <TodayLine
+        items={todayItems}
+        logging={logging}
+        onAteAsPlanned={ateAsPlanned}
+        onSomethingElse={somethingElse}
+        onSkipped={skipMeal}
+        onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+      />
 
       <WaterRow userId={userId} />
 
@@ -657,6 +676,40 @@ function HomePopulated() {
 
       {todaySleep ? null : <SleepRow />}
       <SleepLogModal visible={sleepOpen} onClose={() => setSleepOpen(false)} />
+
+      <FoodSearchSheet
+        visible={searchOpen}
+        mealType={searchFor ?? 'Snack'}
+        recent={[]}
+        planned={!!searchFor && !!plan?.meals.find((m) => m.meal === searchFor.toLowerCase())}
+        onClose={() => {
+          setSearchOpen(false);
+          setSearchFor(null);
+        }}
+        onLogged={(row) => {
+          setSearchOpen(false);
+          setSearchFor(null);
+          replanAfter(row);
+        }}
+      />
+
+      <BottomSheet visible={burnSheet} onClose={() => setBurnSheet(false)}>
+        <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Burned goal</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>
+            Active calories you aim to burn in a day, on top of resting energy. It starts from how your calorie goal was set.
+          </Text>
+          <Stepper
+            value={(burn.goal ?? BURN_GOAL_FLOOR).toLocaleString('en-IN')}
+            unit="kcal a day"
+            label="Burned goal"
+            onDecrement={() => burn.setGoal(stepBurnedGoal(burn.goal ?? BURN_GOAL_FLOOR, -1))}
+            onIncrement={() => burn.setGoal(stepBurnedGoal(burn.goal ?? BURN_GOAL_FLOOR, 1))}
+            decrementDisabled={(burn.goal ?? BURN_GOAL_FLOOR) <= BURN_GOAL_FLOOR}
+            incrementDisabled={(burn.goal ?? BURN_GOAL_FLOOR) >= BURN_GOAL_MAX}
+          />
+        </View>
+      </BottomSheet>
     </View>
   );
 }
