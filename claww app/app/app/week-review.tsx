@@ -1,3 +1,4 @@
+import { moveDayItemLabel } from '../lib/penDays';
 import React, { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -25,16 +26,16 @@ const dayKey = (iso: string) => {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 };
 
-function itemOf(m: PenMark): string {
+function itemOf(m: PenMark, planDays: { day: string; focus: string }[]): string {
   if (m.target.exercise) return m.target.exercise;
   if (m.target.meal) return `${m.target.meal.charAt(0).toUpperCase()}${m.target.meal.slice(1)}`;
   if (m.target.key === 'calories') return 'Calories';
-  if (m.kind === 'move_day') return 'Session day';
+  if (m.kind === 'move_day') return moveDayItemLabel(planDays, m.oldValue, m.newValue);
   return 'This week';
 }
 
-function Row({ m, onDecide }: { m: PenMark; onDecide: (m: PenMark, s: 'kept' | 'undone') => void }) {
-  const item = itemOf(m);
+function Row({ m, planDays, onDecide }: { m: PenMark; planDays: { day: string; focus: string }[]; onDecide: (m: PenMark, s: 'kept' | 'undone') => void }) {
+  const item = itemOf(m, planDays);
   return (
     <View style={{ paddingVertical: 14, gap: 8, borderTopWidth: 1, borderTopColor: COLORS.border }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
@@ -71,6 +72,7 @@ export default function WeekReviewScreen() {
   const pen = usePenMarks(10);
   const [facts, setFacts] = useState<Omit<WeekFacts, 'climbs'> | null>(null);
   const [blockWeek, setBlockWeek] = useState<number | null>(null);
+  const [planDays, setPlanDays] = useState<{ day: string; focus: string }[]>([]);
   const now = useMemo(() => new Date(), []);
 
   useFocusEffect(
@@ -90,6 +92,7 @@ export default function WeekReviewScreen() {
         const perDay = new Map<string, number>();
         for (const m of meals) if (m.plan_status !== 'skipped') perDay.set(dayKey(m.logged_at), (perDay.get(dayKey(m.logged_at)) ?? 0) + (m.protein_g ?? 0));
         setBlockWeek(workout?.block_week ?? null);
+        setPlanDays(workout?.plan.days ?? []);
         setFacts({
           sessionsDone: events.filter((e) => e.status === 'completed' && new Date(e.createdAt) >= start).length,
           sessionsPlanned: workout?.plan.days.length ?? 0,
@@ -166,7 +169,7 @@ export default function WeekReviewScreen() {
                 <Text style={{ color: COLORS.fg, fontSize: 18, fontFamily: FONT_HAND }}>{`${list.length} ${list.length === 1 ? 'mark' : 'marks'}`}</Text>
               </View>
               {list.map((m) => (
-                <Row key={m.id} m={m} onDecide={pen.decide} />
+                <Row key={m.id} m={m} planDays={planDays} onDecide={pen.decide} />
               ))}
             </Surface>
           )

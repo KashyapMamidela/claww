@@ -2,6 +2,7 @@
 // turns findings into marks within the daily limits, applies a mark's change to the plan, and puts the exact old value
 // back on undo. The table may not exist yet on an old database: every read then returns nothing and every write is a no-op.
 
+import { makeFreeWeekday, moveSessionDay } from './penDays';
 import { supabase } from './supabase';
 import { getLatestWorkout, getMealLogsBetween, getProfile, getSuggestedDayIndex, getWeightLogs, getWorkoutDayEvents, saveNutritionTargets, type WorkoutPlan } from './data';
 import { ADD_ONS, MEAL_TEMPLATES, cheapestFix, scaleTemplate, swapOptions, type PenKind, type PenMark, type PenStatus, type PenTarget, type NewMark, type RuleContext, type SwapChoice } from './engine';
@@ -104,9 +105,10 @@ async function setCalories(userId: string, calories: number): Promise<void> {
 async function relabelDay(userId: string, from: string, to: string): Promise<void> {
   const workout = await getLatestWorkout(userId);
   if (!workout) return;
-  const plan: WorkoutPlan = { ...workout.plan, days: workout.plan.days.map((d) => (d.day === from ? { ...d, day: to } : d)) };
-  plan.days.sort((a, b) => (weekdayIndex(a.day) ?? 99) - (weekdayIndex(b.day) ?? 99));
-  await supabase.from('workouts').update({ plan }).eq('id', workout.id);
+  // moveSessionDay refuses to land on a weekday that is already a training day, so a day is never duplicated.
+  const days = moveSessionDay(workout.plan.days, from, to);
+  if (!days) return;
+  await supabase.from('workouts').update({ plan: { ...workout.plan, days } }).eq('id', workout.id);
 }
 
 /** The user's decision on a mark: Keep leaves the change in place, Undo puts the old value back. One tap, no questions. */
@@ -299,16 +301,7 @@ export async function syncPenMarks(userId: string, force = false): Promise<PenMa
       if (!pick) return null;
       return { fromId: current.templateId, fromName: current.name, fromKcal: current.kcal, fromFactor: current.factor, toId: pick.templateId, toName: pick.name, toKcal: pick.kcal, toFactor: pick.factor };
     },
-    freeWeekday: (missed) => {
-      const from = weekdayIndex(missed);
-      if (from === null) return null;
-      const used = new Set(labels.map((l) => weekdayIndex(l)));
-      for (let step = 1; step <= 6; step++) {
-        const idx = (from + step) % 7;
-        if (!used.has(idx)) return WEEKDAY_NAMES[idx];
-      }
-      return null;
-    },
+    freeWeekday: makeFreeWeekday(labels),
   };
 
   const candidates = applyRules(findings, ctx).map(({ finding: _f, ...m }) => m);

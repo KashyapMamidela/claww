@@ -3,6 +3,7 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
 import { useAppState, type MealLogRow, type MealType } from '../../lib/appState';
 import { getProfile, getRecentMeals, saveFoodProfile, type NutritionDefaults } from '../../lib/data';
@@ -26,7 +27,8 @@ import { Skeleton } from '../../components/ui/Skeleton';
 import { PressScale } from '../../components/ui/PressScale';
 import { BottomSheet } from '../../components/ui/BottomSheet';
 import { ensureMealPlans, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
-import { planLine, slotLabel, slotViews } from '../../lib/mealPlanView';
+import { planLine, slotLabel, slotViews, type MealSlot } from '../../lib/mealPlanView';
+import { SKIPPED } from '../../lib/catchUp';
 import { itemsText, plannedToMeal } from '../../lib/mealPlanMeal';
 import type { PlannedMeal } from '../../lib/engine';
 
@@ -45,6 +47,7 @@ export default function NutritionTab() {
   const penMarks = usePenMarks(7);
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const tabPad28 = useTabBottomPad(28);
   const [targets, setTargets] = useState<NutritionDefaults | null>(null);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
   const [askFoodProfile, setAskFoodProfile] = useState(false);
@@ -52,6 +55,7 @@ export default function NutritionTab() {
   const [usuals, setUsuals] = useState<Usual[]>([]);
   const [recent, setRecent] = useState<string[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchFor, setSearchFor] = useState<MealType | null>(null); // a missed meal being answered with Something else
   const [undo, setUndo] = useState<{ id: string; label: string } | null>(null);
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [plan, setPlan] = useState<StoredPlan | null>(null);
@@ -157,9 +161,25 @@ export default function NutritionTab() {
   // A meal logged some other way changes what is left of the day: plan the rest again.
   const afterOtherLog = async (row: MealLogRow) => {
     setSearchOpen(false);
+    setSearchFor(null);
     if (!userId) return;
     const p = await replanToday(userId, [...meals, row]);
     if (p) setPlan(p);
+  };
+
+  // A missed meal keeps its card: answer it later with As planned / Something else / Skipped, saved at once.
+  const answerMissed = async (slot: MealSlot, kind: 'planned' | 'skipped' | 'else', m: PlannedMeal | null) => {
+    if (logging) return;
+    const type = (slot.charAt(0).toUpperCase() + slot.slice(1)) as MealType;
+    if (kind === 'else') {
+      setSearchFor(type);
+      setSearchOpen(true);
+      return;
+    }
+    setLogging(true);
+    const row = await saveMeal(type, kind === 'planned' && m ? plannedToMeal(m) : SKIPPED);
+    setLogging(false);
+    if (row && userId) replanToday(userId, [...meals, row]).then((p) => p && setPlan(p));
   };
 
   const openSwap = async (m: PlannedMeal) => {
@@ -211,7 +231,7 @@ export default function NutritionTab() {
           style={{
             paddingHorizontal: 16,
             paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-            paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 28,
+            paddingBottom: tabPad28,
             gap: 14,
           }}
         >
@@ -412,6 +432,39 @@ export default function NutritionTab() {
                   </View>
                 );
               }
+              if (v.state === 'missed') {
+                const m = v.planned;
+                return (
+                  <View key={v.slot} style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, padding: 16, gap: 10 }}>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · not logged yet</Text>
+                    {m ? (
+                      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>
+                        {m.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 14 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                      </Text>
+                    ) : null}
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      {m ? (
+                        <View style={{ flex: 1.2 }}>
+                          <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => answerMissed(v.slot, 'planned', m)}>
+                            As planned
+                          </Button>
+                        </View>
+                      ) : null}
+                      <View style={{ flex: 1.2 }}>
+                        <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => answerMissed(v.slot, 'else', m)}>
+                          Something else
+                        </Button>
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Button variant="secondary" accent={G} size="md" fullWidth disabled={logging} onPress={() => answerMissed(v.slot, 'skipped', m)}>
+                          Skipped
+                        </Button>
+                      </View>
+                    </View>
+                    <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
+                  </View>
+                );
+              }
               return (
                 <View key={v.slot} style={{ borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, borderStyle: 'dashed', padding: 14, gap: 2 }}>
                   <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · later</Text>
@@ -461,7 +514,7 @@ export default function NutritionTab() {
       ) : null}
 
       <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
-      <FoodSearchSheet visible={searchOpen} mealType={addType} recent={recent} planned={!!upSlot?.planned} onClose={() => setSearchOpen(false)} onLogged={afterOtherLog} />
+      <FoodSearchSheet visible={searchOpen} mealType={searchFor ?? addType} recent={recent} planned={!!upSlot?.planned} onClose={() => { setSearchOpen(false); setSearchFor(null); }} onLogged={afterOtherLog} />
 
       <BottomSheet visible={swapMeal !== null} onClose={() => setSwapMeal(null)}>
         <View style={{ padding: 20, gap: 12 }}>

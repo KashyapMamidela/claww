@@ -266,3 +266,19 @@ describe('toPlan', () => {
     expect(ex.reps).toBeLessThanOrEqual(ex.repMax);
   });
 });
+
+// Polish step 1, item 7: a Full body day with 2 exercises. The new builder keeps at least 3 exercises on every day, at
+// every place, time limit and a mild or moderate injury (a severe injury removes movements on purpose, so it is excused);
+// if a day shows fewer with no severe injury, the plan came from the old builder.
+describe('no day is thinner than 3 exercises', () => {
+  it('holds across the whole table, including 30 minute sessions', () => {
+    const injuryCases: (Injury | null)[] = [null];
+    for (const { part } of INJURY_PARTS) for (const severity of SEVERITIES) if (severity !== 'severe') injuryCases.push({ part, severity });
+    const thin: string[] = [];
+    for (const goal of ['muscle_gain', 'fat_loss', 'strength', 'maintenance']) for (const equipment of ['gym', 'home', 'none']) for (const daysPerWeek of [2, 3, 4, 5, 6]) for (const sessionMinutes of [30, 45, 90]) for (const inj of injuryCases) {
+      const { plan } = build(profile({ goal, equipment, daysPerWeek, sessionMinutes, injuries: inj ? [inj] : [] }));
+      for (const d of plan.days) if (d.slots.length < 3) thin.push(`${goal}/${equipment}/${daysPerWeek}d/${sessionMinutes}m/${inj ? inj.part + ':' + inj.severity : 'none'} ${d.name}=${d.slots.length}`);
+    }
+    expect(thin.slice(0, 20)).toEqual([]);
+  });
+});

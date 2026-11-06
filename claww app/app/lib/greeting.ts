@@ -9,3 +9,10 @@ export function greetingFor(date: Date): Greeting {
   if (hour >= 17 && hour < 22) return 'Good evening';
   return 'Good night';
 }
+
+/** The name as shown in the greeting: each word starts with a capital ("kashyap mamidela" -> "Kashyap Mamidela"), "there" if empty. */
+export function greetingName(name: string | null | undefined): string {
+  const words = (name ?? '').trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return 'there';
+  return words.map((w) => w.charAt(0).toLocaleUpperCase() + w.slice(1)).join(' ');
+}

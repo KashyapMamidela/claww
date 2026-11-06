@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -32,12 +33,13 @@ function EmptyData(): TrackerData {
 
 function TrackerLoadingSkeleton() {
   const insets = useSafeAreaInsets();
+  const tabPad32 = useTabBottomPad(32);
   return (
     <View
       style={{
         paddingHorizontal: 16,
         paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-        paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+        paddingBottom: tabPad32,
         gap: 12,
       }}
     >
@@ -81,6 +83,7 @@ function Header({ title, line, score, locked }: HeaderProps) {
 export default function TrackerTab() {
   const { userId, xp, streak } = useAppState();
   const insets = useSafeAreaInsets();
+  const tabPad32 = useTabBottomPad(32);
   const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [volume, setVolume] = useState(0);
@@ -147,7 +150,7 @@ export default function TrackerTab() {
           style={{
             paddingHorizontal: 16,
             paddingTop: insets.top + HEADER_CONTENT_HEIGHT + 8,
-            paddingBottom: Math.max(insets.bottom, 20) + TAB_BAR_CONTENT_HEIGHT + 32,
+            paddingBottom: tabPad32,
             gap: 14,
           }}
         >

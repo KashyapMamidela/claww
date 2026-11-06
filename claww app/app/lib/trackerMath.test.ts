@@ -182,6 +182,15 @@ describe('personalRecords', () => {
     expect(r[0]).toMatchObject({ weight: 65, reps: 6, score: 78 });
     expect(r[1]).toMatchObject({ reps: 25, weight: 0, score: 25 });
   });
+  it('ignores bodyweight-only sets when the exercise has a loaded set (a warm-up of 20 reps never beats the working weight)', () => {
+    const logs = [
+      log('Pull-Up', at(9, 1), 20, 0), // bodyweight, would score 20
+      log('Pull-Up', at(8, 1), 5, 10), // weighted: Epley ~11.7, lower score but the real record
+    ];
+    const r = personalRecords(logs);
+    expect(r).toHaveLength(1);
+    expect(r[0]).toMatchObject({ weight: 10, reps: 5 });
+  });
   it('limits the list and skips empty sets', () => {
     expect(personalRecords([log('a', at(9, 1), 0, 10)])).toEqual([]);
     expect(personalRecords([log('a', at(9, 1), 5, 10), log('b', at(9, 2), 5, 10), log('c', at(9, 3), 5, 10)], 2)).toHaveLength(2);

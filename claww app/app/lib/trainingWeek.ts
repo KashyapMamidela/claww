@@ -141,3 +141,22 @@ export function missedDayLabels<E extends DayEventLike>(dayLabels: string[], eve
   if (!states) return [];
   return dayLabels.filter((_, i) => states[i].state === 'missed');
 }
+
+/**
+ * Polish step 1: the small label above the Workouts hero. On a weekday plan "TODAY" is only ever today's weekday; a
+ * past planned day with nothing logged reads "MISSED MONDAY · DO IT TODAY", a later one "UPCOMING · SATURDAY". On a
+ * "Day 1, Day 2" plan the old behaviour stays: the suggested day reads TODAY, others show their own label.
+ */
+export function heroKicker(dayLabels: string[], selectedLabel: string, focus: string, selectedState: string, isSuggested: boolean, now: Date): string {
+  const focusUp = focus.toUpperCase();
+  if (!isWeekdayPlan(dayLabels)) return `${isSuggested ? 'TODAY' : selectedLabel.toUpperCase()} · ${focusUp}`;
+  const idx = weekdayIndex(selectedLabel) as number;
+  const todayIdx = localWeekday(now);
+  const name = WEEKDAY_NAMES[idx].toUpperCase();
+  if (idx === todayIdx) return `TODAY · ${focusUp}`;
+  if (idx < todayIdx) {
+    if (selectedState === 'completed') return `DONE ${name} · ${focusUp}`;
+    return `MISSED ${name} · DO IT TODAY`;
+  }
+  return `UPCOMING · ${name} · ${focusUp}`;
+}

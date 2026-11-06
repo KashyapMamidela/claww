@@ -33,3 +33,28 @@ export function lastSevenNights(logs: { hours: number; logged_at: string }[], no
   }
   return out;
 }
+
+/** Longest gap between waking and now at which a night still counts as "last night". */
+export const LAST_NIGHT_WINDOW_HOURS = 18;
+
+interface SleepLike {
+  wake_time: string | null;
+  logged_at: string;
+}
+
+const sameLocalDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+const wokeAt = (l: SleepLike) => new Date(l.wake_time ?? l.logged_at).getTime();
+
+/**
+ * Polish step 1: the one definition of last night's sleep, used by Home, the coach line, the Recovery note and the
+ * Tracker. It is the log whose wake time is today; failing that, the most recent log whose wake time is within 18 hours
+ * of now. It does not depend on when the entry was typed in, so a night logged before midnight, or the evening after,
+ * still counts. null when there is none.
+ */
+export function lastNightSleep<T extends SleepLike>(logs: T[], now: Date): T | null {
+  const newestFirst = [...logs].sort((a, b) => wokeAt(b) - wokeAt(a));
+  const today = newestFirst.find((l) => sameLocalDay(new Date(wokeAt(l)), now));
+  if (today) return today;
+  const limit = now.getTime() - LAST_NIGHT_WINDOW_HOURS * 3600 * 1000;
+  return newestFirst.find((l) => wokeAt(l) >= limit && wokeAt(l) <= now.getTime()) ?? null;
+}
