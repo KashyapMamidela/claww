@@ -11,6 +11,8 @@ import { Chip } from '../ui/Chip';
 import { ErrorCard } from '../ui/ErrorCard';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
+import { platesFor, type SavedPlate } from '../../lib/plates';
+import { recordPlateUse, usePlates } from '../../lib/platesData';
 import { Stepper } from '../ui/Stepper';
 
 // NG PHASE 8: "Search" and "Something else". Search the reviewed food database by name (chai, 2 roti, katori dal),
@@ -33,7 +35,10 @@ export interface FoodSearchSheetProps {
 
 export function FoodSearchSheet({ visible, mealType, recent, planned = false, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
   const router = useRouter();
-  const { saveMeal } = useAppState();
+  const { saveMeal, userId } = useAppState();
+  // Polish step 6: saved plates come first, one tap to log.
+  const { plates } = usePlates(userId);
+  const myPlates = platesFor(plates, mealType).slice(0, 8);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Food[]>([]);
   const [searching, setSearching] = useState(false);
@@ -89,6 +94,30 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
   const nutrients = useMemo(() => (picked ? nutrientsFor(picked, grams) : null), [picked, grams]);
   const step = unit === 'g' ? 25 : 0.5;
   const min = unit === 'g' ? 25 : 0.5;
+
+  const logPlate = async (p: SavedPlate) => {
+    if (saving) return;
+    setSaving(true);
+    setError(null);
+    const row = await saveMeal(mealType, {
+      description: p.name,
+      calories: p.kcal,
+      protein_g: p.proteinG,
+      carbs_g: p.carbsG,
+      fats_g: p.fatG,
+      planStatus: planned ? 'swapped' : 'extra',
+      ...(p.items ? { items: p.items } : {}),
+      ...(p.nutrients ? { nutrients: p.nutrients } : {}),
+    });
+    setSaving(false);
+    if (!row) {
+      setError('Could not log it. Check your connection and try again.');
+      return;
+    }
+    if (userId) recordPlateUse(userId, p.id).catch(() => {});
+    reset();
+    onLogged(row);
+  };
 
   const log = async () => {
     if (!picked || !nutrients || saving) return;
@@ -182,6 +211,22 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
               style={{ height: 52, borderRadius: 14, borderWidth: 1, borderColor: query ? COLORS.greenBorderMd : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
             />
             <ScrollView style={{ maxHeight: 360 }} keyboardShouldPersistTaps="handled">
+              {query.trim().length < 2 && !onPickFood && myPlates.length > 0 ? (
+                <View style={{ gap: 4, paddingBottom: 8 }}>
+                  <Text style={{ color: G, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MY PLATES</Text>
+                  {myPlates.map((p) => (
+                    <PressScale key={p.id} onPress={() => logPlate(p)} disabled={saving} accessibilityRole="button" accessibilityLabel={`Log my plate: ${p.name}, ${p.kcal} kilocalories`}>
+                      <View style={{ minHeight: 56, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '700', fontFamily: FONT }} numberOfLines={1}>{p.name}</Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{p.kcal} kcal · P {p.proteinG} g</Text>
+                        </View>
+                        <Icon name="plus" size={18} color={G} />
+                      </View>
+                    </PressScale>
+                  ))}
+                </View>
+              ) : null}
               {results.map((f) => (
                 <PressScale key={f.id} onPress={() => choose(f)} accessibilityRole="button" accessibilityLabel={`${f.name}, ${Math.round(f.kcal100g)} kilocalories per 100 grams`}>
                   <View style={{ minHeight: 56, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>

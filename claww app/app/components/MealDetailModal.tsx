@@ -4,6 +4,9 @@ import { COLORS, FONT } from '../lib/theme';
 import type { MealLogRow } from '../lib/data';
 import { Icon } from './ui/Icon';
 import { mealTypeIcon, useSignedMealPhoto } from './MealPhoto';
+import { useAppState } from '../lib/appState';
+import { deletePlate, saveMealAsPlate, usePlates } from '../lib/platesData';
+import { hasPlate } from '../lib/plates';
 
 export interface MealDetailModalProps {
   meal: MealLogRow | null;
@@ -19,6 +22,22 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
   const [photoFailed, setPhotoFailed] = useState(false);
   useEffect(() => setPhotoFailed(false), [photoUrl]);
   const showPhoto = !!photoUrl && !photoFailed;
+  // Polish step 6: keep this meal as a plate; plates come first in Something else and in search.
+  const { userId } = useAppState();
+  const { plates } = usePlates(userId);
+  const [savingPlate, setSavingPlate] = useState(false);
+  const isPlate = !!meal && hasPlate(plates, meal.description);
+  const togglePlate = async () => {
+    if (!userId || !meal || savingPlate) return;
+    setSavingPlate(true);
+    if (isPlate) {
+      const p = plates.find((x) => x.name.trim().toLowerCase() === meal.description.trim().toLowerCase());
+      if (p) await deletePlate(userId, p.id);
+    } else {
+      await saveMealAsPlate(userId, meal);
+    }
+    setSavingPlate(false);
+  };
 
   return (
     <Modal visible={!!meal} transparent animationType="fade" onRequestClose={onClose}>
@@ -93,6 +112,20 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   </View>
                 ))}
               </View>
+
+              {meal.plan_status !== 'skipped' ? (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={togglePlate}
+                  disabled={savingPlate}
+                  accessibilityRole="button"
+                  accessibilityLabel={isPlate ? 'Remove from my plates' : 'Save as my plate'}
+                  style={{ height: 48, borderRadius: 14, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: isPlate ? COLORS.greenGlow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
+                >
+                  <Icon name={isPlate ? 'check' : 'plus'} size={16} color={COLORS.green} />
+                  <Text style={{ color: COLORS.green, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>
+                </TouchableOpacity>
+              ) : null}
 
               <TouchableOpacity
                 activeOpacity={0.8}

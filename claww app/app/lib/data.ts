@@ -79,6 +79,8 @@ export interface PersonalizationProfile {
   stepsGoal?: number;
   /** Polish step 4: the Burned ring's goal in kcal when the user set one; otherwise derived from the profile (lib/burnGoal.ts). */
   burnedGoal?: number;
+  /** Polish step 6: plates the user saved from logged meals (see lib/plates.ts). */
+  plates?: unknown[];
   /** NG PHASE 9: the user agreed (Settings, default off) to share scan corrections to train the scanner. */
   scanTraining?: boolean;
   /** Exam week (NG PHASE 12): days in this range neither count toward nor break the plan streak. */
