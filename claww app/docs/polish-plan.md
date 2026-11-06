@@ -74,6 +74,10 @@ Notification actions (Android, the same native path as the workout lock-screen m
 
 After any logged meal: "Save as my plate". Saved plates appear first in Something else and in food search, one tap to log. Works for home food, mess and hostel cooking. Builds on the existing usuals.
 
+### Step 6b: Portions in the unit you know (user, 6 Nov)
+
+On the scan check screen (and food search, and "Something else"), each item's amount is a tappable line with a small arrow, e.g. "2 katoris ⌄". Tapping it opens a small row of units for that food: katori, bowl, spoon, pieces, grams (whichever the food has in `food_units`, grams always). The − / + steppers then move in that unit (katori and bowl by half, pieces and spoons by one, grams by 25 g). The amount is kept in grams internally, so switching unit never changes the calories. Remember the unit last chosen per food for next time. Food actions (Scan a meal, Save to dinner) are green, not blue. Board: "Scan: check your plate".
+
 ## Step 7: The plan arrives as stories
 
 After setup, the plan shows as 4 tap-through cards (your week, first session, a day of food, what I watch), each drawn in by the pen, each with one Adjust button, instead of one long page.
@@ -85,6 +89,16 @@ Grain and top light on every card, the feature glow only on that feature's card,
 ## Step 9: Splash, welcome and log in
 
 The logo's three pieces (`assets/logo/logo-pieces.svg`, `lib/logoPieces.ts`) fly in and lock together, then rise into the welcome screen; welcome and log in rebuilt in the app's textured style with Google first.
+
+### Step 9b: Logo in black and white, app icon and notification icon (user, 6 Nov)
+
+Board: "App icon and notification icon" on the design canvas.
+
+- Logo is white on black everywhere: launcher icon, adaptive icon, splash and Home's logo badge. Blue appears only as the glow behind it in the app.
+- Splash animation: the three pieces fly in and lock, then one band of light sweeps across the logo once and the blue glow settles to a steady level. **The coloured rings around the logo are removed.**
+- Notification icon (currently shows as a filled grey square because Android draws only the image's alpha): new `assets/notification-icon.png`, 96 x 96, white logo on a transparent background, 8 px padding; set it as `icon` in the `expo-notifications` plugin with `color: "#3B82F6"`. The workout session module (`modules/claww-session-notification/`) uses the same silhouette instead of the barbell.
+- `android.adaptiveIcon`: white logo foreground (about 60 % of the canvas so round masks don't cut it), `backgroundColor: "#000000"`, plus `monochromeImage` for Android 13 themed icons.
+- Needs a new APK.
 
 ## Step 10: Sunday letter
 
@@ -106,3 +120,6 @@ One buddy, weekly streak, four tabs with a + button, the 3D body (waits on the m
 | Login and welcome | Redesign with the three-piece logo animation, entry matches the app's look | 2026-11-06 user |
 | 3D body model source | A (buy), B (free CC BY-SA) or C (commission) | waiting on the user |
 | Build model | Plan and design on Opus 5.5, build on Sonnet 5.5 | 2026-11-06 user |
+| Portion units | User picks the unit per item (katori, bowl, spoon, pieces, grams) from a small menu on the amount | 2026-11-06 user |
+| Logo colour | Black and white; blue only as the glow; rings around the splash logo removed | 2026-11-06 user |
+| Notification icon | White silhouette on transparent PNG | 2026-11-06 user |
