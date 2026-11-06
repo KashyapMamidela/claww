@@ -12,6 +12,7 @@ import { ErrorCard } from '../ui/ErrorCard';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
 import { platesFor, type SavedPlate } from '../../lib/plates';
+import { rememberUnit, rememberedUnit } from '../../lib/unitMemory';
 import { recordPlateUse, usePlates } from '../../lib/platesData';
 import { Stepper } from '../ui/Stepper';
 
@@ -88,6 +89,13 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
     setUnit(def.unit);
     setQty(def.unit === 'g' ? 100 : 1);
     setError(null);
+    // Polish step 6b: start in the unit this food was last measured in.
+    rememberedUnit(food.name).then((u) => {
+      if (u && unitsFor(food).some((x) => x.unit === u)) {
+        setUnit(u);
+        setQty(u === 'g' ? 100 : 1);
+      }
+    });
   };
 
   const grams = picked ? gramsFor(picked, qty, unit) : 0;
@@ -171,6 +179,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
                   onPress={() => {
                     setUnit(u.unit);
                     setQty(u.unit === 'g' ? 100 : 1);
+                    rememberUnit(picked.name, u.unit).catch(() => {});
                   }}
                 >
                   {u.unit === 'g' ? 'grams' : u.unit}

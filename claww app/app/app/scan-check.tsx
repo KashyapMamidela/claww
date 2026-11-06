@@ -6,11 +6,13 @@ import { COLORS, FONT, FONT_HAND } from '../lib/theme';
 import { useAppState, type MealType } from '../lib/appState';
 import { getProfile, uploadMealPhoto } from '../lib/data';
 import {
-  applyContext, itemNutrients, scanStepFor, setQuantity, totalsOf, scanGramsFor, type ScanFood, type ScanItem,
+  applyContext, itemNutrients, scanStepFor, scanSwitchUnit, scanUnitChoices, setQuantity, totalsOf, scanGramsFor, type ScanFood, type ScanItem,
 } from '../lib/engine';
 import { searchFoodDb } from '../lib/foodDb';
 import { defaultUnit, type Food } from '../lib/foodLookup';
 import { contextText } from '../lib/scanHabit';
+import { rememberUnit } from '../lib/unitMemory';
+import { Chip } from '../components/ui/Chip';
 import { getScanSession, saveScanCorrection, setScanSession, type ScanResult } from '../lib/scanner';
 import { ensureMealPlans, replanToday } from '../lib/mealPlanData';
 import { rateMeal } from '../lib/nutritionLogic';
@@ -115,6 +117,14 @@ export default function ScanCheckScreen() {
         return setQuantity(i, q);
       })
     );
+
+  // Polish step 6b: tap the amount to measure it in the unit you know (katori, bowl, spoon, pieces, grams).
+  const [unitOpen, setUnitOpen] = useState<string | null>(null);
+  const changeUnit = (key: string, unit: string) => {
+    setItems((prev) => prev.map((i) => (i.key === key ? scanSwitchUnit(i, unit) : i)));
+    const it = items.find((i) => i.key === key);
+    if (it?.food) rememberUnit(it.food.name, unit).catch(() => {});
+  };
 
   const remove = (key: string) => setItems((prev) => prev.filter((i) => i.key !== key));
 
@@ -282,7 +292,8 @@ export default function ScanCheckScreen() {
             const step = i.unit === 'g' ? 25 : scanStepFor(i.unit);
             const hidden = !!i.hidden;
             return (
-              <View key={i.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingRight: 12, borderTopWidth: idx === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
+              <View key={i.key}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingRight: 12, borderTopWidth: idx === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
                 <View style={{ width: 4, alignSelf: 'stretch', borderRadius: 2, backgroundColor: hidden ? AMBER : G, marginLeft: 0 }} />
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{i.food ? (hidden ? 'Oil' : i.food.name) : i.heard}</Text>
@@ -301,10 +312,20 @@ export default function ScanCheckScreen() {
                         <Icon name="minus" size={18} color={COLORS.fg} />
                       </View>
                     </PressScale>
-                    <View style={{ minWidth: 76, alignItems: 'center' }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{fmtQty(i.qty)} {i.unit}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{Math.round(i.grams)} g</Text>
-                    </View>
+                    <PressScale
+                      onPress={() => setUnitOpen((k) => (k === i.key ? null : i.key))}
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: unitOpen === i.key }}
+                      accessibilityLabel={`${fmtQty(i.qty)} ${i.unit} of ${i.food.name}. Change the unit.`}
+                    >
+                      <View style={{ minWidth: 76, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+                          <Text style={{ color: unitOpen === i.key ? G : COLORS.fg, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{fmtQty(i.qty)} {i.unit}</Text>
+                          <Icon name={unitOpen === i.key ? 'chevron-up' : 'chevron-down'} size={14} color={G} />
+                        </View>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{Math.round(i.grams)} g</Text>
+                      </View>
+                    </PressScale>
                     <PressScale onPress={() => bump(i.key, 1)} accessibilityRole="button" accessibilityLabel={`More ${i.food.name}`}>
                       <View style={{ width: 44, height: 44, borderRadius: 13, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
                         <Icon name="plus" size={18} color={COLORS.fg} />
@@ -318,6 +339,20 @@ export default function ScanCheckScreen() {
                     </View>
                   </PressScale>
                 )}
+              </View>
+              {i.food && unitOpen === i.key ? (
+                <View style={{ paddingLeft: 14, paddingBottom: 12, paddingRight: 12, gap: 8 }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Measure in</Text>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                    {scanUnitChoices(i.food).map((u) => (
+                      <Chip key={u} active={i.unit === u} accent={G} accentDeep={COLORS.greenDeep} onPress={() => changeUnit(i.key, u)}>
+                        {u === 'g' ? 'grams' : u}
+                      </Chip>
+                    ))}
+                  </View>
+                  <Text style={{ color: COLORS.pen, fontSize: 18, fontFamily: FONT_HAND }}>know the grams? pick grams</Text>
+                </View>
+              ) : null}
               </View>
             );
           })}
