@@ -42,7 +42,7 @@ export default function OnboardingAge() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={1} accent={A} showBack />
+      <OnboardingTopBar step={1} totalSteps={6} accent={A} showBack />
       <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />

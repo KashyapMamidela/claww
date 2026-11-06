@@ -99,6 +99,7 @@ export default function MealSetupSummary() {
         gender: profile?.gender ?? null,
         goal: (profile?.goal as Goal | null) ?? null,
         activityLevel: (profile?.personalization_profile?.workoutDefaults?.activityLevel as ActivityLevel | undefined) ?? 'moderate',
+        gainWeight: profile?.personalization_profile?.goalChoice === 'gain',
       });
     }
 

@@ -20,7 +20,7 @@ export default function OnboardingName() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
-      <OnboardingTopBar step={0} accent={A} />
+      <OnboardingTopBar step={0} totalSteps={6} accent={A} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>

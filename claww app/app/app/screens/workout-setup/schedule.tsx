@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { notificationsSupported } from '../../../lib/notifications';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -32,7 +33,7 @@ const TIME_OPTIONS: { value: string; label: string }[] = [
 export default function WorkoutSetupSchedule() {
   const router = useRouter();
   const { userId, generatePlan, bumpXp } = useAppState();
-  const { planDays } = useLocalSearchParams<{ planDays: string }>();
+  const { planDays, onboarding } = useLocalSearchParams<{ planDays: string; onboarding?: string }>();
   const need = Math.min(6, Math.max(2, Number(planDays) || 3));
 
   const [trainingDays, setTrainingDays] = useState<string[]>(() => defaultWeekdays(need));
@@ -67,7 +68,9 @@ export default function WorkoutSetupSchedule() {
 
     generatePlan();
     bumpXp(50); // matches awardXp(userId, 50, 'plan_generated') in generateWorkoutPlan
-    router.dismissTo('/(tabs)/workouts');
+    // First-run onboarding ends with the reminder soft-ask (V2 PHASE 3.2); web has no local notifications.
+    if (onboarding === '1') router.replace(notificationsSupported ? '/screens/onboarding/reminders' : '/(tabs)');
+    else router.dismissTo('/(tabs)/workouts');
   };
 
   return (
