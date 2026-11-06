@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { AREA_COLORS, COLORS, FONT } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
+import { Icon } from '../../../components/ui/Icon';
+import { PressScale } from '../../../components/ui/PressScale';
+import { Surface } from '../../../components/ui/Surface';
+import { TintTile } from '../../../components/ui/TintTile';
 
+// Colours borrowed from the area palette so a picked card glows like every other picked card in the app.
 const GENDERS = [
-  { id: 'male', label: 'Male', emoji: '♂', accent: '#3B82F6' },
-  { id: 'female', label: 'Female', emoji: '♀', accent: '#EC4899' },
-  { id: 'other', label: 'Other', emoji: '⚧', accent: '#A855F7' },
+  { id: 'male', label: 'Male', color: AREA_COLORS.workouts },
+  { id: 'female', label: 'Female', color: AREA_COLORS.streak },
+  { id: 'other', label: 'Other', color: AREA_COLORS.engine },
 ] as const;
 
 export default function OnboardingGender() {
@@ -19,54 +24,35 @@ export default function OnboardingGender() {
   const select = (id: string) => {
     setGender(id);
     setTimeout(() => {
-      router.push({
-        pathname: '/screens/onboarding/goal',
-        params: { name: name ?? '', age: age ?? '', gender: id },
-      });
+      router.push({ pathname: '/screens/onboarding/goal', params: { name: name ?? '', age: age ?? '', gender: id } });
     }, 260);
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <OnboardingTopBar step={2} totalSteps={6} accent={COLORS.blue} showBack />
-      <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
-          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.purple }} />
-          <Text style={{ color: COLORS.purple, fontSize: 11, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>LAST THING</Text>
-        </View>
-        <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', letterSpacing: -0.6, lineHeight: 33, fontFamily: FONT }}>
-          How do you identify?
-        </Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 30, fontFamily: FONT }}>
-          Tunes recovery and calorie targets to you.
-        </Text>
+      <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Last thing about you</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How do you identify?</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: FONT }}>It tunes recovery and calorie targets to you.</Text>
 
-        <View style={{ gap: 12 }}>
+        <View style={{ gap: 12 }} accessibilityRole="radiogroup">
           {GENDERS.map((g) => {
-            const isActive = gender === g.id;
+            const on = gender === g.id;
+            const body = (
+              <View style={{ minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', flex: 1, fontFamily: FONT }}>{g.label}</Text>
+                {on ? (
+                  <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: g.color, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="check" size={14} color={COLORS.bg} strokeWidth={3} />
+                  </View>
+                ) : null}
+              </View>
+            );
             return (
-              <TouchableOpacity
-                key={g.id}
-                activeOpacity={0.85}
-                onPress={() => select(g.id)}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 14,
-                  paddingHorizontal: 18,
-                  paddingVertical: 16,
-                  borderRadius: 16,
-                  backgroundColor: isActive ? `${g.accent}18` : '#151517',
-                  borderWidth: 1,
-                  borderColor: isActive ? `${g.accent}60` : 'rgba(255,255,255,0.10)',
-                }}
-              >
-                <Text style={{ fontSize: 26 }}>{g.emoji}</Text>
-                <Text style={{ color: isActive ? g.accent : '#fff', fontSize: 15, fontWeight: '700', flex: 1, fontFamily: FONT }}>
-                  {g.label}
-                </Text>
-                {isActive && <Text style={{ color: g.accent, fontSize: 16 }}>✓</Text>}
-              </TouchableOpacity>
+              <PressScale key={g.id} onPress={() => select(g.id)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={g.label}>
+                {on ? <TintTile color={g.color} padding={18}>{body}</TintTile> : <Surface padding={18}>{body}</Surface>}
+              </PressScale>
             );
           })}
         </View>

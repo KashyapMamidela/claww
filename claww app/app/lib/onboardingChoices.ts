@@ -2,6 +2,7 @@
 
 import type { Equipment, Goal } from './data';
 import { GOAL_COLORS, STYLE_COLORS } from './theme';
+import { distributeStyleDays } from './engine';
 
 export type GoalChoice = 'fat' | 'gain' | 'muscle' | 'strong' | 'fit';
 
@@ -78,14 +79,44 @@ export interface WeekPreview {
 
 const lower = (s: TrainStyle) => styleOption(s).title.toLowerCase();
 
-/** The live line under the picker: one style gets 4 days; with more, the main style gets 3 and the others fill the rest. */
-export function weekPreview(styles: TrainStyle[]): WeekPreview {
-  if (styles.length === 0) return { text: 'Pick at least one', note: 'pick what you enjoy, you will keep doing it', days: [null, null, null, null, null, null, null] };
-  const [main, ...rest] = styles;
-  if (rest.length === 0) return { text: `4 days of ${lower(main)}`, note: 'one style, done well', days: [main, null, main, null, main, main, null] };
+export const MIN_TRAIN_DAYS = 2;
+export const MAX_TRAIN_DAYS = 6;
+
+/** Weekday indexes (Monday 0) cleaned: unique, in calendar order, 0 to 6. */
+export function cleanWeekdays(days: unknown): number[] {
+  if (!Array.isArray(days)) return [];
+  return Array.from(new Set(days.filter((d): d is number => Number.isInteger(d) && d >= 0 && d <= 6))).sort((a, b) => a - b);
+}
+
+/** Toggles a weekday, keeping between 2 and 6 training days. Returns the same list when the change is not allowed. */
+export function toggleWeekday(days: number[], day: number): number[] {
+  const has = days.includes(day);
+  if (has) return days.length <= MIN_TRAIN_DAYS ? days : days.filter((d) => d !== day);
+  return days.length >= MAX_TRAIN_DAYS ? days : [...days, day].sort((a, b) => a - b);
+}
+
+/**
+ * The live line under the picker. The user's weekdays are filled in order with the styles: one style gets every day;
+ * with more, the first style picked (the main one) gets most days and the others share the rest.
+ */
+export function weekPreview(styles: TrainStyle[], weekdays: number[]): WeekPreview {
+  const picked = cleanWeekdays(weekdays);
+  const none: (TrainStyle | null)[] = [null, null, null, null, null, null, null];
+  if (styles.length === 0 || picked.length === 0) {
+    return { text: styles.length === 0 ? 'Pick at least one' : 'Pick the days you can train', note: 'pick what you enjoy, you will keep doing it', days: none };
+  }
+  const order = distributeStyleDays(styles, picked.length);
+  const days = [...none];
+  picked.forEach((d, i) => {
+    days[d] = order[i] ?? order[order.length - 1];
+  });
+  const counts = styles
+    .map((st) => [st, order.filter((x) => x === st).length] as const)
+    .filter(([, n]) => n > 0)
+    .map(([st, n]) => `${n} ${n === 1 ? 'day' : 'days'} ${lower(st)}`);
   return {
-    text: `3 days ${lower(main)}, ${rest.map(lower).join(' and ')} on the others`,
-    note: 'the mix keeps you strong and loose',
-    days: [main, rest[0], main, null, main, rest[1 % rest.length], null],
+    text: counts.join(' + '),
+    note: styles.length === 1 ? 'one style, done well' : 'the mix keeps you strong and loose',
+    days,
   };
 }

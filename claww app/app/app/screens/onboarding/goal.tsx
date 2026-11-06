@@ -53,7 +53,7 @@ export default function OnboardingGoal() {
                 accessibilityRole="radio"
                 accessibilityState={{ selected: on }}
                 accessibilityLabel={`${g.title}. ${g.line}`}
-                style={{ width: wide ? '100%' : '47.8%' }}
+                style={{ flexBasis: wide ? '100%' : '47.5%', flexGrow: 1 }}
               >
                 {on ? <TintTile color={g.color} padding={14}>{body}</TintTile> : <Surface padding={14}>{body}</Surface>}
               </PressScale>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { GOAL_OPTIONS, choiceFromGoal, cleanStyles, equipmentFromStyles, goalOption, isGainWeight, weekPreview } from './onboardingChoices';
+import { GOAL_OPTIONS, choiceFromGoal, cleanStyles, cleanWeekdays, equipmentFromStyles, goalOption, isGainWeight, toggleWeekday, weekPreview } from './onboardingChoices';
 
 describe('goal choices', () => {
   it('has the five goals, each mapped to an existing profile goal', () => {
@@ -30,12 +30,23 @@ describe('training styles', () => {
     expect(cleanStyles(['gym', 'gym', 'swim', 'yoga'])).toEqual(['gym', 'yoga']);
     expect(cleanStyles(null)).toEqual([]);
   });
-  it('previews the week the way the board does', () => {
-    expect(weekPreview([]).text).toBe('Pick at least one');
-    expect(weekPreview(['gym']).text).toBe('4 days of gym');
-    const mix = weekPreview(['gym', 'yoga']);
-    expect(mix.text).toBe('3 days gym, yoga on the others');
-    expect(mix.days).toEqual(['gym', 'yoga', 'gym', null, 'gym', 'yoga', null]);
-    expect(weekPreview(['gym', 'yoga', 'mobility']).days[5]).toBe('mobility');
+  it('previews the week from the weekdays picked', () => {
+    expect(weekPreview([], [0, 2]).text).toBe('Pick at least one');
+    expect(weekPreview(['gym'], []).text).toBe('Pick the days you can train');
+    expect(weekPreview(['gym'], [0, 2, 4, 5]).text).toBe('4 days gym');
+    const mix = weekPreview(['gym', 'yoga'], [0, 1, 3, 4]);
+    expect(mix.text).toBe('3 days gym + 1 day yoga');
+    // Sessions land on the weekdays picked, in order; the other days rest.
+    expect(mix.days.filter(Boolean)).toHaveLength(4);
+    expect(mix.days[2]).toBeNull();
+    expect(mix.days[5]).toBeNull();
+    expect(mix.days.filter((d) => d === 'yoga')).toHaveLength(1);
+  });
+  it('keeps between 2 and 6 training days when toggling', () => {
+    expect(toggleWeekday([0, 2], 0)).toEqual([0, 2]); // cannot go under 2
+    expect(toggleWeekday([0, 2, 4], 2)).toEqual([0, 4]);
+    expect(toggleWeekday([0, 1, 2, 3, 4, 5], 6)).toEqual([0, 1, 2, 3, 4, 5]); // cannot go over 6
+    expect(toggleWeekday([0, 2], 1)).toEqual([0, 1, 2]);
+    expect(cleanWeekdays([4, 4, 9, -1, 'x', 1])).toEqual([1, 4]);
   });
 });

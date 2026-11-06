@@ -11,7 +11,7 @@ const TAB_META: Record<string, { label: string; icon: string }> = {
   index: { label: 'Home', icon: 'home' },
   workouts: { label: 'Workouts', icon: 'dumbbell' },
   nutrition: { label: 'Nutrition', icon: 'apple' },
-  tracker: { label: 'CLAWW Tracker', icon: 'activity' },
+  tracker: { label: 'Tracker', icon: 'activity' },
   more: { label: 'More', icon: 'layout-grid' },
 };
 

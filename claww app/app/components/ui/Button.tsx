@@ -37,7 +37,8 @@ export function Button({
   style,
 }: ButtonProps) {
   const s = SIZES[size];
-  const deep = accentDeep || accent;
+  // The default blue gets its deeper shade everywhere, so every primary button has the same gradient.
+  const deep = accentDeep || (accent.toLowerCase() === COLORS.blue.toLowerCase() ? COLORS.blueDeep : accent);
 
   const label = (color: string) => (
     <Text style={{ color, fontSize: s.fontSize, fontWeight: '800', fontFamily: FONT, letterSpacing: 0.15 }}>
@@ -78,8 +79,6 @@ export function Button({
           end={{ x: 1, y: 1 }}
           style={[base, !disabled && ({ boxShadow: `0px 4px 10px ${accent}40` } as ViewStyle), style]}
         >
-          {/* NG PHASE 1: 1 px top light on the primary gradient */}
-          <View pointerEvents="none" style={[styles.topLight, { borderTopLeftRadius: s.radius, borderTopRightRadius: s.radius }]} />
           {inner('#fff')}
         </LinearGradient>
       </PressScale>
@@ -111,5 +110,4 @@ export function Button({
 
 const styles = StyleSheet.create({
   inner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  topLight: { position: 'absolute', top: 0, left: 0, right: 0, height: 1, backgroundColor: 'rgba(255,255,255,0.18)' },
 });

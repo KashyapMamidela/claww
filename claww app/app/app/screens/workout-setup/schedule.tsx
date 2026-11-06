@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useProfile } from '../../../lib/profile';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -35,7 +36,14 @@ export default function WorkoutSetupSchedule() {
   const { planDays, onboarding } = useLocalSearchParams<{ planDays: string; onboarding?: string }>();
   const need = Math.min(6, Math.max(2, Number(planDays) || 3));
 
-  const [trainingDays, setTrainingDays] = useState<string[]>(() => defaultWeekdays(need));
+  // Polish step 2: the weekdays picked during onboarding are already saved on the profile; start from them.
+  const { profile } = useProfile(userId);
+  const saved = sortWeekdays(profile?.personalization_profile?.workoutDefaults?.trainingDays ?? []);
+  const [trainingDays, setTrainingDays] = useState<string[]>(() => (saved.length === need ? saved : defaultWeekdays(need)));
+  useEffect(() => {
+    if (saved.length === need) setTrainingDays(saved);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saved.join(','), need]);
   const [usualTime, setUsualTime] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

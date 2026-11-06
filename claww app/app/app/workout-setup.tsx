@@ -21,6 +21,8 @@ import { BottomSheet } from '../components/ui/BottomSheet';
 import { ErrorCard } from '../components/ui/ErrorCard';
 import { ProfileBasicsCard } from '../components/ProfileBasicsCard';
 import { PressScale } from '../components/ui/PressScale';
+import { BasicsInputs } from '../components/workouts/BasicsInputs';
+import { PlanTile } from '../components/workouts/PlanTile';
 
 // NG PHASE 5.5: the workout setup on one screen (05-workout-setup.jpg). Basic details come from the profile
 // and are only asked when missing. The "Your plan" card runs the same pickBlueprint as generate-plan on the same
@@ -147,10 +149,14 @@ export default function WorkoutSetup() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 10 }}>
-        <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-          <Icon name="chevron-left" size={22} color={COLORS.fg} />
-        </TouchableOpacity>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12 }}>
+        <PressScale onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Go back" hitSlop={6}>
+          <Surface radius={14} padding={0} style={{ width: 44, height: 44 }}>
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="chevron-left" size={20} color={COLORS.fg} />
+            </View>
+          </Surface>
+        </PressScale>
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Build your workout plan</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{inOnboarding ? 'Set up your plan · step 3 of 4 · about a minute' : 'Step 1 of 2 · about 1 minute'}</Text>
@@ -162,10 +168,7 @@ export default function WorkoutSetup() {
           {known && !editing ? (
             <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg'])} accent={A} onEdit={() => setEditing(true)} />
           ) : showInputs ? (
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TextInput value={height} onChangeText={setHeight} placeholder="Height (cm)" placeholderTextColor={COLORS.textFaint} keyboardType="numeric" style={inputStyle(height.length > 0)} accessibilityLabel="Height in centimetres" />
-              <TextInput value={weight} onChangeText={setWeight} placeholder="Weight (kg)" placeholderTextColor={COLORS.textFaint} keyboardType="numeric" style={inputStyle(weight.length > 0)} accessibilityLabel="Weight in kilograms" />
-            </View>
+            <BasicsInputs initialHeight={height} initialWeight={weight} onChange={(h, w) => { setHeight(h); setWeight(w); }} />
           ) : null}
 
           {inOnboarding ? null : (
@@ -194,6 +197,8 @@ export default function WorkoutSetup() {
             </>
           )}
 
+          {inOnboarding ? null : (
+            <>
           <SectionLabel color={A}>DAYS A WEEK YOU CAN TRAIN</SectionLabel>
           <View style={{ flexDirection: 'row', gap: 8 }} accessibilityRole="radiogroup">
             {[2, 3, 4, 5, 6].map((n) => {
@@ -207,6 +212,9 @@ export default function WorkoutSetup() {
               );
             })}
           </View>
+
+            </>
+          )}
 
           {inOnboarding ? null : (
             <>
@@ -253,25 +261,13 @@ export default function WorkoutSetup() {
             </Text>
           ) : null}
 
-          <Hero variant="blue" accessibilityLabel={`Your plan: ${card.title}, ${card.days} days a week`}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR PLAN</Text>
-            <Text style={{ color: COLORS.fg, fontSize: 24, fontWeight: '900', letterSpacing: -0.4, marginTop: 6, fontFamily: FONT }}>{card.title}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 14, marginTop: 4, fontFamily: FONT }}>
-              {card.weeks} weeks · {card.minutes} min · {card.repStyle}
-            </Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
-              {[GOALS.find((g) => g.value === goal)!.title, `${card.days} days`, PLACES.find((p) => p.value === place)!.label.split(',')[0], EXPERIENCE.find((e) => e.months === months)!.label].map((t) => (
-                <View key={t} style={{ borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: 'rgba(255,255,255,0.10)' }}>
-                  <Text style={{ color: COLORS.fg, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{t}</Text>
-                </View>
-              ))}
-            </View>
-            {card.nearest ? <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 12, lineHeight: 17, fontFamily: FONT }}>{card.nearest}</Text> : null}
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
-              <Icon name="shield-check" size={16} color={COLORS.textMuted} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, flex: 1, fontFamily: FONT }}>Picked from trainer-reviewed plans, never generated</Text>
-            </View>
-          </Hero>
+          <PlanTile
+            title={card.title}
+            days={card.days}
+            meta={`${card.weeks} weeks · ${card.minutes} min · ${card.repStyle}`}
+            chips={[GOALS.find((g) => g.value === goal)!.title, `${card.days} days`, PLACES.find((p) => p.value === place)!.label.split(',')[0], EXPERIENCE.find((e) => e.months === months)!.label]}
+            nearest={card.nearest}
+          />
 
           {error ? <ErrorCard message={error} onRetry={submit} retrying={saving} /> : null}
 
@@ -312,20 +308,4 @@ export default function WorkoutSetup() {
   );
 }
 
-function inputStyle(active: boolean) {
-  return {
-    flex: 1,
-    minWidth: 0,
-    height: 52,
-    backgroundColor: COLORS.card,
-    borderWidth: 1,
-    borderColor: active ? 'rgba(59,130,246,0.5)' : COLORS.border,
-    borderRadius: 14,
-    color: COLORS.fg,
-    fontSize: 17,
-    fontWeight: '700' as const,
-    paddingHorizontal: 14,
-    fontFamily: FONT,
-  };
-}
 
