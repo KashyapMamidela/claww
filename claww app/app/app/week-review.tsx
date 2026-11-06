@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../lib/penDays';
+import { BackTile } from '../components/ui/BackTile';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Share, Text, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
@@ -145,9 +146,7 @@ export default function WeekReviewScreen() {
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: insets.bottom + 40, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-            <Icon name="chevron-left" size={22} color={COLORS.fg} />
-          </Pressable>
+          <BackTile onPress={() => router.back()} />
           <View style={{ flex: 1 }}>
             <Display>Your week, marked up</Display>
             <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{dateLine(now, blockWeek, BLOCK_WEEKS)}</Text>

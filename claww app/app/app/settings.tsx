@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { BackTile } from '../components/ui/BackTile';
 import { Surface } from '../components/ui/Surface';
 import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -92,22 +93,7 @@ export default function SettingsScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            activeOpacity={0.8}
-            onPress={() => router.back()}
-            style={{
-              width: 34,
-              height: 34,
-              borderRadius: 9,
-              backgroundColor: '#151517',
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.08)',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Icon name="chevron-left" size={16} color="#A1A1AA" />
-          </TouchableOpacity>
+          <BackTile onPress={() => router.back()} />
           <Badge color={P}>SETTINGS</Badge>
         </View>
 

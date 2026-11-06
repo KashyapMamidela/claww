@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { BackTile } from '../components/ui/BackTile';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -193,9 +194,7 @@ export default function ScanCheckScreen() {
 
   const header = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingTop: insets.top + 6, paddingBottom: 8 }}>
-      <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
-        <Icon name="chevron-left" size={24} color={COLORS.fg} />
-      </Pressable>
+      <BackTile onPress={() => router.back()} />
       <View style={{ flex: 1 }}>
         <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Check your plate</Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{contextText(session.context)}</Text>

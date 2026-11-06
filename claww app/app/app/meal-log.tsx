@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { BackTile } from '../components/ui/BackTile';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -366,13 +367,7 @@ export default function MealLogScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: '#050505' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: insets.top + 26, paddingHorizontal: 20, paddingBottom: 4 }}>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Edit the estimate" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            activeOpacity={0.8}
-            onPress={handleEditEstimate}
-            style={{ width: 34, height: 34, borderRadius: 10, backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Icon name="chevron-left" size={16} color="#A1A1AA" />
-          </TouchableOpacity>
+          <BackTile onPress={handleEditEstimate} label="Edit the estimate" />
           <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Review estimate</Text>
         </View>
 

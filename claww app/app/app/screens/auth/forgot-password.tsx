@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BackTile } from '../../../components/ui/BackTile';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -37,22 +38,7 @@ export default function ForgotPasswordScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <View style={{ paddingHorizontal: 20, paddingTop: 8 }}>
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          activeOpacity={0.8}
-          onPress={() => router.back()}
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 10,
-            backgroundColor: COLORS.card,
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.10)',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon name="chevron-left" size={18} color="#A1A1AA" />
-        </TouchableOpacity>
+        <BackTile onPress={() => router.back()} />
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
