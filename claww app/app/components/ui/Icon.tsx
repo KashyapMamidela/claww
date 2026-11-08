@@ -1,6 +1,8 @@
 import React from 'react';
 import {
   Activity,
+  CalendarDays,
+  MoreHorizontal,
   AlertTriangle,
   Apple,
   ArrowUpRight,
@@ -104,6 +106,8 @@ const ICONS: Record<string, LucideIcon> = {
   mail: Mail,
   minus: Minus,
   moon: Moon,
+  'more-horizontal': MoreHorizontal,
+  calendar: CalendarDays,
   pause: Pause,
   pencil: Pencil,
   play: Play,

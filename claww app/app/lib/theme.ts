@@ -102,7 +102,7 @@ export const FONT_HAND = 'Caveat';
 export const HEADER_CONTENT_HEIGHT = 56;
 // Premium S5: the floating tab bar is 64 tall with 8 of air above it.
 export const TAB_BAR_CONTENT_HEIGHT = 72;
-export const TAB_BAR_HEIGHT = 64;
+export const TAB_BAR_HEIGHT = 60;
 
 // Per-tab accents (bottom nav + header wordmark buckets)
 export const TAB_ACCENTS: Record<string, { accent: string; wordmark: string }> = {

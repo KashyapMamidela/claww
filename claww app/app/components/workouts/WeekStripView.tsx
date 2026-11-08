@@ -28,8 +28,8 @@ function Cell({ cell, selected, onPress }: { cell: StripCell; selected: boolean;
     >
       <View
         style={{
-          minHeight: 84,
-          borderRadius: 14,
+          minHeight: 76,
+          borderRadius: 22,
           alignItems: 'center',
           justifyContent: 'center',
           gap: 2,
@@ -40,15 +40,15 @@ function Cell({ cell, selected, onPress }: { cell: StripCell; selected: boolean;
       >
         <Text style={{ color: selected ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{cell.letter}</Text>
         <Text style={{ color: fg, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{cell.dateNumber}</Text>
-        {done ? (
-          <Icon name="check" size={13} color={selected ? '#fff' : COLORS.green} strokeWidth={3} />
+        {/* Premium W2: a dot says what the day is: filled = done, ring = planned, small ring in amber = missed, dash = rest. */}
+        {rest ? (
+          <View style={{ width: 10, height: 2, borderRadius: 1, backgroundColor: COLORS.textFaint }} />
+        ) : done ? (
+          <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: COLORS.green }} />
+        ) : missed ? (
+          <View style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: COLORS.amber }} />
         ) : (
-          <Text
-            numberOfLines={1}
-            style={{ color: missed ? COLORS.danger : fg, fontSize: 13, fontWeight: '700', textDecorationLine: missed ? 'line-through' : 'none', fontFamily: FONT }}
-          >
-            {cell.label}
-          </Text>
+          <View style={[{ width: 10, height: 10, borderRadius: 5, borderWidth: 2, borderColor: selected ? '#fff' : A }, today ? ({ boxShadow: `0px 0px 8px ${A}` } as object) : null]} />
         )}
       </View>
     </Pressable>

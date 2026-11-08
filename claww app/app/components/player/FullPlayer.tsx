@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { AREA_COLORS, COLORS, FONT, SURFACES } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, SURFACES } from '../../lib/theme';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import {
   currentSetIndex,
@@ -28,6 +28,7 @@ import { useProfile } from '../../lib/profile';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
 import { Button } from '../ui/Button';
+import { BottomSheet } from '../ui/BottomSheet';
 import { Stepper } from '../ui/Stepper';
 import { TickButton } from '../ui/TickButton';
 import { ElapsedClock, KcalText } from './clocks';
@@ -108,6 +109,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const [endOpen, setEndOpen] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
   const [swapOpen, setSwapOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [rir, setRir] = useState<number | null>(null);
   // Warm-up ticks are only a reminder for the lifter: they are never logged as work sets.
   const [warmDone, setWarmDone] = useState<Record<string, boolean[]>>({});
@@ -243,32 +245,19 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
               <GestureDetector gesture={swipe}>
                 <Animated.View style={[{ flex: 1 }, contentStyle]}>
                   <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
-                    <View>
-                      <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
-                      {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 13, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
+                        {reasonLine ? <Text style={{ color: COLORS.fg, fontSize: 20, lineHeight: 24, marginTop: 6, fontFamily: FONT_HAND, fontWeight: '700' }}>{reasonLine}</Text> : null}
+                      </View>
+                      {/* Premium X5: How to, Swap and editing the numbers sit behind one button so the screen has one job. */}
+                      <PressScale onPress={() => setMoreOpen(true)} accessibilityRole="button" accessibilityLabel="More for this exercise: how to, swap, change numbers" hitSlop={4}>
+                        <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.07)' }}>
+                          <Icon name="more-horizontal" size={20} color={COLORS.fgGray} />
+                        </View>
+                      </PressScale>
                     </View>
-
-                    {/* NG PHASE 3.4: How to opens the exercise guide; Swap replaces the exercise, until a set is logged. */}
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                      {forms[exercise.name] ? (
-                        <Chip accent={A} icon={<Icon name="play" size={13} color={COLORS.fgGray} />} onPress={() => setGuideName(exercise.name)}>
-                          How to
-                        </Chip>
-                      ) : null}
-                      {!timed && !workDoneAny && !state.skipped ? (
-                        <Chip accent={A} icon={<Icon name="repeat" size={13} color={COLORS.fgGray} />} onPress={() => setSwapOpen(true)}>
-                          Swap · equipment taken?
-                        </Chip>
-                      ) : null}
-                    </View>
-
-                    <FormStrip
-                      form={forms[exercise.name]}
-                      setIndex={Math.max(0, setIndex)}
-                      expanded={lastTimeLoaded && !lastTime[exercise.name]}
-                      onDemo={() => setGuideName(exercise.name)}
-                    />
 
                     {timed ? (
                       state.rows.every((r) => r.done) ? null : (
@@ -298,71 +287,74 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     ) : null}
 
 
-                    {/* Set rows: "Set n", the numbers, a hint, and the tick */}
-                    <View style={{ gap: 8 }}>
+                    {/* Premium X5: the current set is the screen: its number is huge, everything else is a slim row. */}
+                    {currentRow ? (
+                      <View style={{ alignItems: 'center', gap: 6, paddingVertical: 8 }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '800', letterSpacing: 0.96, fontFamily: FONT }}>
+                          SET {setIndex + 1} OF {state.rows.length}
+                          {rowHint(currentRow, true, repMax) ? ` \u00b7 ${rowHint(currentRow, true, repMax)!.toUpperCase()}` : ''}
+                        </Text>
+                        <Pressable
+                          onPress={() => setPicker({ kind: currentRow.weight > 0 ? 'kg' : 'reps', exIdx: exerciseIndex, setIdx: setIndex })}
+                          accessibilityRole="button"
+                          accessibilityLabel={`Set ${setIndex + 1}: ${setText(currentRow.weight, `${currentRow.reps}`)}. Change`}
+                          style={{ minHeight: 64, justifyContent: 'center' }}
+                        >
+                          <Text style={{ color: COLORS.fg, fontSize: 52, lineHeight: 58, fontWeight: '900', letterSpacing: -1.5, fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1} adjustsFontSizeToFit>
+                            {currentRow.weight > 0 ? `${currentRow.weight}` : ''}
+                            {currentRow.weight > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 24, fontWeight: '700' }}> kg  </Text> : null}
+                            {currentRow.weight > 0 ? '\u00d7 ' : ''}
+                            {currentRow.reps}
+                            {currentRow.weight > 0 ? '' : <Text style={{ color: COLORS.textMuted, fontSize: 24, fontWeight: '700' }}> reps</Text>}
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ) : null}
+
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 }} accessibilityLabel={`${state.rows.filter((r) => r.done).length} of ${state.rows.length} sets done`}>
                       {warmups.map((w, i) => {
                         const done = !!warmTicks[i];
                         return (
-                          <View
+                          <Pressable
                             key={`warm-${i}`}
-                            style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 56, paddingLeft: 16, paddingRight: 8, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, backgroundColor: 'rgba(255,255,255,0.025)', opacity: done ? 0.55 : 0.85 }}
+                            onPress={() => setWarmDone((m) => ({ ...m, [exercise.name]: Object.assign([...(m[exercise.name] ?? [])], { [i]: true }) }))}
+                            accessibilityRole="button"
+                            accessibilityLabel={done ? `Warm-up ${i + 1} done` : `Mark warm-up ${i + 1} done, ${setText(w.weight, `${w.reps}`)}. Not logged as a work set`}
+                            style={{ minHeight: 40, paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: done ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)', opacity: done ? 0.55 : 1 }}
                           >
-                            <View style={{ width: 52, borderRadius: 6, backgroundColor: 'rgba(255,255,255,0.08)', paddingVertical: 3, alignItems: 'center' }}>
-                              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '800', fontFamily: FONT }}>Warm-up</Text>
-                            </View>
-                            <Text style={{ flex: 1, color: COLORS.fgGray, fontSize: 17, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
-                              {setText(w.weight, `${w.reps}`)}
-                            </Text>
-                            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{w.pct} %</Text>
-                            <TickButton
-                              state={done ? 'done' : 'pending'}
-                              onPress={() => setWarmDone((m) => ({ ...m, [exercise.name]: Object.assign([...(m[exercise.name] ?? [])], { [i]: true }) }))}
-                              accessibilityLabel={done ? `Warm-up ${i + 1} done` : `Mark warm-up ${i + 1} done, ${setText(w.weight, `${w.reps}`)}. Not logged as a work set`}
-                            />
-                          </View>
+                            {done ? <Icon name="check" size={13} color={COLORS.green} strokeWidth={3} /> : null}
+                            <Text style={{ color: COLORS.fgGray, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>Warm-up {setText(w.weight, `${w.reps}`)}</Text>
+                          </Pressable>
                         );
                       })}
                       {state.rows.map((row, s) => {
                         const isCurrent = s === setIndex;
-                        const reps = row.done || isCurrent ? `${row.reps}` : plannedReps;
-                        const hint = rowHint(row, isCurrent, repMax);
-                        const tick = row.done ? 'done' : isCurrent ? 'current' : 'pending';
                         return (
-                          <View
+                          <Pressable
                             key={s}
+                            disabled={row.done}
+                            onPress={() => setPicker({ kind: row.weight > 0 ? 'kg' : 'reps', exIdx: exerciseIndex, setIdx: s })}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Set ${s + 1}: ${setText(row.weight, row.done || isCurrent ? `${row.reps}` : plannedReps)}${row.done ? ', logged' : isCurrent ? ', now' : ''}`}
                             style={{
-                              flexDirection: 'row',
+                              minHeight: 40,
+                              minWidth: 40,
+                              paddingHorizontal: 14,
+                              borderRadius: 20,
                               alignItems: 'center',
-                              gap: 10,
-                              minHeight: 64,
-                              paddingLeft: 16,
-                              paddingRight: 8,
-                              borderRadius: 18,
-                              borderWidth: 1,
-                              borderColor: isCurrent ? COLORS.blue : row.done ? COLORS.blueBorder : COLORS.border,
-                              backgroundColor: isCurrent ? 'rgba(59,130,246,0.10)' : row.done ? 'rgba(59,130,246,0.07)' : SURFACES.cardBottom,
-                              boxShadow: isCurrent ? `0px 0px 14px ${COLORS.blue}40` : undefined,
+                              justifyContent: 'center',
+                              flexDirection: 'row',
+                              gap: 6,
+                              backgroundColor: row.done ? 'rgba(59,130,246,0.22)' : 'rgba(255,255,255,0.05)',
+                              borderWidth: isCurrent ? 2 : 0,
+                              borderColor: COLORS.blue,
                             }}
                           >
-                            <Text style={{ width: 52, color: row.done || isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Set {s + 1}</Text>
-                            <Pressable
-                              disabled={row.done}
-                              onPress={() => setPicker({ kind: row.weight > 0 ? 'kg' : 'reps', exIdx: exerciseIndex, setIdx: s })}
-                              accessibilityRole="button"
-                              accessibilityLabel={`Set ${s + 1}: ${setText(row.weight, reps)}. Change`}
-                              style={{ flex: 1, minHeight: 44, justifyContent: 'center' }}
-                            >
-                              <Text style={{ color: row.done || isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 20, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
-                                {setText(row.weight, reps)}
-                              </Text>
-                            </Pressable>
-                            {hint ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{hint}</Text> : null}
-                            <TickButton
-                              state={tick}
-                              onPress={tick === 'current' ? () => onTick(s) : undefined}
-                              accessibilityLabel={row.done ? `Set ${s + 1} logged` : isCurrent ? `Log set ${s + 1} as planned, ${setText(row.weight, reps)}` : `Set ${s + 1}, not yet`}
-                            />
-                          </View>
+                            {row.done ? <Icon name="check" size={13} color="#93C5FD" strokeWidth={3} /> : null}
+                            <Text style={{ color: row.done ? '#93C5FD' : isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                              {row.done ? setText(row.weight, `${row.reps}`) : `Set ${s + 1}`}
+                            </Text>
+                          </Pressable>
                         );
                       })}
                     </View>
@@ -434,15 +426,6 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                   <RestSheet />
                 ) : currentRow ? (
                   <>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-                        <Text style={{ color: A, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>SET {setIndex + 1} · NOW</Text>
-                      </View>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
-                        tap ✓ above if it went as planned
-                      </Text>
-                    </View>
                     <View style={{ flexDirection: 'row', gap: 10 }}>
                       {showKgStepper ? (
                         <View style={{ flex: 1 }}>
@@ -506,6 +489,26 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
           />
         ) : null}
 
+        <BottomSheet visible={moreOpen} onClose={() => setMoreOpen(false)} maxHeightFraction={0.5}>
+          <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 8 }}>
+            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT, marginBottom: 6 }} numberOfLines={1}>{exercise.name}</Text>
+            {forms[exercise.name] ? (
+              <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="play" size={14} color={A} />} onPress={() => { setMoreOpen(false); setGuideName(exercise.name); }}>
+                How to do it
+              </Button>
+            ) : null}
+            {!timed && !workDoneAny && !state.skipped ? (
+              <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="repeat" size={15} color={A} />} onPress={() => { setMoreOpen(false); setSwapOpen(true); }}>
+                Swap, equipment taken
+              </Button>
+            ) : null}
+            {currentRow ? (
+              <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="pencil" size={15} color={A} />} onPress={() => { setMoreOpen(false); setPicker({ kind: currentRow.weight > 0 ? 'kg' : 'reps', exIdx: exerciseIndex, setIdx: setIndex }); }}>
+                Change the numbers
+              </Button>
+            ) : null}
+          </View>
+        </BottomSheet>
         <SwapSheet
           visible={swapOpen}
           exerciseName={exercise.name}

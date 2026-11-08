@@ -6,6 +6,7 @@ import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
 import { Surface } from './ui/Surface';
 import { SleepLogModal } from './SleepLogModal';
+import { ActivitySheet } from './workouts/ActivityCard';
 import { useToast } from './ui/Toast';
 import { useAppState } from '../lib/appState';
 import { logWater } from '../lib/data';
@@ -45,6 +46,7 @@ export function QuickLogProvider({ children }: { children: React.ReactNode }) {
   const { userId } = useAppState();
   const [visible, setVisible] = useState(false);
   const [sleepOpen, setSleepOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const open = useCallback(() => setVisible(true), []);
   const value = useMemo(() => ({ open }), [open]);
   const close = () => setVisible(false);
@@ -60,7 +62,7 @@ export function QuickLogProvider({ children }: { children: React.ReactNode }) {
   return (
     <Ctx.Provider value={value}>
       {children}
-      <BottomSheet visible={visible} onClose={close} maxHeightFraction={0.6}>
+      <BottomSheet visible={visible} onClose={close} maxHeightFraction={0.8}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>Quick log</Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
@@ -71,9 +73,14 @@ export function QuickLogProvider({ children }: { children: React.ReactNode }) {
             <Action icon="droplets" color={AREA_COLORS.water} title="Water" sub="Add 250 ml" onPress={addWater} />
             <Action icon="moon" color={AREA_COLORS.sleep} title="Sleep" sub="Last night" onPress={() => { close(); setTimeout(() => setSleepOpen(true), 350); }} />
           </View>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
+            <Action icon="zap" color={AREA_COLORS.streak} title="Activity" sub="Sport, a long walk" onPress={() => { close(); setTimeout(() => setActivityOpen(true), 350); }} />
+            <View style={{ flex: 1 }} />
+          </View>
         </View>
       </BottomSheet>
       <SleepLogModal visible={sleepOpen} onClose={() => setSleepOpen(false)} />
+      <ActivitySheet visible={activityOpen} userId={userId} onClose={() => setActivityOpen(false)} onLogged={(message) => toast.show({ message })} />
     </Ctx.Provider>
   );
 }

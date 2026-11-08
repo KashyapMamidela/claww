@@ -36,8 +36,10 @@ Notes for Phase 2 (2026-11-08, checked on the phone): the title bar is a 56 pt b
 Notes for Phase 3 (2026-11-08, checked on the phone): the rest-day and training cards were seen on the phone only for the **rest day** state (today is Sunday); the training and done states are built but not yet seen on a training day. The pen line under the coach sentence comes from `lib/penLine.ts` (rules, 5 lines). The marks card is gone from Home; the pen button shows an orange dot while a mark waits. The "Played a sport" card is gone from Home (it stays on Train; Quick log gets it in Phase 7). Water still opens its own pop-up menu on long press (moves to a sheet with the rest of S6 work in Phase 5). "Ate as planned" is now "As planned" so it never truncates.
 
 ## Phase 4 · Train (`premium/04-train`)
-- [ ] W1 · [ ] W2 · [ ] W3 · [ ] W4 · [ ] W5
-- [ ] X5 Calmer player · [ ] F3 Notification · [ ] F4 Rest haptics · [ ] X6 PR moment
+- [x] W1 · [x] W2 · [x] W3 · [x] W4 · [x] W5
+- [x] X5 Calmer player · [x] F3 Notification (built earlier in NG PHASE 3.5, not re-tested) · [x] F4 Rest haptics · [x] X6 PR moment
+
+Notes for Phase 4 (2026-11-08): **buttons are now 50 / 40 / 32 tall with pill corners**, the tab bar is a 60 pt full capsule (user request, `premium/04-train`, separate commit so it can be reverted). The lift screen shows one huge current set (52 pt), a slim row of set pills, and How to / Swap / Change the numbers behind a ··· button; the old tick rows, cue strip and "tap ✓" hint are gone, and warm-ups became small tappable chips. Checked on the phone: the lift screen, week strip, slim notice, ··· menu button and hero body map. **Phase 4 follow-up (checked on the phone):** the ··· sheet, a logged set (the pill shows the logged numbers), the rest sheet with its ring, and the lock-screen notification (ongoing, countdown, 2 buttons, read from the system) all work. **Not felt/seen:** the 10 s tick and the success buzz at zero (code only), and the new-best moment (needs a session that beats a record). Exercise rows now show "last: 4 kg". The sport card left Train and Home: **Quick log has an Activity action** that opens a sheet (pick, minutes, log). Test data from these checks (one set, one water entry) was deleted from the database; the XP for them may have stayed.
 
 ## Phase 5 · Food and Progress (`premium/05-food-progress`)
 - [ ] N1 · [ ] N2 · [ ] N3 · [ ] N4 · [ ] N5

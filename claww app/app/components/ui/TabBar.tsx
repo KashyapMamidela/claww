@@ -47,7 +47,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       <View
         style={{
           height: TAB_BAR_HEIGHT,
-          borderRadius: 26,
+          borderRadius: 30,
           overflow: 'hidden',
           borderWidth: 1,
           borderColor: 'rgba(255,255,255,0.10)',
@@ -65,7 +65,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
                 top: PAD,
                 bottom: PAD,
                 width: slotW - 8,
-                borderRadius: 18,
+                borderRadius: 24,
                 backgroundColor: `${accent}26`,
                 borderWidth: 1,
                 borderColor: `${accent}59`,
@@ -92,7 +92,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
                         colors={['#F4F4F5', '#D4D4D8']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 1 }}
-                        style={{ width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
+                        style={{ width: 46, height: 46, borderRadius: 23, alignItems: 'center', justifyContent: 'center' }}
                       >
                         <Icon name="plus" size={22} color="#09090B" strokeWidth={2.6} />
                       </LinearGradient>
