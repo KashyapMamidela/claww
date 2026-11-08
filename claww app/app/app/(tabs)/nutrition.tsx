@@ -152,6 +152,8 @@ export default function NutritionTab() {
 
   const slots = useMemo(() => slotViews(plan, meals, hour), [plan, meals, hour]);
   const upSlot = slots.find((v) => v.state === 'up_next') ?? null;
+  const missedSlots = slots.filter((v) => v.state === 'missed');
+  const [showMissed, setShowMissed] = useState(false);
 
   const ateAsPlanned = async (m: PlannedMeal) => {
     if (logging) return;
@@ -351,7 +353,16 @@ export default function NutritionTab() {
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <SectionLabel color={G}>{plan ? "TODAY'S PLAN · 3 MEALS" : "TODAY'S MEALS"}</SectionLabel>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+                {missedSlots.length > 0 ? (
+                  <PressScale onPress={() => setShowMissed((x) => !x)} accessibilityRole="button" accessibilityState={{ expanded: showMissed }} accessibilityLabel={showMissed ? 'Hide meals you have not logged' : 'Show meals you have not logged'} hitSlop={4}>
+                    <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name={showMissed ? 'chevron-up' : 'chevron-down'} size={20} color={COLORS.textMuted} />
+                    </View>
+                  </PressScale>
+                ) : null}
+              </View>
             </View>
             {plan?.notes.map((n) => (
               <Text key={n} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{n}</Text>
@@ -359,6 +370,26 @@ export default function NutritionTab() {
 
             {slots.map((v) => {
               const label = slotLabel(v.slot);
+              // Meals you have not logged fold into one row until you open them (each is a tall card with three buttons).
+              if (v.state === 'missed' && !showMissed) {
+                if (v.slot !== missedSlots[0]?.slot) return null;
+                return (
+                  <PressScale key="missed-fold" onPress={() => setShowMissed(true)} accessibilityRole="button" accessibilityLabel={`${missedSlots.length} meals not logged. Open them.`}>
+                    <Surface radius={20} padding={0} grain={0.06}>
+                      <View style={{ minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16 }}>
+                        <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(245,158,11,0.14)' }}>
+                          <Icon name="clock" size={19} color={COLORS.amber} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>{missedSlots.length === 1 ? `${slotLabel(missedSlots[0].slot)} not logged` : `${missedSlots.length} meals not logged`}</Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{missedSlots.map((m) => slotLabel(m.slot)).join(', ')} {'·'} tap to answer</Text>
+                        </View>
+                        <Icon name="chevron-down" size={20} color={COLORS.textMuted} />
+                      </View>
+                    </Surface>
+                  </PressScale>
+                );
+              }
               if (v.logged) {
                 const r = rated.find((x) => x.meal.id === v.logged!.id);
                 const old = plan?.replaced?.[v.slot];
@@ -380,7 +411,7 @@ export default function NutritionTab() {
                 const m = v.planned;
                 const old = plan?.replaced?.[v.slot];
                 return (
-                  <Surface radius={20} padding={16} borderColor={COLORS.greenBorderMd}><View style={{ gap: 10 }}>
+                  <Surface key={v.slot} radius={20} padding={16} borderColor={COLORS.greenBorderMd}><View style={{ gap: 10 }}>
                     <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · up next</Text>
                     {m ? (
                       <>
@@ -439,7 +470,7 @@ export default function NutritionTab() {
               if (v.state === 'missed') {
                 const m = v.planned;
                 return (
-                  <Surface radius={20} padding={16}><View style={{ gap: 10 }}>
+                  <Surface key={v.slot} radius={20} padding={16}><View style={{ gap: 10 }}>
                     <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · not logged yet</Text>
                     {m ? (
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>

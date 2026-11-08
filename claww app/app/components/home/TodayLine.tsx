@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
 import type { TodayItem } from '../../lib/todayLine';
@@ -45,14 +45,34 @@ function mealLead(at: number): string {
 }
 
 export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onSkipped, onStart, onPlan }: TodayLineProps) {
+  // Closed by default: only what needs you now (the current item, else the first missed one, else the next one). The
+  // arrow opens the whole day. Several missed meals plus buttons made this card taller than a screen.
+  const [expanded, setExpanded] = useState(false);
+  const focus = items.find((i) => i.state === 'current') ?? items.find((i) => i.state === 'missed') ?? items.find((i) => i.state === 'upcoming') ?? items[items.length - 1];
+  const all = items;
+  items = expanded || !focus ? all : [focus];
+  const hidden = all.length - items.length;
+  const missedHidden = !expanded ? all.filter((i) => i.state === 'missed' && i.id !== focus?.id).length : 0;
   return (
     <View style={{ gap: 4 }}>
     {/* Premium H7: the heading sits outside the card with a Plan link, the time has its own column, nodes follow the item's kind. */}
     <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 4 }}>
       <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>Today</Text>
-      <Pressable onPress={onPlan} accessibilityRole="button" accessibilityLabel="Open your plan" hitSlop={8} style={{ minHeight: 44, justifyContent: 'center' }}>
-        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Plan {'›'}</Text>
-      </Pressable>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Pressable onPress={onPlan} accessibilityRole="button" accessibilityLabel="Open your plan" hitSlop={8} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Plan {'›'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setExpanded((e) => !e)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          accessibilityLabel={expanded ? 'Show less of today' : 'Show the whole day'}
+          hitSlop={4}
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={COLORS.textMuted} />
+        </Pressable>
+      </View>
     </View>
     <Surface padding={16}>
       <View accessibilityRole="list">
@@ -134,6 +154,14 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
           );
         })}
       </View>
+      {!expanded && hidden > 0 ? (
+        <Pressable onPress={() => setExpanded(true)} accessibilityRole="button" style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
+          <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
+            {missedHidden > 0 ? `${missedHidden} more to answer · ${hidden} in the day` : `${hidden} more in your day`}
+          </Text>
+          <Icon name="chevron-down" size={18} color={COLORS.textMuted} />
+        </Pressable>
+      ) : null}
     </Surface>
     </View>
   );
