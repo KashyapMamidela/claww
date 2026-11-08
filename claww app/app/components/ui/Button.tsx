@@ -41,7 +41,7 @@ export function Button({
   const deep = accentDeep || (accent.toLowerCase() === COLORS.blue.toLowerCase() ? COLORS.blueDeep : accent);
 
   const label = (color: string) => (
-    <Text style={{ color, fontSize: s.fontSize, fontWeight: '800', fontFamily: FONT, letterSpacing: 0.15 }}>
+    <Text numberOfLines={1} style={{ color, fontSize: s.fontSize, fontWeight: '800', fontFamily: FONT, letterSpacing: 0.15 }}>
       {children}
     </Text>
   );

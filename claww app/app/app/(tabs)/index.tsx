@@ -512,15 +512,20 @@ function HomePopulated() {
         gap: 14,
       }}
     >
-      <View>
+      <View style={{ gap: 2 }}>
         <SectionLabel color={COLORS.green}>{`TODAY · ${clockLabel(now)}`}</SectionLabel>
-        <Display style={{ marginTop: 4 }}>
-          {greeting},{'\n'}{greetingName(userName)}.
-        </Display>
+        <Text
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          accessibilityRole="header"
+          style={{ color: COLORS.fg, fontSize: 24, lineHeight: 30, fontWeight: '800', letterSpacing: -0.5, fontFamily: FONT, marginTop: 2 }}
+        >
+          {greeting}, {greetingName(userName)}
+        </Text>
         <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, marginTop: 6, lineHeight: 20, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 4, fontFamily: FONT }}>
             {coach.map((seg, i) => (
-              <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '800' } : undefined}>
+              <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '700' } : undefined}>
                 {seg.text}
               </Text>
             ))}
@@ -528,38 +533,6 @@ function HomePopulated() {
         </TouchableOpacity>
       </View>
 
-
-      {penToday.length > 0 || (marks.length > 0 && !workoutToday.completed && today) ? (
-        <Surface padding={16}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Icon name="pencil" size={14} color={COLORS.textMuted} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
-            </View>
-            <TouchableOpacity onPress={() => router.push('/week-review')} accessibilityRole="button" accessibilityLabel="Your week, marked up" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week {'›'}</Text>
-            </TouchableOpacity>
-          </View>
-          {penToday.length > 0
-            ? penToday.slice(0, 3).map((m) => (
-                <PenMark
-                  key={m.id}
-                  area={m.area}
-                  context={m.target.exercise ? today?.focus : m.target.meal}
-                  item={m.target.exercise ?? (m.kind === 'hold' ? 'This week' : m.target.meal ? m.target.meal.charAt(0).toUpperCase() + m.target.meal.slice(1) : m.kind === 'change_number' ? 'Calories' : m.kind === 'move_day' ? moveDayItemLabel(latestWorkout?.plan.days ?? [], m.oldValue, m.newValue) : 'Plan')}
-                  oldValue={m.oldValue}
-                  newValue={m.newValue}
-                  note={m.note}
-                  reason={m.reason}
-                  onKeep={() => decidePen(m, 'kept')}
-                  onUseOld={() => decidePen(m, 'undone')}
-                />
-              ))
-            : marks.slice(0, 3).map((m) => (
-                <PenMark key={m.name} area="workout" context={today?.focus.toUpperCase()} item={m.name} oldValue={m.oldText} newValue={m.newText} note={m.note} reason={m.reason} />
-              ))}
-        </Surface>
-      ) : null}
 
       {/* NG PHASE 1: the first real use of Surface (grain, top light, soft shadow). Data unchanged. */}
       <Surface padding={17}>
@@ -659,6 +632,38 @@ function HomePopulated() {
           session={{ ...sessionTileValue, onPress: sessionPlanned ? () => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } }) : undefined }}
         />
       </Surface>
+
+      {penToday.length > 0 || (marks.length > 0 && !workoutToday.completed && today) ? (
+        <Surface padding={16}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Icon name="pencil" size={14} color={COLORS.textMuted} />
+              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
+            </View>
+            <TouchableOpacity onPress={() => router.push('/week-review')} accessibilityRole="button" accessibilityLabel="Your week, marked up" style={{ minHeight: 44, justifyContent: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week {'›'}</Text>
+            </TouchableOpacity>
+          </View>
+          {penToday.length > 0
+            ? penToday.slice(0, 3).map((m) => (
+                <PenMark
+                  key={m.id}
+                  area={m.area}
+                  context={m.target.exercise ? today?.focus : m.target.meal}
+                  item={m.target.exercise ?? (m.kind === 'hold' ? 'This week' : m.target.meal ? m.target.meal.charAt(0).toUpperCase() + m.target.meal.slice(1) : m.kind === 'change_number' ? 'Calories' : m.kind === 'move_day' ? moveDayItemLabel(latestWorkout?.plan.days ?? [], m.oldValue, m.newValue) : 'Plan')}
+                  oldValue={m.oldValue}
+                  newValue={m.newValue}
+                  note={m.note}
+                  reason={m.reason}
+                  onKeep={() => decidePen(m, 'kept')}
+                  onUseOld={() => decidePen(m, 'undone')}
+                />
+              ))
+            : marks.slice(0, 3).map((m) => (
+                <PenMark key={m.name} area="workout" context={today?.focus.toUpperCase()} item={m.name} oldValue={m.oldText} newValue={m.newText} note={m.note} reason={m.reason} />
+              ))}
+        </Surface>
+      ) : null}
 
       <TodayLine
         items={todayItems}

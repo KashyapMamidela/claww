@@ -7,6 +7,7 @@ import { getRecentSleepLogs } from '../lib/data';
 import { lastSevenNights, sleepQuality, SLEEP_TARGET_HOURS } from '../lib/sleepTarget';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
+import { Surface } from './ui/Surface';
 import { SleepLogModal } from './SleepLogModal';
 
 const C = AREA_COLORS.sleep;
@@ -52,20 +53,8 @@ export function SleepRow() {
         accessibilityRole="button"
         accessibilityLabel={logged ? `Sleep: ${hours} hours, ${q}. Open sleep log.` : "Log last night's sleep"}
       >
-        <View
-          style={{
-            minHeight: 56,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 12,
-            paddingHorizontal: 14,
-            paddingVertical: 8,
-            borderRadius: 14,
-            backgroundColor: COLORS.card,
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.08)',
-          }}
-        >
+        <Surface radius={14} padding={0} grain={0.06} style={{ minHeight: 56 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 14, paddingVertical: 8, minHeight: 54 }}>
           <Icon name="moon" size={17} color={C} />
           {logged && q ? (
             <>
@@ -101,6 +90,7 @@ export function SleepRow() {
             </>
           )}
         </View>
+        </Surface>
       </PressScale>
       <SleepLogModal visible={modalOpen} onClose={() => setModalOpen(false)} />
     </>

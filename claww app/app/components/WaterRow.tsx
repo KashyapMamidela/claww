@@ -7,6 +7,7 @@ import { deleteWaterLog, getTodaysWaterLogs, logWater, type WaterLogRow } from '
 import { refreshReminders } from '../lib/reminderSync';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
+import { Surface } from './ui/Surface';
 import { BottomSheet } from './ui/BottomSheet';
 import { WaterWidget } from './WaterWidget';
 
@@ -68,20 +69,8 @@ export function WaterRow({ userId }: { userId: string | null }) {
   return (
     <>
       <PressScale onPress={() => setSheetOpen(true)} accessibilityRole="button" accessibilityLabel={`Water: ${litres(total)} of ${litres(TARGET_ML)}. Open today's water log.`}>
-        <View
-          style={{
-            height: 48,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-            paddingLeft: 14,
-            paddingRight: 6,
-            borderRadius: 14,
-            backgroundColor: '#151517',
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.08)',
-          }}
-        >
+        <Surface radius={14} padding={0} grain={0.06} style={{ height: 48 }}>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 14, paddingRight: 6 }}>
           <Icon name="droplets" size={17} color={C} />
           <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
             {litres(total)}
@@ -108,6 +97,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
             </View>
           </PressScale>
         </View>
+        </Surface>
       </PressScale>
 
       {menuOpen ? (

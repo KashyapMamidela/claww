@@ -1,4 +1,5 @@
 import React from 'react';
+import { Surface } from '../ui/Surface';
 import { Pressable, Text, View } from 'react-native';
 import { COLORS, FONT } from '../../lib/theme';
 import { RATING_LABEL, type Rating } from '../../lib/nutritionLogic';
@@ -49,8 +50,9 @@ export function MealCard({ mealType, time, planStatus, name, macros, photoPath, 
       disabled={!onPress}
       accessibilityRole={onPress ? 'button' : undefined}
       accessibilityLabel={`${mealType ?? 'Meal'} at ${time}: ${name}, ${macros}${rating ? `, rated ${rating}` : ''}`}
-      style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, padding: 14, gap: 10 }}
     >
+      <Surface radius={20} padding={14}>
+      <View style={{ gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <MealThumb photoPath={photoPath} mealType={mealType} size={52} />
         <View style={{ flex: 1 }}>
@@ -67,6 +69,8 @@ export function MealCard({ mealType, time, planStatus, name, macros, photoPath, 
       </View>
       {reason ? <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>{reason}</Text> : null}
       {children}
+      </View>
+      </Surface>
     </Pressable>
   );
 }

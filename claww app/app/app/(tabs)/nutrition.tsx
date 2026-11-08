@@ -451,24 +451,24 @@ export default function NutritionTab() {
                         {m.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 14 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                       </Text>
                     ) : null}
-                    <View style={{ flexDirection: 'row', gap: 8 }}>
-                      {m ? (
-                        <View style={{ flex: 1.2 }}>
-                          <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => answerMissed(v.slot, 'planned', m)}>
-                            As planned
+                    <View style={{ gap: 8 }}>
+                      <View style={{ flexDirection: 'row', gap: 8 }}>
+                        {m ? (
+                          <View style={{ flex: 1 }}>
+                            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => answerMissed(v.slot, 'planned', m)}>
+                              As planned
+                            </Button>
+                          </View>
+                        ) : null}
+                        <View style={{ flex: 1 }}>
+                          <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => answerMissed(v.slot, 'else', m)}>
+                            Something else
                           </Button>
                         </View>
-                      ) : null}
-                      <View style={{ flex: 1.2 }}>
-                        <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => answerMissed(v.slot, 'else', m)}>
-                          Something else
-                        </Button>
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Button variant="secondary" accent={G} size="md" fullWidth disabled={logging} onPress={() => answerMissed(v.slot, 'skipped', m)}>
-                          Skipped
-                        </Button>
-                      </View>
+                      <Button variant="ghost" size="sm" fullWidth disabled={logging} onPress={() => answerMissed(v.slot, 'skipped', m)}>
+                        I skipped it
+                      </Button>
                     </View>
                     <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                   </View>

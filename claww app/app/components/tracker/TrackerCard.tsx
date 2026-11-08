@@ -1,4 +1,5 @@
 import React from 'react';
+import { Surface } from '../ui/Surface';
 import { Text, View } from 'react-native';
 import { COLORS, FONT } from '../../lib/theme';
 import { Icon } from '../ui/Icon';
@@ -18,19 +19,13 @@ export interface TrackerCardProps {
 /** A black card with a colored section label; tapping opens the card's full-screen chart (V2 PHASE 9). */
 export function TrackerCard({ label, color, right, children, onPress, accentStripe }: TrackerCardProps) {
   const body = (
-    <View
-      style={{
-        backgroundColor: '#151517',
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.13)',
-        borderLeftWidth: accentStripe ? 3 : 1,
-        borderLeftColor: accentStripe ? color : 'rgba(255,255,255,0.13)',
-        borderRadius: 16,
-        paddingHorizontal: 14,
-        paddingVertical: 13,
-        gap: 10,
-      }}
+    <Surface
+      radius={16}
+      padding={0}
+      grain={0.08}
+      decoration={accentStripe ? <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, backgroundColor: color }} /> : undefined}
     >
+    <View style={{ paddingHorizontal: 14, paddingVertical: 13, gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -40,6 +35,7 @@ export function TrackerCard({ label, color, right, children, onPress, accentStri
       </View>
       {children}
     </View>
+    </Surface>
   );
   if (!onPress) return body;
   return (

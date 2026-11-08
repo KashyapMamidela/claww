@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Surface } from '../ui/Surface';
 import { Pressable, Text, View } from 'react-native';
 import { COLORS, FONT, FONT_HAND } from '../../lib/theme';
 import type { PlanMark } from '../../lib/planMarks';
@@ -27,16 +28,8 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
   const [open, setOpen] = useState(false);
   const marked = !!mark && mark.kind === 'weight';
   return (
-    <View
-      style={{
-        borderRadius: 18,
-        borderWidth: 1,
-        borderColor: open ? 'rgba(59,130,246,0.55)' : COLORS.border,
-        backgroundColor: COLORS.card,
-        padding: 14,
-        gap: 8,
-      }}
-    >
+    <Surface radius={18} padding={14} borderColor={open ? 'rgba(59,130,246,0.55)' : undefined}>
+    <View style={{ gap: 8 }}>
       <Pressable onPress={onOpenGuide} accessibilityRole="button" accessibilityLabel={`${name}: how to do it`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <View style={{ width: 38, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(59,130,246,0.14)', borderWidth: 1, borderColor: 'rgba(59,130,246,0.3)' }}>
           <Text style={{ color: A, fontSize: 15, fontWeight: '900', fontFamily: FONT }}>{index}</Text>
@@ -85,5 +78,6 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
         </View>
       ) : null}
     </View>
+    </Surface>
   );
 }

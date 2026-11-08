@@ -70,7 +70,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                 {it.kind === 'meal' && it.slot && it.state === 'current' ? (
                   <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
                     {it.hasPlan ? (
-                      <View style={{ flex: 1.3 }}>
+                      <View style={{ flex: 1 }}>
                         <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => onAteAsPlanned(it.slot!)}>
                           Ate as planned
                         </Button>
@@ -85,24 +85,24 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                 ) : null}
 
                 {it.kind === 'meal' && it.slot && it.state === 'missed' ? (
-                  <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-                    {it.hasPlan ? (
-                      <View style={{ flex: 1.2 }}>
-                        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => onAteAsPlanned(it.slot!)}>
-                          As planned
+                  <View style={{ gap: 8, marginTop: 4 }}>
+                    <View style={{ flexDirection: 'row', gap: 8 }}>
+                      {it.hasPlan ? (
+                        <View style={{ flex: 1 }}>
+                          <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => onAteAsPlanned(it.slot!)}>
+                            As planned
+                          </Button>
+                        </View>
+                      ) : null}
+                      <View style={{ flex: 1 }}>
+                        <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => onSomethingElse(it.slot!)}>
+                          Something else
                         </Button>
                       </View>
-                    ) : null}
-                    <View style={{ flex: 1.2 }}>
-                      <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => onSomethingElse(it.slot!)}>
-                        Something else
-                      </Button>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Button variant="secondary" accent={G} size="md" fullWidth disabled={logging} onPress={() => onSkipped(it.slot!)}>
-                        Skipped
-                      </Button>
-                    </View>
+                    <Button variant="ghost" size="sm" fullWidth disabled={logging} onPress={() => onSkipped(it.slot!)}>
+                      I skipped it
+                    </Button>
                   </View>
                 ) : null}
 

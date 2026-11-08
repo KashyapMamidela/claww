@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { TintTile } from '../ui/TintTile';
 import { Text, TextInput, View } from 'react-native';
 import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
 import { ACTIVITIES, ACTIVITY_MINUTES_MAX, ACTIVITY_MINUTES_MIN, ACTIVITY_MINUTES_STEP, DEFAULT_ACTIVITY_MINUTES } from '../../lib/activities';
@@ -48,7 +49,8 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
   };
 
   return (
-    <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(C, 0.35), backgroundColor: tint(C, 0.07), padding: 16, gap: 12 }}>
+    <TintTile color={C} padding={16} radius={20}>
+    <View style={{ gap: 12 }}>
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(C, 0.16), borderWidth: 1, borderColor: tint(C, 0.35) }}>
           <Icon name="zap" size={20} color={C} />
@@ -97,5 +99,6 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
         </View>
       </BottomSheet>
     </View>
+    </TintTile>
   );
 }

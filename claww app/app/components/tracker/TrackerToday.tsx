@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { TintTile } from '../ui/TintTile';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
@@ -42,7 +43,8 @@ export interface TrackerTodayProps {
 
 function Card({ color, label, right, onPress, children, glow }: { color: string; label: string; right?: React.ReactNode; onPress?: () => void; children: React.ReactNode; glow?: boolean }) {
   const body = (
-    <View style={{ borderRadius: 22, borderWidth: 1, borderColor: tint(color, 0.4), backgroundColor: tint(color, 0.07), padding: 16, gap: 10, shadowColor: glow ? color : undefined }}>
+    <TintTile color={color} padding={16} radius={20}>
+    <View style={{ gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color }} />
@@ -52,6 +54,7 @@ function Card({ color, label, right, onPress, children, glow }: { color: string;
       </View>
       {children}
     </View>
+    </TintTile>
   );
   return onPress ? (
     <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={label}>
@@ -187,7 +190,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
           <>
             <Text style={{ color: '#fff', fontSize: 40, fontWeight: '900', letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {today.available ? today.steps.toLocaleString('en-IN') : '—'}
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500' }}>  of {goal.toLocaleString('en-IN')} today</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  of {goal.toLocaleString('en-IN')} today</Text>
             </Text>
             <View style={{ height: 8, borderRadius: 4, backgroundColor: tint(C_STEPS, 0.16), overflow: 'hidden' }}>
               <View style={{ height: '100%', width: `${stepsProgress(today.available ? today.steps : null, goal)}%`, backgroundColor: C_STEPS, borderRadius: 4 }} />
@@ -200,7 +203,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
           <>
             <Text style={{ color: '#fff', fontSize: 40, fontWeight: '900', letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {weekAvg.toLocaleString('en-IN')}
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500' }}>  a day this week · {daysOver} day{daysOver === 1 ? '' : 's'} over {Math.round(goal / 1000)}k</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  a day this week · {daysOver} day{daysOver === 1 ? '' : 's'} over {Math.round(goal / 1000)}k</Text>
             </Text>
             <BarChart values={weekSteps} color={C_STEPS} height={84} goal={goal} labels={weekLabels} />
           </>
@@ -254,7 +257,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
           <>
             <Text style={{ color: '#fff', fontSize: 36, fontWeight: '900', letterSpacing: -1, fontFamily: FONT }}>
               {Math.floor(sleepHours)} h {Math.round((sleepHours % 1) * 60)} min
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500' }}>  goal 8 h</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  goal 8 h</Text>
             </Text>
             <View style={{ height: 10, borderRadius: 5, backgroundColor: tint(AREA_COLORS.sleep, 0.16), overflow: 'hidden' }}>
               <View style={{ height: '100%', width: `${Math.min(100, (sleepHours / 8) * 100)}%`, backgroundColor: AREA_COLORS.sleep, borderRadius: 5 }} />
