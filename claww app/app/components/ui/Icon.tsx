@@ -141,7 +141,7 @@ export interface IconProps {
   strokeWidth?: number;
 }
 
-export function Icon({ name, size = 16, color = '#A1A1AA', strokeWidth = 1.7 }: IconProps) {
+export function Icon({ name, size = 16, color = '#A1A1AA', strokeWidth = 2 }: IconProps) {
   const Cmp = ICONS[name];
   if (!Cmp) return null;
   return <Cmp size={size} color={color} strokeWidth={strokeWidth} />;

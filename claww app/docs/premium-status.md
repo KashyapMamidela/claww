@@ -49,8 +49,10 @@ Notes for Phase 4 (2026-11-08): **buttons are now 50 / 40 / 32 tall with pill co
 Notes for Phase 5 (2026-11-08): Food has one big green Scan button with Search and Diary under it, macros in their own colours (protein pink, carbs amber, fat blue), a round meal tile on the up-next and missed cards (**real photos are not used on planned cards yet**, N2 is partial), and dish names that follow the scaled amounts (`mealTitle`, display only; the database templates were **not** renamed). Progress: strength lines join across weeks with a fainter line, the consistency grid fills the card, "This week" and "Training" headings, Adaptive opens in a sheet. Profile: achievements are medallions (`components/ui/Medallion.tsx`; earned have a coloured rim and glow, locked are dark). **P3 is partial:** the grouped rows with 44 pt tiles were done in Phase 2; values on the right (for example "Reminders On") are not added. Not seen on the phone: the Adaptive sheet, the Profile medallions. **Open item:** a test sleep entry (7 h, 1:30 am to 8:30 am, logged 18:32 on 8 Nov) was created by a mis-tap while testing and could not be deleted by Claude (database delete was blocked); delete it from the sleep log or the database.
 
 ## Phase 6 · Signature (`premium/06-signature`)
-- [ ] X1 · [ ] X2 · [ ] X3 · [ ] X4
-- [ ] D2 · [ ] D5 · [ ] D8 · [ ] D9 · [ ] D10 · [ ] D11 · [ ] D15
+- [x] X1 · [x] X2 · [x] X3 · [ ] X4 (display face: needs the user to pick from screenshots)
+- [x] D2 (Home) · [x] D5 · [ ] D8 · [ ] D9 · [ ] D10 · [~] D11 (Home cards rise) · [x] D15
+
+Notes for Phase 6 (2026-11-08, seen on the phone): the Home pen line writes itself in left to right the first time it appears (`WriteOn`, remembered per line); a tilt highlight slides across the Daily progress and session cards (`TiltLight`, expo-sensors, off with Reduce motion); the top light changes with the time of day (`lib/ambient.ts`, `AmbientLight`); the Daily goal number counts up (`CountUp`); Home cards rise in; icons share one stroke weight (2); the splash fades out. **Not done:** X4 display font (needs your pick; no file added), D8 skeleton sizes, D9 empty states, D10 pull-to-refresh with the logo, D11 beyond Home, count-up on other screens. **Lesson:** `CountUp` ignores a `style` passed to it in this setup, so wrap it in a styled `Text` as Home does.
 
 ## Phase 7 · Features (`premium/07-features`)
 - [ ] F1 · [ ] F5 · [ ] F6 · [ ] F8 · [ ] F9 · [ ] F7 · [ ] F2 (native) · [ ] F10 (native)

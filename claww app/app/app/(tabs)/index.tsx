@@ -1,4 +1,9 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { riseIn } from '../../lib/motion';
+import Animated from 'react-native-reanimated';
+import { CountUp } from '../../components/ui/CountUp';
+import { WriteOn } from '../../components/ui/WriteOn';
+import { TiltLight } from '../../components/ui/TiltLight';
 import { mealTitle } from '../../lib/mealPlanMeal';
 import { SessionCard } from '../../components/home/SessionCard';
 import { dayMinutes } from '../../lib/planStory';
@@ -544,14 +549,17 @@ function HomePopulated() {
           </Text>
         </TouchableOpacity>
         {penLineText ? (
-          <Text style={{ color: COLORS.fg, fontSize: 24, lineHeight: 28, marginTop: 6, fontFamily: FONT_HAND, fontWeight: '700', transform: [{ rotate: '-1.5deg' }], alignSelf: 'flex-start', textShadowColor: 'rgba(255,255,255,0.35)', textShadowRadius: 12 }}>
-            {penLineText}
-          </Text>
+          <View style={{ marginTop: 6, transform: [{ rotate: '-1.5deg' }] }}>
+            <WriteOn id={penLineText}>
+              <Text style={{ color: COLORS.fg, fontSize: 24, lineHeight: 28, fontFamily: FONT_HAND, fontWeight: '700', textShadowColor: 'rgba(255,255,255,0.35)', textShadowRadius: 12 }}>{penLineText}</Text>
+            </WriteOn>
+          </View>
         ) : null}
       </View>
 
       {/* NG PHASE 1: the first real use of Surface (grain, top light, soft shadow). Data unchanged. */}
-      <Surface padding={17}>
+      <Animated.View entering={riseIn(0)}>
+      <Surface padding={17} decoration={<TiltLight />}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Daily progress</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{dailyGoalPct}% of today</Text>
@@ -574,7 +582,9 @@ function HomePopulated() {
             }
             trackColor="rgba(255,255,255,0.055)"
           >
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{dailyGoalPct}%</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+              <CountUp id="home.dailyGoal" value={dailyGoalPct} format={(n) => `${Math.round(n)}%`} />
+            </Text>
             <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
@@ -646,7 +656,9 @@ function HomePopulated() {
           session={{ ...sessionTileValue, pct: workoutToday.setsPlanned > 0 ? (workoutToday.setsDone / workoutToday.setsPlanned) * 100 : 0, onPress: () => router.push(sessionPlanned ? { pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } } : '/(tabs)/workouts') }}
         />
       </Surface>
+      </Animated.View>
 
+      <Animated.View entering={riseIn(1)}>
       <SessionCard
         state={workoutToday.completed ? 'done' : sessionPlanned ? 'training' : 'rest'}
         name={today?.focus ?? ''}
@@ -665,6 +677,7 @@ function HomePopulated() {
           toast.show({ message: ok ? 'Logged a 20 minute walk' : 'Could not log the walk' });
         }}
       />
+      </Animated.View>
 
       {/* Premium H8: the marks live behind the pen button in the title bar (Your week, marked up). */}
 

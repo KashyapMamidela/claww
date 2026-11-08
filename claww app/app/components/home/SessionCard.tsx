@@ -1,4 +1,5 @@
 import React from 'react';
+import { TiltLight } from '../ui/TiltLight';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint } from '../../lib/theme';
@@ -53,13 +54,16 @@ export function SessionCard(p: SessionCardProps) {
       colors={[c.top, c.bottom]}
       borderColor={tint(c.accent, 0.4)}
       decoration={
-        <LinearGradient
-          pointerEvents="none"
-          colors={[tint(c.accent, 0.3), tint(c.accent, 0)]}
-          start={{ x: 1, y: 0 }}
-          end={{ x: 0.3, y: 0.8 }}
-          style={StyleSheet.absoluteFill}
-        />
+        <>
+          <LinearGradient
+            pointerEvents="none"
+            colors={[tint(c.accent, 0.3), tint(c.accent, 0)]}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0.3, y: 0.8 }}
+            style={StyleSheet.absoluteFill}
+          />
+          <TiltLight />
+        </>
       }
     >
       <View style={{ gap: 10 }}>
