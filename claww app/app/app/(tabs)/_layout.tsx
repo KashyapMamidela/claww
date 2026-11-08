@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getMarks } from '../../lib/penData';
 import { View } from 'react-native';
 import { Tabs, usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -20,8 +21,14 @@ export default function TabsLayout() {
   const { status, endSession } = useWorkoutSession();
 
   const routeName = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
-  const { userName } = useAppState();
+  const { userName, userId } = useAppState();
   useEffect(() => { setCurrentTab(routeName); }, [routeName]);
+  // Premium H8: an orange dot on the pen when a mark is waiting for a Keep or Use my old plan.
+  const [penDot, setPenDot] = useState(false);
+  useEffect(() => {
+    if (!userId) return;
+    getMarks(userId, 7).then((m) => setPenDot(m.some((x) => x.status === 'active'))).catch(() => {});
+  }, [userId, pathname]);
   // Home and Progress are white/grey by tab; the header's logo tile always carries a colour.
   const headerAccent = ({ index: '#3B82F6', workouts: '#3B82F6', nutrition: '#22C55E', tracker: '#2DD4BF', more: '#A1A1AA' } as Record<string, string>)[routeName] ?? '#3B82F6';
   const now = new Date();
@@ -61,6 +68,7 @@ export default function TabsLayout() {
         accent={headerAccent}
         title={headerTitle}
         collapsing={routeName !== 'index'}
+        penDot={penDot}
         initial={(userName || 'M').charAt(0).toUpperCase()}
         onPenPress={() => router.push('/week-review')}
         onAvatarPress={() => router.push('/profile')}

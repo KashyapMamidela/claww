@@ -1,4 +1,8 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { SessionCard } from '../../components/home/SessionCard';
+import { dayMinutes } from '../../lib/planStory';
+import { timeLabel } from '../../lib/format';
+import { logActivity } from '../../lib/data';
 import { penLine } from '../../lib/penLine';
 import { useToast } from '../../components/ui/Toast';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
@@ -483,6 +487,8 @@ function HomePopulated() {
     : null;
   const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: sessionItem, sleepTargetHours: SLEEP_TARGET_HOURS });
   const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: today?.focus ?? '' });
+  const usualMin = usualMinutesOf(usualTime);
+  const sessionTimeLabel = usualMin !== null ? timeLabel(new Date(2000, 0, 1, Math.floor(usualMin / 60), usualMin % 60)) : undefined;
   const penLineText = penLine({ sleepHours, sessionPlanned, sessionDone: workoutToday.completed, hour: now.getHours() });
   const typeOf = (slot: MealSlot) => (slot.charAt(0).toUpperCase() + slot.slice(1)) as MealType;
   const replanAfter = async (row: Awaited<ReturnType<typeof saveMeal>>) => {
@@ -640,37 +646,26 @@ function HomePopulated() {
         />
       </Surface>
 
-      {penToday.length > 0 || (marks.length > 0 && !workoutToday.completed && today) ? (
-        <Surface padding={16}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Icon name="pencil" size={14} color={COLORS.textMuted} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
-            </View>
-            <TouchableOpacity onPress={() => router.push('/week-review')} accessibilityRole="button" accessibilityLabel="Your week, marked up" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week {'›'}</Text>
-            </TouchableOpacity>
-          </View>
-          {penToday.length > 0
-            ? penToday.slice(0, 3).map((m) => (
-                <PenMark
-                  key={m.id}
-                  area={m.area}
-                  context={m.target.exercise ? today?.focus : m.target.meal}
-                  item={m.target.exercise ?? (m.kind === 'hold' ? 'This week' : m.target.meal ? m.target.meal.charAt(0).toUpperCase() + m.target.meal.slice(1) : m.kind === 'change_number' ? 'Calories' : m.kind === 'move_day' ? moveDayItemLabel(latestWorkout?.plan.days ?? [], m.oldValue, m.newValue) : 'Plan')}
-                  oldValue={m.oldValue}
-                  newValue={m.newValue}
-                  note={m.note}
-                  reason={m.reason}
-                  onKeep={() => decidePen(m, 'kept')}
-                  onUseOld={() => decidePen(m, 'undone')}
-                />
-              ))
-            : marks.slice(0, 3).map((m) => (
-                <PenMark key={m.name} area="workout" context={today?.focus.toUpperCase()} item={m.name} oldValue={m.oldText} newValue={m.newText} note={m.note} reason={m.reason} />
-              ))}
-        </Surface>
-      ) : null}
+      <SessionCard
+        state={workoutToday.completed ? 'done' : sessionPlanned ? 'training' : 'rest'}
+        name={today?.focus ?? ''}
+        timeLabel={sessionTimeLabel}
+        exercises={today?.exercises.length}
+        minutes={today ? dayMinutes(today) : undefined}
+        sets={workoutToday.setsPlanned || undefined}
+        setsDone={workoutToday.setsDone}
+        progression={marks[0] ? { name: marks[0].name, oldText: marks[0].oldText, newText: marks[0].newText } : null}
+        note={marks[0]?.note ?? null}
+        onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onOpen={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onLogWalk={async () => {
+          if (!userId) return;
+          const ok = await logActivity(userId, 'Long walk', 20);
+          toast.show({ message: ok ? 'Logged a 20 minute walk' : 'Could not log the walk' });
+        }}
+      />
+
+      {/* Premium H8: the marks live behind the pen button in the title bar (Your week, marked up). */}
 
       <TodayLine
         items={todayItems}
@@ -679,12 +674,10 @@ function HomePopulated() {
         onSomethingElse={somethingElse}
         onSkipped={skipMeal}
         onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onPlan={() => router.push('/(tabs)/workouts')}
       />
 
       <WaterRow userId={userId} />
-
-      {/* Activities are logged here and on Workouts; the Tracker shows what was recorded. */}
-      <ActivityCard userId={userId} onLogged={() => {}} />
 
       {todaySleep ? null : <SleepRow />}
       <SleepLogModal visible={sleepOpen} onClose={() => setSleepOpen(false)} />
