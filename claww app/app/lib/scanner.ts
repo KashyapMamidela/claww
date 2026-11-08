@@ -68,9 +68,11 @@ export async function saveScanCorrection(
 // ── the session carried between the two screens ─────────────────────────────────────────────────────────────────
 
 export interface ScanSession {
+  /** Empty for a meal described in words (Premium): there is no photo to show or upload. */
   photoUri: string;
   base64: string;
   mimeType: string;
+  source?: 'photo' | 'text';
   mealType: string;
   /** Resolves when the scan finishes, so the check screen can wait for it. */
   pending: Promise<ScanOutcome>;

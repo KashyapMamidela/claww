@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { MealTypePicker } from '../components/nutrition/MealTypePicker';
 import { BackTile } from '../components/ui/BackTile';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, FONT_HAND, BG, bg } from '../lib/theme';
@@ -86,7 +87,8 @@ export default function ScanCheckScreen() {
   }, [userId]);
 
   const totals = useMemo(() => totalsOf(items), [items]);
-  const mealType = (session?.mealType ?? 'Snack') as MealType;
+  const [mealType, setMealType] = useState<MealType>(((session?.mealType as MealType) || 'Snack') as MealType);
+  const fromText = session?.source === 'text';
   const unmatched = items.filter((i) => !i.food);
   const eaten = useMemo(() => ({ kcal: meals.reduce((s, m) => s + (m.calories ?? 0), 0), protein: meals.reduce((s, m) => s + (m.protein_g ?? 0), 0) }), [meals]);
   const rating = useMemo(
@@ -157,11 +159,11 @@ export default function ScanCheckScreen() {
     if (!userId || saving || items.length === 0 || unmatched.length > 0) return;
     setSaving(true);
     setError(null);
-    const photoPath = await uploadMealPhoto(userId, session.base64, session.mimeType);
+    const photoPath = fromText || !session.base64 ? null : await uploadMealPhoto(userId, session.base64, session.mimeType);
     const plan = await ensureMealPlans(userId).catch(() => null);
     const planned = !!plan?.meals.some((m) => m.meal === mealType.toLowerCase());
     const row = await saveMeal(mealType, {
-      description: dish || 'Scanned plate',
+      description: dish || (fromText ? 'Meal' : 'Scanned plate'),
       calories: totals.kcal,
       protein_g: totals.protein,
       carbs_g: totals.carbs,
@@ -196,8 +198,8 @@ export default function ScanCheckScreen() {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingTop: insets.top + 6, paddingBottom: 8 }}>
       <BackTile onPress={() => router.back()} />
       <View style={{ flex: 1 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Check your plate</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{contextText(session.context)}</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>{fromText ? 'Check your meal' : 'Check your plate'}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{fromText ? 'From your description' : contextText(session.context)}</Text>
       </View>
     </View>
   );
@@ -258,114 +260,145 @@ export default function ScanCheckScreen() {
     );
   }
 
+  const MACROS = [
+    { label: 'Protein', value: totals.protein, goal: targets?.protein_g ?? 120, color: '#F472B6' },
+    { label: 'Carbs', value: totals.carbs, goal: 300, color: '#F59E0B' },
+    { label: 'Fat', value: totals.fat, goal: 70, color: '#38BDF8' },
+  ];
+
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
       {header}
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: insets.bottom + 120, gap: 14 }}>
-        <Surface padding={16}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <Image source={{ uri: session.photoUri }} style={{ width: 64, height: 64, borderRadius: 18 }} resizeMode="cover" accessibilityLabel="Your photo" />
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }} numberOfLines={2}>{dish}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 120, gap: 14 }}>
+        <MealTypePicker value={mealType} onChange={setMealType} />
+
+        {/* The answer first: what this meal comes to, and what it means for your day. */}
+        <View style={{ paddingHorizontal: 16 }}>
+          <Surface padding={16} radius={22}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              {session.photoUri ? (
+                <Image source={{ uri: session.photoUri }} style={{ width: 56, height: 56, borderRadius: 28 }} resizeMode="cover" accessibilityLabel="Your photo" />
+              ) : (
+                <View style={{ width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(34,197,94,0.14)', borderWidth: 1, borderColor: COLORS.greenBorderMd }}>
+                  <Icon name="utensils" size={24} color={G} />
+                </View>
+              )}
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: COLORS.fg, fontSize: 20, lineHeight: 24, fontFamily: BG[800] }} numberOfLines={2}>{dish}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
+              </View>
+              <RatingPill rating={rating.rating} />
             </View>
-            <RatingPill rating={rating.rating} />
-          </View>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 14 }}>
-            {[
-              ['kcal', String(Math.round(totals.kcal)), COLORS.fg],
-              ['protein', `${Math.round(totals.protein)} g`, G],
-              ['carbs', `${Math.round(totals.carbs)} g`, COLORS.fg],
-              ['fat', `${Math.round(totals.fat)} g`, COLORS.fg],
-            ].map(([label, value, color]) => (
-              <View key={label}>
-                <Text style={{ color, fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
-              </View>
-            ))}
-          </View>
-        </Surface>
 
-        <Surface padding={0}>
-          {items.map((i, idx) => {
-            const step = i.unit === 'g' ? 25 : scanStepFor(i.unit);
-            const hidden = !!i.hidden;
-            return (
-              <View key={i.key}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingRight: 12, borderTopWidth: idx === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
-                <View style={{ width: 4, alignSelf: 'stretch', borderRadius: 2, backgroundColor: hidden ? AMBER : G, marginLeft: 0 }} />
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{i.food ? (hidden ? 'Oil' : i.food.name) : i.heard}</Text>
-                  {!i.food ? (
-                    <Pressable onPress={() => { setPickFor(i.key); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 40, justifyContent: 'center' }}>
-                      <Text style={{ color: AMBER, fontSize: 15, fontFamily: BG[700] }}>Not in the database. Pick a food</Text>
-                    </Pressable>
-                  ) : (
-                    <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{hidden ? `hidden · from ${session.context.oil} oil` : `from the photo${i.heard.toLowerCase() !== i.food.name.toLowerCase() ? `: ${i.heard}` : ''}`}</Text>
-                  )}
-                </View>
-                {i.food ? (
-                  <>
-                    <PressScale onPress={() => bump(i.key, -1)} accessibilityRole="button" accessibilityLabel={`Less ${i.food.name}`}>
-                      <View style={{ width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon name="minus" size={18} color={COLORS.fg} />
-                      </View>
-                    </PressScale>
-                    <PressScale
-                      onPress={() => setUnitOpen((k) => (k === i.key ? null : i.key))}
-                      accessibilityRole="button"
-                      accessibilityState={{ expanded: unitOpen === i.key }}
-                      accessibilityLabel={`${fmtQty(i.qty)} ${i.unit} of ${i.food.name}. Change the unit.`}
-                    >
-                      <View style={{ minWidth: 76, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                          <Text style={{ color: unitOpen === i.key ? G : COLORS.fg, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{fmtQty(i.qty)} {i.unit}</Text>
-                          <Icon name={unitOpen === i.key ? 'chevron-up' : 'chevron-down'} size={14} color={G} />
-                        </View>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{Math.round(i.grams)} g</Text>
-                      </View>
-                    </PressScale>
-                    <PressScale onPress={() => bump(i.key, 1)} accessibilityRole="button" accessibilityLabel={`More ${i.food.name}`}>
-                      <View style={{ width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon name="plus" size={18} color={COLORS.fg} />
-                      </View>
-                    </PressScale>
-                  </>
-                ) : (
-                  <PressScale onPress={() => remove(i.key)} accessibilityRole="button" accessibilityLabel={`Remove ${i.heard}`}>
-                    <View style={{ minHeight: 44, paddingHorizontal: 12, justifyContent: 'center' }}>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[700] }}>Remove</Text>
-                    </View>
-                  </PressScale>
-                )}
-              </View>
-              {i.food && unitOpen === i.key ? (
-                <View style={{ paddingLeft: 14, paddingBottom: 12, paddingRight: 12, gap: 8 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Measure in</Text>
-                  <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-                    {scanUnitChoices(i.food).map((u) => (
-                      <Chip key={u} active={i.unit === u} accent={G} accentDeep={COLORS.greenDeep} onPress={() => changeUnit(i.key, u)}>
-                        {u === 'g' ? 'grams' : u}
-                      </Chip>
-                    ))}
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 14 }}>
+              <Text style={{ color: COLORS.fg, fontSize: 44, lineHeight: 48, letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{Math.round(totals.kcal)}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: BG[600] }}>kcal</Text>
+            </View>
+
+            <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+              {MACROS.map((m) => (
+                <View key={m.label} style={{ flex: 1, gap: 5 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[500] }}>{m.label}</Text>
+                    <Text style={{ color: COLORS.fg, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{Math.round(m.value)} g</Text>
                   </View>
-                  <Text style={{ color: COLORS.pen, fontSize: 17, fontFamily: FONT_HAND }}>know the grams? pick grams</Text>
+                  <View style={{ height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+                    <View style={{ height: '100%', width: `${Math.max(3, Math.min(100, (m.value / m.goal) * 100))}%`, backgroundColor: m.color, borderRadius: 3 }} />
+                  </View>
                 </View>
-              ) : null}
-              </View>
-            );
-          })}
-          <Pressable onPress={() => { setPickFor('add'); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 56, alignItems: 'center', justifyContent: 'center', borderTopWidth: 1, borderTopColor: COLORS.border }}>
-            <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>+ Add something we missed</Text>
-          </Pressable>
-        </Surface>
+              ))}
+            </View>
+          </Surface>
+        </View>
 
-        <View style={{ borderRadius: 18, borderWidth: 1, borderColor: rating.rating === 'good' ? 'rgba(34,197,94,0.5)' : rating.rating === 'okay' ? 'rgba(245,158,11,0.5)' : 'rgba(161,161,170,0.4)', backgroundColor: COLORS.card, padding: 14, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 15, fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: BG[800] }}>{rating.rating.toUpperCase()}</Text>
+        <View style={{ paddingHorizontal: 16 }}>
+          <Surface padding={0} radius={22}>
+            {items.map((i, idx) => {
+              const hidden = !!i.hidden;
+              const label = i.food ? (hidden ? 'Oil' : i.food.name) : i.heard;
+              return (
+                <View key={i.key}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderTopWidth: idx === 0 ? 0 : StyleSheet.hairlineWidth, borderTopColor: COLORS.border }}>
+                    <View style={{ width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center', backgroundColor: hidden ? 'rgba(245,158,11,0.14)' : 'rgba(34,197,94,0.12)' }}>
+                      <Text style={{ color: hidden ? AMBER : G, fontSize: 17, fontFamily: BG[800] }}>{label.charAt(0).toUpperCase()}</Text>
+                    </View>
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }} numberOfLines={1}>{label}</Text>
+                      {!i.food ? (
+                        <Pressable onPress={() => { setPickFor(i.key); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 32, justifyContent: 'center' }}>
+                          <Text style={{ color: AMBER, fontSize: 13, fontFamily: BG[700] }}>Not in the database. Pick a food</Text>
+                        </Pressable>
+                      ) : (
+                        <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
+                          {hidden ? `hidden · from ${session.context.oil} oil` : `${Math.round(itemNutrients(i).kcal)} kcal · ${Math.round(i.grams)} g`}
+                        </Text>
+                      )}
+                    </View>
+                    {i.food ? (
+                      // One capsule: − amount +. The amount opens the unit choices.
+                      <View style={{ flexDirection: 'row', alignItems: 'center', height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.07)' }}>
+                        <PressScale onPress={() => bump(i.key, -1)} accessibilityRole="button" accessibilityLabel={`Less ${i.food.name}`}>
+                          <View style={{ width: 40, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon name="minus" size={17} color={COLORS.fg} />
+                          </View>
+                        </PressScale>
+                        <PressScale
+                          onPress={() => setUnitOpen((k) => (k === i.key ? null : i.key))}
+                          accessibilityRole="button"
+                          accessibilityState={{ expanded: unitOpen === i.key }}
+                          accessibilityLabel={`${fmtQty(i.qty)} ${i.unit} of ${i.food.name}. Change the unit.`}
+                        >
+                          <View style={{ minWidth: 64, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                            <Text style={{ color: unitOpen === i.key ? G : COLORS.fg, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} numberOfLines={1}>
+                              {fmtQty(i.qty)} {i.unit}
+                            </Text>
+                          </View>
+                        </PressScale>
+                        <PressScale onPress={() => bump(i.key, 1)} accessibilityRole="button" accessibilityLabel={`More ${i.food.name}`}>
+                          <View style={{ width: 40, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                            <Icon name="plus" size={17} color={COLORS.fg} />
+                          </View>
+                        </PressScale>
+                      </View>
+                    ) : (
+                      <PressScale onPress={() => remove(i.key)} accessibilityRole="button" accessibilityLabel={`Remove ${i.heard}`}>
+                        <View style={{ minHeight: 44, paddingHorizontal: 8, justifyContent: 'center' }}>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[700] }}>Remove</Text>
+                        </View>
+                      </PressScale>
+                    )}
+                  </View>
+                  {i.food && unitOpen === i.key ? (
+                    <View style={{ paddingLeft: 66, paddingBottom: 12, paddingRight: 14, gap: 8 }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Measure in</Text>
+                      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                        {scanUnitChoices(i.food).map((u) => (
+                          <Chip key={u} active={i.unit === u} accent={G} accentDeep={COLORS.greenDeep} onPress={() => changeUnit(i.key, u)}>
+                            {u === 'g' ? 'grams' : u}
+                          </Chip>
+                        ))}
+                      </View>
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })}
+            <Pressable
+              onPress={() => { setPickFor('add'); setSearchOpen(true); }}
+              accessibilityRole="button"
+              style={{ minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: COLORS.border }}
+            >
+              <Icon name="plus" size={17} color={G} />
+              <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>Add something we missed</Text>
+            </Pressable>
+          </Surface>
+        </View>
+
+        <View style={{ marginHorizontal: 16, borderRadius: 20, padding: 14, flexDirection: 'row', gap: 12, alignItems: 'center', backgroundColor: rating.rating === 'good' ? 'rgba(34,197,94,0.10)' : rating.rating === 'okay' ? 'rgba(245,158,11,0.10)' : 'rgba(161,161,170,0.10)' }}>
+          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 13, letterSpacing: 0.5, fontFamily: BG[800] }}>{rating.rating.toUpperCase()}</Text>
           <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, flex: 1, fontFamily: BG[400] }}>{rating.reason}</Text>
         </View>
-        <Text style={{ color: COLORS.textMuted, fontSize: 20, textAlign: 'center', fontFamily: FONT_HAND }}>{optIn ? 'your fixes teach the scanner your portions' : 'your answers become your defaults next time'}</Text>
-        {error ? <ErrorCard message={error} onRetry={log} retrying={saving} /> : null}
+        {error ? <View style={{ paddingHorizontal: 16 }}><ErrorCard message={error} onRetry={log} retrying={saving} /></View> : null}
       </ScrollView>
 
       <View style={{ position: 'absolute', left: 16, right: 16, bottom: insets.bottom + 12 }}>

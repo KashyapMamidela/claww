@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { MealTypePicker, mealForClock } from '../components/nutrition/MealTypePicker';
 import { Linking, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useRouter } from 'expo-router';
@@ -17,11 +18,6 @@ import { useToast } from '../components/ui/Toast';
 
 const G = AREA_COLORS.nutrition;
 
-function mealByHour(): MealType {
-  const h = new Date().getHours();
-  return h < 11 ? 'Breakfast' : h < 16 ? 'Lunch' : h < 19 ? 'Snack' : 'Dinner';
-}
-
 export default function BarcodeScreen() {
   const router = useRouter();
   const toast = useToast();
@@ -33,6 +29,8 @@ export default function BarcodeScreen() {
   const [grams, setGrams] = useState(100);
   const [message, setMessage] = useState('Point the camera at the barcode');
   const [saving, setSaving] = useState(false);
+  // A packet is usually a snack; the clock decides, and you can change it.
+  const [mealType, setMealType] = useState<MealType>(mealForClock(new Date().getHours()));
 
   const onCode = async ({ data }: { data: string }) => {
     if (busy.current || product) return;
@@ -62,7 +60,7 @@ export default function BarcodeScreen() {
     if (!product || saving) return;
     setSaving(true);
     const n = portion(product, grams);
-    const row = await saveMeal(mealByHour(), { description: `${product.name}${product.brand ? ` (${product.brand})` : ''} ${grams} g`, ...n, planStatus: 'extra' });
+    const row = await saveMeal(mealType, { description: `${product.name}${product.brand ? ` (${product.brand})` : ''} ${grams} g`, ...n, planStatus: 'extra' });
     setSaving(false);
     close();
     if (row) {
@@ -119,6 +117,9 @@ export default function BarcodeScreen() {
               <Text style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, fontFamily: BG[800] }} numberOfLines={2}>{product.name}</Text>
               {product.brand ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{product.brand}</Text> : null}
             </View>
+            <View style={{ marginHorizontal: -20 }}>
+              <MealTypePicker value={mealType} onChange={setMealType} />
+            </View>
             <Stepper
               label="Amount"
               value={String(grams)}
@@ -137,7 +138,7 @@ export default function BarcodeScreen() {
               );
             })()}
             <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} disabled={saving} onPress={log}>
-              {saving ? 'Saving…' : `Log as ${mealByHour().toLowerCase()}`}
+              {saving ? 'Saving…' : `Log as ${mealType.toLowerCase()}`}
             </Button>
           </View>
         ) : null}
