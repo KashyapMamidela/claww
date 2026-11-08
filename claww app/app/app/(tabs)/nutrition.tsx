@@ -403,7 +403,7 @@ export default function NutritionTab() {
                           </View>
                           <View style={{ flex: 1 }}>
                             <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => setSearchOpen(true)}>
-                              Something else
+                              Different
                             </Button>
                           </View>
                           <PressScale onPress={() => openAdd(upNext ?? 'Snack')} accessibilityRole="button" accessibilityLabel="Log with a photo">
@@ -462,7 +462,7 @@ export default function NutritionTab() {
                         ) : null}
                         <View style={{ flex: 1 }}>
                           <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => answerMissed(v.slot, 'else', m)}>
-                            Something else
+                            Different
                           </Button>
                         </View>
                       </View>

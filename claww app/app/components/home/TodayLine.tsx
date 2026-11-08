@@ -78,7 +78,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                     ) : null}
                     <View style={{ flex: 1 }}>
                       <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => onSomethingElse(it.slot!)}>
-                        Something else
+                        Different
                       </Button>
                     </View>
                   </View>
@@ -96,7 +96,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                       ) : null}
                       <View style={{ flex: 1 }}>
                         <Button variant="secondary" accent={G} size="md" fullWidth onPress={() => onSomethingElse(it.slot!)}>
-                          Something else
+                          Different
                         </Button>
                       </View>
                     </View>
