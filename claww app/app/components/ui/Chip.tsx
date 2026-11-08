@@ -18,7 +18,7 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
   const label = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       {icon}
-      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 14, fontWeight: active ? '700' : '500', fontFamily: FONT }}>
+      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 15, fontWeight: active ? '700' : '500', fontFamily: FONT }}>
         {children}
       </Text>
     </View>

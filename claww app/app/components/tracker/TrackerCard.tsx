@@ -46,14 +46,14 @@ export function TrackerCard({ label, color, right, children, onPress, accentStri
 }
 
 export function Empty({ children }: { children: string }) {
-  return <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 18, fontFamily: FONT }}>{children}</Text>;
+  return <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{children}</Text>;
 }
 
 export function Headline({ children, sub }: { children: string; sub?: string }) {
   return (
     <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
       {children}
-      {sub ? <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '500' }}>{`  ${sub}`}</Text> : null}
+      {sub ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}>{`  ${sub}`}</Text> : null}
     </Text>
   );
 }

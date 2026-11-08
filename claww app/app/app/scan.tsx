@@ -131,7 +131,7 @@ export default function ScanScreen() {
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 14 }}>
             <Icon name="camera" size={34} color={COLORS.textMuted} />
-            <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', textAlign: 'center', fontFamily: FONT }}>CLAWW needs the camera to scan a plate</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', textAlign: 'center', fontFamily: FONT }}>CLAWW needs the camera to scan a plate</Text>
             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" onPress={requestPermission}>
               Allow the camera
             </Button>
@@ -166,7 +166,7 @@ export default function ScanScreen() {
             ) : reading ? (
               <View style={{ position: 'absolute', bottom: -18, alignSelf: 'center', minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.6)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <ActivityIndicator color="#fff" size="small" />
-                <Text style={{ color: '#fff', fontSize: 14, fontFamily: FONT }}>Reading the plate…</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: FONT }}>Reading the plate…</Text>
               </View>
             ) : null}
           </View>
@@ -197,10 +197,10 @@ export default function ScanScreen() {
                 style={{ minHeight: 72, borderRadius: 16, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>Last time with this dish</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Last time with this dish</Text>
                   <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{contextText(last.context)}</Text>
                 </View>
-                <Text style={{ color: G, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Use</Text>
+                <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Use</Text>
               </Pressable>
             ) : null}
 
@@ -220,7 +220,7 @@ export default function ScanScreen() {
               {reading ? 'Reading the plate…' : 'Check the items'}
             </Button>
             <Pressable onPress={retake} accessibilityRole="button" style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '600', fontFamily: FONT }}>Retake the photo</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Retake the photo</Text>
             </Pressable>
           </ScrollView>
         </View>

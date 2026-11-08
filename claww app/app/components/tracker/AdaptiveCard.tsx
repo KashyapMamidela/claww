@@ -112,7 +112,7 @@ export function AdaptiveCard() {
           <Icon name="activity" size={18} color={E} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Adaptive</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Adaptive</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }} numberOfLines={2}>{summary}</Text>
         </View>
         <Icon name={open ? 'chevron-up' : 'chevron-down'} size={20} color={COLORS.textMuted} />
@@ -130,7 +130,7 @@ export function AdaptiveCard() {
                 return (
                   <View key={m} style={{ gap: 8 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{cap(m)}</Text>
+                      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{cap(m)}</Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
                         {trainedAgoLabel(planned.scores[m]?.hoursSinceTrained ?? null)}
                         {planned.scores[m]?.score != null ? ` · score ${planned.scores[m].score}${planned.scores[m].band && planned.scores[m].band !== 'Excellent' && planned.scores[m].band !== 'Good' ? ` · ${planned.scores[m].band}` : ''}` : ''}
@@ -165,7 +165,7 @@ export function AdaptiveCard() {
                   <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{p.name}</Text>
                   {p.managed ? <Pill label={pill.label} tone={pill.tone} /> : null}
                 </View>
-                <Text style={{ color: COLORS.fg, fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
                   {w !== null ? `${w} kg · ` : ''}
                   {p.prescription.reps} reps {'×'} {p.prescription.sets} sets
                 </Text>

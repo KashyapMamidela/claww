@@ -101,7 +101,7 @@ export default function ScanCheckScreen() {
   if (!session) {
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', fontFamily: FONT }}>No plate to check</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>No plate to check</Text>
         <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" onPress={() => router.replace('/scan')}>
           Scan a plate
         </Button>
@@ -238,13 +238,13 @@ export default function ScanCheckScreen() {
         {header}
         <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
           <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: 200, borderRadius: 20 }} resizeMode="cover" accessibilityLabel="Your photo" />
-          <Text style={{ color: COLORS.fg, fontSize: 24, fontWeight: '900', fontFamily: FONT }}>Not sure about this one</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT }}>Not sure about this one</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>Pick what it is, or log it by name. We would rather ask than guess your calories.</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {result.candidates.map((c) => (
               <PressScale key={c} onPress={() => chooseCandidate(c)} accessibilityRole="button" accessibilityLabel={`It is ${c}`}>
                 <View style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 22, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', justifyContent: 'center' }}>
-                  <Text style={{ color: G, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{c}</Text>
+                  <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{c}</Text>
                 </View>
               </PressScale>
             ))}
@@ -267,7 +267,7 @@ export default function ScanCheckScreen() {
             <Image source={{ uri: session.photoUri }} style={{ width: 64, height: 64, borderRadius: 18 }} resizeMode="cover" accessibilityLabel="Your photo" />
             <View style={{ flex: 1 }}>
               <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>{dish}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
             </View>
             <RatingPill rating={rating.rating} />
           </View>
@@ -279,7 +279,7 @@ export default function ScanCheckScreen() {
               ['fat', `${Math.round(totals.fat)} g`, COLORS.fg],
             ].map(([label, value, color]) => (
               <View key={label}>
-                <Text style={{ color, fontSize: 26, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
+                <Text style={{ color, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{label}</Text>
               </View>
             ))}
@@ -298,7 +298,7 @@ export default function ScanCheckScreen() {
                   <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{i.food ? (hidden ? 'Oil' : i.food.name) : i.heard}</Text>
                   {!i.food ? (
                     <Pressable onPress={() => { setPickFor(i.key); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 40, justifyContent: 'center' }}>
-                      <Text style={{ color: AMBER, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Not in the database. Pick a food</Text>
+                      <Text style={{ color: AMBER, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Not in the database. Pick a food</Text>
                     </Pressable>
                   ) : (
                     <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{hidden ? `hidden · from ${session.context.oil} oil` : `from the photo${i.heard.toLowerCase() !== i.food.name.toLowerCase() ? `: ${i.heard}` : ''}`}</Text>
@@ -334,7 +334,7 @@ export default function ScanCheckScreen() {
                 ) : (
                   <PressScale onPress={() => remove(i.key)} accessibilityRole="button" accessibilityLabel={`Remove ${i.heard}`}>
                     <View style={{ minHeight: 44, paddingHorizontal: 12, justifyContent: 'center' }}>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Remove</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Remove</Text>
                     </View>
                   </PressScale>
                 )}
@@ -349,19 +349,19 @@ export default function ScanCheckScreen() {
                       </Chip>
                     ))}
                   </View>
-                  <Text style={{ color: COLORS.pen, fontSize: 18, fontFamily: FONT_HAND }}>know the grams? pick grams</Text>
+                  <Text style={{ color: COLORS.pen, fontSize: 17, fontFamily: FONT_HAND }}>know the grams? pick grams</Text>
                 </View>
               ) : null}
               </View>
             );
           })}
           <Pressable onPress={() => { setPickFor('add'); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 56, alignItems: 'center', justifyContent: 'center', borderTopWidth: 1, borderTopColor: COLORS.border }}>
-            <Text style={{ color: G, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>+ Add something we missed</Text>
+            <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>+ Add something we missed</Text>
           </Pressable>
         </Surface>
 
         <View style={{ borderRadius: 18, borderWidth: 1, borderColor: rating.rating === 'good' ? 'rgba(34,197,94,0.5)' : rating.rating === 'okay' ? 'rgba(245,158,11,0.5)' : 'rgba(161,161,170,0.4)', backgroundColor: COLORS.card, padding: 14, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 14, fontWeight: '900', letterSpacing: 0.5, fontFamily: FONT }}>{rating.rating.toUpperCase()}</Text>
+          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 15, fontWeight: '900', letterSpacing: 0.5, fontFamily: FONT }}>{rating.rating.toUpperCase()}</Text>
           <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, flex: 1, fontFamily: FONT }}>{rating.reason}</Text>
         </View>
         <Text style={{ color: COLORS.textMuted, fontSize: 20, textAlign: 'center', fontFamily: FONT_HAND }}>{optIn ? 'your fixes teach the scanner your portions' : 'your answers become your defaults next time'}</Text>

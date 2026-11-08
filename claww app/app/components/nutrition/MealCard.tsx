@@ -56,14 +56,14 @@ export function MealCard({ mealType, time, planStatus, name, macros, photoPath, 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <MealThumb photoPath={photoPath} mealType={mealType} size={52} />
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
             {mealType ?? 'Meal'} · {time}
             {status ? ` · ${status}` : ''}
           </Text>
-          <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>
             {name}
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{macros}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{macros}</Text>
         </View>
         {rating ? <RatingPill rating={rating} /> : null}
       </View>

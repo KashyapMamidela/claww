@@ -142,7 +142,7 @@ export default function MealSetupSummary() {
     const body = (
       <View style={{ flex: 1, minHeight: 74, borderRadius: 14, padding: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', gap: 4 }}>
         <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.8, fontFamily: FONT }}>{label}</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{value}</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{value}</Text>
       </View>
     );
     return onPress ? (
@@ -186,17 +186,17 @@ export default function MealSetupSummary() {
           <Surface padding={16}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <Icon name="pencil" size={14} color={COLORS.textMuted} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>GAPS YOUR PLAN WORKS AROUND</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>GAPS YOUR PLAN WORKS AROUND</Text>
             </View>
             {gaps.map((g, i) => (
               <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{g.title}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 18, fontFamily: FONT_HAND }}>{'→'} {g.fix}</Text>
+                  <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{g.title}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND }}>{'→'} {g.fix}</Text>
                 </View>
                 <PressScale onPress={() => goBackTo(g.step)} accessibilityRole="button" accessibilityLabel={`Change: ${g.title}`}>
                   <View style={{ minHeight: 44, minWidth: 64, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: G, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Change</Text>
+                    <Text style={{ color: G, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Change</Text>
                   </View>
                 </PressScale>
               </View>
@@ -212,7 +212,7 @@ export default function MealSetupSummary() {
           {sample && sample.meals.length > 0 ? (
             sample.meals.map((m, i) => (
               <View key={m.meal} style={{ paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border, marginTop: i === 0 ? 8 : 0 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{m.name}</Text>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
                   {m.kcal} kcal · P {Math.round(m.protein)} g · {itemsText(m)}
@@ -220,11 +220,11 @@ export default function MealSetupSummary() {
               </View>
             ))
           ) : (
-            <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 8, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 8, fontFamily: FONT }}>
               Pick a diet to see a sample day built from nutritionist-reviewed meal templates.
             </Text>
           )}
-          <Text style={{ color: COLORS.textFaint, fontSize: 12, marginTop: 6, fontFamily: FONT }}>Built from meal templates (still being reviewed), never generated.</Text>
+          <Text style={{ color: COLORS.textFaint, fontSize: 13, marginTop: 6, fontFamily: FONT }}>Built from meal templates (still being reviewed), never generated.</Text>
         </Surface>
 
         {error ? <ErrorCard message={error} onRetry={save} /> : null}
@@ -237,7 +237,7 @@ export default function MealSetupSummary() {
       <BottomSheet visible={budgetOpen} onClose={() => setBudgetOpen(false)}>
         <View style={{ padding: 20, gap: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Food budget a day</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>
             What you can spend each day beyond the meals your mess or tiffin already covers.
           </Text>
           <Stepper

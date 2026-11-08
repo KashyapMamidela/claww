@@ -82,7 +82,7 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
             >
               <Icon name="alert-triangle" size={18} color={COLORS.danger} />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Delete account</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Delete account</Text>
           </View>
 
           <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
@@ -110,14 +110,14 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
                 backgroundColor: 'rgba(255,255,255,0.03)',
                 paddingHorizontal: 12,
                 color: '#fff',
-                fontSize: 14,
+                fontSize: 15,
                 fontFamily: FONT,
               }}
             />
           </View>
 
           {error ? (
-            <Text style={{ color: COLORS.danger, fontSize: 12, fontFamily: FONT }}>{error}</Text>
+            <Text style={{ color: COLORS.danger, fontSize: 13, fontFamily: FONT }}>{error}</Text>
           ) : null}
 
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
@@ -135,7 +135,7 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: '#A1A1AA', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Cancel</Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Cancel</Text>
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Button

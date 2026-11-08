@@ -94,10 +94,10 @@ export default function SettingsScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <Badge color={P}>SETTINGS</Badge>
+          <View><Badge color={P}>SETTINGS</Badge></View>
         </View>
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT, marginBottom: 4 }}>Today's generation usage</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT, marginBottom: 14 }}>
             Resets at midnight. Hitting a limit means try again tomorrow.
@@ -105,8 +105,8 @@ export default function SettingsScreen() {
           {rows.map((r, i) => (
             <View key={r.label} style={{ marginTop: i > 0 ? 14 : 0 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>{r.label}</Text>
-                <Text style={{ color: r.used >= r.cap ? COLORS.danger : '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>{r.label}</Text>
+                <Text style={{ color: r.used >= r.cap ? COLORS.danger : '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
                   {r.used} / {r.cap}
                 </Text>
               </View>
@@ -125,7 +125,7 @@ export default function SettingsScreen() {
         </Surface>
 
         {notificationsSupported ? (
-          <Surface radius={16} padding={16}>
+          <Surface radius={20} padding={16}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name="bell" size={16} color={COLORS.blue} />
@@ -149,14 +149,14 @@ export default function SettingsScreen() {
           </Surface>
         ) : null}
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(34,197,94,0.14)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="camera" size={16} color={COLORS.green} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600', fontFamily: FONT }}>Help improve the scanner</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 1, lineHeight: 17, fontFamily: FONT }}>
+              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Help improve the scanner</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, lineHeight: 17, fontFamily: FONT }}>
                 When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals. Off by default. Turn it off any time.
               </Text>
             </View>
@@ -184,7 +184,7 @@ export default function SettingsScreen() {
             >
               <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Send a test reminder in 2 minutes</Text>
             </TouchableOpacity>
-            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>{testStatus}</Text> : null}
+            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>{testStatus}</Text> : null}
           </View>
         ) : null}
 
@@ -201,7 +201,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ) : null}
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={signOut}
@@ -227,8 +227,8 @@ function PerfReadout() {
   const { setLatency, homeFirstPaintMs } = report;
   const row = (label: string, value: string) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>{label}</Text>
-      <Text style={{ color: COLORS.fg, fontSize: 12, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{value}</Text>
+      <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{value}</Text>
     </View>
   );
   return (

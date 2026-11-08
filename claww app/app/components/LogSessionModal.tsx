@@ -68,7 +68,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Decrease" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={() => onChange(Math.max(0, value - step))} style={{ padding: 6 }}>
           <Icon name="chevron-left" size={16} color="#fff" />
         </TouchableOpacity>
-        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', width: 56, textAlign: 'center', fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', width: 56, textAlign: 'center', fontFamily: FONT }}>
           {value}
           {unit}
         </Text>
@@ -110,7 +110,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Log a Session</Text>
+            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Log a Session</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={close}>
               <Icon name="x" size={18} color="#A1A1AA" />
             </TouchableOpacity>
@@ -151,7 +151,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
           ) : (
             exercise && (
               <>
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{exercise.name}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{exercise.name}</Text>
                 {modality === 'strength' ? (
                   <>
                     {stepper('Reps', reps, '', setReps, 1)}
@@ -173,7 +173,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
                     opacity: saving ? 0.6 : 1,
                   }}
                 >
-                  <Text style={{ color: '#000', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
+                  <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
                     {saving ? 'Logging…' : 'Log Session'}
                   </Text>
                 </TouchableOpacity>

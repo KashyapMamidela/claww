@@ -60,7 +60,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                 </View>
                 {it.line ? (
                   <Text
-                    style={{ color: it.state === 'done' ? G : it.state === 'current' ? '#C4C4CC' : COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}
+                    style={{ color: it.state === 'done' ? G : it.state === 'current' ? '#C4C4CC' : COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}
                     numberOfLines={open ? 3 : 1}
                   >
                     {it.state === 'current' && it.kind === 'meal' ? `Now · ${it.line}` : it.line}

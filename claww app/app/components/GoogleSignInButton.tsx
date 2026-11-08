@@ -44,10 +44,10 @@ export function GoogleSignInButton({ onPress, loading = false }: GoogleSignInBut
             justifyContent: 'center',
           }}
         >
-          <Text style={{ fontSize: 12, fontWeight: '900', color: '#000000' }}>G</Text>
+          <Text style={{ fontSize: 13, fontWeight: '900', color: '#000000' }}>G</Text>
         </View>
       )}
-      <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
+      <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
         {loading ? 'Signing in…' : 'Continue with Google'}
       </Text>
     </TouchableOpacity>

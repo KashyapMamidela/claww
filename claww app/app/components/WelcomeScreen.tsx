@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   },
   logoText: {
     color: '#FFFFFF',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: 'bold',
   },
   middleSection: {
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
   },
   headline: {
     color: '#FFFFFF',
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: '700',
     fontFamily: 'Inter',
     marginBottom: 12,
@@ -185,7 +185,7 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     color: '#9CA3AF',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '400',
     fontFamily: 'Inter',
     lineHeight: 24,
@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
   },
 });

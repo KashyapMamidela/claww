@@ -22,6 +22,7 @@ import type { FoodProfile } from '../lib/foodProfile';
 import { MealSuggestions } from '../components/MealSuggestions';
 import { SUGGEST_MEAL_ENABLED } from '../lib/flags';
 import { Icon } from '../components/ui/Icon';
+import { Surface } from '../components/ui/Surface';
 import { Button } from '../components/ui/Button';
 import { ErrorCard } from '../components/ui/ErrorCard';
 
@@ -357,7 +358,7 @@ export default function MealLogScreen() {
             value={reviewFields[key]}
             onChangeText={(v) => setReviewFields((f) => ({ ...f, [key]: v.replace(/[^0-9]/g, '') }))}
             keyboardType="number-pad"
-            style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '700', fontFamily: FONT, paddingVertical: 12 }}
+            style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '700', fontFamily: FONT, paddingVertical: 12 }}
           />
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{suffix}</Text>
         </View>
@@ -368,11 +369,11 @@ export default function MealLogScreen() {
       <View style={{ flex: 1, backgroundColor: '#050505' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: insets.top + 26, paddingHorizontal: 20, paddingBottom: 4 }}>
           <BackTile onPress={handleEditEstimate} label="Edit the estimate" />
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Review estimate</Text>
+          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Review estimate</Text>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 12, marginBottom: 4, fontFamily: FONT }}>Does this look right? Adjust anything before logging it.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 4, fontFamily: FONT }}>Does this look right? Adjust anything before logging it.</Text>
           <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginBottom: 20, fontFamily: FONT }}>{reviewing.description}</Text>
 
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
@@ -419,9 +420,9 @@ export default function MealLogScreen() {
           activeOpacity={0.8}
           onPress={() => router.back()}
           style={{
-            width: 34,
-            height: 34,
-            borderRadius: 10,
+            width: 44,
+            height: 44,
+            borderRadius: 12,
             backgroundColor: '#151517',
             borderWidth: 1,
             borderColor: 'rgba(255,255,255,0.10)',
@@ -431,7 +432,7 @@ export default function MealLogScreen() {
         >
           <Icon name="x" size={16} color="#A1A1AA" />
         </TouchableOpacity>
-        <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Log {mealType || 'a Meal'}</Text>
+        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Log {mealType || 'a Meal'}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
@@ -483,7 +484,7 @@ export default function MealLogScreen() {
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: G.bright }} />
           <Text style={{ color: G.bright, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WHAT DID YOU EAT?</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '900', letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: FONT }}>
           Just tell us — in your own words.
         </Text>
 
@@ -541,6 +542,7 @@ export default function MealLogScreen() {
             </TouchableOpacity>
           </View>
         ) : (
+          <Surface radius={16} padding={0} grain={0.06} borderColor={text.length > 0 ? G.border : undefined}>
           <TextInput
             value={text}
             onChangeText={setText}
@@ -549,10 +551,6 @@ export default function MealLogScreen() {
             multiline
             numberOfLines={3}
             style={{
-              backgroundColor: '#151517',
-              borderWidth: 1,
-              borderColor: text.length > 0 ? G.border : 'rgba(255,255,255,0.12)',
-              borderRadius: 18,
               color: '#fff',
               fontSize: 17,
               fontWeight: '500',
@@ -563,6 +561,7 @@ export default function MealLogScreen() {
               lineHeight: 24,
             }}
           />
+          </Surface>
         )}
         <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
           {photo
@@ -579,22 +578,25 @@ export default function MealLogScreen() {
               key={p.value}
               activeOpacity={0.8}
               onPress={() => setPortion(p.value)}
-              style={{
-                flex: 1,
-                alignItems: 'center',
-                paddingVertical: 12,
-                borderRadius: 14,
-                backgroundColor: portion === p.value ? G.border : '#151517',
-                borderWidth: 1,
-                borderColor: portion === p.value ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.12)',
-              }}
+              style={{ flex: 1 }}
             >
-              <Text style={{ color: portion === p.value ? G.bright : '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+              <Surface
+                radius={14}
+                padding={0}
+                grain={0.06}
+                borderColor={portion === p.value ? 'rgba(34,197,94,0.45)' : undefined}
+                colors={portion === p.value ? ['#123A21', '#0D2A18'] : undefined}
+                shadow={false}
+              >
+              <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+              <Text style={{ color: portion === p.value ? G.bright : '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
                 {p.label}
               </Text>
               <Text style={{ color: portion === p.value ? G.bright : COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>
                 {p.hint}
               </Text>
+              </View>
+              </Surface>
             </TouchableOpacity>
           ))}
         </View>

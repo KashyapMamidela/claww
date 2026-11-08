@@ -133,7 +133,7 @@ export default function DiaryScreen() {
           <Surface padding={16}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
               <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Micronutrients</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
                 {kcal.toLocaleString('en-IN')} kcal · {entries.length} entr{entries.length === 1 ? 'y' : 'ies'}
               </Text>
             </View>
@@ -146,8 +146,8 @@ export default function DiaryScreen() {
                 return (
                   <View key={m.key} style={{ width: '47%' }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{m.label}</Text>
-                      <Text style={{ color: over ? COLORS.amber : COLORS.fg, fontSize: 14, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.label}</Text>
+                      <Text style={{ color: over ? COLORS.amber : COLORS.fg, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
                         {fmt(m.key, value)} / {m.key === 'sodiumMg' ? `${(target / 1000).toFixed(0)} g` : `${fmt(m.key, target)} ${m.unit}`}
                       </Text>
                     </View>
@@ -157,7 +157,7 @@ export default function DiaryScreen() {
               })}
             </View>
             {entries.length > 0 && micros.counted < micros.total ? (
-              <Text style={{ color: COLORS.textFaint, fontSize: 12, marginTop: 12, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textFaint, fontSize: 13, marginTop: 12, fontFamily: FONT }}>
                 {micros.counted === 0 ? 'None of these entries has micronutrient data yet.' : `Counts ${micros.counted} of ${micros.total} entries: only meals logged from the food database carry micronutrients.`}
               </Text>
             ) : null}
@@ -166,8 +166,8 @@ export default function DiaryScreen() {
 
         {week !== null && rated.length === 0 ? (
           <View style={{ borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: COLORS.borderStrong, padding: 22, alignItems: 'center', gap: 6 }}>
-            <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '700', fontFamily: FONT }}>Nothing logged {selected === 6 ? 'yet today' : 'this day'}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 14, textAlign: 'center', fontFamily: FONT }}>Add a meal from the Nutrition tab and it shows up here with a rating.</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>Nothing logged {selected === 6 ? 'yet today' : 'this day'}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, textAlign: 'center', fontFamily: FONT }}>Add a meal from the Nutrition tab and it shows up here with a rating.</Text>
           </View>
         ) : null}
 
@@ -199,14 +199,14 @@ export default function DiaryScreen() {
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {chips.filter(([, v]) => typeof v === 'number').map(([label, v, unit]) => (
                     <View key={label} style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, paddingHorizontal: 12, justifyContent: 'center' }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 14, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: FONT }}>
                         {label} {Math.round((v as number) * 10) / 10} {unit}
                       </Text>
                     </View>
                   ))}
-                  {chips.every(([, v]) => typeof v !== 'number') ? <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>No micronutrient data for this entry.</Text> : null}
+                  {chips.every(([, v]) => typeof v !== 'number') ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>No micronutrient data for this entry.</Text> : null}
                   <Pressable onPress={() => setEditing(m)} accessibilityRole="button" accessibilityLabel="Edit this entry" style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.1)', paddingHorizontal: 16, justifyContent: 'center' }}>
-                    <Text style={{ color: G, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Edit</Text>
+                    <Text style={{ color: G, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Edit</Text>
                   </Pressable>
                 </View>
               ) : null}

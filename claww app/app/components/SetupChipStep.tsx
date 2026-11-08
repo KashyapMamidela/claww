@@ -74,7 +74,7 @@ export function SetupChipStep<T extends string>({
                 <Text style={{ color: isActive ? accent : '#fff', fontSize: 15, fontWeight: '700', flex: 1, fontFamily: FONT }}>
                   {opt.label}
                 </Text>
-                {isActive && <Text style={{ color: accent, fontSize: 16 }}>✓</Text>}
+                {isActive && <Text style={{ color: accent, fontSize: 17 }}>✓</Text>}
               </TouchableOpacity>
             );
           })}

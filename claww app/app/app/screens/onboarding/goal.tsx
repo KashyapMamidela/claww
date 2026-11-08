@@ -24,7 +24,7 @@ export default function OnboardingGoal() {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, gap: 14 }}>
         <View style={{ gap: 6 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Set up your plan · step 1 of 4 · about a minute</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>What's your goal?</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>What's your goal?</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>Pick the one that matters most right now. You can change it any time.</Text>
         </View>
 

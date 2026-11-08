@@ -188,27 +188,27 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       >
         {mode === 'day' ? (
           <>
-            <Text style={{ color: '#fff', fontSize: 40, fontWeight: '900', letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 44, fontWeight: '900', letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {today.available ? today.steps.toLocaleString('en-IN') : '—'}
               <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  of {goal.toLocaleString('en-IN')} today</Text>
             </Text>
             <View style={{ height: 8, borderRadius: 4, backgroundColor: tint(C_STEPS, 0.16), overflow: 'hidden' }}>
               <View style={{ height: '100%', width: `${stepsProgress(today.available ? today.steps : null, goal)}%`, backgroundColor: C_STEPS, borderRadius: 4 }} />
             </View>
-            <Text style={{ color: AREA_COLORS.burned, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
+            <Text style={{ color: AREA_COLORS.burned, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
               {burned.kcal !== null ? `${burned.kcal.toLocaleString('en-IN')} kcal ${burned.source === 'health-connect' ? 'active' : 'estimated'}` : 'Burned not tracked yet'}
             </Text>
           </>
         ) : weekSteps ? (
           <>
-            <Text style={{ color: '#fff', fontSize: 40, fontWeight: '900', letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 44, fontWeight: '900', letterSpacing: -1, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {weekAvg.toLocaleString('en-IN')}
               <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  a day this week · {daysOver} day{daysOver === 1 ? '' : 's'} over {Math.round(goal / 1000)}k</Text>
             </Text>
             <BarChart values={weekSteps} color={C_STEPS} height={84} goal={goal} labels={weekLabels} />
           </>
         ) : (
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>Step counting is not connected on this device. Open Steps on Home to connect it.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Step counting is not connected on this device. Open Steps on Home to connect it.</Text>
         )}
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10 }}>
           <Icon name="shield-check" size={16} color={COLORS.textMuted} />
@@ -221,13 +221,13 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           <ProgressRing size={96} rings={[{ r: 41, strokeWidth: 8, color: AREA_COLORS.recovery, pct: recovery?.score ?? 0 }]} trackColor="rgba(255,255,255,0.07)">
             <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>{recovery ? recovery.score : '—'}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{recovery ? recovery.band.toLowerCase() : 'no data'}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{recovery ? recovery.band.toLowerCase() : 'no data'}</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 6 }}>
             {factors.map((f) => (
               <View key={f.label} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT, flexShrink: 1 }}>{f.label}</Text>
-                <Text style={{ color: f.word ? levelColor(f.level) : COLORS.textMuted, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{f.word || f.value}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT, flexShrink: 1 }}>{f.label}</Text>
+                <Text style={{ color: f.word ? levelColor(f.level) : COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{f.word || f.value}</Text>
               </View>
             ))}
           </View>
@@ -255,7 +255,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       >
         {sleepHours !== null ? (
           <>
-            <Text style={{ color: '#fff', fontSize: 36, fontWeight: '900', letterSpacing: -1, fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', letterSpacing: -1, fontFamily: FONT }}>
               {Math.floor(sleepHours)} h {Math.round((sleepHours % 1) * 60)} min
               <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  goal 8 h</Text>
             </Text>
@@ -265,7 +265,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
             <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Sleep stages need a watch connected; they are not shown yet.</Text>
           </>
         ) : (
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>Not logged yet. A bedtime of {bedtimeFor(null)} gives you 8 hours; log last night on Home.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Not logged yet. A bedtime of {bedtimeFor(null)} gives you 8 hours; log last night on Home.</Text>
         )}
       </Card>
 
@@ -273,10 +273,10 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ flex: 1 }}>
           <Card color={AREA_COLORS.water} label="WATER">
-            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
               {waterL} L
             </Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>of {TARGET_WATER_ML / 1000} L</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>of {TARGET_WATER_ML / 1000} L</Text>
             <View style={{ height: 8, borderRadius: 4, backgroundColor: tint(AREA_COLORS.water, 0.16), overflow: 'hidden' }}>
               <View style={{ height: '100%', width: `${Math.min(100, (waterMl / TARGET_WATER_ML) * 100)}%`, backgroundColor: AREA_COLORS.water, borderRadius: 4 }} />
             </View>
@@ -284,8 +284,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         </View>
         <View style={{ flex: 1 }}>
           <Card color="#D4D4D8" label="WEIGHT" onPress={() => setWeightOpen(true)}>
-            <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', fontFamily: FONT }}>{latestWeight !== null ? `${latestWeight} kg` : '—'}</Text>
-            <Text style={{ color: trend?.deltaKg ? COLORS.green : COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{trend ? weightDeltaText(trend.deltaKg) : 'tap to log your weight'}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>{latestWeight !== null ? `${latestWeight} kg` : '—'}</Text>
+            <Text style={{ color: trend?.deltaKg ? COLORS.green : COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{trend ? weightDeltaText(trend.deltaKg) : 'tap to log your weight'}</Text>
             {spark ? (
               <Svg width="100%" height={30} viewBox="0 0 100 30" preserveAspectRatio="none">
                 <Polyline points={spark} fill="none" stroke="#E4E4E7" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -298,7 +298,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       {/* What was recorded: activities outside the plan. They are logged on Workouts and Home, shown here. */}
       <Card color={AREA_COLORS.burned} label="ACTIVITIES RECORDED">
         {activities.length === 0 ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>Nothing recorded this week. Log a sport or a long walk on Home or the Workouts tab and it shows up here.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>Nothing recorded this week. Log a sport or a long walk on Home or the Workouts tab and it shows up here.</Text>
         ) : (
           activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -307,7 +307,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{a.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
                   {new Date(a.loggedAt).toLocaleDateString(undefined, { weekday: 'short' })} · {a.minutes} min
                 </Text>
               </View>
@@ -317,7 +317,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         )}
       </Card>
 
-      {syncedAt ? <Text style={{ color: COLORS.textFaint, fontSize: 12, textAlign: 'right', fontFamily: FONT }}>Updated {syncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text> : null}
+      {syncedAt ? <Text style={{ color: COLORS.textFaint, fontSize: 13, textAlign: 'right', fontFamily: FONT }}>Updated {syncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text> : null}
 
       <BottomSheet visible={weightOpen} onClose={() => setWeightOpen(false)}>
         <View style={{ padding: 20, gap: 14 }}>

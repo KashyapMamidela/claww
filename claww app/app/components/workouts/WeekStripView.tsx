@@ -38,14 +38,14 @@ function Cell({ cell, selected, onPress }: { cell: StripCell; selected: boolean;
           backgroundColor: selected ? 'rgba(59,130,246,0.30)' : 'transparent',
         }}
       >
-        <Text style={{ color: selected ? '#fff' : COLORS.textMuted, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{cell.letter}</Text>
+        <Text style={{ color: selected ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{cell.letter}</Text>
         <Text style={{ color: fg, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{cell.dateNumber}</Text>
         {done ? (
           <Icon name="check" size={13} color={selected ? '#fff' : COLORS.green} strokeWidth={3} />
         ) : (
           <Text
             numberOfLines={1}
-            style={{ color: missed ? COLORS.danger : fg, fontSize: 12, fontWeight: '700', textDecorationLine: missed ? 'line-through' : 'none', fontFamily: FONT }}
+            style={{ color: missed ? COLORS.danger : fg, fontSize: 13, fontWeight: '700', textDecorationLine: missed ? 'line-through' : 'none', fontFamily: FONT }}
           >
             {cell.label}
           </Text>
@@ -66,7 +66,7 @@ export function WeekStripView({ strip, selectedPlanIndex, onSelect }: { strip: W
       {strip.note ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 6, paddingTop: 8 }}>
           <Icon name="arrow-up-right" size={14} color={COLORS.textMuted} />
-          <Text style={{ color: COLORS.textMuted, fontSize: 18, fontFamily: FONT_HAND, flex: 1 }}>{strip.note}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND, flex: 1 }}>{strip.note}</Text>
         </View>
       ) : null}
     </Surface>

@@ -25,9 +25,9 @@ function Field({ label, unit, value, onChangeText, onEnd }: { label: string; uni
             placeholder="0"
             placeholderTextColor={COLORS.textFaint}
             accessibilityLabel={`${label} in ${unit}`}
-            style={{ flex: 1, height: 52, color: COLORS.fg, fontSize: 18, fontWeight: '700', fontFamily: FONT }}
+            style={{ flex: 1, height: 52, color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}
           />
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{unit}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{unit}</Text>
         </View>
       </Surface>
     </View>

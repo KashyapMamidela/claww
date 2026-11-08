@@ -175,7 +175,7 @@ export default function WorkoutCompleteScreen() {
 
   const tile = (value: string, label: string) => (
     <View style={{ flex: 1, minHeight: 88, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 14, justifyContent: 'center' }}>
-      <Text style={{ color: '#fff', fontSize: 24, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
+      <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
       <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: FONT }}>{label}</Text>
     </View>
   );
@@ -186,7 +186,7 @@ export default function WorkoutCompleteScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-            <Text style={{ color: A, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`${dayName} · ${timeText}`}</Text>
+            <Text style={{ color: A, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`${dayName} · ${timeText}`}</Text>
           </View>
           <Pressable onPress={handleDone} accessibilityRole="button" accessibilityLabel="Close" style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="x" size={22} color={COLORS.textMuted} />
@@ -195,7 +195,7 @@ export default function WorkoutCompleteScreen() {
 
         <Hero variant="blue" accessibilityLabel={`${title}. ${minutes} minutes, ${summary?.setsCompleted ?? 0} sets`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, flex: 1, fontFamily: FONT }}>
+            <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, flex: 1, fontFamily: FONT }}>
               {`${(summary?.focus || 'Workout').toUpperCase()} · COMPLETE`}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.55)', backgroundColor: 'rgba(245,158,11,0.16)', paddingHorizontal: 10, paddingVertical: 5 }}>
@@ -224,7 +224,7 @@ export default function WorkoutCompleteScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>New best · {best.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{newBestText(best)}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{newBestText(best)}</Text>
               </View>
             </View>
             {bestNext ? (
@@ -240,7 +240,7 @@ export default function WorkoutCompleteScreen() {
 
         <Surface padding={16}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>How did that feel?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, marginTop: 2, marginBottom: 12, fontFamily: FONT }}>This decides how the next session is marked.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 2, marginBottom: 12, fontFamily: FONT }}>This decides how the next session is marked.</Text>
           <Segmented options={FEEL_OPTIONS} value={feel} onChange={chooseFeel} accessibilityLabel="How did that feel" />
           <Text style={{ color: COLORS.fg, fontSize: 20, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
         </Surface>
@@ -252,7 +252,7 @@ export default function WorkoutCompleteScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{streak.days}-day streak</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{streakSentence(streak, today)}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{streakSentence(streak, today)}</Text>
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10 }}>

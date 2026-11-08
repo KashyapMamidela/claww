@@ -84,7 +84,7 @@ export default function MealSetupWhere() {
                   placeholderTextColor={COLORS.textFaint}
                   keyboardType="numeric"
                   accessibilityLabel={ph as string}
-                  style={{ flex: 1, minWidth: 0, height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 16, fontWeight: '700', paddingHorizontal: 12, fontFamily: FONT }}
+                  style={{ flex: 1, minWidth: 0, height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, fontWeight: '700', paddingHorizontal: 12, fontFamily: FONT }}
                 />
               ))}
             </View>
@@ -113,7 +113,7 @@ export default function MealSetupWhere() {
                     </View>
                     <View>
                       <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.title}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{s.sub}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{s.sub}</Text>
                     </View>
                   </View>
                 </PressScale>

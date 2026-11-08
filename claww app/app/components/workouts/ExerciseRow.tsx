@@ -39,12 +39,12 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
           {sub ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{sub}</Text> : null}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{setsText}</Text>
-          {weightText && !marked ? <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{weightText}</Text> : null}
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{setsText}</Text>
+          {weightText && !marked ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{weightText}</Text> : null}
           {marked ? (
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, textDecorationLine: 'line-through', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{mark!.oldText}</Text>
-              <Text style={{ color: COLORS.pen, fontSize: 18, fontWeight: '900', textDecorationLine: 'underline', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{mark!.newText}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{mark!.oldText}</Text>
+              <Text style={{ color: COLORS.pen, fontSize: 17, fontWeight: '900', textDecorationLine: 'underline', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{mark!.newText}</Text>
             </View>
           ) : null}
         </View>
@@ -52,7 +52,7 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
 
       {mark && !marked ? (
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'baseline', gap: 6 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, textDecorationLine: 'line-through', fontFamily: FONT }}>{mark.oldText}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: FONT }}>{mark.oldText}</Text>
           <Text style={{ color: COLORS.pen, fontSize: 17, fontWeight: '900', textDecorationLine: 'underline', fontFamily: FONT }}>{mark.newText}</Text>
         </View>
       ) : null}
@@ -66,14 +66,14 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
 
       {mark && open ? (
         <View style={{ borderRadius: 14, backgroundColor: 'rgba(0,0,0,0.35)', padding: 12, gap: 10 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 14, lineHeight: 21, fontFamily: FONT }}>{mark.reason}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>{mark.reason}</Text>
           <Pressable
             onPress={() => setOpen(false)}
             accessibilityRole="button"
             accessibilityLabel="Keep the mark"
             style={{ alignSelf: 'flex-start', minHeight: 44, paddingHorizontal: 16, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, justifyContent: 'center' }}
           >
-            <Text style={{ color: COLORS.fg, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Keep the mark</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Keep the mark</Text>
           </Pressable>
         </View>
       ) : null}

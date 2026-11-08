@@ -132,7 +132,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             >
               <Icon name="moon" size={17} color={SLEEP} />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
               {step === 'bedtime' ? 'When did you go to bed?' : 'When did you wake up?'}
             </Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} hitSlop={10}>
@@ -169,17 +169,17 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
                     paddingHorizontal: 10,
                   }}
                 >
-                  <Text style={{ color: '#fff', fontSize: 18, fontWeight: '900', fontFamily: FONT }}>{hours.toFixed(1)}h</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
+                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', fontFamily: FONT }}>{hours.toFixed(1)}h</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
                     {timeValueToLabel(bedtime)} → {timeValueToLabel(wake)}
                   </Text>
-                  <Text style={{ color: q.color, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{q.label}</Text>
+                  <Text style={{ color: q.color, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{q.label}</Text>
                 </View>
               )}
             </>
           ) : (
             <View style={{ height: 220, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Loading…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Loading…</Text>
             </View>
           )}
 
@@ -196,7 +196,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
               opacity: !ready || saving ? 0.6 : 1,
             }}
           >
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
               {step === 'bedtime' ? 'Next' : saving ? 'Saving…' : 'Log Sleep'}
             </Text>
           </TouchableOpacity>

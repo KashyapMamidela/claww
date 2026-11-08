@@ -31,7 +31,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 18 }}>
-        <Text style={{ color: C, fontSize: 12, fontWeight: '800', letterSpacing: 0.8, fontFamily: FONT }}>STREAK</Text>
+        <Text style={{ color: C, fontSize: 13, fontWeight: '800', letterSpacing: 0.8, fontFamily: FONT }}>STREAK</Text>
 
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
@@ -84,7 +84,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                         gap: 2,
                       }}
                     >
-                      <Text style={{ color: done || rest ? '#fff' : COLORS.textFaint, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{d.date.getDate()}</Text>
+                      <Text style={{ color: done || rest ? '#fff' : COLORS.textFaint, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.date.getDate()}</Text>
                       {done ? <Icon name="check" size={11} color={C} strokeWidth={3} /> : missed ? <Icon name="x" size={11} color={COLORS.danger} strokeWidth={3} /> : d.status === 'protected' ? <Icon name="shield" size={11} color={C} /> : null}
                     </View>
                   );
@@ -99,12 +99,12 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
               ] as const).map(([label, color]) => (
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: color }} />
-                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{label}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{label}</Text>
                 </View>
               ))}
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Icon name="shield" size={11} color={C} />
-                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Exam week</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Exam week</Text>
               </View>
             </View>
           </View>

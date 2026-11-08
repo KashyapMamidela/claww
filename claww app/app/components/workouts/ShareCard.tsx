@@ -25,7 +25,7 @@ function Tile({ value, label }: { value: string; label: string }) {
   return (
     <View style={{ width: 440, borderRadius: 40, borderWidth: 2, borderColor: 'rgba(255,255,255,0.22)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 36, gap: 10 }}>
       <Text style={{ color: '#fff', fontSize: 84, fontWeight: '900', letterSpacing: -2, fontFamily: FONT }}>{value}</Text>
-      <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 38, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 34, fontFamily: FONT }}>{label}</Text>
     </View>
   );
 }
@@ -37,7 +37,7 @@ export const ShareCard = forwardRef<View, { data: ShareCardData }>(function Shar
       <View style={{ flex: 1, padding: 90, justifyContent: 'space-between' }}>
         <View>
           <Text style={{ color: '#fff', fontSize: 64, fontWeight: '900', letterSpacing: 2, fontFamily: FONT }}>CLAWW</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 40, marginTop: 8, fontFamily: FONT }}>{data.dateText}</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 44, marginTop: 8, fontFamily: FONT }}>{data.dateText}</Text>
         </View>
 
         <View style={{ gap: 28 }}>
@@ -56,14 +56,14 @@ export const ShareCard = forwardRef<View, { data: ShareCardData }>(function Shar
           </View>
           {data.bestLine ? (
             <View style={{ borderRadius: 40, borderWidth: 2, borderColor: 'rgba(245,158,11,0.6)', backgroundColor: 'rgba(245,158,11,0.16)', padding: 40 }}>
-              <Text style={{ color: COLORS.amber, fontSize: 40, fontWeight: '900', fontFamily: FONT }}>New best</Text>
+              <Text style={{ color: COLORS.amber, fontSize: 44, fontWeight: '900', fontFamily: FONT }}>New best</Text>
               <Text style={{ color: '#fff', fontSize: 52, fontWeight: '800', marginTop: 6, fontFamily: FONT }}>{data.bestLine}</Text>
             </View>
           ) : null}
           {data.streakText ? <Text style={{ color: '#fff', fontSize: 64, fontFamily: FONT_HAND }}>{data.streakText}</Text> : null}
         </View>
 
-        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 36, fontFamily: FONT }}>Trained with CLAWW</Text>
+        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 34, fontFamily: FONT }}>Trained with CLAWW</Text>
       </View>
     </View>
   );

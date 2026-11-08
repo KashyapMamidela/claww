@@ -66,7 +66,7 @@ export function NotificationPromptCard({ userId, onDismiss }: NotificationPrompt
         >
           <Icon name="bell" size={17} color={COLORS.blue} />
         </View>
-        <Text style={{ flex: 1, color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Stay on track</Text>
+        <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Stay on track</Text>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
         Get a nudge to train, log meals, and log sleep — nothing else, and you can turn it off anytime in Settings.

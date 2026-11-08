@@ -33,12 +33,12 @@ export default function WelcomeScreen() {
             <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -1, lineHeight: 40, textAlign: 'center', fontFamily: FONT }}>
               Your coach that{'\n'}fits your real day
             </Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 16, lineHeight: 24, textAlign: 'center', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, textAlign: 'center', fontFamily: FONT }}>
               Workouts and meals planned around your gym, home or hostel. It changes when you do.
             </Text>
           </View>
 
-          <Text style={{ color: COLORS.pen, fontSize: 26, fontFamily: FONT_HAND, transform: [{ rotate: '-2deg' }] }}>about a minute a day</Text>
+          <Text style={{ color: COLORS.pen, fontSize: 28, fontFamily: FONT_HAND, transform: [{ rotate: '-2deg' }] }}>about a minute a day</Text>
         </View>
 
         <View style={{ gap: 12 }}>

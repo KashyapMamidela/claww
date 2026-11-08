@@ -71,7 +71,7 @@ export default function MoreTab() {
       title: 'FEATURES',
       rows: [
         { icon: 'user-circle-2', color: COLORS.amber, label: 'Profile', sub: 'Stats, badges & body metrics', onPress: openProfile },
-        { icon: 'pencil', color: COLORS.blue, label: 'Your week, marked up', sub: 'What changed on your plan, keep or undo', onPress: () => router.push('/week-review') },
+        { icon: 'pencil', color: COLORS.blue, label: 'Your week, marked up', sub: 'What changed on your plan', onPress: () => router.push('/week-review') },
       ],
     },
     {
@@ -100,49 +100,39 @@ export default function MoreTab() {
       >
         <View>
           <Display>More</Display>
-          <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 4, fontFamily: FONT }}>Settings, profile & more features</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>Settings, profile & more features</Text>
         </View>
 
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={openProfile}
-          style={{
-            backgroundColor: '#151517',
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.14)',
-            borderRadius: 18,
-            paddingHorizontal: 16,
-            paddingVertical: 14,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 14,
-          }}
-        >
-          <LinearGradient
-            colors={['#FF4500', COLORS.amber]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ width: 52, height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Text style={{ fontSize: 20, fontWeight: '900', color: '#fff', fontFamily: FONT }}>
-              {displayName.charAt(0).toUpperCase() || 'M'}
-            </Text>
-          </LinearGradient>
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{displayName}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{tier}</Text>
-            <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
-              <Badge color={COLORS.amber}>LVL {level}</Badge>
-              <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
+        <TouchableOpacity activeOpacity={0.85} onPress={openProfile}>
+          <Surface radius={20} padding={16}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+              <LinearGradient
+                colors={['#FF4500', COLORS.amber]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ width: 56, height: 56, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Text style={{ fontSize: 20, fontWeight: '900', color: '#fff', fontFamily: FONT }}>
+                  {displayName.charAt(0).toUpperCase() || 'M'}
+                </Text>
+              </LinearGradient>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{displayName}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, fontFamily: FONT }}>{tier}</Text>
+                <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
+                  <Badge color={COLORS.amber}>LVL {level}</Badge>
+                  <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
+                </View>
+              </View>
+              <Icon name="chevron-right" size={17} color="#71717A" />
             </View>
-          </View>
-          <Icon name="chevron-right" size={17} color="#71717A" />
+          </Surface>
         </TouchableOpacity>
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
+            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '700', fontFamily: FONT }}>Achievements</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8, marginBottom: 12 }}>
             {preview.map((b, i) => (
@@ -165,12 +155,12 @@ export default function MoreTab() {
                 >
                   <Text style={{ fontSize: 20 }}>{b.icon}</Text>
                 </View>
-                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 10, fontFamily: FONT }}>{b.label}</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 14, fontFamily: FONT }}>{b.label}</Text>
               </Animated.View>
             ))}
           </View>
           <TouchableOpacity onPress={openProfile} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-            <Text style={{ color: COLORS.amber, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.amber, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>
               View all {achievements.length} in Profile
             </Text>
             <Icon name="chevron-right" size={13} color={COLORS.amber} />
@@ -182,7 +172,7 @@ export default function MoreTab() {
             <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 1, marginBottom: 6, paddingLeft: 2, fontFamily: FONT }}>
               {section.title}
             </Text>
-            <Surface radius={16} padding={16}>
+            <Surface radius={20} padding={0}>
               {section.rows.map((row, i) => (
                 <TouchableOpacity
                   key={row.label}
@@ -192,17 +182,17 @@ export default function MoreTab() {
                     flexDirection: 'row',
                     alignItems: 'center',
                     paddingHorizontal: 16,
-                    paddingVertical: 12,
-                    gap: 13,
+                    paddingVertical: 14,
+                    gap: 14,
                     borderTopWidth: i > 0 ? 1 : 0,
                     borderTopColor: 'rgba(255,255,255,0.08)',
                   }}
                 >
                   <View
                     style={{
-                      width: 34,
-                      height: 34,
-                      borderRadius: 9,
+                      width: 44,
+                      height: 44,
+                      borderRadius: 12,
                       backgroundColor: 'rgba(255,255,255,0.04)',
                       borderWidth: 1,
                       borderColor: 'rgba(255,255,255,0.08)',
@@ -213,8 +203,8 @@ export default function MoreTab() {
                     <Icon name={row.icon} size={18} color={row.color} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{row.label}</Text>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{row.sub}</Text>
+                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{row.label}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 2, fontFamily: FONT }}>{row.sub}</Text>
                   </View>
                   <Icon name="chevron-right" size={15} color="#71717A" />
                 </TouchableOpacity>
@@ -223,13 +213,13 @@ export default function MoreTab() {
           </View>
         ))}
 
-        <Surface radius={14} padding={16}>
-          <TouchableOpacity activeOpacity={0.8} onPress={signOut} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, paddingVertical: 13 }}>
+        <Surface radius={20} padding={0}>
+          <TouchableOpacity activeOpacity={0.8} onPress={signOut} style={{ flexDirection: 'row', alignItems: 'center', gap: 14, paddingHorizontal: 16, paddingVertical: 14 }}>
             <View
               style={{
-                width: 34,
-                height: 34,
-                borderRadius: 9,
+                width: 44,
+                height: 44,
+                borderRadius: 12,
                 backgroundColor: 'rgba(239,68,68,0.10)',
                 borderWidth: 1,
                 borderColor: 'rgba(239,68,68,0.20)',
@@ -239,7 +229,7 @@ export default function MoreTab() {
             >
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ color: '#EF4444', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Sign out</Text>
+            <Text style={{ color: '#EF4444', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Sign out</Text>
           </TouchableOpacity>
         </Surface>
 

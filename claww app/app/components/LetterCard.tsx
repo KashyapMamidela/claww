@@ -22,7 +22,7 @@ export const LetterCard = forwardRef<View, { data: LetterData }>(function Letter
       <View style={{ flex: 1, padding: 90, justifyContent: 'space-between' }}>
         <View>
           <Text style={{ color: COLORS.fg, fontSize: 64, fontWeight: '900', letterSpacing: 2, fontFamily: FONT }}>CLAWW</Text>
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 40, marginTop: 8, fontFamily: FONT }}>{data.dateText}</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 44, marginTop: 8, fontFamily: FONT }}>{data.dateText}</Text>
         </View>
 
         <View style={{ gap: 28 }}>
@@ -41,7 +41,7 @@ export const LetterCard = forwardRef<View, { data: LetterData }>(function Letter
           </View>
           {data.changes.length > 0 ? (
             <View style={{ borderRadius: 40, borderWidth: 2, borderColor: 'rgba(255,255,255,0.22)', backgroundColor: 'rgba(0,0,0,0.25)', padding: 40, gap: 14 }}>
-              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 36, fontFamily: FONT }}>What changed</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 34, fontFamily: FONT }}>What changed</Text>
               {data.changes.map((c) => (
                 <Text key={c} style={{ color: COLORS.pen, fontSize: 64, fontFamily: FONT_HAND }}>{c}</Text>
               ))}
@@ -49,7 +49,7 @@ export const LetterCard = forwardRef<View, { data: LetterData }>(function Letter
           ) : null}
         </View>
 
-        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 36, fontFamily: FONT }}>{data.name ? `${data.name}'s week, with CLAWW` : 'A week with CLAWW'}</Text>
+        <Text style={{ color: 'rgba(255,255,255,0.6)', fontSize: 34, fontFamily: FONT }}>{data.name ? `${data.name}'s week, with CLAWW` : 'A week with CLAWW'}</Text>
       </View>
     </View>
   );

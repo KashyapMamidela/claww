@@ -125,7 +125,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
               {oldValue ? <OldValue value={oldValue} size={15} /> : null}
               <NewValue value={newValue} size={24} />
             </View>
-            <Text style={{ color: COLORS.pen, fontSize: 18, fontFamily: FONT_HAND, marginTop: 4 }}>{note}</Text>
+            <Text style={{ color: COLORS.pen, fontSize: 17, fontFamily: FONT_HAND, marginTop: 4 }}>{note}</Text>
           </View>
         ) : (
           <View style={{ gap: 4 }}>
@@ -139,7 +139,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
                 <NewValue value={newValue} size={17} />
               </View>
             </View>
-            <Text style={{ color: COLORS.pen, fontSize: 18, fontFamily: FONT_HAND, textAlign: 'right', marginTop: 8, textShadowColor: 'rgba(255,255,255,0.25)', textShadowRadius: 6 }}>
+            <Text style={{ color: COLORS.pen, fontSize: 17, fontFamily: FONT_HAND, textAlign: 'right', marginTop: 8, textShadowColor: 'rgba(255,255,255,0.25)', textShadowRadius: 6 }}>
               {note}
             </Text>
           </View>

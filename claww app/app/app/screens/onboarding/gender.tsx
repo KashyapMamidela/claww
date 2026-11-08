@@ -33,7 +33,7 @@ export default function OnboardingGender() {
       <OnboardingTopBar step={2} totalSteps={6} accent={COLORS.blue} showBack />
       <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Last thing about you</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How do you identify?</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How do you identify?</Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: FONT }}>It tunes recovery and calorie targets to you.</Text>
 
         <View style={{ gap: 12 }} accessibilityRole="radiogroup">
@@ -41,7 +41,7 @@ export default function OnboardingGender() {
             const on = gender === g.id;
             const body = (
               <View style={{ minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', flex: 1, fontFamily: FONT }}>{g.label}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', flex: 1, fontFamily: FONT }}>{g.label}</Text>
                 {on ? (
                   <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: g.color, alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name="check" size={14} color={COLORS.bg} strokeWidth={3} />

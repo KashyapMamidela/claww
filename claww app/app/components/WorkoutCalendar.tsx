@@ -122,7 +122,7 @@ export function WorkoutCalendar() {
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week</Text>
         <TouchableOpacity activeOpacity={0.8} onPress={() => setShowMonth((s) => !s)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Text style={{ color: A, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{showMonth ? 'Hide month' : 'View month'}</Text>
+          <Text style={{ color: A, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{showMonth ? 'Hide month' : 'View month'}</Text>
           <Icon name={showMonth ? 'chevron-up' : 'chevron-right'} size={12} color={A} />
         </TouchableOpacity>
       </View>
@@ -142,7 +142,7 @@ export function WorkoutCalendar() {
 
       {showMonth && (
         <View style={{ marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
-          <Text style={{ color: '#A1A1AA', fontSize: 12, fontWeight: '700', marginBottom: 10, fontFamily: FONT }}>{monthLabel}</Text>
+          <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', marginBottom: 10, fontFamily: FONT }}>{monthLabel}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
             {DAY_LABELS.map((l, i) => (
               <Text key={i} style={{ width: 30, textAlign: 'center', color: COLORS.textFaint, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>

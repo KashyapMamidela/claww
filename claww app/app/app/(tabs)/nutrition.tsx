@@ -228,7 +228,7 @@ export default function NutritionTab() {
         }}
       >
         <Icon name={icon} size={18} color={primary ? '#052e16' : G} />
-        <Text style={{ color: primary ? '#052e16' : G, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color: primary ? '#052e16' : G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{label}</Text>
       </View>
     </PressScale>
   );
@@ -268,7 +268,7 @@ export default function NutritionTab() {
           )}
 
           {askFoodProfile && (
-            <View style={{ backgroundColor: COLORS.card, borderWidth: 1, borderColor: COLORS.greenBorder, borderRadius: 16, padding: 14, gap: 10 }}>
+            <Surface radius={20} padding={14} borderColor={COLORS.greenBorder}><View style={{ gap: 10 }}>
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>What do you like to eat?</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>Tell us your cuisines and foods to avoid and suggestions will fit you better.</Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -277,7 +277,7 @@ export default function NutritionTab() {
                   onPress={() => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } })}
                   style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(34,197,94,0.14)', justifyContent: 'center' }}
                 >
-                  <Text style={{ color: G, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Set preferences</Text>
+                  <Text style={{ color: G, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Set preferences</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   activeOpacity={0.85}
@@ -287,10 +287,10 @@ export default function NutritionTab() {
                   }}
                   style={{ minHeight: 44, paddingHorizontal: 14, justifyContent: 'center' }}
                 >
-                  <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
                 </TouchableOpacity>
               </View>
-            </View>
+            </View></Surface>
           )}
 
           {!targetsLoaded ? (
@@ -299,7 +299,7 @@ export default function NutritionTab() {
             <Surface padding={18}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
                 <ProgressRing size={size} rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G, pct: consumed === 0 ? 0 : pct }]} trackColor="rgba(255,255,255,0.055)">
-                  <Text style={{ color: '#fff', fontSize: 30, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{consumed.toLocaleString('en-IN')}</Text>
+                  <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{consumed.toLocaleString('en-IN')}</Text>
                   <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>of {goals.kcal.toLocaleString('en-IN')} kcal</Text>
                 </ProgressRing>
                 <View style={{ flex: 1, gap: 12 }}>
@@ -310,7 +310,7 @@ export default function NutritionTab() {
                   ].map((m) => (
                     <View key={m.label}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{m.label}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.label}</Text>
                         <Text style={{ fontFamily: FONT, fontVariant: ['tabular-nums'] }}>
                           <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800' }}>{m.cur}</Text>
                           <Text style={{ color: COLORS.textMuted, fontSize: 13 }}> / {m.goal} g</Text>
@@ -385,13 +385,13 @@ export default function NutritionTab() {
                 const m = v.planned;
                 const old = plan?.replaced?.[v.slot];
                 return (
-                  <View key={v.slot} style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: COLORS.card, padding: 16, gap: 10 }}>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · up next</Text>
+                  <Surface radius={20} padding={16} borderColor={COLORS.greenBorderMd}><View style={{ gap: 10 }}>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · up next</Text>
                     {m ? (
                       <>
                         {old ? <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: FONT }}>{old}</Text> : null}
                         <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', textDecorationLine: old ? 'underline' : 'none', fontFamily: FONT }}>{m.name}</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{itemsText(m)}</Text>
                         <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                         {old ? <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
@@ -414,14 +414,14 @@ export default function NutritionTab() {
                         </View>
                         <PressScale onPress={() => openSwap(m)} accessibilityRole="button" accessibilityLabel="Swap this meal for another">
                           <View style={{ minHeight: 40, justifyContent: 'center' }}>
-                            <Text style={{ color: G, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Swap for another {v.slot}</Text>
+                            <Text style={{ color: G, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Swap for another {v.slot}</Text>
                           </View>
                         </PressScale>
                       </>
                     ) : (
                       <>
                         <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>What are you having?</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
                           {Math.max(0, goals.kcal - consumed).toLocaleString('en-IN')} kcal and {Math.max(0, goals.protein - protein)} g protein left today
                         </Text>
                         <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -438,17 +438,17 @@ export default function NutritionTab() {
                         </View>
                       </>
                     )}
-                  </View>
+                  </View></Surface>
                 );
               }
               if (v.state === 'missed') {
                 const m = v.planned;
                 return (
-                  <View key={v.slot} style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, padding: 16, gap: 10 }}>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · not logged yet</Text>
+                  <Surface radius={20} padding={16}><View style={{ gap: 10 }}>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · not logged yet</Text>
                     {m ? (
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>
-                        {m.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 14 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        {m.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                       </Text>
                     ) : null}
                     <View style={{ gap: 8 }}>
@@ -471,15 +471,15 @@ export default function NutritionTab() {
                       </Button>
                     </View>
                     <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
-                  </View>
+                  </View></Surface>
                 );
               }
               return (
                 <View key={v.slot} style={{ borderRadius: 16, borderWidth: 1, borderColor: COLORS.border, borderStyle: 'dashed', padding: 14, gap: 2 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{label} · later</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · later</Text>
                   {v.planned ? (
-                    <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '700', fontFamily: FONT }}>
-                      {v.planned.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 14 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
+                    <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>
+                      {v.planned.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
                     </Text>
                   ) : null}
                   <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
@@ -499,8 +499,8 @@ export default function NutritionTab() {
                 <Icon name="utensils" size={22} color={G} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: COLORS.fg, fontSize: 18, fontWeight: '800', fontFamily: FONT }}>Food diary</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>Photos, ratings and micronutrients</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Food diary</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Photos, ratings and micronutrients</Text>
               </View>
               <Icon name="chevron-right" size={18} color={COLORS.textMuted} />
             </View>
@@ -528,13 +528,13 @@ export default function NutritionTab() {
       <BottomSheet visible={swapMeal !== null} onClose={() => setSwapMeal(null)}>
         <View style={{ padding: 20, gap: 12 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Swap {swapMeal?.meal}</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>Close in calories and protein to what was planned.</Text>
-          {swapList.length === 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>No close match from what you can get.</Text> : null}
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Close in calories and protein to what was planned.</Text>
+          {swapList.length === 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>No close match from what you can get.</Text> : null}
           {swapList.map((o) => (
             <PressScale key={o.templateId} onPress={() => chooseSwap(o)} accessibilityRole="button" accessibilityLabel={`${o.name}, ${o.kcal} kilocalories`}>
               <Surface padding={14}>
-                <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{o.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{o.kcal} kcal · P {Math.round(o.protein)} g</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{o.name}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{o.kcal} kcal · P {Math.round(o.protein)} g</Text>
               </Surface>
             </PressScale>
           ))}

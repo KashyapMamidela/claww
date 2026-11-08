@@ -105,7 +105,7 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
               borderColor: 'rgba(255,255,255,0.12)',
               borderRadius: 12,
               color: '#fff',
-              fontSize: 14,
+              fontSize: 15,
               paddingHorizontal: 14,
               paddingVertical: 11,
               marginBottom: 12,
@@ -114,9 +114,9 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
           />
 
           {loading ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, textAlign: 'center', marginTop: 20 }}>Searching…</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, textAlign: 'center', marginTop: 20 }}>Searching…</Text>
           ) : results.length === 0 ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, textAlign: 'center', marginTop: 20 }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, textAlign: 'center', marginTop: 20 }}>
               No exercises match your equipment/search.
             </Text>
           ) : (
@@ -137,7 +137,7 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
                   }}
                 >
                   <View>
-                    <Text style={{ color: '#fff', fontSize: 14, fontWeight: '600', fontFamily: FONT }}>{item.name}</Text>
+                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{item.name}</Text>
                     {item.muscle_group ? (
                       <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>{item.muscle_group}</Text>
                     ) : null}

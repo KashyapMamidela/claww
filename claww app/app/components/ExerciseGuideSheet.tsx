@@ -98,7 +98,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
             {/* Reserved for the looping demo clip (V2 PHASE 11 makes them). */}
             <View style={{ height: 150, borderRadius: 16, backgroundColor: '#0B0B0D', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', gap: 6 }} accessibilityLabel="Demo clip placeholder">
               <Icon name="play" size={22} color="#3F3F46" />
-              <Text style={{ color: COLORS.textFaint, fontSize: 12, fontFamily: FONT }}>Demo clip coming soon</Text>
+              <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: FONT }}>Demo clip coming soon</Text>
             </View>
 
             <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -122,14 +122,14 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
                         <View style={{ width: 26, height: 26, borderRadius: 13, backgroundColor: tint(A, 0.16), alignItems: 'center', justifyContent: 'center' }}>
                           <Text style={{ color: A, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>{i + 1}</Text>
                         </View>
-                        <Text style={{ flex: 1, color: '#fff', fontSize: 14, lineHeight: 21, fontFamily: FONT }}>{step}</Text>
+                        <Text style={{ flex: 1, color: '#fff', fontSize: 15, lineHeight: 21, fontFamily: FONT }}>{step}</Text>
                       </View>
                     ))}
                   </View>
                   {form.commonMistake ? (
                     <View style={{ padding: 14, borderRadius: 14, backgroundColor: COLORS.dangerDim, borderWidth: 1, borderColor: COLORS.dangerBorder }}>
                       <Text style={{ color: COLORS.danger, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, marginBottom: 4, fontFamily: FONT }}>COMMON MISTAKE</Text>
-                      <Text style={{ color: '#fff', fontSize: 14, lineHeight: 20, fontFamily: FONT }}>{form.commonMistake}</Text>
+                      <Text style={{ color: '#fff', fontSize: 15, lineHeight: 20, fontFamily: FONT }}>{form.commonMistake}</Text>
                     </View>
                   ) : null}
                 </>
@@ -150,15 +150,15 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
                     {form.primaryMuscle ? (
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: A }} />
-                        <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{capitalize(form.primaryMuscle)}</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>main muscle</Text>
+                        <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{capitalize(form.primaryMuscle)}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>main muscle</Text>
                       </View>
                     ) : null}
                     {form.secondaryMuscles.map((m) => (
                       <View key={m} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: tint(A, 0.4) }} />
-                        <Text style={{ color: '#D4D4D8', fontSize: 14, fontWeight: '600', fontFamily: FONT }}>{capitalize(m)}</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>also worked</Text>
+                        <Text style={{ color: '#D4D4D8', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{capitalize(m)}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>also worked</Text>
                       </View>
                     ))}
                   </View>
@@ -183,11 +183,11 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
                   {history.map((s) => (
                     <View key={s.day} style={{ padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)', gap: 4 }}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
+                        <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
                           {new Date(s.startedAt).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })}
                         </Text>
                         {s.topWeight > 0 ? (
-                          <Text style={{ color: AREA_COLORS.workouts, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>top {Math.round(s.topWeight * 100) / 100} kg</Text>
+                          <Text style={{ color: AREA_COLORS.workouts, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>top {Math.round(s.topWeight * 100) / 100} kg</Text>
                         ) : null}
                       </View>
                       <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{formatSets(s.sets)}</Text>
@@ -198,8 +198,8 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
             ) : null}
 
             <PressScale onPress={onClose}>
-              <View style={{ height: 52, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Done</Text>
+              <View style={{ height: 54, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Done</Text>
               </View>
             </PressScale>
           </ScrollView>

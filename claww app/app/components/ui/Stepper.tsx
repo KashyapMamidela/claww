@@ -48,7 +48,7 @@ export function Stepper({ value, unit, onDecrement, onIncrement, decrementDisabl
       <View style={{ flexDirection: 'row', alignItems: 'center' }} accessibilityRole="adjustable" accessibilityLabel={label} accessibilityValue={{ text: `${value} ${unit}` }}>
         <StepButton icon="minus" onPress={onDecrement} disabled={decrementDisabled} a11y={`Less ${label.toLowerCase()}`} />
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={{ color: COLORS.fg, fontSize: 24, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'], lineHeight: 28 }}>{value}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'], lineHeight: 28 }}>{value}</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '600', fontFamily: FONT }}>{unit}</Text>
         </View>
         <StepButton icon="plus" onPress={onIncrement} disabled={incrementDisabled} a11y={`More ${label.toLowerCase()}`} />

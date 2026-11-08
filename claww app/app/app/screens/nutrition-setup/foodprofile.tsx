@@ -64,7 +64,7 @@ export default function NutritionSetupFoodProfile() {
             </Chip>
           ))}
         </View>
-        <Text style={{ color: '#A1A1AA', fontSize: 12, fontWeight: '700', marginTop: 28, marginBottom: 8, fontFamily: FONT }}>Foods to avoid</Text>
+        <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', marginTop: 28, marginBottom: 8, fontFamily: FONT }}>Foods to avoid</Text>
         <TextInput
           value={avoid}
           onChangeText={setAvoid}

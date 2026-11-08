@@ -57,7 +57,7 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Played a sport or walked a lot?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>Log it as an activity. It counts for calories and recovery, and never as a missed workout.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>Log it as an activity. It counts for calories and recovery, and never as a missed workout.</Text>
         </View>
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -67,7 +67,7 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
           </Chip>
         ))}
       </View>
-      {done ? <Text style={{ color: COLORS.green, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{done}</Text> : null}
+      {done ? <Text style={{ color: COLORS.green, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{done}</Text> : null}
 
       <BottomSheet visible={picked !== null} onClose={close}>
         <View style={{ padding: 20, gap: 14 }}>
@@ -80,7 +80,7 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
               placeholderTextColor={COLORS.textFaint}
               maxLength={40}
               accessibilityLabel="Activity name"
-              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
+              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: FONT }}
             />
           ) : null}
           <Stepper

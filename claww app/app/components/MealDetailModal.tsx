@@ -79,8 +79,8 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   </View>
                 ) : null}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{meal.meal_type ?? 'Meal'}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
+                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{meal.meal_type ?? 'Meal'}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
                     {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     {meal.estimated ? ' · estimated' : ''}
                   </Text>
@@ -108,7 +108,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                     }}
                   >
                     <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
-                    <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
+                    <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
                   </View>
                 ))}
               </View>
@@ -120,10 +120,10 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   disabled={savingPlate}
                   accessibilityRole="button"
                   accessibilityLabel={isPlate ? 'Remove from my plates' : 'Save as my plate'}
-                  style={{ height: 52, borderRadius: 14, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: isPlate ? COLORS.greenGlow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
+                  style={{ height: 54, borderRadius: 16, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: isPlate ? COLORS.greenGlow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
                 >
                   <Icon name={isPlate ? 'check' : 'plus'} size={16} color={COLORS.green} />
-                  <Text style={{ color: COLORS.green, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>
+                  <Text style={{ color: COLORS.green, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>
                 </TouchableOpacity>
               ) : null}
 
@@ -139,7 +139,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   marginTop: 4,
                 }}
               >
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Close</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Close</Text>
               </TouchableOpacity>
             </View>
           )}

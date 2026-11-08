@@ -124,7 +124,7 @@ export function TimeWheelPicker({ initialValue, onChange }: TimeWheelPickerProps
           initialIndex={value.hour - 1}
           onChange={(i) => onChange({ ...value, hour: i + 1 })}
         />
-        <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', fontFamily: FONT, marginHorizontal: 2 }}>:</Text>
+        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT, marginHorizontal: 2 }}>:</Text>
         <WheelColumn
           items={MINUTES}
           initialIndex={Math.round(value.minute / 5)}

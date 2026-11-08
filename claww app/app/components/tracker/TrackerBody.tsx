@@ -179,7 +179,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
         {v.nutrition.some((d) => d.logged) ? (
           <>
             <BarChart values={v.protein.map((p) => p ?? 0)} color={AREA_COLORS.nutrition} height={80} goal={data.proteinTargetG} labels={v.days7.map((b) => b.label)} />
-            <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>
               {v.hits !== null ? `Protein target hit ${v.hits} of 7 days · ` : ''}avg {averageCalories(v.nutrition)?.toLocaleString()} kcal
             </Text>
           </>
@@ -189,7 +189,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
       </TrackerCard>
 
       <TrackerCard label="CLAWW INSIGHT" color={AREA_COLORS.engine} accentStripe>
-        <Text style={{ color: '#fff', fontSize: 14, lineHeight: 20, fontWeight: '600', fontFamily: FONT }}>{v.insight.text}</Text>
+        <Text style={{ color: '#fff', fontSize: 15, lineHeight: 20, fontWeight: '600', fontFamily: FONT }}>{v.insight.text}</Text>
       </TrackerCard>
     </View>
   );

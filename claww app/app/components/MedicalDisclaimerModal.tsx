@@ -45,7 +45,7 @@ export function MedicalDisclaimerModal({ visible, onClose }: MedicalDisclaimerMo
             >
               <Icon name="alert-triangle" size={18} color={COLORS.amber} />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{MEDICAL_DISCLAIMER_TITLE}</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{MEDICAL_DISCLAIMER_TITLE}</Text>
           </View>
 
           <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>{MEDICAL_DISCLAIMER_BODY}</Text>
@@ -62,7 +62,7 @@ export function MedicalDisclaimerModal({ visible, onClose }: MedicalDisclaimerMo
               marginTop: 4,
             }}
           >
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Close</Text>
+            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>

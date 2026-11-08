@@ -55,7 +55,7 @@ export default function MealSetupFoods() {
         {rows.map((r, i) => (
           <View key={r.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{r.title}</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{r.title}</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{r.sub}</Text>
             </View>
             <TriState value={availability[r.key]} onChange={(v) => set(r.key, v)} label={r.title} />

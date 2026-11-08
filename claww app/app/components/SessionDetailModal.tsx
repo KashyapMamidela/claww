@@ -33,7 +33,7 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
             gap: 14,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{title}</Text>
+          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{title}</Text>
           <ScrollView style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
             {rows.length === 0 ? (
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>No sets were logged for this session.</Text>
@@ -55,7 +55,7 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
                       </Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{formatTime(r.completed_at)}</Text>
                     </View>
-                    <Text style={{ color: '#A1A1AA', fontSize: 12, marginTop: 3, fontFamily: FONT }}>
+                    <Text style={{ color: '#A1A1AA', fontSize: 13, marginTop: 3, fontFamily: FONT }}>
                       {r.sets !== null ? `Set ${r.sets} · ` : ''}
                       {reps} reps{weight > 0 ? ` × ${weight} kg` : ''}
                       {plannedDiffers ? (
@@ -72,9 +72,9 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onClose}
-            style={{ height: 52, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}
+            style={{ height: 54, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Close</Text>
+            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>

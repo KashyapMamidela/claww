@@ -71,7 +71,7 @@ export default function ForgotPasswordScreen() {
             </View>
           ) : (
             <>
-              <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Reset your password
               </Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>

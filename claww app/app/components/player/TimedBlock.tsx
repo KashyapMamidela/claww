@@ -63,7 +63,7 @@ export function TimedBlock({ exerciseName, targetMinutes, withDistance, onDone }
     <Surface padding={20} grain={0.06}>
       <View style={{ alignItems: 'center', gap: 18 }}>
         <ProgressRing size={RING} rings={[{ r: (RING - STROKE) / 2, strokeWidth: STROKE, color: display.over ? COLORS.green : COLORS.blue, pct: display.fraction * 100 }]} trackColor="rgba(255,255,255,0.07)">
-          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>
             {display.over ? 'TARGET REACHED' : running ? 'GO' : everStarted ? 'PAUSED' : `${targetMinutes} MIN`}
           </Text>
           <Text

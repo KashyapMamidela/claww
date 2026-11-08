@@ -45,7 +45,7 @@ export function ErrorCard({ message, onRetry, retrying = false }: ErrorCardProps
         <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', lineHeight: 18, fontFamily: FONT }}>{message}</Text>
         {onRetry ? (
           <TouchableOpacity activeOpacity={0.8} onPress={onRetry} disabled={retrying} style={{ marginTop: 8, alignSelf: 'flex-start' }}>
-            <Text style={{ color: COLORS.danger, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.danger, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
               {retrying ? 'Retrying…' : 'Retry'}
             </Text>
           </TouchableOpacity>

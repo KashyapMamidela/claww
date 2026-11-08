@@ -46,7 +46,7 @@ function Row({ m, planDays, onDecide }: { m: PenMark; planDays: { day: string; f
     <View style={{ paddingVertical: 14, gap: 8, borderTopWidth: 1, borderTopColor: COLORS.border }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 10 }}>
         <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT, flexShrink: 1 }}>{item}</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 16, fontFamily: FONT, flexShrink: 1, textAlign: 'right' }}>
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: FONT, flexShrink: 1, textAlign: 'right' }}>
           {m.oldValue ? <Text style={{ color: COLORS.textMuted, textDecorationLine: 'line-through' }}>{m.oldValue} </Text> : null}
           <Text style={{ fontWeight: '800', textDecorationLine: 'underline' }}>{m.newValue}</Text>
         </Text>
@@ -149,17 +149,17 @@ export default function WeekReviewScreen() {
           <BackTile onPress={() => router.back()} />
           <View style={{ flex: 1 }}>
             <Display>Your week, marked up</Display>
-            <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>{dateLine(now, blockWeek, BLOCK_WEEKS)}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{dateLine(now, blockWeek, BLOCK_WEEKS)}</Text>
           </View>
         </View>
 
         <Hero variant="green" accessibilityLabel="The week in one line">
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{blockWeek ? `WEEK ${blockWeek} IN ONE LINE` : 'THIS WEEK IN ONE LINE'}</Text>
-          <Text style={{ color: '#fff', fontSize: 24, fontWeight: '900', letterSpacing: -0.4, lineHeight: 30, marginTop: 8, fontFamily: FONT }}>{line}</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{blockWeek ? `WEEK ${blockWeek} IN ONE LINE` : 'THIS WEEK IN ONE LINE'}</Text>
+          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.4, lineHeight: 30, marginTop: 8, fontFamily: FONT }}>{line}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
             {[`${counts.kept + counts.active} kept`, `${counts.undone} undone`].map((t) => (
               <View key={t} style={{ minHeight: 34, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.14)', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>{t}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{t}</Text>
               </View>
             ))}
           </View>
@@ -175,7 +175,7 @@ export default function WeekReviewScreen() {
         {marks.length === 0 && pen.loaded ? (
           <Surface padding={18}>
             <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Nothing marked this week</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 4, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 4, fontFamily: FONT }}>
               Your plan ran as written. Marks appear only when your own logs show a reason to change something.
             </Text>
           </Surface>
@@ -187,9 +187,9 @@ export default function WeekReviewScreen() {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color }} />
-                  <Text style={{ color, fontSize: 14, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
+                  <Text style={{ color, fontSize: 15, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
                 </View>
-                <Text style={{ color: COLORS.fg, fontSize: 18, fontFamily: FONT_HAND }}>{`${list.length} ${list.length === 1 ? 'mark' : 'marks'}`}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: FONT_HAND }}>{`${list.length} ${list.length === 1 ? 'mark' : 'marks'}`}</Text>
               </View>
               {list.map((m) => (
                 <Row key={m.id} m={m} planDays={planDays} onDecide={pen.decide} />
@@ -198,17 +198,17 @@ export default function WeekReviewScreen() {
           )
         )}
 
-        <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>
           Undo puts your old plan back for that item. Every mark is made from your own logs, never guessed.
         </Text>
 
-        <Pressable onPress={shareLetter} disabled={sharing || !facts} accessibilityRole="button" accessibilityLabel="Share your week as a picture" style={{ minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
+        <Pressable onPress={shareLetter} disabled={sharing || !facts} accessibilityRole="button" accessibilityLabel="Share your week as a picture" style={{ minHeight: 54, borderRadius: 16, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
           <Icon name="share-2" size={18} color={COLORS.fg} />
-          <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{sharing ? 'Preparing…' : 'Share your week'}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{sharing ? 'Preparing…' : 'Share your week'}</Text>
         </Pressable>
 
-        <Pressable onPress={() => router.replace('/(tabs)')} accessibilityRole="button" style={{ minHeight: 52, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: '#0A0A0B', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{next ? `Start week ${next}` : 'Start next week'}</Text>
+        <Pressable onPress={() => router.replace('/(tabs)')} accessibilityRole="button" style={{ minHeight: 54, borderRadius: 16, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ color: '#0A0A0B', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{next ? `Start week ${next}` : 'Start next week'}</Text>
         </Pressable>
       </ScrollView>
       <View pointerEvents="none" style={{ position: 'absolute', left: -SHARE_WIDTH * 2, top: 0 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">

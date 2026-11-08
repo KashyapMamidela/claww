@@ -43,7 +43,7 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
               </Text>
             ))}
             {form.commonMistake ? (
-              <Text style={{ color: '#A1A1AA', fontSize: 12, lineHeight: 17, fontFamily: FONT }}>
+              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 17, fontFamily: FONT }}>
                 <Text style={{ color: COLORS.danger, fontWeight: '800' }}>Avoid: </Text>
                 {form.commonMistake}
               </Text>
@@ -62,7 +62,7 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
       </View>
       <PressScale onPress={onDemo} accessibilityRole="button" accessibilityLabel="Open the exercise guide" hitSlop={6}>
         <View style={{ paddingHorizontal: 12, height: 34, borderRadius: 10, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: COLORS.blue, fontSize: 12, fontWeight: '800', fontFamily: FONT }}>Demo</Text>
+          <Text style={{ color: COLORS.blue, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Demo</Text>
         </View>
       </PressScale>
     </View>

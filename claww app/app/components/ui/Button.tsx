@@ -10,7 +10,7 @@ import { PressScale } from './PressScale';
 const SIZES = {
   sm: { height: 36, fontSize: 13, paddingH: 14, radius: 10, gap: 6 },
   md: { height: 44, fontSize: 15, paddingH: 18, radius: 12, gap: 8 },
-  lg: { height: 52, fontSize: 16, paddingH: 22, radius: 14, gap: 8 },
+  lg: { height: 54, fontSize: 17, paddingH: 22, radius: 16, gap: 8 },
 };
 
 export interface ButtonProps {

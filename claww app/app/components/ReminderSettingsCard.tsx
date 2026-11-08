@@ -67,7 +67,7 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
               hitSlop={6}
             >
               <View style={{ paddingHorizontal: 10, height: 30, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', opacity: s.enabled ? 1 : 0.4 }}>
-                <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{formatTime(s)}</Text>
+                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{formatTime(s)}</Text>
               </View>
             </PressScale>
             <Switch
@@ -88,8 +88,8 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{ROWS[editing].label} reminder time</Text>
               <TimeWheelPicker initialValue={pending} onChange={setPending} />
               <PressScale onPress={saveTime}>
-                <View style={{ height: 52, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: COLORS.blueDeep, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Save</Text>
+                <View style={{ height: 54, borderRadius: 16, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Save</Text>
                 </View>
               </PressScale>
             </Pressable>

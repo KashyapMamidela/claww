@@ -73,7 +73,7 @@ export default function PlanStory() {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, gap: 14 }}>
         <View style={{ gap: 6 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Your plan · story {i + 1} of 4</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>{title}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>{title}</Text>
         </View>
 
         {!loaded ? (
@@ -119,7 +119,7 @@ export default function PlanStory() {
                 <View key={m.meal} style={{ paddingVertical: 12, gap: 2, borderTopWidth: n === 0 ? 0 : 1, borderTopColor: 'rgba(255,255,255,0.06)' }}>
                   <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
                   <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>{m.name}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 14, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                 </View>
               ))}
             </Surface>

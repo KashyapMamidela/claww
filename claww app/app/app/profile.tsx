@@ -170,10 +170,10 @@ export default function ProfileScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <Badge color={P}>MY PROFILE</Badge>
+          <View><Badge color={P}>MY PROFILE</Badge></View>
         </View>
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
             <LinearGradient
               colors={['#FF4500', P]}
@@ -186,7 +186,7 @@ export default function ProfileScreen() {
               </Text>
             </LinearGradient>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>{displayName}</Text>
+              <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>{displayName}</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{profile?.email ?? ''} · {tier}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
                 <Badge color={P}>LVL {level}</Badge>
@@ -235,7 +235,7 @@ export default function ProfileScreen() {
           ))}
         </View>
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
@@ -257,13 +257,13 @@ export default function ProfileScreen() {
                 >
                   <Text style={{ fontSize: 20 }}>{b.icon}</Text>
                 </View>
-                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 10, fontFamily: FONT }}>{b.label}</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 14, fontFamily: FONT }}>{b.label}</Text>
               </View>
             ))}
           </View>
         </Surface>
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Body stats</Text>
           </View>
@@ -281,13 +281,13 @@ export default function ProfileScreen() {
                 }}
               >
                 <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{bs.l}</Text>
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', marginTop: 3, fontFamily: FONT }}>{bs.v}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', marginTop: 3, fontFamily: FONT }}>{bs.v}</Text>
               </View>
             ))}
           </View>
         </Surface>
 
-        <Surface radius={16} padding={16}>
+        <Surface radius={20} padding={0}>
           {menuItems.map((item, i) => (
             <TouchableOpacity
               key={item.label}
@@ -297,16 +297,16 @@ export default function ProfileScreen() {
                 flexDirection: 'row',
                 alignItems: 'center',
                 paddingHorizontal: 16,
-                paddingVertical: 13,
+                paddingVertical: 10,
                 gap: 12,
                 borderTopWidth: i > 0 ? 1 : 0,
                 borderTopColor: 'rgba(255,255,255,0.08)',
               }}
             >
-              <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name={item.icon} size={16} color="#A1A1AA" />
               </View>
-              <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>{item.label}</Text>
+              <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{item.label}</Text>
               <Icon name="chevron-right" size={15} color="#71717A" />
             </TouchableOpacity>
           ))}
@@ -317,16 +317,16 @@ export default function ProfileScreen() {
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 16,
-              paddingVertical: 13,
+              paddingVertical: 10,
               gap: 12,
               borderTopWidth: 1,
               borderTopColor: 'rgba(255,255,255,0.08)',
             }}
           >
-            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="alert-triangle" size={16} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Medical disclaimer</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Medical disclaimer</Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -337,14 +337,14 @@ export default function ProfileScreen() {
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 16,
-              paddingVertical: 13,
+              paddingVertical: 14,
               gap: 12,
               borderTopWidth: 1,
               borderTopColor: 'rgba(255,255,255,0.08)',
               opacity: exporting ? 0.6 : 1,
             }}
           >
-            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="download" size={16} color="#A1A1AA" />
             </View>
             <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>
@@ -359,13 +359,13 @@ export default function ProfileScreen() {
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 16,
-              paddingVertical: 13,
+              paddingVertical: 14,
               gap: 12,
               borderTopWidth: 1,
               borderTopColor: 'rgba(255,255,255,0.08)',
             }}
           >
-            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign out</Text>
@@ -377,13 +377,13 @@ export default function ProfileScreen() {
               flexDirection: 'row',
               alignItems: 'center',
               paddingHorizontal: 16,
-              paddingVertical: 13,
+              paddingVertical: 14,
               gap: 12,
               borderTopWidth: 1,
               borderTopColor: 'rgba(255,255,255,0.08)',
             }}
           >
-            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="trash-2" size={16} color="#EF4444" />
             </View>
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete account</Text>

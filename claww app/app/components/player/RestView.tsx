@@ -34,7 +34,7 @@ function SheetRestRing() {
       <Text
         accessibilityLiveRegion="polite"
         accessibilityLabel={clock.pausedAt !== null ? `Rest paused, ${formatRest(remaining)} left` : `${formatRest(remaining)} of rest left`}
-        style={{ color: '#fff', fontSize: 32, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}
+        style={{ color: '#fff', fontSize: 34, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}
       >
         {formatRest(remaining)}
       </Text>
@@ -82,8 +82,8 @@ export function RestSheet() {
         <RoundButton label="+15" a11y="Fifteen seconds more rest" onPress={() => nudge(15)} />
       </View>
       <PressScale onPress={skipRest} style={{ alignSelf: 'stretch' }} accessibilityRole="button" accessibilityLabel="Skip rest">
-        <View style={{ height: 52, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.blueBorder, backgroundColor: COLORS.blueDim }}>
-          <Text style={{ color: '#93C5FD', fontSize: 16, fontWeight: '800', fontFamily: FONT }}>Skip rest</Text>
+        <View style={{ height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.blueBorder, backgroundColor: COLORS.blueDim }}>
+          <Text style={{ color: '#93C5FD', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Skip rest</Text>
         </View>
       </PressScale>
     </View>

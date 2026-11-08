@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Surface } from './ui/Surface';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { AREA_COLORS, COLORS, FONT } from '../lib/theme';
 import { getDaySessionLogs, type PlanDay, type WorkoutDayEvent } from '../lib/data';
@@ -63,21 +64,12 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
   const plannedSets = day.exercises.reduce((s, ex) => s + ex.sets, 0);
 
   return (
-    <View
-      style={{
-        backgroundColor: '#151517',
-        borderWidth: 1,
-        borderColor: COLORS.greenBorder,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        gap: 12,
-      }}
-    >
+    <Surface radius={20} padding={16} borderColor={COLORS.greenBorder}>
+    <View style={{ gap: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon name="check-circle-2" size={18} color={COLORS.green} />
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.green, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Completed</Text>
+          <Text style={{ color: COLORS.green, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Completed</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{formatWhen(event.createdAt)}</Text>
         </View>
       </View>
@@ -108,7 +100,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
           </View>
 
           {summary.exercises.length === 0 ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 18, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
               No sets were found for this day's exercises on that date.
             </Text>
           ) : (
@@ -118,7 +110,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
                   <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', flex: 1, fontFamily: FONT }} numberOfLines={1}>
                     {ex.name}
                   </Text>
-                  <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }} numberOfLines={1}>
+                  <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }} numberOfLines={1}>
                     {ex.sets.map((s) => (s.weight > 0 ? `${s.reps}×${s.weight}` : `${s.reps}`)).join(', ')}
                   </Text>
                 </View>
@@ -135,7 +127,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
                     <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.exerciseName}</Text>
                     <Text style={{ color: AREA_COLORS.engine, fontSize: 11, fontWeight: '800', fontFamily: FONT }}>{commandPill(d.commands).label.toUpperCase()}</Text>
                   </View>
-                  <Text style={{ color: '#A1A1AA', fontSize: 12, lineHeight: 16, fontFamily: FONT }}>{d.reason}</Text>
+                  <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 16, fontFamily: FONT }}>{d.reason}</Text>
                 </View>
               ))}
             </View>
@@ -149,6 +141,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
 
       <SessionDetailModal visible={detailOpen} title={`${day.day} · ${day.focus}`} rows={rows ?? []} onClose={() => setDetailOpen(false)} />
     </View>
+    </Surface>
   );
 }
 
@@ -162,21 +155,12 @@ export interface SkippedDayCardProps {
 /** Shown instead of Begin Workout when the selected day was skipped. */
 export function SkippedDayCard({ day, event, onDoToday, onKeepToday }: SkippedDayCardProps) {
   return (
-    <View
-      style={{
-        backgroundColor: '#151517',
-        borderWidth: 1,
-        borderColor: COLORS.dangerBorder,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        gap: 12,
-      }}
-    >
+    <Surface radius={20} padding={16} borderColor={COLORS.dangerBorder}>
+    <View style={{ gap: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon name="x" size={18} color={COLORS.danger} />
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.danger, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Skipped</Text>
+          <Text style={{ color: COLORS.danger, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Skipped</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{formatWhen(event.createdAt)}</Text>
         </View>
       </View>
@@ -192,6 +176,7 @@ export function SkippedDayCard({ day, event, onDoToday, onKeepToday }: SkippedDa
         </Button>
       </View>
     </View>
+    </Surface>
   );
 }
 
@@ -206,21 +191,12 @@ export interface MissedDayCardProps {
 /** Shown instead of Begin Workout when a planned weekday passed with nothing logged. It never pretends the past day can still be begun. */
 export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCardProps) {
   return (
-    <View
-      style={{
-        backgroundColor: '#151517',
-        borderWidth: 1,
-        borderColor: COLORS.dangerBorder,
-        borderRadius: 16,
-        paddingHorizontal: 16,
-        paddingVertical: 14,
-        gap: 12,
-      }}
-    >
+    <Surface radius={20} padding={16} borderColor={COLORS.dangerBorder}>
+    <View style={{ gap: 12 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
         <Icon name="x" size={18} color={COLORS.danger} />
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.danger, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Missed</Text>
+          <Text style={{ color: COLORS.danger, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Missed</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>
             {date.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' })}
           </Text>
@@ -239,5 +215,6 @@ export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCa
       </View>
       <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>Either way, {day.day} stays marked as missed.</Text>
     </View>
+    </Surface>
   );
 }

@@ -1,3 +1,4 @@
+import { Surface } from '../../components/ui/Surface';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -109,7 +110,7 @@ function WorkoutsEmptyState() {
           <Icon name="dumbbell" size={32} color={A} />
         </View>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', marginBottom: 8, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', marginBottom: 8, fontFamily: FONT }}>
             Your training plan lives here
           </Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 20, maxWidth: 280, textAlign: 'center', fontFamily: FONT }}>
@@ -431,7 +432,7 @@ export default function WorkoutsTab() {
                 }}
               >
                 <Icon name="repeat" size={12} color="#A1A1AA" />
-                <Text style={{ color: '#A1A1AA', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Regenerate</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Regenerate</Text>
               </TouchableOpacity>
             ) : null}
           </View>
@@ -450,8 +451,8 @@ export default function WorkoutsTab() {
               }}
             >
               <Icon name="wand-2" size={22} color={A} />
-              <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Usually takes a few seconds</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Usually takes a few seconds</Text>
             </View>
           ) : showRegenCard ? (
             <View
@@ -502,13 +503,13 @@ export default function WorkoutsTab() {
                 }}
                 style={{ alignSelf: 'flex-start' }}
               >
-                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
               </TouchableOpacity>
             </View>
           ) : null}
 
           {dismissedOldPlan !== undefined && showOldPlanCard(workout, dismissedOldPlan) ? (
-            <View style={{ backgroundColor: '#151517', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: 16, gap: 10 }}>
+            <Surface radius={20} padding={16}><View style={{ gap: 10 }}>
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Your plan was made with the old builder</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>The new one builds full sessions around your goal, days and time. Rebuild it?</Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -524,7 +525,7 @@ export default function WorkoutsTab() {
                   Not now
                 </Button>
               </View>
-            </View>
+            </View></Surface>
           ) : null}
 
           {strip ? (
@@ -572,10 +573,10 @@ export default function WorkoutsTab() {
           )}
 
           <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
-            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
+            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
               {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
-            <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
@@ -589,15 +590,15 @@ export default function WorkoutsTab() {
                 {blueprint ? `${blueprint.title.split(',')[0]} blueprint${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
               </Text>
               <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="Preview the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Preview {'\u203a'}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Preview {'\u203a'}</Text>
               </TouchableOpacity>
             </View>
           </Hero>
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ color: A, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
-              {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 18, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
+              <Text style={{ color: A, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
+              {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
             </View>
             <View style={{ gap: 10 }}>
               {day.exercises.map((ex, i) => {
@@ -645,7 +646,7 @@ export default function WorkoutsTab() {
           </View>
 
           {workout.plan.notes ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
               {workout.plan.notes}
             </Text>
           ) : null}
@@ -678,7 +679,7 @@ export default function WorkoutsTab() {
             />
           ) : sessionStatus === 'idle' ? (
             <TouchableOpacity activeOpacity={0.8} onPress={handleSkip} disabled={skipping} style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '600', fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>
                 {skipping ? 'Skipping…' : 'Not today? Skip this workout'}
               </Text>
             </TouchableOpacity>

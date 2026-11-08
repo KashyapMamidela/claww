@@ -25,7 +25,7 @@ function makeVariant(base: TextStyle) {
 
 /** Page-level title — "Workouts", "Good morning, X." 28-32px. */
 export const Display = makeVariant({
-  fontSize: 26,
+  fontSize: 28,
   fontWeight: '900',
   letterSpacing: -0.6,
   lineHeight: 30,
@@ -45,7 +45,7 @@ export const Heading = makeVariant({
 
 /** Card title / list item title — "Water Intake", exercise names. 14-15px. */
 export const Title = makeVariant({
-  fontSize: 14,
+  fontSize: 15,
   fontWeight: '700',
   letterSpacing: -0.04,
   lineHeight: 18,

@@ -123,7 +123,7 @@ function AiCard({ children }: { children: React.ReactNode }) {
         >
           <Icon name="sparkles" size={14} color={AREA_COLORS.engine} />
         </View>
-        <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
+        <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>{children}</Text>
     </View>
@@ -180,7 +180,7 @@ function HomeEmptyState() {
         <Display style={{ marginTop: 4 }}>
           Welcome,{'\n'}{greetingName(userName)}.
         </Display>
-        <Text style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
           No recovery score yet — <Text style={{ color: COLORS.indigo, fontWeight: '700' }}>log tonight's sleep</Text> to unlock one.
         </Text>
       </View>
@@ -269,7 +269,7 @@ function HomeEmptyState() {
           <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginBottom: 2, fontFamily: FONT }}>
             {sleepLogged ? 'Recovery is calculating…' : "Log tonight's sleep"}
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 16, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 16, fontFamily: FONT }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
               : "Unlocks your Recovery Score — a sleep and protein based estimate to guide today's training."}
@@ -290,12 +290,12 @@ function HomeEmptyState() {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ color: COLORS.indigo, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Log sleep</Text>
+            <Text style={{ color: COLORS.indigo, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Log sleep</Text>
           </TouchableOpacity>
         ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
             <Icon name="check" size={13} color={COLORS.green} strokeWidth={3} />
-            <Text style={{ color: COLORS.green, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Logged</Text>
+            <Text style={{ color: COLORS.green, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Logged</Text>
           </View>
         )}
       </View>
@@ -518,12 +518,12 @@ function HomePopulated() {
           numberOfLines={1}
           adjustsFontSizeToFit
           accessibilityRole="header"
-          style={{ color: COLORS.fg, fontSize: 24, lineHeight: 30, fontWeight: '800', letterSpacing: -0.5, fontFamily: FONT, marginTop: 2 }}
+          style={{ color: COLORS.fg, fontSize: 22, lineHeight: 30, fontWeight: '800', letterSpacing: -0.5, fontFamily: FONT, marginTop: 2 }}
         >
           {greeting}, {greetingName(userName)}
         </Text>
         <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 4, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 4, fontFamily: FONT }}>
             {coach.map((seg, i) => (
               <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '700' } : undefined}>
                 {seg.text}
@@ -555,7 +555,7 @@ function HomePopulated() {
             }
             trackColor="rgba(255,255,255,0.055)"
           >
-            <Text style={{ color: '#fff', fontSize: 26, fontWeight: '900', fontFamily: FONT }}>{dailyGoalPct}%</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>{dailyGoalPct}%</Text>
             <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
@@ -609,7 +609,7 @@ function HomePopulated() {
                     <Skeleton width={90} height={12} borderRadius={4} />
                   ) : (
                     <Text style={{ fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
-                      <Text style={{ color: '#fff', fontSize: 12, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{s.value} </Text>
+                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{s.value} </Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 11 }}>{s.sub}</Text>
                     </Text>
                   )}
@@ -638,7 +638,7 @@ function HomePopulated() {
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Icon name="pencil" size={14} color={COLORS.textMuted} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MARKED ON YOUR PLAN TODAY</Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/week-review')} accessibilityRole="button" accessibilityLabel="Your week, marked up" style={{ minHeight: 44, justifyContent: 'center' }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week {'›'}</Text>

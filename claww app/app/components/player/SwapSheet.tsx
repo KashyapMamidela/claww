@@ -84,7 +84,7 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
           </View>
         ) : load.kind === 'none' ? (
           <View style={{ gap: 12, paddingVertical: 8 }}>
-            <Text style={{ color: COLORS.fgGray, fontSize: 14, lineHeight: 20, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.fgGray, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>
               {load.muscle
                 ? `No other ${load.muscle} exercise fits your equipment and injuries right now. Skip it with a swipe, or carry on with this one.`
                 : 'This exercise has no swap options yet. Skip it with a swipe, or carry on with it.'}
@@ -102,7 +102,7 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
                     <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
                       {o.name}
                     </Text>
-                    <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 12, marginTop: 2, fontFamily: FONT }}>
+                    <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 2, fontFamily: FONT }}>
                       {[titleCase(load.muscle), EQUIPMENT_LABEL[o.equipment ?? ''] ?? null].filter(Boolean).join(' · ')}
                     </Text>
                   </View>

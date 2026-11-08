@@ -67,7 +67,7 @@ export default function DesignGallery() {
             <Icon name="chevron-left" size={22} color={COLORS.fg} />
           </View>
         </PressScale>
-        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Test tools · not in release builds</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Test tools · not in release builds</Text>
       </View>
 
       <View style={{ gap: 6 }}>
@@ -80,8 +80,8 @@ export default function DesignGallery() {
         <Heading>Heading 21 / 800</Heading>
         <Title>Title 14 / 700</Title>
         <Body>Body 13 / 500. The coach line and descriptions.</Body>
-        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '500', fontFamily: FONT }}>Small 12 / 500, textMuted</Text>
-        <Text style={{ color: COLORS.textFaint, fontSize: 12, fontFamily: FONT }}>textFaint, for struck-through old values</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Small 12 / 500, textMuted</Text>
+        <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: FONT }}>textFaint, for struck-through old values</Text>
       </Section>
 
       <Section title="COLOURS · DATA ONLY" index={1}>
@@ -169,7 +169,7 @@ export default function DesignGallery() {
           <TickButton state="done" accessibilityLabel="Set 1 done" />
           <TickButton state="current" onPress={setDone} accessibilityLabel="Log set 2 as planned" />
           <TickButton state="pending" onPress={() => {}} accessibilityLabel="Set 3, not yet" />
-          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, flex: 1 }}>done · current · pending</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, flex: 1 }}>done · current · pending</Text>
         </View>
       </Section>
 
@@ -197,7 +197,7 @@ export default function DesignGallery() {
         />
         <StateView variant="offline" />
         <View style={{ gap: 8 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Loading: skeletons in the real layout</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Loading: skeletons in the real layout</Text>
           <Skeleton height={18} width="45%" />
           <Skeleton height={120} />
         </View>

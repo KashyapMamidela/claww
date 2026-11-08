@@ -76,7 +76,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
                       borderColor: selected ? COLORS.blue : 'rgba(255,255,255,0.12)',
                     }}
                   >
-                    <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{format(kind, v)}</Text>
+                    <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{format(kind, v)}</Text>
                     {tag ? (
                       <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : COLORS.textMuted, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
                         {tag.toUpperCase()}
@@ -91,7 +91,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
           <View style={{ alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <WheelColumn items={items.map((v) => format(kind, v))} initialIndex={initialIndex} onChange={(i) => setPending(items[i])} width={110} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 14, fontWeight: '700', fontFamily: FONT, marginLeft: 6 }}>{unit}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT, marginLeft: 6 }}>{unit}</Text>
             </View>
             <View
               pointerEvents="none"
@@ -100,7 +100,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
           </View>
 
           <PressScale onPress={() => onPick(pending)}>
-            <View style={{ height: 52, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ height: 54, borderRadius: 16, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
                 Use {format(kind, pending)} {unit}
               </Text>

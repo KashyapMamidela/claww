@@ -44,7 +44,7 @@ export default function OnboardingAge() {
       <OnboardingTopBar step={1} totalSteps={6} accent={A} showBack />
       <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{name ? `Nice to meet you, ${name}` : 'Step two'}</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How old are you?</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How old are you?</Text>
 
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 24 }}>
           <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 6 }}>

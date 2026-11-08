@@ -204,13 +204,13 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                 {today.focus || today.day}
               </Text>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
                   Exercise {exerciseIndex + 1} of {exercises.length} ·{' '}
                 </Text>
                 {clock && !isPaused ? (
-                  <ElapsedClock clock={clock} style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, fontVariant: ['tabular-nums'] }} />
+                  <ElapsedClock clock={clock} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, fontVariant: ['tabular-nums'] }} />
                 ) : (
-                  <Text style={{ color: COLORS.amber, fontSize: 12, fontWeight: '700', fontFamily: FONT }}>Paused</Text>
+                  <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Paused</Text>
                 )}
               </View>
             </View>
@@ -311,7 +311,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                             <Text style={{ flex: 1, color: COLORS.fgGray, fontSize: 17, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }} numberOfLines={1}>
                               {setText(w.weight, `${w.reps}`)}
                             </Text>
-                            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{w.pct} %</Text>
+                            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{w.pct} %</Text>
                             <TickButton
                               state={done ? 'done' : 'pending'}
                               onPress={() => setWarmDone((m) => ({ ...m, [exercise.name]: Object.assign([...(m[exercise.name] ?? [])], { [i]: true }) }))}
@@ -354,7 +354,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                                 {setText(row.weight, reps)}
                               </Text>
                             </Pressable>
-                            {hint ? <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{hint}</Text> : null}
+                            {hint ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{hint}</Text> : null}
                             <TickButton
                               state={tick}
                               onPress={tick === 'current' ? () => onTick(s) : undefined}
@@ -396,7 +396,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, minHeight: 48, borderRadius: 14, backgroundColor: SURFACES.cardBottom, borderWidth: 1, borderColor: COLORS.border }}>
                           <Text style={{ color: COLORS.textFaint, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
-                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
                             {upNext.name}
                           </Text>
                           {upNextRow ? (
@@ -437,7 +437,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                         <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
                         <Text style={{ color: A, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>SET {setIndex + 1} · NOW</Text>
                       </View>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
                         tap ✓ above if it went as planned
                       </Text>
                     </View>
@@ -574,10 +574,10 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       >
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 12, borderRadius: 12, backgroundColor: i === exerciseIndex ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)' }}>
                           <Icon name={done ? 'check-circle-2' : st?.skipped ? 'skip-forward' : 'circle'} size={18} color={done ? COLORS.green : st?.skipped ? '#71717A' : '#A1A1AA'} />
-                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
                             {ex.name}
                           </Text>
-                          <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}</Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}</Text>
                         </View>
                       </PressScale>
                     );

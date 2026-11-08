@@ -112,7 +112,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               {series.map((s, i) => (
                 <View key={s.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: shades[i] }} />
-                  <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{s.name}</Text>
+                  <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{s.name}</Text>
                   <Text style={{ color: '#D4D4D8', fontSize: 13, fontFamily: FONT }}>
                     {s.last !== null ? `${s.last} kg` : '—'}
                     {s.delta !== null ? `  ${s.delta >= 0 ? '+' : ''}${s.delta}` : ''}
@@ -128,9 +128,9 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         const thisWeek = setsPerMuscle(data.logs, data.catalog, bucketsForRange('month', now)[4].start, bucketsForRange('month', now)[4].end);
         return (
           <>
-            <Text style={{ color: '#A1A1AA', fontSize: 12, fontFamily: FONT }}>Effective sets across all muscles (a set counts once for its main muscle and half for each helper).</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>Effective sets across all muscles (a set counts once for its main muscle and half for each helper).</Text>
             <BarChart values={totals} color={BLUE} height={220} labels={labels} />
-            <Text style={{ color: '#fff', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>This week by muscle</Text>
+            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>This week by muscle</Text>
             <View style={{ gap: 6 }}>
               {MAJOR_MUSCLES.map((m) => (
                 <View key={m} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -154,7 +154,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}> training day{g.sessions === 1 ? '' : 's'}</Text>
             </Text>
             <HeatGrid weeks={g.weeks} color={BLUE} maxCell={range === 'all' ? 12 : 30} />
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>Each column is a week, Monday at the top. A bright square is a day you logged sets.</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Each column is a week, Monday at the top. A bright square is a day you logged sets.</Text>
           </>
         );
       }
@@ -166,7 +166,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
             {records.map((r) => (
               <View key={r.exerciseName} style={{ gap: 2 }}>
                 <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{r.exerciseName}</Text>
-                <Text style={{ color: BLUE, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: BLUE, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
                   {r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `Bodyweight × ${r.reps}`}
                   <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}>
                     {r.weight > 0 ? `  ·  est. 1RM ${r.score} kg` : ''}  ·  {new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -189,8 +189,8 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               {rows.map((r) => (
                 <View key={r.muscle} style={{ gap: 4 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{cap(r.muscle)}</Text>
-                    <Text style={{ color: TEAL, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
+                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{cap(r.muscle)}</Text>
+                    <Text style={{ color: TEAL, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
                       {r.score} <Text style={{ color: '#A1A1AA', fontWeight: '500' }}>{r.band} · {r.confidence} confidence</Text>
                     </Text>
                   </View>
@@ -200,7 +200,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
                 </View>
               ))}
             </View>
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, lineHeight: 17, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: FONT }}>
               An estimate from your recent sets, time since you trained each muscle, and the soreness and readiness you report before a session. Missing answers lower the confidence.
             </Text>
           </>
@@ -261,13 +261,13 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               <Icon name="chevron-down" size={20} color="#A1A1AA" />
             </View>
           </PressScale>
-          <Text style={{ flex: 1, color, fontSize: 12, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>{title.toUpperCase()}</Text>
+          <Text style={{ flex: 1, color, fontSize: 13, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>{title.toUpperCase()}</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 16 }} showsVerticalScrollIndicator={false}>
           {ranged ? (
             <>
               <Segment value={range} onChange={setRange} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>{RANGE_NOTE[range]}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{RANGE_NOTE[range]}</Text>
             </>
           ) : null}
           {body}

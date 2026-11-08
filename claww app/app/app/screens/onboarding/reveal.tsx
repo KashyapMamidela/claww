@@ -110,7 +110,7 @@ export default function OnboardingReveal() {
         </Animated.View>
 
         <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 6, fontFamily: FONT }}>Your profile is ready</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, marginBottom: 8, textAlign: 'center', lineHeight: 38, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, marginBottom: 8, textAlign: 'center', lineHeight: 38, fontFamily: FONT }}>
           You're in, {(name ?? '').trim() || 'there'}.
         </Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 15, marginBottom: 24, lineHeight: 22, maxWidth: 300, textAlign: 'center', fontFamily: FONT }}>
@@ -135,7 +135,7 @@ export default function OnboardingReveal() {
               >
                 {disclaimerAcked ? <Icon name="check" size={14} color="#fff" strokeWidth={3} /> : null}
               </View>
-              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 14, fontWeight: '600', fontFamily: FONT }}>{MEDICAL_DISCLAIMER_ACK_LABEL}</Text>
+              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{MEDICAL_DISCLAIMER_ACK_LABEL}</Text>
             </View>
           </PressScale>
         </Surface>

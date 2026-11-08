@@ -66,12 +66,12 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 18 }}>
-        <Text style={{ color: C, fontSize: 12, fontWeight: '800', letterSpacing: 0.8, fontFamily: FONT }}>STEPS</Text>
+        <Text style={{ color: C, fontSize: 13, fontWeight: '800', letterSpacing: 0.8, fontFamily: FONT }}>STEPS</Text>
 
         {!steps.available ? (
           <View style={{ gap: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>Connect your step count</Text>
-            <Text style={{ color: '#A1A1AA', fontSize: 14, lineHeight: 20, fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Connect your step count</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 15, lineHeight: 20, fontFamily: FONT }}>
               With steps connected you get today's count against a daily goal, distance, calories from walking, and your hour-by-hour,
               weekly and monthly trend.
               {Platform.OS === 'android'
@@ -80,8 +80,8 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
             </Text>
             {Platform.OS === 'android' ? (
               <PressScale onPress={openHealthConnectInstall} accessibilityRole="button">
-                <View style={{ height: 52, borderRadius: 14, backgroundColor: C, alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: '#050505', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
+                <View style={{ height: 54, borderRadius: 16, backgroundColor: C, alignItems: 'center', justifyContent: 'center' }}>
+                  <Text style={{ color: '#050505', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
                     {steps.needsHealthConnectInstall ? 'Install Health Connect' : 'Open Health Connect'}
                   </Text>
                 </View>
@@ -96,14 +96,14 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
           <>
             <View style={{ alignItems: 'center', gap: 12 }}>
               <ProgressRing size={190} rings={[{ r: 82, strokeWidth: 16, color: C, pct: goal > 0 ? (steps.steps / goal) * 100 : 0 }]} trackColor={tint(C, 0.15)}>
-                <Text style={{ color: '#fff', fontSize: 32, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{steps.steps.toLocaleString()}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT }}>of {goal.toLocaleString()}</Text>
+                <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{steps.steps.toLocaleString()}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>of {goal.toLocaleString()}</Text>
               </ProgressRing>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {GOAL_CHOICES.map((g) => (
                   <PressScale key={g} onPress={() => onGoalChange(g)} accessibilityRole="button" accessibilityState={{ selected: g === goal }} hitSlop={4}>
                     <View style={{ paddingHorizontal: 12, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: g === goal ? tint(C, 0.22) : 'rgba(255,255,255,0.05)' }}>
-                      <Text style={{ color: g === goal ? C : '#A1A1AA', fontSize: 12, fontWeight: '700', fontFamily: FONT }}>{g / 1000}k</Text>
+                      <Text style={{ color: g === goal ? C : '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{g / 1000}k</Text>
                     </View>
                   </PressScale>
                 ))}

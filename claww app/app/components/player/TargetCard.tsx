@@ -68,14 +68,14 @@ export function TargetCard({ currentKg, planKg, todayKg, note, reason, barKg, ba
           ) : (
             <View style={{ gap: 4 }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Target</Text>
-              <Text style={{ color: COLORS.fg, fontSize: 24, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{fmt(currentKg)} kg</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{fmt(currentKg)} kg</Text>
             </View>
           )}
         </View>
         {load ? (
           <View style={{ alignItems: 'flex-end', gap: 6, maxWidth: 150 }}>
             <PlateBar perSide={load.perSide} />
-            <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: FONT, textAlign: 'right' }}>{plateText(load)}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, textAlign: 'right' }}>{plateText(load)}</Text>
             {load.note ? <Text style={{ color: COLORS.amber, fontSize: 11, fontFamily: FONT, textAlign: 'right' }}>{load.note}</Text> : null}
           </View>
         ) : null}

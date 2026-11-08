@@ -34,7 +34,7 @@ export default function OnboardingTrain() {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 24, gap: 14 }}>
         <View style={{ gap: 6 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Set up your plan · step 2 of 4 · about a minute</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 32, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>How do you like to train?</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>How do you like to train?</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>Pick any. We mix them into one week.</Text>
         </View>
 
