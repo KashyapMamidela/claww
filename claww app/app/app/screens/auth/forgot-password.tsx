@@ -1,3 +1,4 @@
+import { FieldInput } from '../../../components/ui/FieldInput';
 import React, { useState } from 'react';
 import { BackTile } from '../../../components/ui/BackTile';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
@@ -77,7 +78,7 @@ export default function ForgotPasswordScreen() {
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
                 Enter the email on your account and we'll send a reset link.
               </Text>
-              <TextInput
+              <FieldInput
                 value={email}
                 onChangeText={setEmail}
                 placeholder="Email"
@@ -87,18 +88,7 @@ export default function ForgotPasswordScreen() {
                 keyboardType="email-address"
                 textContentType="emailAddress"
                 onSubmitEditing={handleSubmit}
-                style={{
-                  height: 54,
-                  backgroundColor: COLORS.card,
-                  borderWidth: 1,
-                  borderColor: email.length > 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.12)',
-                  borderRadius: 14,
-                  color: '#fff',
-                  fontSize: 15,
-                  fontWeight: '600',
-                  paddingHorizontal: 16,
-                  fontFamily: FONT,
-                }}
+                active={email.length > 0}
               />
               {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
               <View style={{ marginTop: 24 }}>

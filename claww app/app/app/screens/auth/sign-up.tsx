@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BackTile } from '../../../components/ui/BackTile';
+import { FieldInput } from '../../../components/ui/FieldInput';
 import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -127,7 +128,7 @@ export default function SignUpScreen() {
 
 
           <Animated.View style={[{ gap: 12 }, shakeStyle]}>
-            <TextInput
+            <FieldInput
               value={email}
               onChangeText={setEmail}
               placeholder="Email"
@@ -136,16 +137,16 @@ export default function SignUpScreen() {
               autoCorrect={false}
               keyboardType="email-address"
               textContentType="emailAddress"
-              style={inputStyle(email.length > 0)}
+              active={email.length > 0}
             />
-            <TextInput
+            <FieldInput
               value={password}
               onChangeText={setPassword}
               placeholder="Password (min. 6 characters)"
               placeholderTextColor="#52525B"
               secureTextEntry
               textContentType="newPassword"
-              style={inputStyle(password.length > 0)}
+              active={password.length > 0}
               onSubmitEditing={handleSubmit}
             />
           </Animated.View>

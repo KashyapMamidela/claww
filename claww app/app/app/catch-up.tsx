@@ -164,7 +164,7 @@ export default function CatchUpScreen() {
               const mode = modeOf(slot);
               const options: { value: Mode; label: string }[] = [
                 ...(planned ? [{ value: 'planned' as Mode, label: 'As planned' }] : []),
-                { value: 'else', label: 'Something else' },
+                { value: 'else', label: 'Different' },
                 { value: 'skipped', label: 'Skipped' },
               ];
               const chosen = state[slot]?.choice;

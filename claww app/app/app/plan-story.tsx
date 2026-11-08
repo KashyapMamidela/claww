@@ -148,12 +148,12 @@ export default function PlanStory() {
       </ScrollView>
 
       <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingBottom: 20 }}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1.25 }}>
           <Button variant="secondary" size="lg" fullWidth onPress={back}>
             {i === 0 ? 'Change days' : 'Back'}
           </Button>
         </View>
-        <View style={{ flex: 1.4 }}>
+        <View style={{ flex: 1 }}>
           <Button variant="primary" size="lg" fullWidth onPress={next}>
             {i === 3 ? 'Start my plan' : 'Next'}
           </Button>

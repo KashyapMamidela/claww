@@ -1,3 +1,4 @@
+import { FieldInput } from '../../../components/ui/FieldInput';
 import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -106,16 +107,16 @@ export default function ResetPasswordScreen() {
                 Min. 6 characters.
               </Text>
               <View style={{ gap: 12 }}>
-                <TextInput
+                <FieldInput
                   value={password}
                   onChangeText={setPassword}
                   placeholder="New password"
                   placeholderTextColor="#52525B"
                   secureTextEntry
                   textContentType="newPassword"
-                  style={inputStyle(password.length > 0)}
+                  active={password.length > 0}
                 />
-                <TextInput
+                <FieldInput
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   placeholder="Confirm new password"
@@ -123,7 +124,7 @@ export default function ResetPasswordScreen() {
                   secureTextEntry
                   textContentType="newPassword"
                   onSubmitEditing={handleSubmit}
-                  style={inputStyle(confirmPassword.length > 0)}
+                  active={confirmPassword.length > 0}
                 />
               </View>
               {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
