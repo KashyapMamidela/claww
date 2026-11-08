@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { penLine } from '../../lib/penLine';
 import { useToast } from '../../components/ui/Toast';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { greetingName } from '../../lib/greeting';
@@ -9,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AREA_COLORS, COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, tint } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, tint } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getLatestWorkout, getProfile, getSuggestedDayIndex, getWorkoutDayEvents, type WorkoutRow } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
@@ -482,6 +483,7 @@ function HomePopulated() {
     : null;
   const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: sessionItem, sleepTargetHours: SLEEP_TARGET_HOURS });
   const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: today?.focus ?? '' });
+  const penLineText = penLine({ sleepHours, sessionPlanned, sessionDone: workoutToday.completed, hour: now.getHours() });
   const typeOf = (slot: MealSlot) => (slot.charAt(0).toUpperCase() + slot.slice(1)) as MealType;
   const replanAfter = async (row: Awaited<ReturnType<typeof saveMeal>>) => {
     if (row && userId) replanToday(userId, [...meals, row]).then((p) => p && setPlan(p));
@@ -521,12 +523,12 @@ function HomePopulated() {
           numberOfLines={1}
           adjustsFontSizeToFit
           accessibilityRole="header"
-          style={{ color: COLORS.fg, fontSize: 22, lineHeight: 30, fontWeight: '800', letterSpacing: -0.5, fontFamily: FONT, marginTop: 2 }}
+          style={{ color: COLORS.fg, fontSize: 32, lineHeight: 38, fontWeight: '900', letterSpacing: -0.9, fontFamily: FONT, marginTop: 2 }}
         >
           {greeting}, {greetingName(userName)}
         </Text>
         <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 4, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, marginTop: 6, fontFamily: FONT }}>
             {coach.map((seg, i) => (
               <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '700' } : undefined}>
                 {seg.text}
@@ -534,12 +536,19 @@ function HomePopulated() {
             ))}
           </Text>
         </TouchableOpacity>
+        {penLineText ? (
+          <Text style={{ color: COLORS.fg, fontSize: 24, lineHeight: 28, marginTop: 6, fontFamily: FONT_HAND, fontWeight: '700', transform: [{ rotate: '-1.5deg' }], alignSelf: 'flex-start', textShadowColor: 'rgba(255,255,255,0.35)', textShadowRadius: 12 }}>
+            {penLineText}
+          </Text>
+        ) : null}
       </View>
-
 
       {/* NG PHASE 1: the first real use of Surface (grain, top light, soft shadow). Data unchanged. */}
       <Surface padding={17}>
-        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', marginBottom: 14, fontFamily: FONT }}>Daily progress</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Daily progress</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{dailyGoalPct}% of today</Text>
+        </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
           <ProgressRing
             size={164}
@@ -551,9 +560,9 @@ function HomePopulated() {
                     { r: 42, strokeWidth: 7, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
                   ]
                 : [
-                    { r: 72, strokeWidth: 8, color: AREA_COLORS.burned, pct: burnedPctValue },
-                    { r: 57, strokeWidth: 8, color: AREA_COLORS.nutrition, pct: nutritionPctRaw },
-                    { r: 42, strokeWidth: 8, color: AREA_COLORS.recovery, pct: recoveryPct },
+                    { r: 72, strokeWidth: 9, color: AREA_COLORS.burned, pct: burnedPctValue, track: tint(AREA_COLORS.burned, 0.16) },
+                    { r: 56, strokeWidth: 9, color: AREA_COLORS.nutrition, pct: nutritionPctRaw, track: tint(AREA_COLORS.nutrition, 0.16) },
+                    { r: 40, strokeWidth: 9, color: AREA_COLORS.recovery, pct: recoveryPct, track: tint(AREA_COLORS.recovery, 0.16) },
                   ]
             }
             trackColor="rgba(255,255,255,0.055)"
@@ -618,11 +627,6 @@ function HomePopulated() {
                   )}
                 </View>
                 <ProgressBar pct={s.pct} color={s.color} />
-                {s.note ? (
-                  <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 4, fontFamily: FONT }} numberOfLines={1}>
-                    {s.note}
-                  </Text>
-                ) : null}
               </TouchableOpacity>
             ))}
           </View>
@@ -632,7 +636,7 @@ function HomePopulated() {
           userId={userId}
           steps={steps}
           streak={streak}
-          session={{ ...sessionTileValue, onPress: () => router.push(sessionPlanned ? { pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } } : '/(tabs)/workouts') }}
+          session={{ ...sessionTileValue, pct: workoutToday.setsPlanned > 0 ? (workoutToday.setsDone / workoutToday.setsPlanned) * 100 : 0, onPress: () => router.push(sessionPlanned ? { pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } } : '/(tabs)/workouts') }}
         />
       </Surface>
 

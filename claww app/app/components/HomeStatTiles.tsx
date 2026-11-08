@@ -30,19 +30,21 @@ function Tile({
   onPress?: () => void;
   a11y: string;
 }) {
+  // Premium H5: the three tiles are identical in build and height: an icon chip, an uppercase label, the number and a
+  // bar on the last line, so nothing sits at a different height or truncates next to its neighbour.
   const body = (
-    // NG PHASE 1: each tile is a TintTile in its area's colour (glow, tinted border, watermark).
-    <TintTile color={color} watermark={icon} padding={11} radius={16} style={{ flex: 1 }}>
-      <View style={{ gap: 6 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-          <Icon name={icon} size={12} color={color} />
-          <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
-          {onPress ? <Icon name="chevron-right" size={11} color="#52525B" /> : null}
+    <TintTile color={color} padding={12} radius={18} style={{ flex: 1, height: 112 }}>
+      <View style={{ flex: 1, justifyContent: 'space-between' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View style={{ width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(color, 0.2) }}>
+            <Icon name={icon} size={13} color={color} />
+          </View>
+          <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }} numberOfLines={1}>{label}</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1}>
+        <Text style={{ color: '#fff', fontSize: 20, lineHeight: 24, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1} adjustsFontSizeToFit>
           {value}
         </Text>
-        {children}
+        <View style={{ height: 6, justifyContent: 'center' }}>{children}</View>
       </View>
     </TintTile>
   );
@@ -54,12 +56,18 @@ function Tile({
   );
 }
 
+const Bar = ({ pct, color }: { pct: number; color: string }) => (
+  <View style={{ height: 5, borderRadius: 3, backgroundColor: tint(color, 0.16), overflow: 'hidden' }}>
+    <View style={{ height: '100%', width: `${Math.max(0, Math.min(100, pct))}%`, backgroundColor: color, borderRadius: 3 }} />
+  </View>
+);
+
 export interface HomeStatTilesProps {
   userId: string | null;
   steps: StepsResult;
   streak: number;
   /** Polish step 4: the Session tile replaces Burned (Burned is now the outer ring). */
-  session: { value: string; sub: string; onPress?: () => void };
+  session: { value: string; sub: string; onPress?: () => void; /** 0-100, how much of today's session is done */ pct?: number };
 }
 
 /**
@@ -110,21 +118,25 @@ export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesP
           onPress={() => setStepsOpen(true)}
           a11y={steps.available ? `Steps: ${steps.steps} of ${goal}. Open details.` : 'Steps not connected. Open to connect.'}
         >
-          {steps.available ? (
-            <View style={{ height: 3, borderRadius: 2, backgroundColor: tint(AREA_COLORS.steps, 0.15), overflow: 'hidden' }}>
-              <View style={{ height: '100%', width: `${pct}%`, backgroundColor: AREA_COLORS.steps, borderRadius: 2 }} />
-            </View>
-          ) : (
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{steps.needsHealthConnectInstall ? 'tap to connect' : 'no data yet'}</Text>
-          )}
-        </Tile>
-
-        <Tile icon="clock" color={AREA_COLORS.workouts} label="SESSION" value={session.value} onPress={session.onPress} a11y={`Session: ${session.value}, ${session.sub}`}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }} numberOfLines={1}>{session.sub}</Text>
+          <Bar pct={steps.available ? pct : 0} color={AREA_COLORS.steps} />
         </Tile>
 
         <Tile
-          icon="trending-up"
+          icon={session.value === 'Rest' ? 'moon' : session.value === 'Done' ? 'check' : 'dumbbell'}
+          color={session.value === 'Rest' ? AREA_COLORS.sleep : session.value === 'Done' ? AREA_COLORS.nutrition : AREA_COLORS.workouts}
+          label="TODAY"
+          value={session.value}
+          onPress={session.onPress}
+          a11y={`Today: ${session.value}, ${session.sub}`}
+        >
+          <Bar
+            pct={session.value === 'Rest' ? 100 : session.value === 'Done' ? 100 : session.pct ?? 0}
+            color={session.value === 'Rest' ? AREA_COLORS.sleep : session.value === 'Done' ? AREA_COLORS.nutrition : AREA_COLORS.workouts}
+          />
+        </Tile>
+
+        <Tile
+          icon="flame"
           color={AREA_COLORS.streak}
           label="STREAK"
           value={`${streak} ${streak === 1 ? 'day' : 'days'}`}
@@ -133,7 +145,7 @@ export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesP
         >
           <View style={{ flexDirection: 'row', gap: 2 }}>
             {(week.length > 0 ? week : [false, false, false, false, false, false, false]).map((on, i) => (
-              <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: on ? AREA_COLORS.streak : tint(AREA_COLORS.streak, 0.15) }} />
+              <View key={i} style={{ flex: 1, height: 5, borderRadius: 3, backgroundColor: on ? AREA_COLORS.streak : tint(AREA_COLORS.streak, 0.16) }} />
             ))}
           </View>
         </Tile>
