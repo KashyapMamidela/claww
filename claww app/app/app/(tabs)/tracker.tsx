@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
@@ -170,12 +171,14 @@ export default function TrackerTab() {
           <AdaptiveCard />
 
           <Title2 style={{ marginTop: 6 }}>This week</Title2>
+          <Rise i={0}>
           <TrackerToday
             weekSteps={steps}
             weekLabels={Array.from({ length: 7 }, (_, i) => new Date(Date.now() - (6 - i) * 86_400_000).toLocaleDateString(undefined, { weekday: 'narrow' }))}
             stepsGoal={data.stepsGoal}
             onOpen={setChart}
           />
+          </Rise>
 
           {locked ? (
             <View

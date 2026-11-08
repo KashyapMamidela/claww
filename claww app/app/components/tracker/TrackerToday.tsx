@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { ActivitySheet } from '../workouts/ActivityCard';
 import { LineChart } from '../charts/LineChart';
 import { TintTile } from '../ui/TintTile';
 import { Pressable, Text, TextInput, View } from 'react-native';
@@ -82,6 +83,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
   const [proteinPct, setProteinPct] = useState<number | null>(null);
   const [sessionFocus, setSessionFocus] = useState<string | null>(null);
   const [weightOpen, setWeightOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const [weightText, setWeightText] = useState('');
   const [savingWeight, setSavingWeight] = useState(false);
   const [syncedAt, setSyncedAt] = useState<Date | null>(null);
@@ -300,7 +302,13 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       {/* What was recorded: activities outside the plan. They are logged on Workouts and Home, shown here. */}
       <Card color={AREA_COLORS.burned} label="ACTIVITIES RECORDED">
         {activities.length === 0 ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Nothing recorded this week. Log a sport or a long walk on Home or the Workouts tab and it shows up here.</Text>
+          // Premium D9: an empty state says what will appear and offers the one action that fills it.
+          <View style={{ gap: 12 }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Sports and long walks you log show up here. They count for calories and recovery.</Text>
+            <Button variant="secondary" size="md" accent={AREA_COLORS.burned} onPress={() => setActivityOpen(true)} icon={<Icon name="zap" size={15} color={AREA_COLORS.burned} />}>
+              Log an activity
+            </Button>
+          </View>
         ) : (
           activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -320,6 +328,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       </Card>
 
       {syncedAt ? <Text style={{ color: COLORS.textFaint, fontSize: 13, textAlign: 'right', fontFamily: BG[400] }}>Updated {syncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text> : null}
+
+      <ActivitySheet visible={activityOpen} userId={userId} onClose={() => setActivityOpen(false)} onLogged={() => {}} />
 
       <BottomSheet visible={weightOpen} onClose={() => setWeightOpen(false)}>
         <View style={{ padding: 20, gap: 14 }}>

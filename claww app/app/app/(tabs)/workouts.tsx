@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { getLastWeights } from '../../lib/adaptiveData';
 import { BodyMap, MUSCLES, type Muscle } from '../../components/BodyMap';
@@ -547,7 +548,7 @@ export default function WorkoutsTab() {
           ) : null}
 
           {strip ? (
-            <WeekStripView strip={strip} selectedPlanIndex={selectedDay} onSelect={setSelectedDay} />
+            <Rise i={0}><WeekStripView strip={strip} selectedPlanIndex={selectedDay} onSelect={setSelectedDay} /></Rise>
           ) : (
             <View>
               <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.7, marginBottom: 8, fontFamily: BG[700] }}>
@@ -590,6 +591,7 @@ export default function WorkoutsTab() {
             </View>
           )}
 
+          <Rise i={1}>
           <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
             {/* Premium W3: the muscles this session works, lit on a small body map in the corner. */}
             {heroMuscles.length > 0 ? (
@@ -625,6 +627,7 @@ export default function WorkoutsTab() {
               </View>
             ) : null}
           </Hero>
+          </Rise>
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>

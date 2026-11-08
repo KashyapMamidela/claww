@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { mealTitle } from '../../lib/mealPlanMeal';
 import { dayLabel } from '../../lib/format';
@@ -298,6 +299,7 @@ export default function NutritionTab() {
           {!targetsLoaded ? (
             <Skeleton height={200} borderRadius={20} />
           ) : (
+            <Rise i={0}>
             <Surface padding={18}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
                 <ProgressRing size={size} rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G, pct: consumed === 0 ? 0 : pct }]} trackColor="rgba(255,255,255,0.055)">
@@ -329,9 +331,11 @@ export default function NutritionTab() {
               {pen ? <Text style={{ color: COLORS.fg, fontSize: 22, marginTop: 14, fontFamily: FONT_HAND }}>{pen}</Text> : null}
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: pen ? 4 : 14, fontFamily: BG[400] }}>{line}</Text>
             </Surface>
+            </Rise>
           )}
 
           {/* Premium N1: Scan a meal is the one big green button; Search and Diary sit under it, tinted. */}
+          <Rise i={1}>
           <View style={{ gap: 10 }}>
             <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} onPress={() => openAdd(addType)} icon={<Icon name="camera" size={19} color="#fff" />}>
               Scan a meal
@@ -349,6 +353,7 @@ export default function NutritionTab() {
               </View>
             </View>
           </View>
+          </Rise>
 
           {usuals.length > 0 ? (
             <View style={{ gap: 10 }}>
