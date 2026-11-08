@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { Tabs, usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/ui/AppHeader';
+import { AmbientLight } from '../../components/ui/AmbientLight';
 import { TabBar } from '../../components/ui/TabBar';
 import { LiveWorkoutPlayer } from '../../components/LiveWorkoutPlayer';
 import { useWorkoutSession } from '../../lib/workoutSession';
@@ -64,6 +65,7 @@ export default function TabsLayout() {
         <Tabs.Screen name="nutrition" />
         <Tabs.Screen name="tracker" />
       </Tabs>
+      <AmbientLight tabColor={headerAccent} />
       <AppHeader
         accent={headerAccent}
         title={headerTitle}

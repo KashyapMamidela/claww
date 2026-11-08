@@ -1,4 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
+import Animated, { FadeOut } from 'react-native-reanimated';
 import * as Sentry from '@sentry/react-native';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, View, StatusBar } from 'react-native';
@@ -168,9 +169,10 @@ function RootLayout() {
           <OfflineBanner />
         </AppStateProvider>
         {!introDone && (
-          <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+          // Premium D15: the splash fades into Home instead of cutting.
+          <Animated.View exiting={FadeOut.duration(500)} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
             <SplashIntro onFinish={() => setIntroDone(true)} />
-          </View>
+          </Animated.View>
         )}
       </SafeAreaProvider>
     </GestureHandlerRootView>
