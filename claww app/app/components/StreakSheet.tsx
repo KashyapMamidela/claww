@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { weekStartKey } from '../lib/planStreak';
+import { getProfile, saveFrozenDates } from '../lib/data';
+import { useAppState } from '../lib/appState';
+import { Button } from './ui/Button';
 import { ScrollView, Text, View } from 'react-native';
 import { COLORS, AREA_COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import type { PlanStreakStats, StreakDayStatus } from '../lib/planStreak';
@@ -11,7 +15,7 @@ const STATUS_TEXT: Record<StreakDayStatus, string> = {
   done: 'session done',
   rest: 'rest day',
   missed: 'missed',
-  protected: 'exam week',
+  protected: 'protected (exam week or a freeze)',
   today: 'today',
 };
 
@@ -26,6 +30,33 @@ export interface StreakSheetProps {
  * counts, a rest day counts, a missed planned day breaks it, and an exam week protects it without counting.
  */
 export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
+  const { userId, refreshStreak } = useAppState();
+  const [frozen, setFrozen] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  useEffect(() => {
+    if (!visible || !userId) return;
+    getProfile(userId).then((p) => setFrozen(p?.personalization_profile?.frozenDates ?? []));
+  }, [visible, userId]);
+
+  // Premium F6: one freeze a week covers a missed planned day from the last 7. It neither counts nor breaks the streak.
+  const candidate = (() => {
+    if (!stats) return null;
+    const usedWeeks = new Set(frozen.map(weekStartKey));
+    const today = stats.grid[stats.grid.length - 1]?.key;
+    const recent = stats.grid.filter((d) => d.status === 'missed' && d.key !== today).slice(-7).reverse();
+    return recent.find((d) => !usedWeeks.has(weekStartKey(d.key))) ?? null;
+  })();
+  const freeze = async () => {
+    if (!candidate || !userId || saving) return;
+    setSaving(true);
+    const next = [...frozen, candidate.key];
+    if (await saveFrozenDates(userId, next)) {
+      setFrozen(next);
+      refreshStreak();
+    }
+    setSaving(false);
+  };
+
   const weeks = stats ? [stats.grid.slice(0, 7), stats.grid.slice(7, 14), stats.grid.slice(14, 21)] : [];
 
   return (
@@ -54,6 +85,18 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
           break it for 7 days.
         </Text>
 
+        {candidate ? (
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 18, backgroundColor: tint('#38BDF8', 0.12) }}>
+            <Icon name="snowflake" size={22} color="#7DD3FC" />
+            <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, lineHeight: 21, fontFamily: BG[500] }}>
+              You missed {candidate.date.toLocaleDateString('en-GB', { weekday: 'long' })}. Use this week's freeze to keep your streak?
+            </Text>
+            <Button variant="primary" size="sm" accent="#38BDF8" accentDeep="#0284C7" disabled={saving} onPress={freeze}>
+              Freeze
+            </Button>
+          </View>
+        ) : null}
+
         {stats ? (
           <View style={{ gap: 6 }}>
             <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -69,6 +112,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                   const done = d.status === 'done' || (d.status === 'today' && d.counts);
                   const rest = d.status === 'rest';
                   const missed = d.status === 'missed';
+                  const isFrozen = d.status === 'protected' && frozen.includes(d.key);
                   return (
                     <View
                       key={d.key}
@@ -77,7 +121,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                         flex: 1,
                         aspectRatio: 1,
                         borderRadius: 10,
-                        backgroundColor: done ? tint(C, 0.28) : rest ? tint(C, 0.16) : missed ? tint(COLORS.danger, 0.16) : 'rgba(255,255,255,0.04)',
+                        backgroundColor: done ? tint(C, 0.28) : rest ? tint(C, 0.16) : missed ? tint(COLORS.danger, 0.16) : isFrozen ? tint('#38BDF8', 0.2) : 'rgba(255,255,255,0.04)',
                         borderWidth: d.status === 'today' ? 1.5 : 0,
                         borderColor: C,
                         alignItems: 'center',
@@ -86,7 +130,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                       }}
                     >
                       <Text style={{ color: done || rest ? '#fff' : COLORS.textFaint, fontSize: 13, fontFamily: BG[700] }}>{d.date.getDate()}</Text>
-                      {done ? <Icon name="check" size={11} color={C} strokeWidth={3} /> : missed ? <Icon name="x" size={11} color={COLORS.danger} strokeWidth={3} /> : rest ? <Icon name="moon" size={11} color={C} /> : d.status === 'protected' ? <Icon name="shield" size={11} color={C} /> : null}
+                      {isFrozen ? <Icon name="snowflake" size={11} color="#7DD3FC" /> : done ? <Icon name="check" size={11} color={C} strokeWidth={3} /> : missed ? <Icon name="x" size={11} color={COLORS.danger} strokeWidth={3} /> : rest ? <Icon name="moon" size={11} color={C} /> : d.status === 'protected' ? <Icon name="shield" size={11} color={C} /> : null}
                     </View>
                   );
                 })}

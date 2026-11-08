@@ -19,6 +19,8 @@ export interface StreakInput {
   examWeek: ExamWeek | null;
   /** Dates from which the plan existed: nothing earlier counts or breaks. */
   planStart?: string;
+  /** Premium F6: dates the user froze (one missed planned day a week). A frozen day neither counts nor breaks the streak. */
+  frozenDates?: string[];
 }
 
 function parse(key: string): Date {
@@ -50,7 +52,7 @@ export function planStreak(i: StreakInput): StreakResult {
     const isToday = key === i.today;
     const planned = i.plannedWeekdays === null || i.plannedWeekdays.includes(weekdayOf(cursor));
     const done = i.completedDates.has(key);
-    const protectedDay = !!i.examWeek && key >= i.examWeek.from && key <= i.examWeek.until;
+    const protectedDay = (!!i.examWeek && key >= i.examWeek.from && key <= i.examWeek.until) || !!i.frozenDates?.includes(key);
 
     if (done) {
       days += 1;
@@ -113,7 +115,7 @@ function statusOf(key: string, i: StreakInput, cursor: Date): StreakDayStatus {
   const planned = i.plannedWeekdays === null || i.plannedWeekdays.includes(weekdayOf(cursor));
   if (i.completedDates.has(key)) return key === i.today ? 'today' : 'done';
   if (!planned) return 'rest';
-  if (i.examWeek && key >= i.examWeek.from && key <= i.examWeek.until) return 'protected';
+  if ((i.examWeek && key >= i.examWeek.from && key <= i.examWeek.until) || i.frozenDates?.includes(key)) return 'protected';
   return key === i.today ? 'today' : 'missed';
 }
 
@@ -149,4 +151,33 @@ export function planStreakStats(i: StreakInput, gridDays = 21): PlanStreakStats 
     g.setDate(g.getDate() + 1);
   }
   return { current: days, best, since, grid };
+}
+
+/** Premium F6: the Monday-based week a date belongs to, as the date of that Monday. */
+export function weekStartKey(key: string): string {
+  const d = parse(key);
+  d.setDate(d.getDate() - weekdayOf(d));
+  return dateKey(d);
+}
+
+/**
+ * Premium F6: the missed planned days of the last 7 days that a freeze could still cover: only when no freeze was
+ * used in that same week, and never today. Newest first.
+ */
+export function freezeCandidates(i: StreakInput): string[] {
+  const frozen = i.frozenDates ?? [];
+  const usedWeeks = new Set(frozen.map(weekStartKey));
+  const out: string[] = [];
+  const cursor = parse(i.today);
+  for (let step = 1; step <= 7; step++) {
+    cursor.setDate(cursor.getDate() - 1);
+    const key = dateKey(cursor);
+    if (i.planStart && key < i.planStart) break;
+    const planned = i.plannedWeekdays === null || i.plannedWeekdays.includes(weekdayOf(cursor));
+    if (!planned || i.completedDates.has(key) || frozen.includes(key)) continue;
+    if (i.examWeek && key >= i.examWeek.from && key <= i.examWeek.until) continue;
+    if (usedWeeks.has(weekStartKey(key))) continue;
+    out.push(key);
+  }
+  return out;
 }

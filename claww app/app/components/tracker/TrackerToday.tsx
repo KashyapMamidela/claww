@@ -1,4 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { ActivitySheet } from '../workouts/ActivityCard';
+import { LineChart } from '../charts/LineChart';
 import { TintTile } from '../ui/TintTile';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,7 +16,7 @@ import { getRecentLoggedSets, getRecoveryInputs } from '../../lib/adaptiveData';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { burnedKcal, stepsProgress, stepsSourceLine } from '../../lib/dayStats';
 import { DEFAULT_STEPS_GOAL } from '../../lib/activityMath';
-import { bedtimeFor, parseWeight, recoveryFactors, todayAction, weightDeltaText, weightTrend } from '../../lib/trackerToday';
+import { bedtimeFor, parseWeight, recoveryFactors, todayAction, smoothedWeights, weightDeltaText, weightTrend } from '../../lib/trackerToday';
 import { BarChart } from '../charts/BarChart';
 import { BottomSheet } from '../ui/BottomSheet';
 import { Button } from '../ui/Button';
@@ -81,6 +83,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
   const [proteinPct, setProteinPct] = useState<number | null>(null);
   const [sessionFocus, setSessionFocus] = useState<string | null>(null);
   const [weightOpen, setWeightOpen] = useState(false);
+  const [activityOpen, setActivityOpen] = useState(false);
   const [weightText, setWeightText] = useState('');
   const [savingWeight, setSavingWeight] = useState(false);
   const [syncedAt, setSyncedAt] = useState<Date | null>(null);
@@ -138,6 +141,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
     wakeHHMM: todaySleep?.wake_time ? `${String(new Date(todaySleep.wake_time).getHours()).padStart(2, '0')}:${String(new Date(todaySleep.wake_time).getMinutes()).padStart(2, '0')}` : null,
   });
   const trend = weightTrend(weights);
+  const smoothed = smoothedWeights(weights.map((w) => ({ weightKg: w.weightKg, loggedAt: w.loggedAt })));
   const latestWeight = trend?.latest ?? weightKg;
   const sleepHours = todaySleep?.hours ?? null;
   const waterL = Math.round((waterMl / 1000) * 10) / 10;
@@ -298,7 +302,13 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       {/* What was recorded: activities outside the plan. They are logged on Workouts and Home, shown here. */}
       <Card color={AREA_COLORS.burned} label="ACTIVITIES RECORDED">
         {activities.length === 0 ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Nothing recorded this week. Log a sport or a long walk on Home or the Workouts tab and it shows up here.</Text>
+          // Premium D9: an empty state says what will appear and offers the one action that fills it.
+          <View style={{ gap: 12 }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Sports and long walks you log show up here. They count for calories and recovery.</Text>
+            <Button variant="secondary" size="md" accent={AREA_COLORS.burned} onPress={() => setActivityOpen(true)} icon={<Icon name="zap" size={15} color={AREA_COLORS.burned} />}>
+              Log an activity
+            </Button>
+          </View>
         ) : (
           activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
@@ -319,9 +329,25 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
 
       {syncedAt ? <Text style={{ color: COLORS.textFaint, fontSize: 13, textAlign: 'right', fontFamily: BG[400] }}>Updated {syncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</Text> : null}
 
+      <ActivitySheet visible={activityOpen} userId={userId} onClose={() => setActivityOpen(false)} onLogged={() => {}} />
+
       <BottomSheet visible={weightOpen} onClose={() => setWeightOpen(false)}>
         <View style={{ padding: 20, gap: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Log your weight</Text>
+          {/* Premium F8: the 7-day average (solid) over each day's weight (faint), so one salty day does not look like a change. */}
+          {smoothed.length >= 2 ? (
+            <View style={{ gap: 6 }}>
+              <LineChart
+                height={110}
+                series={[
+                  { values: smoothed.map((p) => p.raw), color: 'rgba(255,255,255,0.28)' },
+                  { values: smoothed.map((p) => p.avg), color: COLORS.fg },
+                ]}
+                labels={[smoothed[0].day.slice(5).replace('-', '/'), smoothed[smoothed.length - 1].day.slice(5).replace('-', '/')]}
+              />
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>7-day average {smoothed[smoothed.length - 1].avg} kg</Text>
+            </View>
+          ) : null}
           <TextInput
             value={weightText}
             onChangeText={setWeightText}
