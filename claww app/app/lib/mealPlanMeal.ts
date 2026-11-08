@@ -32,5 +32,17 @@ export function plannedToMeal(m: PlannedMeal) {
 
 /** "3 idli, 1 katori sambar, 2 tbsp coconut chutney" for the card under the meal name. */
 export function itemsText(m: PlannedMeal): string {
-  return m.items.map((i) => `${i.qty} ${i.unit} ${i.food.replace(/, .*$/, '').toLowerCase()}`).join(', ');
+  return m.items.map(itemText).join(', ');
+}
+
+const num = (n: number) => (Number.isInteger(n) ? String(n) : String(Math.round(n * 10) / 10));
+
+/** One line for one item. The unit is dropped when the food's own name already says it ("3 roti", not "3 roti roti"). */
+export function itemText(i: PlannedMeal['items'][number]): string {
+  const food = i.food.replace(/, .*$/, '').toLowerCase();
+  const unit = String(i.unit ?? '').toLowerCase();
+  const qty = num(i.qty);
+  if (!unit || food.includes(unit) || (unit.endsWith('s') && food.includes(unit.slice(0, -1)))) return `${qty} ${food}`;
+  if (unit === 'serving') return `${qty} ${i.qty === 1 ? 'serving' : 'servings'} of ${food}`;
+  return `${qty} ${unit} ${food}`;
 }
