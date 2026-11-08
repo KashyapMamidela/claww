@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { EndWorkoutSheet } from './player/EndWorkoutSheet';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -60,6 +61,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
   useRestEndNotification(status === 'resting', isPaused, restEndsAt, nextLabel);
 
   const [mode, setMode] = useState<Mode>('full');
+  const [endOpen, setEndOpen] = useState(false);
   // -1 = pill, 0 = bar. Dragging the bar upward past the threshold opens full screen.
   const progress = useSharedValue(0);
   const dragStart = useSharedValue(0);
@@ -221,7 +223,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
               <TouchableOpacity onPress={() => toMode('full')} hitSlop={8} accessibilityLabel="Expand player" accessibilityRole="button">
                 <Icon name="chevron-up" size={16} color="rgba(255,255,255,0.6)" />
               </TouchableOpacity>
-              <TouchableOpacity onPress={endSession} hitSlop={8} accessibilityLabel="End workout" accessibilityRole="button">
+              <TouchableOpacity onPress={() => setEndOpen(true)} hitSlop={8} accessibilityLabel="End workout" accessibilityRole="button">
                 <Icon name="x" size={13} color="rgba(255,255,255,0.35)" />
               </TouchableOpacity>
             </View>
@@ -232,6 +234,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
           </LinearGradient>
         </Animated.View>
       </View>
+      <EndWorkoutSheet visible={endOpen} onClose={() => setEndOpen(false)} />
     </>
   );
 }

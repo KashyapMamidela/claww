@@ -30,7 +30,6 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { ErrorCard } from '../../components/ui/ErrorCard';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { WorkoutCalendar } from '../../components/WorkoutCalendar';
 import { Display } from '../../components/ui/Typography';
 import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
@@ -589,10 +588,17 @@ export default function WorkoutsTab() {
               <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, flex: 1, fontFamily: FONT }}>
                 {blueprint ? `${blueprint.title.split(',')[0]} blueprint${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
               </Text>
-              <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="Preview the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Preview {'\u203a'}</Text>
+              <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="See the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
+                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Exercises {'\u203a'}</Text>
               </TouchableOpacity>
             </View>
+            {sessionStatus === 'idle' && (canStart || selectedState.state === 'missed') ? (
+              <View style={{ marginTop: 14 }}>
+                <Button variant="inverted" size="lg" fullWidth onPress={() => startFromPlan()} icon={<Icon name="play" size={14} color="#000" />}>
+                  {selectedState.state === 'missed' ? 'Do it today' : 'Start session'}
+                </Button>
+              </View>
+            ) : null}
           </Hero>
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
@@ -702,7 +708,6 @@ export default function WorkoutsTab() {
             </View>
           )}
 
-          <WorkoutCalendar />
 
           <TouchableOpacity
             activeOpacity={0.8}
@@ -724,13 +729,6 @@ export default function WorkoutsTab() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-      {canStart ? (
-        <View pointerEvents="box-none" style={{ position: 'absolute', left: 16, right: 16, bottom: Math.max(insets.bottom, 12) + TAB_BAR_CONTENT_HEIGHT + 12 }}>
-          <Button variant="primary" accent={A} accentDeep={A3} size="lg" fullWidth onPress={() => startFromPlan()} icon={<Icon name="play" size={14} color="#fff" />}>
-            {`Start ${day.focus} \u00b7 ${dayMinutes} min`}
-          </Button>
-        </View>
-      ) : null}
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
       {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
       <LogSessionModal

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { EndWorkoutSheet } from './EndWorkoutSheet';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -104,6 +105,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
   const [picker, setPicker] = useState<PickerTarget | null>(null);
   const [listOpen, setListOpen] = useState(false);
+  const [endOpen, setEndOpen] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
   const [swapOpen, setSwapOpen] = useState(false);
   const [rir, setRir] = useState<number | null>(null);
@@ -548,7 +550,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       fullWidth
                       onPress={() => {
                         setListOpen(false);
-                        endSession();
+                        setEndOpen(true);
                       }}
                       icon={<Icon name="x" size={16} color={COLORS.fgGray} />}
                     >
@@ -588,6 +590,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
           </Modal>
         ) : null}
       </GestureHandlerRootView>
+      <EndWorkoutSheet visible={endOpen} onClose={() => setEndOpen(false)} />
     </Modal>
   );
 }

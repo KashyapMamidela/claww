@@ -3,16 +3,18 @@
 Plan: `docs/premium-plan.md`. Tick each item when it is built **and** checked on the phone.
 
 ## Phase 1 · Fixes (`premium/01-fixes`)
-- [ ] B1 Session tile opens today's session
-- [ ] B2 One week, one week start
-- [ ] B3 Ending a live workout (confirm + undo)
-- [ ] B4 Start on the session card
-- [ ] B5 XP in one scale
-- [ ] B6 Honest Now
-- [ ] B7 No cut-off button text
-- [ ] B8 Streak calendar matches the streak
-- [ ] B9 Food names without repeats
-- [ ] Steps goal confirm, steps chart default, diary back
+- [x] B1 Session tile opens today's session
+- [x] B2 One week, one week start
+- [x] B3 Ending a live workout (confirm + undo)
+- [x] B4 Start on the session card
+- [x] B5 XP in one scale
+- [x] B6 Honest Now
+- [x] B7 No cut-off button text
+- [x] B8 Streak calendar matches the streak
+- [x] B9 Food names without repeats
+- [x] Steps goal confirm, steps chart default, diary back
+
+Notes (2026-11-08, checked on the phone): B2 removed the bottom "This week" calendar (the strip is the week; history lives on Progress). B3 has a confirm sheet (Finish and save / Keep going / Discard) but **no undo yet**: undo arrives with the toast in Phase 2 (D4). B4 replaced the sticky Start with a Start / Do it today button on the session card; the Missed card keeps only "Keep today's plan". B8: the calendar was right (rest days count); rest days are now clearer and the copy explains it.
 
 ## Phase 2 · Frame (`premium/02-frame`)
 - [ ] Tokens, `lib/format.ts` (D12, D13), tabular numbers (D1)

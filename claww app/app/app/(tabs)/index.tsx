@@ -629,7 +629,7 @@ function HomePopulated() {
           userId={userId}
           steps={steps}
           streak={streak}
-          session={{ ...sessionTileValue, onPress: sessionPlanned ? () => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } }) : undefined }}
+          session={{ ...sessionTileValue, onPress: () => router.push(sessionPlanned ? { pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } } : '/(tabs)/workouts') }}
         />
       </Surface>
 
