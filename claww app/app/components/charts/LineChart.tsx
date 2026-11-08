@@ -13,6 +13,8 @@ export interface LineChartProps {
   series: LineSeries[];
   height?: number;
   labels?: string[];
+  /** Premium T1: also join points across weeks with no data, as a fainter line, so a trend shows between two sessions. */
+  connectGaps?: boolean;
 }
 
 const PAD = 6;
@@ -23,7 +25,7 @@ const PAD = 6;
  * wasn't trained in a bucket doesn't draw a made-up slope. A series with a
  * single point shows as a dot.
  */
-export function LineChart({ series, height = 130, labels }: LineChartProps) {
+export function LineChart({ series, height = 130, labels, connectGaps = false }: LineChartProps) {
   const [width, setWidth] = useState(0);
   const [skiaReady, setSkiaReady] = useState(Platform.OS !== 'web');
   useEffect(() => {
@@ -62,6 +64,14 @@ export function LineChart({ series, height = 130, labels }: LineChartProps) {
     return d.trim();
   });
 
+  // The faint bridge: one straight line through every measured point, drawn under the solid segments.
+  const bridges = connectGaps
+    ? series.map((s) => {
+        const pts = s.values.map((v, i) => (v === null ? null : `${x(i).toFixed(1)} ${y(v).toFixed(1)}`)).filter((p): p is string => p !== null);
+        return pts.length >= 2 ? `M${pts.join(' L')}` : '';
+      })
+    : [];
+
   return (
     <View>
       <View style={{ height }} onLayout={(e) => setWidth(e.nativeEvent.layout.width)}>
@@ -72,6 +82,7 @@ export function LineChart({ series, height = 130, labels }: LineChartProps) {
             ))}
             {series.map((s, si) => (
               <React.Fragment key={si}>
+                {bridges[si] ? <Path path={bridges[si]} color={s.color} opacity={0.4} style="stroke" strokeWidth={2} strokeJoin="round" strokeCap="round" /> : null}
                 {paths[si] ? <Path path={paths[si]} color={s.color} style="stroke" strokeWidth={2.5} strokeJoin="round" strokeCap="round" /> : null}
                 {s.values.map((v, i) => (v === null ? null : <Circle key={i} cx={x(i)} cy={y(v)} r={i === s.values.length - 1 ? 3.5 : 2.5} color={s.color} />))}
               </React.Fragment>

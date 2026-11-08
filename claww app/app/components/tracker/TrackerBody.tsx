@@ -99,7 +99,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
         {top && top.last !== null ? (
           <>
             <Headline sub={top.delta !== null ? `${top.delta >= 0 ? '+' : ''}${top.delta} kg over 8 weeks` : undefined}>{`${top.name} ${top.last} kg`}</Headline>
-            <LineChart series={v.strength.map((s, i) => ({ values: s.values, color: lineTints[i] ?? BLUE }))} labels={[v.weeks8[0].label, v.weeks8[7].label]} />
+            <LineChart series={v.strength.map((s, i) => ({ values: s.values, color: lineTints[i] ?? BLUE }))} labels={[v.weeks8[0].label, v.weeks8[7].label]} connectGaps />
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {v.strength.map((s, i) => (
                 <View key={s.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -152,7 +152,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
       </TrackerCard>
 
       <TrackerCard label="CONSISTENCY · 12 WEEKS" color={BLUE} right={`${v.grid.sessions} sessions`} onPress={() => onOpen('consistency')}>
-        <HeatGrid weeks={v.grid.weeks} color={BLUE} />
+        <HeatGrid weeks={v.grid.weeks} color={BLUE} maxCell={40} />
       </TrackerCard>
 
       <TrackerCard label="PERSONAL RECORDS" color={BLUE} onPress={() => onOpen('records')}>

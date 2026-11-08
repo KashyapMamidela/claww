@@ -12,7 +12,7 @@ const sumOrNull = (items: PlannedMeal['items'], k: MicroKey): number | null => {
 /** What "Ate as planned" writes to meal_logs: the template's name, macros, items and micronutrients, all from the food database. */
 export function plannedToMeal(m: PlannedMeal) {
   return {
-    description: m.name,
+    description: mealTitle(m),
     calories: m.kcal,
     protein_g: m.protein,
     carbs_g: m.carbs,
@@ -45,4 +45,24 @@ export function itemText(i: PlannedMeal['items'][number]): string {
   if (!unit || food.includes(unit) || (unit.endsWith('s') && food.includes(unit.slice(0, -1)))) return `${qty} ${food}`;
   if (unit === 'serving') return `${qty} ${i.qty === 1 ? 'serving' : 'servings'} of ${food}`;
   return `${qty} ${unit} ${food}`;
+}
+
+const COUNT_UNITS = new Set(['egg', 'eggs', 'roti', 'rotis', 'chapati', 'piece', 'pieces', 'idli', 'dosa', 'slice', 'slices', 'paratha', 'puri', 'piece(s)']);
+
+/**
+ * Premium N5: the template's name with its counts matching the scaled amounts. A template named "Poha with 2 boiled
+ * eggs" scaled to 4 eggs reads "Poha with 4 boiled eggs", so the card title agrees with the line under it. Only
+ * count-like items (egg, roti, idli...) are rewritten, and only when the name already holds a number before that food.
+ */
+export function mealTitle(m: Pick<PlannedMeal, 'name' | 'items'>): string {
+  let name = m.name;
+  for (const i of m.items) {
+    const unit = String(i.unit ?? '').toLowerCase();
+    if (!COUNT_UNITS.has(unit)) continue;
+    const stem = i.food.replace(/, .*$/, '').toLowerCase().split(/\s+/)[0].replace(/s$/, '');
+    if (stem.length < 3) continue;
+    const re = new RegExp(String.raw`(\d+(?:\.\d+)?)(\s+(?:[A-Za-z]+\s+){0,2}?${stem}s?\b)`, 'i');
+    if (re.test(name)) name = name.replace(re, (_all, _n, rest) => `${num(i.qty)}${rest}`);
+  }
+  return name;
 }

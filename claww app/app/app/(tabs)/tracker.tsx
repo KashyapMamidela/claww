@@ -13,7 +13,7 @@ import { getStepsInRanges } from '../../lib/steps';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { ProgressRing } from '../../components/ui/ProgressRing';
-import { Display, LargeTitle } from '../../components/ui/Typography';
+import { Display, LargeTitle, Title2 } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { TrackerBody, type ChartKind } from '../../components/tracker/TrackerBody';
 import { AdaptiveCard } from '../../components/tracker/AdaptiveCard';
@@ -168,6 +168,7 @@ export default function TrackerTab() {
 
           <AdaptiveCard />
 
+          <Title2 style={{ marginTop: 6 }}>This week</Title2>
           <TrackerToday
             weekSteps={steps}
             weekLabels={Array.from({ length: 7 }, (_, i) => new Date(Date.now() - (6 - i) * 86_400_000).toLocaleDateString(undefined, { weekday: 'narrow' }))}
@@ -195,6 +196,7 @@ export default function TrackerTab() {
             </View>
           ) : null}
 
+          <Title2 style={{ marginTop: 6 }}>Training</Title2>
           <View style={locked ? { opacity: 0.28 } : undefined} pointerEvents={locked ? 'none' : 'auto'} accessibilityElementsHidden={locked} importantForAccessibility={locked ? 'no-hide-descendants' : 'auto'}>
             <TrackerBody data={data} steps={steps} stepsGoal={data.stepsGoal} onOpen={setChart} />
           </View>

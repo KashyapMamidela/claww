@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { Medallion } from '../components/ui/Medallion';
 import { BackTile } from '../components/ui/BackTile';
 import { Surface } from '../components/ui/Surface';
 import { Platform, ScrollView, Share, Text, TouchableOpacity, View } from 'react-native';
@@ -241,27 +242,14 @@ export default function ProfileScreen() {
 
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Achievements</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
+            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '700', fontFamily: FONT }}>Achievements</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {achievements.map((b) => (
-              <View key={b.label} style={{ width: '22.5%', alignItems: 'center', gap: 5, opacity: b.earned ? 1 : 0.3 }}>
-                <View
-                  style={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: 12,
-                    backgroundColor: b.earned ? `${b.color}18` : 'rgba(255,255,255,0.04)',
-                    borderWidth: 1,
-                    borderColor: b.earned ? `${b.color}30` : 'rgba(255,255,255,0.08)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Text style={{ fontSize: 20 }}>{b.icon}</Text>
-                </View>
-                <Text style={{ color: '#A1A1AA', fontSize: 11, textAlign: 'center', lineHeight: 14, fontFamily: FONT }}>{b.label}</Text>
+              <View key={b.label} style={{ width: '22.5%', alignItems: 'center', gap: 6 }}>
+                <Medallion icon={b.icon} color={b.color} earned={b.earned} />
+                <Text style={{ color: b.earned ? COLORS.fgGray : COLORS.textFaint, fontSize: 13, textAlign: 'center', lineHeight: 16, fontFamily: FONT }}>{b.label}</Text>
               </View>
             ))}
           </View>

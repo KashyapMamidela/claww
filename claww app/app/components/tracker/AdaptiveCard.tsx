@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { adaptiveSummary } from '../../lib/adaptiveSummary';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { BottomSheet } from '../ui/BottomSheet';
 import { useFocusEffect } from '@react-navigation/native';
 import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
@@ -102,10 +103,10 @@ export function AdaptiveCard() {
   return (
     <Surface padding={0}>
       <Pressable
-        onPress={() => setOpen((o) => !o)}
+        onPress={() => setOpen(true)}
         accessibilityRole="button"
         accessibilityState={{ expanded: open }}
-        accessibilityLabel={`Adaptive. ${summary}. ${open ? 'Collapse' : 'Expand'}`}
+        accessibilityLabel={`Adaptive. ${summary}. Open`}
         style={{ minHeight: 64, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
       >
         <View style={{ width: 40, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(E, 0.16) }}>
@@ -115,11 +116,13 @@ export function AdaptiveCard() {
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Adaptive</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }} numberOfLines={2}>{summary}</Text>
         </View>
-        <Icon name={open ? 'chevron-up' : 'chevron-down'} size={20} color={COLORS.textMuted} />
+        <Icon name="chevron-right" size={20} color={COLORS.textMuted} />
       </Pressable>
 
-      {open ? (
-        <View style={{ paddingHorizontal: 16, paddingBottom: 16, gap: 14 }}>
+      {/* Premium T4: the questions open in a sheet, so the Progress page does not jump down. */}
+      <BottomSheet visible={open} onClose={() => setOpen(false)} maxHeightFraction={0.9}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24, gap: 14 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>Adaptive</Text>
           {bundle.muscles.length > 0 ? (
             <>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
@@ -173,8 +176,8 @@ export function AdaptiveCard() {
               </View>
             );
           })}
-        </View>
-      ) : null}
+        </ScrollView>
+      </BottomSheet>
     </Surface>
   );
 }
