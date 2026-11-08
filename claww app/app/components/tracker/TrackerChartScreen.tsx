@@ -257,7 +257,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
       <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 }}>
           <PressScale onPress={onClose} accessibilityRole="button" accessibilityLabel="Close chart">
-            <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }}>
+            <View style={{ width: 40, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }}>
               <Icon name="chevron-down" size={20} color="#A1A1AA" />
             </View>
           </PressScale>

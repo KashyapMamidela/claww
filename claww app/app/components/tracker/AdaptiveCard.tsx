@@ -108,7 +108,7 @@ export function AdaptiveCard() {
         accessibilityLabel={`Adaptive. ${summary}. ${open ? 'Collapse' : 'Expand'}`}
         style={{ minHeight: 64, paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
       >
-        <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(E, 0.16) }}>
+        <View style={{ width: 40, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(E, 0.16) }}>
           <Icon name="activity" size={18} color={E} />
         </View>
         <View style={{ flex: 1 }}>

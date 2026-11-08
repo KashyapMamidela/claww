@@ -100,7 +100,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
           </View>
 
           <PressScale onPress={() => onPick(pending)}>
-            <View style={{ height: 52, borderRadius: 16, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+            <View style={{ height: 52, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
                 Use {format(kind, pending)} {unit}
               </Text>

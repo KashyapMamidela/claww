@@ -115,7 +115,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
                       add(ml);
                     }}
                   >
-                    <View style={{ height: 48, borderRadius: 12, backgroundColor: tint(C, 0.16), alignItems: 'center', justifyContent: 'center' }}>
+                    <View style={{ height: 44, borderRadius: 12, backgroundColor: tint(C, 0.16), alignItems: 'center', justifyContent: 'center' }}>
                       <Text style={{ color: C, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{ml === 1000 ? '1 L' : `${ml} ml`}</Text>
                     </View>
                   </PressScale>

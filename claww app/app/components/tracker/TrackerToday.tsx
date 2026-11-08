@@ -302,7 +302,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         ) : (
           activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.burned, 0.16) }}>
+              <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.burned, 0.16) }}>
                 <Icon name="zap" size={20} color={AREA_COLORS.burned} />
               </View>
               <View style={{ flex: 1 }}>
@@ -330,7 +330,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
             keyboardType="decimal-pad"
             autoFocus
             accessibilityLabel="Weight in kilograms"
-            style={{ height: 56, borderRadius: 14, borderWidth: 1, borderColor: weightText ? COLORS.borderStrong : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 22, fontWeight: '800', paddingHorizontal: 16, fontFamily: FONT }}
+            style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: weightText ? COLORS.borderStrong : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 22, fontWeight: '800', paddingHorizontal: 16, fontFamily: FONT }}
           />
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Weigh yourself at the same time each week for a clean trend.</Text>
           <Button variant="primary" size="lg" fullWidth disabled={parseWeight(weightText) === null || savingWeight} onPress={saveWeight}>

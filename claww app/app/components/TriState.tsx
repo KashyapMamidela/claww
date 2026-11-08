@@ -28,7 +28,7 @@ export function TriState({ value, onChange, label }: { value: Availability; onCh
             accessibilityRole="radio"
             accessibilityState={{ selected: on }}
             accessibilityLabel={`${label}: ${o.label}`}
-            style={{ minHeight: 38, minWidth: o.value === 'sometimes' ? 78 : 44, paddingHorizontal: 8, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? o.bg : 'transparent' }}
+            style={{ minHeight: 44, minWidth: o.value === 'sometimes' ? 78 : 44, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? o.bg : 'transparent' }}
           >
             <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: on ? '800' : '600', fontFamily: FONT }}>{o.label}</Text>
           </Pressable>

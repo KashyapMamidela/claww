@@ -52,7 +52,7 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
     <TintTile color={C} padding={16} radius={20}>
     <View style={{ gap: 12 }}>
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(C, 0.16), borderWidth: 1, borderColor: tint(C, 0.35) }}>
+        <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(C, 0.16), borderWidth: 1, borderColor: tint(C, 0.35) }}>
           <Icon name="zap" size={20} color={C} />
         </View>
         <View style={{ flex: 1 }}>
@@ -80,7 +80,7 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
               placeholderTextColor={COLORS.textFaint}
               maxLength={40}
               accessibilityLabel="Activity name"
-              style={{ height: 52, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
+              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
             />
           ) : null}
           <Stepper

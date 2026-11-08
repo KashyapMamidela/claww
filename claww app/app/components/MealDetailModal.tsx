@@ -120,7 +120,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   disabled={savingPlate}
                   accessibilityRole="button"
                   accessibilityLabel={isPlate ? 'Remove from my plates' : 'Save as my plate'}
-                  style={{ height: 48, borderRadius: 14, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: isPlate ? COLORS.greenGlow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
+                  style={{ height: 52, borderRadius: 14, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: isPlate ? COLORS.greenGlow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
                 >
                   <Icon name={isPlate ? 'check' : 'plus'} size={16} color={COLORS.green} />
                   <Text style={{ color: COLORS.green, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>

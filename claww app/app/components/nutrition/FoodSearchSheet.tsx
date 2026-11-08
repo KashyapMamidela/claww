@@ -217,7 +217,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
               autoFocus
               autoCapitalize="none"
               accessibilityLabel="Search food"
-              style={{ height: 52, borderRadius: 14, borderWidth: 1, borderColor: query ? COLORS.greenBorderMd : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
+              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: query ? COLORS.greenBorderMd : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 16, paddingHorizontal: 14, fontFamily: FONT }}
             />
             <ScrollView style={{ maxHeight: 360 }} keyboardShouldPersistTaps="handled">
               {query.trim().length < 2 && !onPickFood && myPlates.length > 0 ? (

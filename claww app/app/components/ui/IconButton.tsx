@@ -9,18 +9,18 @@ export interface IconButtonProps {
   label: string;
 }
 
-export function IconButton({ icon, onPress, size = 34, label }: IconButtonProps) {
+export function IconButton({ icon, onPress, size = 40, label }: IconButtonProps) {
   return (
     <PressScale
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={label}
-      hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+      hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
       scaleTo={0.92}
       style={{
         width: size,
         height: size,
-        borderRadius: 9,
+        borderRadius: 12,
         backgroundColor: '#151517',
         borderWidth: 1,
         borderColor: 'rgba(255,255,255,0.08)',

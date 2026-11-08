@@ -243,7 +243,7 @@ export default function ScanCheckScreen() {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {result.candidates.map((c) => (
               <PressScale key={c} onPress={() => chooseCandidate(c)} accessibilityRole="button" accessibilityLabel={`It is ${c}`}>
-                <View style={{ minHeight: 48, paddingHorizontal: 18, borderRadius: 24, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', justifyContent: 'center' }}>
+                <View style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 22, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', justifyContent: 'center' }}>
                   <Text style={{ color: G, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{c}</Text>
                 </View>
               </PressScale>
@@ -307,7 +307,7 @@ export default function ScanCheckScreen() {
                 {i.food ? (
                   <>
                     <PressScale onPress={() => bump(i.key, -1)} accessibilityRole="button" accessibilityLabel={`Less ${i.food.name}`}>
-                      <View style={{ width: 44, height: 44, borderRadius: 13, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
+                      <View style={{ width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
                         <Icon name="minus" size={18} color={COLORS.fg} />
                       </View>
                     </PressScale>
@@ -326,7 +326,7 @@ export default function ScanCheckScreen() {
                       </View>
                     </PressScale>
                     <PressScale onPress={() => bump(i.key, 1)} accessibilityRole="button" accessibilityLabel={`More ${i.food.name}`}>
-                      <View style={{ width: 44, height: 44, borderRadius: 13, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
+                      <View style={{ width: 44, height: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center' }}>
                         <Icon name="plus" size={18} color={COLORS.fg} />
                       </View>
                     </PressScale>

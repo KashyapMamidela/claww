@@ -72,7 +72,7 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={onClose}
-            style={{ height: 48, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}
+            style={{ height: 52, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}
           >
             <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Close</Text>
           </TouchableOpacity>

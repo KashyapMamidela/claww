@@ -19,7 +19,7 @@ export interface TickButtonProps {
 }
 
 export function TickButton({ state, onPress, accessibilityLabel }: TickButtonProps) {
-  const box = { width: 44, height: 44, borderRadius: 13, alignItems: 'center' as const, justifyContent: 'center' as const };
+  const box = { width: 44, height: 44, borderRadius: 12, alignItems: 'center' as const, justifyContent: 'center' as const };
   const inner =
     state === 'done' ? (
       <LinearGradient colors={[COLORS.blueDeep, COLORS.blue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={[box, { boxShadow: `0px 4px 10px ${COLORS.blue}55` }]}>

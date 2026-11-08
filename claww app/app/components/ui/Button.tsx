@@ -5,10 +5,12 @@ import { COLORS, FONT } from '../../lib/theme';
 import { MOTION } from '../../lib/motion';
 import { PressScale } from './PressScale';
 
+// One spec for every button in the app: three heights on a 4-point step, radius that grows with the height, and the
+// small size gets extra tap area so it still meets the 44 pt target.
 const SIZES = {
-  sm: { height: 34, fontSize: 13, paddingH: 12, radius: 10, gap: 6 },
-  md: { height: 42, fontSize: 14, paddingH: 16, radius: 12, gap: 8 },
-  lg: { height: 48, fontSize: 15, paddingH: 20, radius: 14, gap: 8 },
+  sm: { height: 36, fontSize: 13, paddingH: 14, radius: 10, gap: 6 },
+  md: { height: 44, fontSize: 15, paddingH: 18, radius: 12, gap: 8 },
+  lg: { height: 52, fontSize: 16, paddingH: 22, radius: 14, gap: 8 },
 };
 
 export interface ButtonProps {
@@ -72,6 +74,7 @@ export function Button({
         style={fullWidth ? { alignSelf: 'stretch' } : undefined}
         accessibilityRole="button"
         accessibilityState={{ disabled }}
+        hitSlop={size === 'sm' ? 4 : undefined}
       >
         <LinearGradient
           colors={[deep, accent]}
@@ -102,6 +105,7 @@ export function Button({
       style={[base, variantStyle, fullWidth && { alignSelf: 'stretch' }, style]}
       accessibilityRole="button"
       accessibilityState={{ disabled }}
+      hitSlop={size === 'sm' ? 4 : undefined}
     >
       {inner(textColor)}
     </PressScale>

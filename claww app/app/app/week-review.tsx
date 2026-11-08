@@ -202,12 +202,12 @@ export default function WeekReviewScreen() {
           Undo puts your old plan back for that item. Every mark is made from your own logs, never guessed.
         </Text>
 
-        <Pressable onPress={shareLetter} disabled={sharing || !facts} accessibilityRole="button" accessibilityLabel="Share your week as a picture" style={{ minHeight: 52, borderRadius: 26, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
+        <Pressable onPress={shareLetter} disabled={sharing || !facts} accessibilityRole="button" accessibilityLabel="Share your week as a picture" style={{ minHeight: 52, borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
           <Icon name="share-2" size={18} color={COLORS.fg} />
           <Text style={{ color: COLORS.fg, fontSize: 16, fontWeight: '800', fontFamily: FONT }}>{sharing ? 'Preparing…' : 'Share your week'}</Text>
         </Pressable>
 
-        <Pressable onPress={() => router.replace('/(tabs)')} accessibilityRole="button" style={{ minHeight: 56, borderRadius: 28, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable onPress={() => router.replace('/(tabs)')} accessibilityRole="button" style={{ minHeight: 52, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ color: '#0A0A0B', fontSize: 18, fontWeight: '800', fontFamily: FONT }}>{next ? `Start week ${next}` : 'Start next week'}</Text>
         </Pressable>
       </ScrollView>

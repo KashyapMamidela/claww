@@ -219,7 +219,7 @@ export default function WorkoutCompleteScreen() {
         {best ? (
           <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(COLORS.amber, 0.5), backgroundColor: tint(COLORS.amber, 0.10), padding: 16, gap: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(COLORS.amber, 0.18), borderWidth: 1, borderColor: tint(COLORS.amber, 0.4) }}>
+              <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(COLORS.amber, 0.18), borderWidth: 1, borderColor: tint(COLORS.amber, 0.4) }}>
                 <Icon name="trophy" size={20} color={COLORS.amber} />
               </View>
               <View style={{ flex: 1 }}>
@@ -247,7 +247,7 @@ export default function WorkoutCompleteScreen() {
 
         <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4), backgroundColor: tint(AREA_COLORS.streak, 0.08), padding: 16, gap: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <View style={{ width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.streak, 0.18), borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4) }}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.streak, 0.18), borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4) }}>
               <Icon name="zap" size={20} color={AREA_COLORS.streak} />
             </View>
             <View style={{ flex: 1 }}>

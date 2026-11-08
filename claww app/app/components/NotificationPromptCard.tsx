@@ -76,7 +76,7 @@ export function NotificationPromptCard({ userId, onDismiss }: NotificationPrompt
           activeOpacity={0.8}
           onPress={handleDecline}
           disabled={loading}
-          style={{ flex: 1, height: 42, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
+          style={{ flex: 1, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
         >
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
         </TouchableOpacity>

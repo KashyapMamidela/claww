@@ -180,7 +180,7 @@ export default function SettingsScreen() {
                 const ok = await scheduleTestReminder(2);
                 setTestStatus(ok ? 'Test reminder set for 2 minutes from now. Lock the phone and wait.' : 'Notifications are blocked for CLAWW.');
               }}
-              style={{ height: 42, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}
+              style={{ height: 44, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}
             >
               <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Send a test reminder in 2 minutes</Text>
             </TouchableOpacity>
@@ -239,7 +239,7 @@ function PerfReadout() {
       {row('Tap to next set, slowest 10%', msText(setLatency.p90))}
       {row('Home first paint (this app start)', msText(homeFirstPaintMs))}
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-        <TouchableOpacity activeOpacity={0.8} onPress={() => setReport(getPerfReport())} style={{ flex: 1, height: 38, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}>
+        <TouchableOpacity activeOpacity={0.8} onPress={() => setReport(getPerfReport())} style={{ flex: 1, height: 44, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}>
           <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Refresh</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -248,7 +248,7 @@ function PerfReadout() {
             resetPerfReport();
             setReport(getPerfReport());
           }}
-          style={{ flex: 1, height: 38, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', alignItems: 'center', justifyContent: 'center' }}
+          style={{ flex: 1, height: 44, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', alignItems: 'center', justifyContent: 'center' }}
         >
           <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Reset set timings</Text>
         </TouchableOpacity>

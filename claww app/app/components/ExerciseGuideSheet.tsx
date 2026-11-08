@@ -104,7 +104,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {TABS.map((t) => (
                 <PressScale key={t.key} style={{ flex: 1 }} onPress={() => setTab(t.key)} accessibilityRole="button" accessibilityState={{ selected: tab === t.key }}>
-                  <View style={{ height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: tab === t.key ? tint(A, 0.18) : 'rgba(255,255,255,0.05)' }}>
+                  <View style={{ height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: tab === t.key ? tint(A, 0.18) : 'rgba(255,255,255,0.05)' }}>
                     <Text style={{ color: tab === t.key ? A : '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{t.label}</Text>
                   </View>
                 </PressScale>
@@ -198,7 +198,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
             ) : null}
 
             <PressScale onPress={onClose}>
-              <View style={{ height: 50, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ height: 52, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Done</Text>
               </View>
             </PressScale>

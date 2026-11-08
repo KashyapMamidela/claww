@@ -198,14 +198,14 @@ export default function DiaryScreen() {
               {expanded ? (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {chips.filter(([, v]) => typeof v === 'number').map(([label, v, unit]) => (
-                    <View key={label} style={{ minHeight: 40, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, paddingHorizontal: 12, justifyContent: 'center' }}>
+                    <View key={label} style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, paddingHorizontal: 12, justifyContent: 'center' }}>
                       <Text style={{ color: COLORS.fg, fontSize: 14, fontFamily: FONT }}>
                         {label} {Math.round((v as number) * 10) / 10} {unit}
                       </Text>
                     </View>
                   ))}
                   {chips.every(([, v]) => typeof v !== 'number') ? <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: FONT }}>No micronutrient data for this entry.</Text> : null}
-                  <Pressable onPress={() => setEditing(m)} accessibilityRole="button" accessibilityLabel="Edit this entry" style={{ minHeight: 40, borderRadius: 12, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.1)', paddingHorizontal: 16, justifyContent: 'center' }}>
+                  <Pressable onPress={() => setEditing(m)} accessibilityRole="button" accessibilityLabel="Edit this entry" style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.1)', paddingHorizontal: 16, justifyContent: 'center' }}>
                     <Text style={{ color: G, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Edit</Text>
                   </Pressable>
                 </View>

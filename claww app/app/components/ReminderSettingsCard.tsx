@@ -88,7 +88,7 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
               <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{ROWS[editing].label} reminder time</Text>
               <TimeWheelPicker initialValue={pending} onChange={setPending} />
               <PressScale onPress={saveTime}>
-                <View style={{ height: 50, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ height: 52, borderRadius: 14, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ color: COLORS.blueDeep, fontSize: 14, fontWeight: '800', fontFamily: FONT }}>Save</Text>
                 </View>
               </PressScale>

@@ -50,12 +50,12 @@ export function Segmented<T extends string>({ options, value, onChange, accent =
                   colors={[accentDeep, accent]}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={{ height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, boxShadow: `0px 3px 8px ${accent}40` }}
+                  style={{ height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8, boxShadow: `0px 3px 8px ${accent}40` }}
                 >
                   {label}
                 </LinearGradient>
               ) : (
-                <View style={{ height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>{label}</View>
+                <View style={{ height: 40, borderRadius: 10, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 }}>{label}</View>
               )}
             </Pressable>
           );

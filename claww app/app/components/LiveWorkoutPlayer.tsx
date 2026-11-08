@@ -206,13 +206,13 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
               </TouchableOpacity>
               {isResting ? (
                 <PressScale onPress={skipRest} accessibilityRole="button" accessibilityLabel="Skip rest">
-                  <View style={{ height: 40, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.22)', alignItems: 'center', justifyContent: 'center' }}>
+                  <View style={{ height: 44, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.22)', alignItems: 'center', justifyContent: 'center' }}>
                     <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Skip rest</Text>
                   </View>
                 </PressScale>
               ) : row ? (
                 <PressScale onPress={onBarDone} accessibilityRole="button" accessibilityLabel="Done, log this set">
-                  <View style={{ height: 40, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
+                  <View style={{ height: 44, paddingHorizontal: 14, borderRadius: 12, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
                     <Icon name="check" size={15} color={COLORS.blueDeep} strokeWidth={3} />
                     <Text style={{ color: COLORS.blueDeep, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Done</Text>
                   </View>

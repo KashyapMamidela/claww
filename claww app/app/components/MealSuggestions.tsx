@@ -149,7 +149,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
                 accessibilityRole="button"
                 accessibilityLabel={`Log ${o.description}`}
               >
-                <View style={{ height: 42, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: o.bestFit ? C : tint(C, 0.16) }}>
+                <View style={{ height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: o.bestFit ? C : tint(C, 0.16) }}>
                   <Text style={{ color: o.bestFit ? '#050505' : C, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Log this</Text>
                 </View>
               </PressScale>

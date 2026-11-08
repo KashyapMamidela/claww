@@ -80,7 +80,7 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
             </Text>
             {Platform.OS === 'android' ? (
               <PressScale onPress={openHealthConnectInstall} accessibilityRole="button">
-                <View style={{ height: 50, borderRadius: 14, backgroundColor: C, alignItems: 'center', justifyContent: 'center' }}>
+                <View style={{ height: 52, borderRadius: 14, backgroundColor: C, alignItems: 'center', justifyContent: 'center' }}>
                   <Text style={{ color: '#050505', fontSize: 14, fontWeight: '800', fontFamily: FONT }}>
                     {steps.needsHealthConnectInstall ? 'Install Health Connect' : 'Open Health Connect'}
                   </Text>

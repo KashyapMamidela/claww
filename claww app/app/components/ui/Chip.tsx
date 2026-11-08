@@ -18,7 +18,7 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
   const label = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       {icon}
-      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 13, fontWeight: active ? '700' : '500', fontFamily: FONT }}>
+      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 14, fontWeight: active ? '700' : '500', fontFamily: FONT }}>
         {children}
       </Text>
     </View>
@@ -26,16 +26,16 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
 
   if (active) {
     return (
-      <PressScale onPress={onPress} scaleTo={0.95} accessibilityRole="button" accessibilityState={{ selected: true }}>
+      <PressScale onPress={onPress} scaleTo={0.95} accessibilityRole="button" accessibilityState={{ selected: true }} hitSlop={3}>
         <LinearGradient
           colors={[deep, accent]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
-            minHeight: 44,
+            minHeight: 38,
             justifyContent: 'center',
-            paddingHorizontal: 18,
-            borderRadius: 22,
+            paddingHorizontal: 16,
+            borderRadius: 19,
             borderWidth: 1,
             borderColor: `${accent}78`,
             boxShadow: `0px 2px 6px ${accent}40`,
@@ -47,16 +47,16 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
     );
   }
 
-  // NG PHASE 1: inactive chips are a small Surface (gradient, border), 44 px tall.
+  // NG PHASE 1: inactive chips are a small Surface (gradient, border), 38 px tall with 3 px of extra tap area.
   return (
-    <PressScale onPress={onPress} scaleTo={0.95} accessibilityRole="button" accessibilityState={{ selected: false }}>
+    <PressScale onPress={onPress} scaleTo={0.95} accessibilityRole="button" accessibilityState={{ selected: false }} hitSlop={3}>
       <LinearGradient
         colors={[SURFACES.cardTop, SURFACES.cardBottom]}
         style={{
-          minHeight: 44,
+          minHeight: 38,
           justifyContent: 'center',
-          paddingHorizontal: 18,
-          borderRadius: 22,
+          paddingHorizontal: 16,
+          borderRadius: 19,
           borderWidth: 1,
           borderColor: COLORS.borderStrong,
         }}

@@ -275,7 +275,7 @@ export default function NutritionTab() {
                 <TouchableOpacity
                   activeOpacity={0.85}
                   onPress={() => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } })}
-                  style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 10, backgroundColor: 'rgba(34,197,94,0.14)', justifyContent: 'center' }}
+                  style={{ minHeight: 44, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(34,197,94,0.14)', justifyContent: 'center' }}
                 >
                   <Text style={{ color: G, fontSize: 14, fontWeight: '700', fontFamily: FONT }}>Set preferences</Text>
                 </TouchableOpacity>
@@ -341,7 +341,7 @@ export default function NutritionTab() {
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {usuals.map((u) => (
                   <PressScale key={u.key} onPress={() => logUsual(u)} accessibilityRole="button" accessibilityLabel={`Log ${u.label}, ${u.kcal} kilocalories`}>
-                    <View style={{ minHeight: 48, borderRadius: 24, borderWidth: 1, borderColor: COLORS.borderStrong, backgroundColor: COLORS.card, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <View style={{ minHeight: 44, borderRadius: 22, borderWidth: 1, borderColor: COLORS.borderStrong, backgroundColor: COLORS.card, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>+ {u.label.length > 24 ? `${u.label.slice(0, 24)}…` : u.label}</Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{u.kcal} kcal</Text>
                     </View>
@@ -407,7 +407,7 @@ export default function NutritionTab() {
                             </Button>
                           </View>
                           <PressScale onPress={() => openAdd(upNext ?? 'Snack')} accessibilityRole="button" accessibilityLabel="Log with a photo">
-                            <View style={{ width: 48, height: 48, borderRadius: 14, borderWidth: 1, borderColor: COLORS.greenBorderMd, alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ width: 48, height: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.greenBorderMd, alignItems: 'center', justifyContent: 'center' }}>
                               <Icon name="camera" size={18} color={G} />
                             </View>
                           </PressScale>
@@ -495,7 +495,7 @@ export default function NutritionTab() {
 
           <PressScale onPress={() => router.push('/diary')} accessibilityRole="button" accessibilityLabel="Food diary: photos, ratings and micronutrients">
             <View style={{ borderRadius: 20, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', padding: 16, flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-              <View style={{ width: 48, height: 48, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(34,197,94,0.14)', borderWidth: 1, borderColor: COLORS.greenBorder }}>
+              <View style={{ width: 48, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(34,197,94,0.14)', borderWidth: 1, borderColor: COLORS.greenBorder }}>
                 <Icon name="utensils" size={22} color={G} />
               </View>
               <View style={{ flex: 1 }}>
