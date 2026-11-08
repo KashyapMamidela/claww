@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { useNow } from '../../lib/useNow';
 import { loggedMinutes, stepKm, timerDisplay } from '../../lib/timedExercise';
 import { success } from '../../lib/haptics';
@@ -63,13 +63,13 @@ export function TimedBlock({ exerciseName, targetMinutes, withDistance, onDone }
     <Surface padding={20} grain={0.06}>
       <View style={{ alignItems: 'center', gap: 18 }}>
         <ProgressRing size={RING} rings={[{ r: (RING - STROKE) / 2, strokeWidth: STROKE, color: display.over ? COLORS.green : COLORS.blue, pct: display.fraction * 100 }]} trackColor="rgba(255,255,255,0.07)">
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, letterSpacing: 1, fontFamily: BG[800] }}>
             {display.over ? 'TARGET REACHED' : running ? 'GO' : everStarted ? 'PAUSED' : `${targetMinutes} MIN`}
           </Text>
           <Text
             accessibilityLiveRegion="polite"
             accessibilityLabel={display.over ? `Target reached, ${display.text} over` : `${display.text} left`}
-            style={{ color: display.over ? COLORS.green : COLORS.fg, fontSize: 48, fontWeight: '900', letterSpacing: -1.2, fontVariant: ['tabular-nums'], fontFamily: FONT }}
+            style={{ color: display.over ? COLORS.green : COLORS.fg, fontSize: 48, letterSpacing: -1.2, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}
           >
             {display.text}
           </Text>
@@ -91,7 +91,7 @@ export function TimedBlock({ exerciseName, targetMinutes, withDistance, onDone }
 
         {withDistance ? (
           <View style={{ alignSelf: 'stretch', gap: 6 }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>Distance · optional</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>Distance · optional</Text>
             <Stepper label="Distance" value={km.toFixed(1)} unit="km" onDecrement={() => setKm((v) => stepKm(v, -1))} onIncrement={() => setKm((v) => stepKm(v, 1))} decrementDisabled={km <= 0} />
           </View>
         ) : null}

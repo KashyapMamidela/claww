@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { track } from '../../../lib/analytics';
 import { FOOD_ROWS, countAvailability, dietLabel, proteinVerdict, visibleFoods, cookLabel, sourcesLabel, type FoodKey, type Availability } from '../../../lib/resourceDefaults';
 import { draftAvailability, getDraft, patchDraft, setFood, type MealSetupDraft } from '../../../lib/mealSetupDraft';
@@ -48,15 +48,15 @@ export default function MealSetupFoods() {
           <SectionLabel color={G}>{title}</SectionLabel>
           <PressScale onPress={() => allYes(g)} accessibilityRole="button" accessibilityLabel={`Mark every ${title.toLowerCase()} food as yes`}>
             <View style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderColor: COLORS.greenBorderMd, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: G, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>All yes</Text>
+              <Text style={{ color: G, fontSize: 13, fontFamily: BG[700] }}>All yes</Text>
             </View>
           </PressScale>
         </View>
         {rows.map((r, i) => (
           <View key={r.key} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{r.title}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{r.sub}</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{r.title}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{r.sub}</Text>
             </View>
             <TriState value={availability[r.key]} onChange={(v) => set(r.key, v)} label={r.title} />
           </View>
@@ -69,8 +69,8 @@ export default function MealSetupFoods() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={2} sub="can you get these?" />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: FONT }}>Can you get these?</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: BG[800] }}>Can you get these?</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
           We filled these in from <Text style={{ color: COLORS.fg, fontWeight: '800' }}>{because}</Text>. Fix only what is wrong; the diary learns the rest.
           {draft.diet ? ` (${dietLabel(draft.diet)})` : ''}
         </Text>
@@ -83,7 +83,7 @@ export default function MealSetupFoods() {
             <Pill text={`${counts.yes} yes`} bg="rgba(34,197,94,0.20)" fg="#86EFAC" />
             <Pill text={`${counts.sometimes} sometimes`} bg="rgba(245,158,11,0.20)" fg="#FCD34D" />
             <Pill text={`${counts.no} no`} bg="rgba(255,255,255,0.10)" fg={COLORS.textMuted} />
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, flex: 1, textAlign: 'right', minWidth: 120, fontFamily: FONT }}>{proteinVerdict(availability, draft.diet)}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, flex: 1, textAlign: 'right', minWidth: 120, fontFamily: BG[400] }}>{proteinVerdict(availability, draft.diet)}</Text>
           </View>
         </Surface>
 
@@ -98,7 +98,7 @@ export default function MealSetupFoods() {
 function Pill({ text, bg, fg }: { text: string; bg: string; fg: string }) {
   return (
     <View style={{ borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: bg }}>
-      <Text style={{ color: fg, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>{text}</Text>
+      <Text style={{ color: fg, fontSize: 13, fontFamily: BG[800] }}>{text}</Text>
     </View>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import type { Availability } from '../lib/resourceDefaults';
 
 // NG PHASE 6: Yes / Sometimes / No for one food (screen 12). Yes is green, Sometimes amber, No grey, so a glance
@@ -30,7 +30,7 @@ export function TriState({ value, onChange, label }: { value: Availability; onCh
             accessibilityLabel={`${label}: ${o.label}`}
             style={{ minHeight: 44, minWidth: o.value === 'sometimes' ? 78 : 44, paddingHorizontal: 8, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? o.bg : 'transparent' }}
           >
-            <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: on ? '800' : '600', fontFamily: FONT }}>{o.label}</Text>
+            <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 13, fontFamily: bg(on ? '800' : '600') }}>{o.label}</Text>
           </Pressable>
         );
       })}

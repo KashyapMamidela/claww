@@ -77,8 +77,8 @@ export function Hero({ variant = 'blue', children, style, padding = 18, radius =
 
 function glow(color: string): ViewStyle {
   return Platform.select<ViewStyle>({
-    ios: { shadowColor: color, shadowOpacity: 0.45, shadowRadius: 18, shadowOffset: { width: 0, height: 10 } },
-    default: { elevation: 10, shadowColor: color },
+    ios: { shadowColor: color, shadowOpacity: 0.22, shadowRadius: 10, shadowOffset: { width: 0, height: 6 } },
+    default: { elevation: 4, shadowColor: color },
   })!;
 }
 

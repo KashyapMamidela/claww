@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { Glass } from './Glass';
 import { Dimensions, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -67,26 +68,17 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
         <Pressable onPress={close} style={StyleSheet.absoluteFill} accessibilityLabel="Close">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} />
         </Pressable>
-        <Animated.View
-          style={[
-            {
-              maxHeight: SCREEN_H * maxHeightFraction,
-              backgroundColor: COLORS.card,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-              borderWidth: 1,
-              borderColor: COLORS.border,
-              paddingBottom: Math.max(insets.bottom, 16),
-            },
-            sheetStyle,
-          ]}
-        >
+        <Animated.View style={[{ maxHeight: SCREEN_H * maxHeightFraction }, sheetStyle]}>
+        <Glass radius={28} topOnly blur={36} tint="rgba(20,20,24,0.80)" style={{ boxShadow: '0px -18px 40px -16px rgba(0,0,0,0.8)' }}>
+        <View style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
           <GestureDetector gesture={pan}>
             <View style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 6 }} accessibilityRole="adjustable" accessibilityLabel="Drag down to close">
               <View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.25)' }} />
             </View>
           </GestureDetector>
           {children}
+        </View>
+        </Glass>
         </Animated.View>
         </KeyboardAvoidingView>
       </GestureHandlerRootView>

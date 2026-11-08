@@ -3,7 +3,7 @@ import { mealTitle } from '../lib/mealPlanMeal';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState, type MealLogRow } from '../lib/appState';
 import { catchUpSlots, countLine, type Slot } from '../lib/dayMoments';
 import { clockLabel } from '../lib/homeMoment';
@@ -150,13 +150,13 @@ export default function CatchUpScreen() {
         ) : slots.length === 0 ? (
           <Surface>
             <View style={{ padding: 18, gap: 6 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Every meal has an answer</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>Nothing to catch up on. Dinner will show up here if it is still open at the end of the day.</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Every meal has an answer</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Nothing to catch up on. Dinner will show up here if it is still open at the end of the day.</Text>
             </View>
           </Surface>
         ) : (
           <>
-            <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 23, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 23, fontFamily: BG[400] }}>
               {countLine(slots.length)} A rough answer is enough; it keeps <Text style={{ color: COLORS.fg, fontWeight: '700' }}>dinner and tomorrow</Text> right.
             </Text>
 
@@ -176,11 +176,11 @@ export default function CatchUpScreen() {
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                       <MealThumb photoPath={loggedFor(slot)?.photo_url} mealType={cap(slot)} size={52} />
                       <View style={{ flex: 1 }}>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{`${cap(slot)} · ${answeredNow ? 'saved' : 'not logged'}`}</Text>
-                        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{`${cap(slot)} · ${answeredNow ? 'saved' : 'not logged'}`}</Text>
+                        <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }} numberOfLines={2}>
                           {planned ? `Plan: ${mealTitle(planned)}` : 'What did you have?'}
                         </Text>
-                        {planned && mode === null ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }} numberOfLines={1}>{itemsText(planned)}</Text> : null}
+                        {planned && mode === null ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }} numberOfLines={1}>{itemsText(planned)}</Text> : null}
                       </View>
                     </View>
                     <Segmented
@@ -224,18 +224,18 @@ export default function CatchUpScreen() {
               />
             ) : null}
 
-            {error ? <Text style={{ color: COLORS.danger, fontSize: 15, fontFamily: FONT }} accessibilityRole="alert">{error}</Text> : null}
+            {error ? <Text style={{ color: COLORS.danger, fontSize: 15, fontFamily: BG[400] }} accessibilityRole="alert">{error}</Text> : null}
 
             {savedOnce ? (
               <View accessibilityLiveRegion="polite" style={{ minHeight: 56, borderRadius: 16, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingHorizontal: 14 }}>
                 <Icon name="check" size={16} color={G} strokeWidth={3} />
-                <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{`Saved as you answer${showDinner ? ' · dinner updated' : ''}`}</Text>
+                <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>{`Saved as you answer${showDinner ? ' · dinner updated' : ''}`}</Text>
               </View>
             ) : null}
 
             {remaining === 0 ? (
               <Pressable onPress={() => router.replace('/(tabs)/nutrition')} accessibilityRole="button" style={{ minHeight: 48, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: G, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Done</Text>
+                <Text style={{ color: G, fontSize: 15, fontFamily: BG[800] }}>Done</Text>
               </Pressable>
             ) : null}
           </>

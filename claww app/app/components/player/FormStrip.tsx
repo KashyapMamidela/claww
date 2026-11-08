@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { cueIndexForSet, hasFormContent, type ExerciseForm } from '../../lib/exerciseForm';
 import { BodyMap, viewsFor } from '../BodyMap';
 import { formMuscles } from '../ExerciseGuideSheet';
@@ -35,15 +35,15 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
       <View style={{ flex: 1, gap: 6 }}>
         {expanded ? (
           <>
-            <Text style={{ color: COLORS.blue, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>FIRST TIME · HOW TO</Text>
+            <Text style={{ color: COLORS.blue, fontSize: 11, letterSpacing: 0.7, fontFamily: BG[800] }}>FIRST TIME · HOW TO</Text>
             {form.formSteps.map((step, i) => (
-              <Text key={i} style={{ color: '#fff', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+              <Text key={i} style={{ color: '#fff', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
                 <Text style={{ color: COLORS.blue, fontWeight: '800' }}>{i + 1} </Text>
                 {step}
               </Text>
             ))}
             {form.commonMistake ? (
-              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 17, fontFamily: FONT }}>
+              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>
                 <Text style={{ color: COLORS.danger, fontWeight: '800' }}>Avoid: </Text>
                 {form.commonMistake}
               </Text>
@@ -51,10 +51,10 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
           </>
         ) : (
           <>
-            <Text style={{ color: COLORS.blue, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.blue, fontSize: 11, letterSpacing: 0.7, fontFamily: BG[800] }}>
               CUE {cue + 1}/{form.formSteps.length}
             </Text>
-            <Text numberOfLines={2} style={{ color: '#fff', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+            <Text numberOfLines={2} style={{ color: '#fff', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
               {form.formSteps[cue]}
             </Text>
           </>
@@ -62,7 +62,7 @@ export function FormStrip({ form, setIndex, expanded, onDemo }: FormStripProps) 
       </View>
       <PressScale onPress={onDemo} accessibilityRole="button" accessibilityLabel="Open the exercise guide" hitSlop={6}>
         <View style={{ paddingHorizontal: 12, height: 34, borderRadius: 10, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: COLORS.blue, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Demo</Text>
+          <Text style={{ color: COLORS.blue, fontSize: 13, fontFamily: BG[800] }}>Demo</Text>
         </View>
       </PressScale>
     </View>

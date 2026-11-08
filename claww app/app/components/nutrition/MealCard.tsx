@@ -1,7 +1,7 @@
 import React from 'react';
 import { Surface } from '../ui/Surface';
 import { Pressable, Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { RATING_LABEL, type Rating } from '../../lib/nutritionLogic';
 import { MealThumb } from '../MealPhoto';
 import { Icon } from '../ui/Icon';
@@ -21,7 +21,7 @@ export function RatingPill({ rating }: { rating: Rating }) {
   return (
     <View accessibilityLabel={`Rated ${rating}`} style={{ minHeight: 32, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1, borderColor: c.border, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
       {rating === 'good' ? <Icon name="check" size={13} color={c.fg} strokeWidth={3} /> : null}
-      <Text style={{ color: c.fg, fontSize: 13, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: FONT }}>{RATING_LABEL[rating]}</Text>
+      <Text style={{ color: c.fg, fontSize: 13, fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: BG[800] }}>{RATING_LABEL[rating]}</Text>
     </View>
   );
 }
@@ -56,18 +56,18 @@ export function MealCard({ mealType, time, planStatus, name, macros, photoPath, 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <MealThumb photoPath={photoPath} mealType={mealType} size={52} />
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>
             {mealType ?? 'Meal'} · {time}
             {status ? ` · ${status}` : ''}
           </Text>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }} numberOfLines={2}>
             {name}
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{macros}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{macros}</Text>
         </View>
         {rating ? <RatingPill rating={rating} /> : null}
       </View>
-      {reason ? <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>{reason}</Text> : null}
+      {reason ? <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 22, fontFamily: BG[400] }}>{reason}</Text> : null}
       {children}
       </View>
       </Surface>

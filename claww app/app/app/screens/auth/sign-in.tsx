@@ -5,7 +5,7 @@ import { Image, KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, Tou
 import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { signIn, signInWithGoogle } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -83,10 +83,10 @@ export default function SignInScreen() {
             </View>
           </View>
 
-          <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: BG[800], textAlign: 'center' }}>
             Welcome back
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: BG[400], textAlign: 'center' }}>
             Pick up your plan where you left it.
           </Text>
 
@@ -94,7 +94,7 @@ export default function SignInScreen() {
 
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 18 }}>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>or with email</Text>
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: BG[400] }}>or with email</Text>
             <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
           </View>
 
@@ -124,12 +124,12 @@ export default function SignInScreen() {
           </Animated.View>
 
           <TouchableOpacity onPress={() => router.push('/screens/auth/forgot-password')} style={{ alignSelf: 'flex-end', marginTop: 10 }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Forgot password?</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Forgot password?</Text>
           </TouchableOpacity>
 
           {error ? (
             <Animated.View entering={FadeInDown.duration(220)}>
-              <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text>
+              <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: BG[400] }}>{error}</Text>
             </Animated.View>
           ) : null}
 
@@ -141,7 +141,7 @@ export default function SignInScreen() {
 
 
           <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-up')} style={{ alignSelf: 'center', paddingVertical: 12, marginTop: 8 }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
               New to CLAWW? <Text style={{ color: A, fontWeight: '700' }}>Create an account</Text>
             </Text>
           </TouchableOpacity>
@@ -182,8 +182,7 @@ function inputStyle(active: boolean) {
     borderRadius: 14,
     color: '#fff',
     fontSize: 15,
-    fontWeight: '600' as const,
     paddingHorizontal: 16,
-    fontFamily: FONT,
+    fontFamily: BG[600],
   };
 }

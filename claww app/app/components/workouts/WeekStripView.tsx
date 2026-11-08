@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { COLORS, FONT, FONT_HAND } from '../../lib/theme';
+import { COLORS, FONT, FONT_HAND, BG, bg } from '../../lib/theme';
 import type { StripCell, WeekStrip } from '../../lib/weekStrip';
 import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
@@ -38,8 +38,8 @@ function Cell({ cell, selected, onPress }: { cell: StripCell; selected: boolean;
           backgroundColor: selected ? 'rgba(59,130,246,0.30)' : 'transparent',
         }}
       >
-        <Text style={{ color: selected ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{cell.letter}</Text>
-        <Text style={{ color: fg, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{cell.dateNumber}</Text>
+        <Text style={{ color: selected ? '#fff' : COLORS.textMuted, fontSize: 13, fontFamily: BG[700] }}>{cell.letter}</Text>
+        <Text style={{ color: fg, fontSize: 20, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{cell.dateNumber}</Text>
         {/* Premium W2: a dot says what the day is: filled = done, ring = planned, small ring in amber = missed, dash = rest. */}
         {rest ? (
           <View style={{ width: 10, height: 2, borderRadius: 1, backgroundColor: COLORS.textFaint }} />

@@ -3,7 +3,7 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { basicsSummary, hasBasics, profileBasics, useProfile } from '../lib/profile';
 import { saveWorkoutIntake, type Equipment, type Goal } from '../lib/data';
@@ -158,8 +158,8 @@ export default function WorkoutSetup() {
           </Surface>
         </PressScale>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Build your workout plan</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{inOnboarding ? 'Set up your plan · step 3 of 4 · about a minute' : 'Step 1 of 2 · about 1 minute'}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Build your workout plan</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{inOnboarding ? 'Set up your plan · step 3 of 4 · about a minute' : 'Step 1 of 2 · about 1 minute'}</Text>
         </View>
       </View>
 
@@ -185,8 +185,8 @@ export default function WorkoutSetup() {
                       <Icon name={g.icon} size={17} color={on ? '#fff' : A} />
                     </View>
                     <View>
-                      <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{g.title}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{g.sub}</Text>
+                      <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[800] }}>{g.title}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{g.sub}</Text>
                     </View>
                   </View>
                 </PressScale>
@@ -206,7 +206,7 @@ export default function WorkoutSetup() {
               return (
                 <Pressable key={n} onPress={() => setDays(n)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${n} days a week`} style={{ flex: 1 }}>
                   <View style={{ height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? A : COLORS.border, backgroundColor: on ? 'rgba(59,130,246,0.22)' : COLORS.card }}>
-                    <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{n}</Text>
+                    <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 20, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{n}</Text>
                   </View>
                 </Pressable>
               );
@@ -256,7 +256,7 @@ export default function WorkoutSetup() {
             })}
           </View>
           {injuries.length > 0 ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>
               Your plan leaves out movements that load these areas. This isn't medical advice: see a doctor or physiotherapist for anything serious.
             </Text>
           ) : null}
@@ -280,7 +280,7 @@ export default function WorkoutSetup() {
       <BottomSheet visible={sheetPart !== null} onClose={() => setSheetPart(null)}>
         {sheetPart ? (
           <View style={{ padding: 20, gap: 12 }}>
-            <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>
               {INJURY_PARTS.find((p) => p.part === sheetPart)!.label}: how bad is it?
             </Text>
             {SEVERITIES.map((s) => (
@@ -288,8 +288,8 @@ export default function WorkoutSetup() {
                 <Surface padding={14}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{SEVERITY_TEXT[s].label}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{SEVERITY_TEXT[s].note}</Text>
+                      <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{SEVERITY_TEXT[s].label}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{SEVERITY_TEXT[s].note}</Text>
                     </View>
                     {injuryOf(sheetPart)?.severity === s ? <Icon name="check" size={18} color={A} /> : null}
                   </View>

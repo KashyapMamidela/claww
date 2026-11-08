@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FlatList, Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { AREA_COLORS, COLORS, FONT } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from './ui/Icon';
 import { searchExercises, type CatalogExercise, type Equipment, type Modality } from '../lib/data';
 import { getCatalog } from '../lib/adaptiveData';
@@ -85,7 +85,7 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>
               {modality === 'cardio' ? 'Pick a cardio exercise' : 'Add an exercise'}
             </Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={onClose} style={{ padding: 4 }}>
@@ -109,14 +109,14 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
               paddingHorizontal: 14,
               paddingVertical: 11,
               marginBottom: 12,
-              fontFamily: FONT,
+              fontFamily: BG[400],
             }}
           />
 
           {loading ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, textAlign: 'center', marginTop: 20 }}>Searching…</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], textAlign: 'center', marginTop: 20 }}>Searching…</Text>
           ) : results.length === 0 ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, textAlign: 'center', marginTop: 20 }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], textAlign: 'center', marginTop: 20 }}>
               No exercises match your equipment/search.
             </Text>
           ) : (
@@ -137,12 +137,12 @@ export function ExercisePickerModal({ visible, equipment, modality, onSelect, on
                   }}
                 >
                   <View>
-                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{item.name}</Text>
+                    <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>{item.name}</Text>
                     {item.muscle_group ? (
-                      <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>{item.muscle_group}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: BG[400] }}>{item.muscle_group}</Text>
                     ) : null}
                     {hintByName[item.id] ? (
-                      <Text style={{ color: AREA_COLORS.recovery, fontSize: 11, marginTop: 2, fontFamily: FONT }}>{hintByName[item.id]}</Text>
+                      <Text style={{ color: AREA_COLORS.recovery, fontSize: 11, marginTop: 2, fontFamily: BG[400] }}>{hintByName[item.id]}</Text>
                     ) : null}
                   </View>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { AREA_COLORS, COLORS, FONT, tint } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getRecentSleepLogs } from '../lib/data';
 import { lastSevenNights, sleepQuality, SLEEP_TARGET_HOURS } from '../lib/sleepTarget';
@@ -60,12 +60,12 @@ export function SleepRow() {
             <>
               <View style={{ flex: 1 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-                  <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                  <Text style={{ color: '#fff', fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
                     {Math.round(hours * 10) / 10} h
                   </Text>
-                  <Text style={{ color: QUALITY_COLOR[q], fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{q}</Text>
+                  <Text style={{ color: QUALITY_COLOR[q], fontSize: 13, fontFamily: BG[700] }}>{q}</Text>
                 </View>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, fontFamily: BG[400] }}>
                   {clock(todaySleep?.bedtime)} – {clock(todaySleep?.wake_time)}
                 </Text>
               </View>
@@ -85,7 +85,7 @@ export function SleepRow() {
             </>
           ) : (
             <>
-              <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Log last night's sleep</Text>
+              <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Log last night's sleep</Text>
               <Icon name="chevron-right" size={16} color="#52525B" />
             </>
           )}

@@ -11,8 +11,8 @@ export function AmbientLight({ tabColor }: { tabColor: string }) {
     return () => clearInterval(id);
   }, []);
   return (
-    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { bottom: undefined, height: 380 }]}>
-      <LinearGradient colors={[ambientGlow(hour, tabColor, 0.2), ambientGlow(hour, tabColor, 0)]} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={StyleSheet.absoluteFill} />
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { bottom: undefined, height: 240 }]}>
+      <LinearGradient colors={[ambientGlow(hour, tabColor, 0.1), ambientGlow(hour, tabColor, 0)]} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={StyleSheet.absoluteFill} />
     </View>
   );
 }

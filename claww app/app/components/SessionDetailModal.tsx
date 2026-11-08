@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import type { LoggedSetRow } from '../lib/workoutDayState';
 
 export interface SessionDetailModalProps {
@@ -33,10 +33,10 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
             gap: 14,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{title}</Text>
+          <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>{title}</Text>
           <ScrollView style={{ flexGrow: 0 }} contentContainerStyle={{ gap: 8 }}>
             {rows.length === 0 ? (
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>No sets were logged for this session.</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>No sets were logged for this session.</Text>
             ) : (
               rows.map((r, i) => {
                 const reps = r.reps_achieved ?? r.reps_prescribed ?? 0;
@@ -50,12 +50,12 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
                     style={{ backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 }}
                   >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT, flex: 1 }} numberOfLines={1}>
+                      <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700], flex: 1 }} numberOfLines={1}>
                         {r.exercise_name}
                       </Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{formatTime(r.completed_at)}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{formatTime(r.completed_at)}</Text>
                     </View>
-                    <Text style={{ color: '#A1A1AA', fontSize: 13, marginTop: 3, fontFamily: FONT }}>
+                    <Text style={{ color: '#A1A1AA', fontSize: 13, marginTop: 3, fontFamily: BG[400] }}>
                       {r.sets !== null ? `Set ${r.sets} · ` : ''}
                       {reps} reps{weight > 0 ? ` × ${weight} kg` : ''}
                       {plannedDiffers ? (
@@ -74,7 +74,7 @@ export function SessionDetailModal({ visible, title, rows, onClose }: SessionDet
             onPress={onClose}
             style={{ height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Close</Text>
+            <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>

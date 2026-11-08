@@ -4,7 +4,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Linking from 'expo-linking';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { establishSessionFromUrl, updatePassword } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -64,14 +64,14 @@ export default function ResetPasswordScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 24, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
           {linkState === 'checking' ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, textAlign: 'center', fontFamily: FONT }}>Verifying your link…</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, textAlign: 'center', fontFamily: BG[400] }}>Verifying your link…</Text>
           ) : linkState === 'invalid' ? (
             <View style={{ alignItems: 'center' }}>
               <Icon name="alert-triangle" size={30} color={COLORS.danger} />
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginTop: 16, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 20, marginTop: 16, marginBottom: 8, fontFamily: BG[800], textAlign: 'center' }}>
                 This link has expired
               </Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400], textAlign: 'center', maxWidth: 280 }}>
                 Password reset links only work once and expire quickly. Request a new one from the sign-in screen.
               </Text>
               <Button
@@ -86,7 +86,7 @@ export default function ResetPasswordScreen() {
           ) : done ? (
             <View style={{ alignItems: 'center' }}>
               <Icon name="check-circle-2" size={30} color={COLORS.fg} />
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginTop: 16, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 20, marginTop: 16, marginBottom: 8, fontFamily: BG[800], textAlign: 'center' }}>
                 Password updated
               </Text>
               <Button
@@ -100,10 +100,10 @@ export default function ResetPasswordScreen() {
             </View>
           ) : (
             <>
-              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: BG[800], textAlign: 'center' }}>
                 Set a new password
               </Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, fontFamily: BG[400], textAlign: 'center' }}>
                 Min. 6 characters.
               </Text>
               <View style={{ gap: 12 }}>
@@ -127,7 +127,7 @@ export default function ResetPasswordScreen() {
                   active={confirmPassword.length > 0}
                 />
               </View>
-              {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
+              {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: BG[400] }}>{error}</Text> : null}
               <View style={{ marginTop: 24 }}>
                 <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
                   {loading ? 'Updating…' : 'Update password'}
@@ -150,8 +150,7 @@ function inputStyle(active: boolean) {
     borderRadius: 14,
     color: '#fff',
     fontSize: 15,
-    fontWeight: '600' as const,
     paddingHorizontal: 16,
-    fontFamily: FONT,
+    fontFamily: BG[600],
   };
 }

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, Switch, Text, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { REMINDER_KINDS, type ReminderKind, type ReminderSetting, type ReminderSettings } from '../lib/reminderPlan';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
@@ -56,8 +56,8 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
               <Icon name={row.icon} size={16} color={row.color} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{row.label}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{row.note}</Text>
+              <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[600] }}>{row.label}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>{row.note}</Text>
             </View>
             <PressScale
               onPress={() => openTime(kind)}
@@ -67,7 +67,7 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
               hitSlop={6}
             >
               <View style={{ paddingHorizontal: 10, height: 30, borderRadius: 8, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', opacity: s.enabled ? 1 : 0.4 }}>
-                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{formatTime(s)}</Text>
+                <Text style={{ color: '#fff', fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{formatTime(s)}</Text>
               </View>
             </PressScale>
             <Switch
@@ -79,17 +79,17 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
           </View>
         );
       })}
-      <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 4, fontFamily: FONT }}>Never more than 2 reminders a day in total.</Text>
+      <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 4, fontFamily: BG[400] }}>Never more than 2 reminders a day in total.</Text>
 
       {editing && pending ? (
         <Modal visible transparent animationType="fade" onRequestClose={() => setEditing(null)} statusBarTranslucent>
           <Pressable onPress={() => setEditing(null)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}>
             <Pressable onPress={() => {}} style={{ backgroundColor: COLORS.card, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 20, paddingBottom: 28, gap: 16 }}>
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{ROWS[editing].label} reminder time</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>{ROWS[editing].label} reminder time</Text>
               <TimeWheelPicker initialValue={pending} onChange={setPending} />
               <PressScale onPress={saveTime}>
                 <View style={{ height: 50, borderRadius: 25, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Save</Text>
+                  <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontFamily: BG[800] }}>Save</Text>
                 </View>
               </PressScale>
             </Pressable>

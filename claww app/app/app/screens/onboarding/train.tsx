@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AREA_COLORS, COLORS, FONT, FONT_HAND } from '../../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, BG, bg } from '../../../lib/theme';
 import { STYLE_OPTIONS, styleOption, toggleWeekday, weekPreview, type TrainStyle } from '../../../lib/onboardingChoices';
 import { defaultWeekdays, weekdayIndex } from '../../../lib/trainingWeek';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
@@ -33,9 +33,9 @@ export default function OnboardingTrain() {
       <OnboardingTopBar step={4} totalSteps={6} accent={AREA_COLORS.workouts} showBack />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 24, paddingBottom: 24, gap: 14 }}>
         <View style={{ gap: 6 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Set up your plan · step 2 of 4 · about a minute</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>How do you like to train?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>Pick any. We mix them into one week.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Set up your plan · step 2 of 4 · about a minute</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, fontFamily: BG[800] }}>How do you like to train?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: BG[400] }}>Pick any. We mix them into one week.</Text>
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
@@ -52,8 +52,8 @@ export default function OnboardingTrain() {
                     </View>
                   ) : null}
                 </View>
-                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{s.title}</Text>
-                <Text style={{ color: on ? 'rgba(255,255,255,0.75)' : COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{s.line}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{s.title}</Text>
+                <Text style={{ color: on ? 'rgba(255,255,255,0.75)' : COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{s.line}</Text>
               </View>
             );
             return (
@@ -72,8 +72,8 @@ export default function OnboardingTrain() {
         </View>
 
         <Surface padding={16}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Which days can you train? Tap to change.</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', marginTop: 4, fontFamily: FONT }}>{preview.text}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Which days can you train? Tap to change.</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, marginTop: 4, fontFamily: BG[800] }}>{preview.text}</Text>
           <View style={{ flexDirection: 'row', gap: 6, marginTop: 12 }} accessibilityRole="radiogroup">
             {DAY_LETTERS.map((letter, i) => {
               const style = preview.days[i];
@@ -99,13 +99,13 @@ export default function OnboardingTrain() {
                       borderColor: color ? 'transparent' : 'rgba(255,255,255,0.10)',
                     }}
                   >
-                    <Text style={{ color: color ? COLORS.bg : COLORS.textMuted, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{letter}</Text>
+                    <Text style={{ color: color ? COLORS.bg : COLORS.textMuted, fontSize: 15, fontFamily: BG[800] }}>{letter}</Text>
                   </View>
                 </PressScale>
               );
             })}
           </View>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, fontFamily: BG[400] }}>
             {weekdays.length} {weekdays.length === 1 ? 'day' : 'days'} a week. Between 2 and 6.
           </Text>
         </Surface>

@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect } from '@react-navigation/native';
-import { AREA_COLORS, COLORS, FONT, tint } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import { deleteWaterLog, getTodaysWaterLogs, logWater, type WaterLogRow } from '../lib/data';
 import { refreshReminders } from '../lib/reminderSync';
 import { Icon } from './ui/Icon';
@@ -76,7 +76,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
             <Icon name="droplets" size={19} color={C} />
           </View>
           <View style={{ flex: 1, gap: 7 }}>
-            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
               {litres(total)}
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600' }}> of {litres(TARGET_ML)}</Text>
             </Text>
@@ -109,7 +109,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
         <Modal visible transparent animationType="fade" onRequestClose={() => setMenuOpen(false)} statusBarTranslucent>
           <Pressable onPress={() => setMenuOpen(false)} style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center', padding: 28 }}>
             <Pressable onPress={() => {}} style={{ backgroundColor: COLORS.card, borderRadius: 18, padding: 16, gap: 10 }}>
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Add water</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>Add water</Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 {[500, 1000].map((ml) => (
                   <PressScale
@@ -121,7 +121,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
                     }}
                   >
                     <View style={{ height: 44, borderRadius: 12, backgroundColor: tint(C, 0.16), alignItems: 'center', justifyContent: 'center' }}>
-                      <Text style={{ color: C, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{ml === 1000 ? '1 L' : `${ml} ml`}</Text>
+                      <Text style={{ color: C, fontSize: 15, fontFamily: BG[800] }}>{ml === 1000 ? '1 L' : `${ml} ml`}</Text>
                     </View>
                   </PressScale>
                 ))}
@@ -133,7 +133,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
                   placeholder="Custom ml"
                   placeholderTextColor="#52525B"
                   keyboardType="number-pad"
-                  style={{ flex: 1, height: 44, borderRadius: 12, paddingHorizontal: 12, backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', fontFamily: FONT }}
+                  style={{ flex: 1, height: 44, borderRadius: 12, paddingHorizontal: 12, backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', fontFamily: BG[400] }}
                 />
                 <PressScale
                   onPress={() => {
@@ -144,7 +144,7 @@ export function WaterRow({ userId }: { userId: string | null }) {
                   }}
                 >
                   <View style={{ height: 44, paddingHorizontal: 16, borderRadius: 12, backgroundColor: C, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: '#050505', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Add</Text>
+                    <Text style={{ color: '#050505', fontSize: 15, fontFamily: BG[800] }}>Add</Text>
                   </View>
                 </PressScale>
               </View>
@@ -161,21 +161,21 @@ export function WaterRow({ userId }: { userId: string | null }) {
         }}
       >
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 16 }}>
-          <Text style={{ color: C, fontSize: 13, fontWeight: '800', letterSpacing: 0.8, fontFamily: FONT }}>WATER TODAY</Text>
+          <Text style={{ color: C, fontSize: 13, letterSpacing: 0.8, fontFamily: BG[800] }}>WATER TODAY</Text>
           <WaterWidget onAdded={reload} />
           <View style={{ gap: 6 }}>
             {entries.length === 0 ? (
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Nothing logged yet today.</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Nothing logged yet today.</Text>
             ) : (
               entries.map((e) => (
                 <View key={e.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.04)' }}>
                   <Icon name="droplets" size={14} color={C} />
-                  <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{e.ml} ml</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+                  <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[700] }}>{e.ml} ml</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
                     {new Date(e.logged_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                   </Text>
                   <PressScale onPress={() => undo(e)} accessibilityRole="button" accessibilityLabel={`Undo ${e.ml} millilitres`} hitSlop={6}>
-                    <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', paddingHorizontal: 6, fontFamily: FONT }}>Undo</Text>
+                    <Text style={{ color: '#A1A1AA', fontSize: 13, paddingHorizontal: 6, fontFamily: BG[700] }}>Undo</Text>
                   </PressScale>
                 </View>
               ))

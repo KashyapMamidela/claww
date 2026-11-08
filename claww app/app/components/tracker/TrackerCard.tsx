@@ -1,7 +1,7 @@
 import React from 'react';
 import { Surface } from '../ui/Surface';
 import { Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
 
@@ -27,9 +27,9 @@ export function TrackerCard({ label, color, right, children, onPress, accentStri
     >
     <View style={{ paddingHorizontal: 14, paddingVertical: 13, gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[800] }}>{label}</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          {right ? <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{right}</Text> : null}
+          {right ? <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{right}</Text> : null}
           {onPress ? <Icon name="chevron-right" size={13} color="#52525B" /> : null}
         </View>
       </View>
@@ -46,12 +46,12 @@ export function TrackerCard({ label, color, right, children, onPress, accentStri
 }
 
 export function Empty({ children }: { children: string }) {
-  return <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{children}</Text>;
+  return <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{children}</Text>;
 }
 
 export function Headline({ children, sub }: { children: string; sub?: string }) {
   return (
-    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+    <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>
       {children}
       {sub ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}>{`  ${sub}`}</Text> : null}
     </Text>

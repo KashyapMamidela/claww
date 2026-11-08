@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT, SURFACES } from '../../lib/theme';
+import { COLORS, FONT, SURFACES, BG, bg } from '../../lib/theme';
 import { Icon } from './Icon';
 import { PressScale } from './PressScale';
 import { Well } from './Well';
@@ -48,8 +48,8 @@ export function Stepper({ value, unit, onDecrement, onIncrement, decrementDisabl
       <View style={{ flexDirection: 'row', alignItems: 'center' }} accessibilityRole="adjustable" accessibilityLabel={label} accessibilityValue={{ text: `${value} ${unit}` }}>
         <StepButton icon="minus" onPress={onDecrement} disabled={decrementDisabled} a11y={`Less ${label.toLowerCase()}`} />
         <View style={{ flex: 1, alignItems: 'center' }}>
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'], lineHeight: 28 }}>{value}</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '600', fontFamily: FONT }}>{unit}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], fontVariant: ['tabular-nums'], lineHeight: 28 }}>{value}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[600] }}>{unit}</Text>
         </View>
         <StepButton icon="plus" onPress={onIncrement} disabled={incrementDisabled} a11y={`More ${label.toLowerCase()}`} />
       </View>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View, ViewStyle, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { MOTION } from '../../lib/motion';
 import { PressScale } from './PressScale';
 
@@ -47,7 +47,7 @@ export function Button({
   const deep = accentDeep || (accent.toLowerCase() === COLORS.blue.toLowerCase() ? COLORS.blueDeep : accent);
 
   const label = (color: string) => (
-    <Text numberOfLines={1} style={{ color, fontSize: s.fontSize, fontWeight: '800', fontFamily: FONT, letterSpacing: 0.15 }}>
+    <Text numberOfLines={1} style={{ color, fontSize: s.fontSize, fontFamily: BG[800], letterSpacing: 0.15 }}>
       {children}
     </Text>
   );

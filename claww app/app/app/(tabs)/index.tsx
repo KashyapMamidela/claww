@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { riseIn } from '../../lib/motion';
 import Animated from 'react-native-reanimated';
 import { CountUp } from '../../components/ui/CountUp';
@@ -20,7 +21,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AREA_COLORS, COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, tint } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, tint, BG, bg } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getLatestWorkout, getProfile, getSuggestedDayIndex, getWorkoutDayEvents, type WorkoutRow } from '../../lib/data';
 import { Icon } from '../../components/ui/Icon';
@@ -136,9 +137,9 @@ function AiCard({ children }: { children: React.ReactNode }) {
         >
           <Icon name="sparkles" size={14} color={AREA_COLORS.engine} />
         </View>
-        <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>CLAWW Insight</Text>
+        <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>CLAWW Insight</Text>
       </View>
-      <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>{children}</Text>
+      <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>{children}</Text>
     </View>
   );
 }
@@ -193,7 +194,7 @@ function HomeEmptyState() {
         <Display style={{ marginTop: 4 }}>
           Welcome,{'\n'}{greetingName(userName)}.
         </Display>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 6, lineHeight: 18, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 6, lineHeight: 18, fontFamily: BG[400] }}>
           No recovery score yet — <Text style={{ color: COLORS.indigo, fontWeight: '700' }}>log tonight's sleep</Text> to unlock one.
         </Text>
       </View>
@@ -227,10 +228,10 @@ function HomeEmptyState() {
           </View>
         </ProgressRing>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', marginBottom: 4, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 15, marginBottom: 4, fontFamily: BG[800] }}>
             Nothing logged yet — that's normal
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, maxWidth: 260, textAlign: 'center', fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, maxWidth: 260, textAlign: 'center', fontFamily: BG[400] }}>
             Generate a plan built around your onboarding answers and today's progress ring starts filling in.
           </Text>
         </View>
@@ -279,10 +280,10 @@ function HomeEmptyState() {
           <Icon name="moon" size={22} color={COLORS.indigo} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginBottom: 2, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 13, marginBottom: 2, fontFamily: BG[700] }}>
             {sleepLogged ? 'Recovery is calculating…' : "Log tonight's sleep"}
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 16, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 16, fontFamily: BG[400] }}>
             {sleepLogged
               ? "You'll see your Recovery Score here tomorrow morning."
               : "Unlocks your Recovery Score — a sleep and protein based estimate to guide today's training."}
@@ -303,12 +304,12 @@ function HomeEmptyState() {
               justifyContent: 'center',
             }}
           >
-            <Text style={{ color: COLORS.indigo, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Log sleep</Text>
+            <Text style={{ color: COLORS.indigo, fontSize: 13, fontFamily: BG[700] }}>Log sleep</Text>
           </TouchableOpacity>
         ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
             <Icon name="check" size={13} color={COLORS.green} strokeWidth={3} />
-            <Text style={{ color: COLORS.green, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Logged</Text>
+            <Text style={{ color: COLORS.green, fontSize: 13, fontFamily: BG[700] }}>Logged</Text>
           </View>
         )}
       </View>
@@ -535,12 +536,12 @@ function HomePopulated() {
           numberOfLines={1}
           adjustsFontSizeToFit
           accessibilityRole="header"
-          style={{ color: COLORS.fg, fontSize: 32, lineHeight: 38, fontWeight: '900', letterSpacing: -0.9, fontFamily: FONT, marginTop: 2 }}
+          style={{ color: COLORS.fg, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, fontFamily: BG[800], marginTop: 2 }}
         >
           {greeting}, {greetingName(userName)}
         </Text>
         <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, marginTop: 6, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, marginTop: 6, fontFamily: BG[400] }}>
             {coach.map((seg, i) => (
               <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '700' } : undefined}>
                 {seg.text}
@@ -561,8 +562,8 @@ function HomePopulated() {
       <Animated.View entering={riseIn(0)}>
       <Surface padding={17} decoration={<TiltLight />}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Daily progress</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{dailyGoalPct}% of today</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Daily progress</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{dailyGoalPct}% of today</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
           <ProgressRing
@@ -582,10 +583,8 @@ function HomePopulated() {
             }
             trackColor="rgba(255,255,255,0.055)"
           >
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
-              <CountUp id="home.dailyGoal" value={dailyGoalPct} format={(n) => `${Math.round(n)}%`} />
-            </Text>
-            <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily goal</Text>
+            <CountUp id="home.dailyGoal" value={dailyGoalPct} format={(n) => `${Math.round(n)}%`} textStyle={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} />
+            <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: BG[400] }}>Daily goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>
             {(RINGS_V1
@@ -632,12 +631,12 @@ function HomePopulated() {
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                     <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: s.color }} />
-                    <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
+                    <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: BG[400] }}>{s.label}</Text>
                   </View>
                   {(s.label === 'Nutrition' || s.label === 'Eaten') && kcalPending ? (
                     <Skeleton width={90} height={12} borderRadius={4} />
                   ) : (
-                    <Text style={{ fontFamily: FONT, flexShrink: 1 }} numberOfLines={1}>
+                    <Text style={{ fontFamily: BG[400], flexShrink: 1 }} numberOfLines={1}>
                       <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] }}>{s.value} </Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 11 }}>{s.sub}</Text>
                     </Text>
@@ -714,8 +713,8 @@ function HomePopulated() {
 
       <BottomSheet visible={burnSheet} onClose={() => setBurnSheet(false)}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Burned goal</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Burned goal</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: BG[400] }}>
             Active calories you aim to burn in a day, on top of resting energy. It starts from how your calorie goal was set.
           </Text>
           <Stepper
@@ -736,8 +735,9 @@ function HomePopulated() {
 export default function HomeTab() {
   const { loading, hasPlan } = useAppState();
   const hideBar = useHideBarOnScroll();
+  const pull = usePullToRefresh('#3B82F6');
   return (
-    <ScrollView {...hideBar} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+    <ScrollView {...hideBar} key={pull.key} refreshControl={pull.refreshControl} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       {loading ? <HomeLoadingSkeleton /> : hasPlan ? <HomePopulated /> : <HomeEmptyState />}
     </ScrollView>
   );

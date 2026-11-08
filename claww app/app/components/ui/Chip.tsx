@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONT, SURFACES } from '../../lib/theme';
+import { COLORS, FONT, SURFACES, BG, bg } from '../../lib/theme';
 import { PressScale } from './PressScale';
 
 export interface ChipProps {
@@ -18,7 +18,7 @@ export function Chip({ children, active = false, accent = '#3B82F6', accentDeep,
   const label = (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       {icon}
-      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 15, fontWeight: active ? '700' : '500', fontFamily: FONT }}>
+      <Text style={{ color: active ? '#fff' : '#C4C4CC', fontSize: 15, fontFamily: bg(active ? '700' : '500') }}>
         {children}
       </Text>
     </View>

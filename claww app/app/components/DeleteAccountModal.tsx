@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { deleteAccount } from '../lib/auth';
 import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
@@ -82,16 +82,16 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
             >
               <Icon name="alert-triangle" size={18} color={COLORS.danger} />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Delete account</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Delete account</Text>
           </View>
 
-          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
             This permanently deletes your account and everything tied to it — workouts, meal and
             sleep logs, XP, streaks, all of it. This cannot be undone.
           </Text>
 
           <View>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6, fontFamily: BG[400] }}>
               Type <Text style={{ color: '#fff', fontWeight: '700' }}>DELETE</Text> to confirm
             </Text>
             <TextInput
@@ -111,13 +111,13 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
                 paddingHorizontal: 12,
                 color: '#fff',
                 fontSize: 15,
-                fontFamily: FONT,
+                fontFamily: BG[400],
               }}
             />
           </View>
 
           {error ? (
-            <Text style={{ color: COLORS.danger, fontSize: 13, fontFamily: FONT }}>{error}</Text>
+            <Text style={{ color: COLORS.danger, fontSize: 13, fontFamily: BG[400] }}>{error}</Text>
           ) : null}
 
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
@@ -135,7 +135,7 @@ export function DeleteAccountModal({ visible, onClose }: DeleteAccountModalProps
                 justifyContent: 'center',
               }}
             >
-              <Text style={{ color: '#A1A1AA', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Cancel</Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 15, fontFamily: BG[700] }}>Cancel</Text>
             </TouchableOpacity>
             <View style={{ flex: 1 }}>
               <Button

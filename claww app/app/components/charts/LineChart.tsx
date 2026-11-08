@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { Canvas, Circle, Path } from '@shopify/react-native-skia';
 import { ensureSkiaWebLoaded } from '../../lib/skiaWeb';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 
 export interface LineSeries {
   values: (number | null)[];
@@ -93,7 +93,7 @@ export function LineChart({ series, height = 130, labels, connectGaps = false }:
       {labels && width > 0 ? (
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6, paddingHorizontal: PAD }}>
           {labels.map((l, i) => (
-            <Text key={i} numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT, minWidth: 1 }}>
+            <Text key={i} numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400], minWidth: 1 }}>
               {l}
             </Text>
           ))}

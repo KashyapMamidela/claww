@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInput, TextInputProps } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { Surface } from './Surface';
 
 /** A text field on the same textured surface as the cards: 52 tall, radius 14, a brighter edge once it has text. */
@@ -10,7 +10,7 @@ export function FieldInput({ active, style, ...rest }: TextInputProps & { active
       <TextInput
         placeholderTextColor="#52525B"
         {...rest}
-        style={[{ height: 52, color: COLORS.fg, fontSize: 15, fontWeight: '600', paddingHorizontal: 16, fontFamily: FONT }, style]}
+        style={[{ height: 52, color: COLORS.fg, fontSize: 15, paddingHorizontal: 16, fontFamily: BG[600] }, style]}
       />
     </Surface>
   );

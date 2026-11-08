@@ -3,7 +3,7 @@ import { Surface } from './ui/Surface';
 import { Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg as bgFont } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getWorkoutDayEventsInRange, type WorkoutDayEvent } from '../lib/data';
 import { Icon } from './ui/Icon';
@@ -57,7 +57,7 @@ function DayCell({ date, event, isToday, size }: DayCellProps) {
       ) : skipped ? (
         <Icon name="x" size={size * 0.36} color={COLORS.amber} strokeWidth={2.5} />
       ) : (
-        <Text style={{ color: isToday ? A : COLORS.textFaint, fontSize: size * 0.34, fontWeight: isToday ? '800' : '600', fontFamily: FONT }}>
+        <Text style={{ color: isToday ? A : COLORS.textFaint, fontSize: size * 0.34, fontFamily: bgFont(isToday ? '800' : '600') }}>
           {date.getDate()}
         </Text>
       )}
@@ -120,9 +120,9 @@ export function WorkoutCalendar() {
   return (
     <Surface radius={16} padding={16}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>This week</Text>
+        <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>This week</Text>
         <TouchableOpacity activeOpacity={0.8} onPress={() => setShowMonth((s) => !s)} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Text style={{ color: A, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{showMonth ? 'Hide month' : 'View month'}</Text>
+          <Text style={{ color: A, fontSize: 13, fontFamily: BG[700] }}>{showMonth ? 'Hide month' : 'View month'}</Text>
           <Icon name={showMonth ? 'chevron-up' : 'chevron-right'} size={12} color={A} />
         </TouchableOpacity>
       </View>
@@ -134,7 +134,7 @@ export function WorkoutCalendar() {
             entering={FadeInDown.delay(i * 40).springify().damping(16)}
             style={{ alignItems: 'center', gap: 4 }}
           >
-            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{DAY_LABELS[d.getDay()]}</Text>
+            <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: BG[700] }}>{DAY_LABELS[d.getDay()]}</Text>
             <DayCell date={d} event={eventsByDate.get(toDateKey(d))} isToday={toDateKey(d) === toDateKey(today)} size={38} />
           </Animated.View>
         ))}
@@ -142,10 +142,10 @@ export function WorkoutCalendar() {
 
       {showMonth && (
         <View style={{ marginTop: 16, paddingTop: 14, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
-          <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', marginBottom: 10, fontFamily: FONT }}>{monthLabel}</Text>
+          <Text style={{ color: '#A1A1AA', fontSize: 13, marginBottom: 10, fontFamily: BG[700] }}>{monthLabel}</Text>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
             {DAY_LABELS.map((l, i) => (
-              <Text key={i} style={{ width: 30, textAlign: 'center', color: COLORS.textFaint, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
+              <Text key={i} style={{ width: 30, textAlign: 'center', color: COLORS.textFaint, fontSize: 11, fontFamily: BG[700] }}>
                 {l}
               </Text>
             ))}
@@ -164,11 +164,11 @@ export function WorkoutCalendar() {
           <View style={{ flexDirection: 'row', gap: 14, marginTop: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.green }} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{completedThisMonth} completed</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{completedThisMonth} completed</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
               <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.amber }} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{skippedThisMonth} skipped</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{skippedThisMonth} skipped</Text>
             </View>
           </View>
         </View>

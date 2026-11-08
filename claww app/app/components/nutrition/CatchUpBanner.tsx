@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { catchUpSlots, momentFor } from '../../lib/dayMoments';
 import { Button } from '../ui/Button';
@@ -25,8 +25,8 @@ export function CatchUpBanner() {
     <Surface padding={14}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{closing ? 'Close your day in 10 seconds' : 'Quick catch-up'}</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{n === 1 ? 'One meal is not logged.' : `${n} meals are not logged.`} A rough answer is enough.</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{closing ? 'Close your day in 10 seconds' : 'Quick catch-up'}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{n === 1 ? 'One meal is not logged.' : `${n} meals are not logged.`} A rough answer is enough.</Text>
         </View>
         <Button variant="primary" accent={COLORS.green} accentDeep={COLORS.greenDeep} size="md" onPress={() => router.push('/catch-up')} icon={<Icon name="check" size={14} color="#fff" />}>
           Catch up

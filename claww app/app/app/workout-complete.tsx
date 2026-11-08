@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
-import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint, BG, bg } from '../lib/theme';
 import { syncPenMarks } from '../lib/penData';
 import { useAppState } from '../lib/appState';
 import { useWorkoutSession } from '../lib/workoutSession';
@@ -186,8 +186,8 @@ export default function WorkoutCompleteScreen() {
 
   const tile = (value: string, label: string) => (
     <View style={{ flex: 1, minHeight: 88, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 14, justifyContent: 'center' }}>
-      <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
-      <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: '#fff', fontSize: 22, letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>
+      <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
     </View>
   );
 
@@ -197,7 +197,7 @@ export default function WorkoutCompleteScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-            <Text style={{ color: A, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{`${dayName} · ${timeText}`}</Text>
+            <Text style={{ color: A, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>{`${dayName} · ${timeText}`}</Text>
           </View>
           <Pressable onPress={handleDone} accessibilityRole="button" accessibilityLabel="Close" style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
             <Icon name="x" size={22} color={COLORS.textMuted} />
@@ -206,15 +206,15 @@ export default function WorkoutCompleteScreen() {
 
         <Hero variant="blue" accessibilityLabel={`${title}. ${minutes} minutes, ${summary?.setsCompleted ?? 0} sets`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, flex: 1, fontFamily: FONT }}>
+            <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, letterSpacing: 0.9, flex: 1, fontFamily: BG[700] }}>
               {`${(summary?.focus || 'Workout').toUpperCase()} · COMPLETE`}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.55)', backgroundColor: 'rgba(245,158,11,0.16)', paddingHorizontal: 10, paddingVertical: 5 }}>
               <Icon name="sparkles" size={13} color={COLORS.amber} />
-              <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>+{summary?.xpEarned ?? 0} CLAWW</Text>
+              <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[800] }}>+{summary?.xpEarned ?? 0} CLAWW</Text>
             </View>
           </View>
-          <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: BG[800] }}>
             {title},{'\n'}{userName || 'you'}.
           </Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
@@ -234,8 +234,8 @@ export default function WorkoutCompleteScreen() {
                 <Icon name="trophy" size={20} color={COLORS.amber} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>New best · {best.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{newBestText(best)}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>New best · {best.name}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{newBestText(best)}</Text>
               </View>
             </View>
             {bestNext ? (
@@ -250,8 +250,8 @@ export default function WorkoutCompleteScreen() {
         ) : null}
 
         <Surface padding={16}>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>How did that feel?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 2, marginBottom: 12, fontFamily: FONT }}>This decides how the next session is marked.</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>How did that feel?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 2, marginBottom: 12, fontFamily: BG[400] }}>This decides how the next session is marked.</Text>
           <Segmented options={FEEL_OPTIONS} value={feel} onChange={chooseFeel} accessibilityLabel="How did that feel" />
           <Text style={{ color: COLORS.fg, fontSize: 20, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
         </Surface>
@@ -262,14 +262,14 @@ export default function WorkoutCompleteScreen() {
               <Icon name="zap" size={20} color={AREA_COLORS.streak} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{streak.days}-day streak</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{streakSentence(streak, today)}</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{streak.days}-day streak</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{streakSentence(streak, today)}</Text>
             </View>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Exam week</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Protects your streak for 7 days if you miss sessions.</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>Exam week</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Protects your streak for 7 days if you miss sessions.</Text>
             </View>
             <Switch value={examOn} onValueChange={toggleExam} accessibilityLabel="Exam week" trackColor={{ true: AREA_COLORS.streak, false: '#3F3F46' }} />
           </View>

@@ -3,7 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState, type MealLogRow } from '../lib/appState';
 import { getMealLogsBetween, getProfile, type NutritionDefaults } from '../lib/data';
 import { MICRO_LABELS, microTargets, nextMealFor, normaliseSex, rateMeal, sodiumOver, sumMicros, type MicroKey } from '../lib/diaryLogic';
@@ -114,8 +114,8 @@ export default function DiaryScreen() {
             return (
               <Pressable key={i} onPress={() => setSelected(i)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${d.toDateString()}: ${n} meals logged`} style={{ flex: 1 }}>
                 <View style={{ minHeight: 76, borderRadius: 16, alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1, borderColor: on ? G : COLORS.border, backgroundColor: on ? G : COLORS.card }}>
-                  <Text style={{ color: on ? '#052e16' : COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.toLocaleDateString(undefined, { weekday: 'narrow' })}</Text>
-                  <Text style={{ color: on ? '#052e16' : COLORS.fg, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{d.getDate()}</Text>
+                  <Text style={{ color: on ? '#052e16' : COLORS.textMuted, fontSize: 13, fontFamily: BG[700] }}>{d.toLocaleDateString(undefined, { weekday: 'narrow' })}</Text>
+                  <Text style={{ color: on ? '#052e16' : COLORS.fg, fontSize: 20, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{d.getDate()}</Text>
                   <View style={{ flexDirection: 'row', gap: 3 }}>
                     {[0, 1, 2].map((j) => (
                       <View key={j} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: j < n ? (on ? '#052e16' : G) : on ? 'rgba(5,46,22,0.3)' : 'rgba(255,255,255,0.14)' }} />
@@ -132,8 +132,8 @@ export default function DiaryScreen() {
         ) : (
           <Surface padding={16}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Micronutrients</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Micronutrients</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>
                 {kcal.toLocaleString('en-IN')} kcal · {entries.length} entr{entries.length === 1 ? 'y' : 'ies'}
               </Text>
             </View>
@@ -146,8 +146,8 @@ export default function DiaryScreen() {
                 return (
                   <View key={m.key} style={{ width: '47%' }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.label}</Text>
-                      <Text style={{ color: over ? COLORS.amber : COLORS.fg, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{m.label}</Text>
+                      <Text style={{ color: over ? COLORS.amber : COLORS.fg, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
                         {fmt(m.key, value)} / {m.key === 'sodiumMg' ? `${(target / 1000).toFixed(0)} g` : `${fmt(m.key, target)} ${m.unit}`}
                       </Text>
                     </View>
@@ -157,7 +157,7 @@ export default function DiaryScreen() {
               })}
             </View>
             {entries.length > 0 && micros.counted < micros.total ? (
-              <Text style={{ color: COLORS.textFaint, fontSize: 13, marginTop: 12, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textFaint, fontSize: 13, marginTop: 12, fontFamily: BG[400] }}>
                 {micros.counted === 0 ? 'None of these entries has micronutrient data yet.' : `Counts ${micros.counted} of ${micros.total} entries: only meals logged from the food database carry micronutrients.`}
               </Text>
             ) : null}
@@ -166,8 +166,8 @@ export default function DiaryScreen() {
 
         {week !== null && rated.length === 0 ? (
           <View style={{ borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: COLORS.borderStrong, padding: 22, alignItems: 'center', gap: 6 }}>
-            <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>Nothing logged {selected === 6 ? 'yet today' : 'this day'}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 15, textAlign: 'center', fontFamily: FONT }}>Tap + to add a meal. It shows up here with a rating.</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>Nothing logged {selected === 6 ? 'yet today' : 'this day'}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, textAlign: 'center', fontFamily: BG[400] }}>Tap + to add a meal. It shows up here with a rating.</Text>
           </View>
         ) : null}
 
@@ -199,14 +199,14 @@ export default function DiaryScreen() {
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {chips.filter(([, v]) => typeof v === 'number').map(([label, v, unit]) => (
                     <View key={label} style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderStrong, paddingHorizontal: 12, justifyContent: 'center' }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[400] }}>
                         {label} {Math.round((v as number) * 10) / 10} {unit}
                       </Text>
                     </View>
                   ))}
-                  {chips.every(([, v]) => typeof v !== 'number') ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>No micronutrient data for this entry.</Text> : null}
+                  {chips.every(([, v]) => typeof v !== 'number') ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>No micronutrient data for this entry.</Text> : null}
                   <Pressable onPress={() => setEditing(m)} accessibilityRole="button" accessibilityLabel="Edit this entry" style={{ minHeight: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.1)', paddingHorizontal: 16, justifyContent: 'center' }}>
-                    <Text style={{ color: G, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Edit</Text>
+                    <Text style={{ color: G, fontSize: 15, fontFamily: BG[800] }}>Edit</Text>
                   </Pressable>
                 </View>
               ) : null}

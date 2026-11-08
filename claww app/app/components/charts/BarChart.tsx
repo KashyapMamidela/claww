@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import { Canvas, DashPathEffect, Line, RoundedRect, vec } from '@shopify/react-native-skia';
 import { ensureSkiaWebLoaded } from '../../lib/skiaWeb';
-import { COLORS, FONT, tint } from '../../lib/theme';
+import { COLORS, FONT, tint, BG, bg } from '../../lib/theme';
 
 export interface BarChartProps {
   values: number[];
@@ -67,7 +67,7 @@ export function BarChart({ values, color, height = 120, goal = null, highlightIn
       {labels && width > 0 ? (
         <View style={{ flexDirection: 'row', marginTop: 6 }}>
           {labels.map((l, i) => (
-            <Text key={i} numberOfLines={1} style={{ width: barW + (i < labels.length - 1 ? gap : 0), color: COLORS.textMuted, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>
+            <Text key={i} numberOfLines={1} style={{ width: barW + (i < labels.length - 1 ? gap : 0), color: COLORS.textMuted, fontSize: 11, textAlign: 'center', fontFamily: BG[400] }}>
               {l}
             </Text>
           ))}

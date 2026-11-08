@@ -4,7 +4,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { DEFAULT_CONTEXT, type Oil, type Place, type Portion, type ScanContext } from '../lib/engine';
 import { contextText, habitContext, lastTimeFor } from '../lib/scanHabit';
@@ -131,12 +131,12 @@ export default function ScanScreen() {
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 14 }}>
             <Icon name="camera" size={34} color={COLORS.textMuted} />
-            <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', textAlign: 'center', fontFamily: FONT }}>CLAWW needs the camera to scan a plate</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 17, textAlign: 'center', fontFamily: BG[800] }}>CLAWW needs the camera to scan a plate</Text>
             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" onPress={requestPermission}>
               Allow the camera
             </Button>
             <Pressable onPress={fromGallery} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: G, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Choose a photo instead</Text>
+              <Text style={{ color: G, fontSize: 15, fontFamily: BG[700] }}>Choose a photo instead</Text>
             </Pressable>
           </View>
         )}
@@ -146,7 +146,7 @@ export default function ScanScreen() {
             <Icon name="x" size={22} color="#fff" />
           </Pressable>
           <View style={{ minHeight: 40, paddingHorizontal: 16, borderRadius: 20, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'center' }}>
-            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>
               {mealType} · {now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
             </Text>
           </View>
@@ -161,12 +161,12 @@ export default function ScanScreen() {
             <Corner pos="br" />
             {dish ? (
               <View style={{ position: 'absolute', bottom: -18, alignSelf: 'center', minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: G, justifyContent: 'center' }}>
-                <Text style={{ color: '#052e16', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Looks like {dish.toLowerCase()}</Text>
+                <Text style={{ color: '#052e16', fontSize: 15, fontFamily: BG[800] }}>Looks like {dish.toLowerCase()}</Text>
               </View>
             ) : reading ? (
               <View style={{ position: 'absolute', bottom: -18, alignSelf: 'center', minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.6)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <ActivityIndicator color="#fff" size="small" />
-                <Text style={{ color: '#fff', fontSize: 15, fontFamily: FONT }}>Reading the plate…</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[400] }}>Reading the plate…</Text>
               </View>
             ) : null}
           </View>
@@ -180,7 +180,7 @@ export default function ScanScreen() {
               </View>
             </PressScale>
             <Pressable onPress={fromGallery} accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Choose a photo instead</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Choose a photo instead</Text>
             </Pressable>
           </View>
         ) : null}
@@ -197,16 +197,16 @@ export default function ScanScreen() {
                 style={{ minHeight: 72, borderRadius: 16, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Last time with this dish</Text>
-                  <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{contextText(last.context)}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Last time with this dish</Text>
+                  <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{contextText(last.context)}</Text>
                 </View>
-                <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Use</Text>
+                <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>Use</Text>
               </Pressable>
             ) : null}
 
             <View>
-              <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{last ? 'Or answer two quick questions' : 'Two quick questions'}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: FONT }}>Photos cannot see oil or portion. This makes the numbers honest.</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{last ? 'Or answer two quick questions' : 'Two quick questions'}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: BG[400] }}>Photos cannot see oil or portion. This makes the numbers honest.</Text>
             </View>
 
             <SectionLabel color={G}>WHERE IS IT FROM?</SectionLabel>
@@ -220,7 +220,7 @@ export default function ScanScreen() {
               {reading ? 'Reading the plate…' : 'Check the items'}
             </Button>
             <Pressable onPress={retake} accessibilityRole="button" style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Retake the photo</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[600] }}>Retake the photo</Text>
             </Pressable>
           </ScrollView>
         </View>

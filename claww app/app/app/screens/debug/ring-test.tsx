@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { ProgressRing } from '../../../components/ui/ProgressRing';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 
 /**
  * Dev-only visual check for the Apple-Activity-style ProgressRing overflow
@@ -22,9 +22,9 @@ export default function RingTestScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: '#080808' }} contentContainerStyle={{ padding: 24, gap: 32 }}>
       {CASES.map((c) => (
         <View key={c.label} style={{ alignItems: 'center', gap: 12 }}>
-          <Text style={{ color: '#fff', fontFamily: FONT, fontSize: 13 }}>{c.label}</Text>
+          <Text style={{ color: '#fff', fontFamily: BG[400], fontSize: 13 }}>{c.label}</Text>
           <ProgressRing size={200} rings={[{ r: 80, strokeWidth: 18, color: COLORS.green, pct: c.pct }]}>
-            <Text style={{ color: '#fff', fontFamily: FONT, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'] }}>{c.pct}%</Text>
+            <Text style={{ color: '#fff', fontFamily: BG[800], fontSize: 20, fontVariant: ['tabular-nums'] }}>{c.pct}%</Text>
           </ProgressRing>
         </View>
       ))}

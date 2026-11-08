@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { useAppState, type MealLogRow, type MealType } from '../../lib/appState';
 import { searchFoodDb, recordFoodUse } from '../../lib/foodDb';
 import { defaultUnit, gramsFor, nutrientsFor, unitsFor, type Food } from '../../lib/foodLookup';
@@ -176,10 +176,10 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
             <PressScale onPress={() => setPicked(null)} accessibilityRole="button" accessibilityLabel="Back to search" style={{ alignSelf: 'flex-start' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, minHeight: 44 }}>
                 <Icon name="chevron-left" size={18} color={COLORS.textMuted} />
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Search</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Search</Text>
               </View>
             </PressScale>
-            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>{picked.name}</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>{picked.name}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {unitsFor(picked).map((u) => (
                 <Chip
@@ -205,13 +205,13 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
               onIncrement={() => setQty((q) => Math.round((q + step) * 100) / 100)}
               decrementDisabled={qty <= min}
             />
-            <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
               {nutrients.kcal} <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '600' }}>kcal</Text>
             </Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
               P {nutrients.proteinG} g · C {nutrients.carbsG} g · F {nutrients.fatG} g · {Math.round(grams)} g in all
             </Text>
-            {!picked.reviewed ? <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: FONT }}>Values are from the food database and are still being reviewed.</Text> : null}
+            {!picked.reviewed ? <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: BG[400] }}>Values are from the food database and are still being reviewed.</Text> : null}
             {error ? <ErrorCard message={error} onRetry={log} retrying={saving} /> : null}
             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving} onPress={log}>
               {saving ? 'Saving…' : onPickFood ? 'Add to the plate' : `Log ${mealType.toLowerCase()}`}
@@ -219,7 +219,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
           </>
         ) : (
           <>
-            <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Search food</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Search food</Text>
             <TextInput
               value={query}
               onChangeText={setQuery}
@@ -228,18 +228,18 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
               autoFocus
               autoCapitalize="none"
               accessibilityLabel="Search food"
-              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: query ? COLORS.greenBorderMd : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: FONT }}
+              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: query ? COLORS.greenBorderMd : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: BG[400] }}
             />
             <ScrollView style={{ maxHeight: 360 }} keyboardShouldPersistTaps="handled">
               {query.trim().length < 2 && !onPickFood && myPlates.length > 0 ? (
                 <View style={{ gap: 4, paddingBottom: 8 }}>
-                  <Text style={{ color: G, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>MY PLATES</Text>
+                  <Text style={{ color: G, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>MY PLATES</Text>
                   {myPlates.map((p) => (
                     <PressScale key={p.id} onPress={() => logPlate(p)} disabled={saving} accessibilityRole="button" accessibilityLabel={`Log my plate: ${p.name}, ${p.kcal} kilocalories`}>
                       <View style={{ minHeight: 56, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: COLORS.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                         <View style={{ flex: 1 }}>
-                          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }} numberOfLines={1}>{p.name}</Text>
-                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{p.kcal} kcal · P {p.proteinG} g</Text>
+                          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }} numberOfLines={1}>{p.name}</Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{p.kcal} kcal · P {p.proteinG} g</Text>
                         </View>
                         <Icon name="plus" size={18} color={G} />
                       </View>
@@ -251,8 +251,8 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
                 <PressScale key={f.id} onPress={() => choose(f)} accessibilityRole="button" accessibilityLabel={`${f.name}, ${Math.round(f.kcal100g)} kilocalories per 100 grams`}>
                   <View style={{ minHeight: 56, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                     <View style={{ flex: 1 }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>{f.name}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>{f.name}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
                         {f.kind === 'dish' ? 'Dish' : 'Ingredient'} · per {defaultUnit(f).unit === 'g' ? '100 g' : `${defaultUnit(f).unit} (${Math.round(defaultUnit(f).grams)} g)`}
                       </Text>
                     </View>
@@ -261,11 +261,11 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
                 </PressScale>
               ))}
               {query.trim().length >= 2 && !searching && results.length === 0 ? (
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, paddingVertical: 14, fontFamily: FONT }}>Nothing found for "{query.trim()}". Try one word, or describe it instead.</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, paddingVertical: 14, fontFamily: BG[400] }}>Nothing found for "{query.trim()}". Try one word, or describe it instead.</Text>
               ) : null}
               {query.trim().length < 2 && recent.length > 0 ? (
                 <View style={{ gap: 8, paddingTop: 4 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>RECENT</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>RECENT</Text>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                     {recent.slice(0, 6).map((r) => (
                       <Chip key={r} accent={G} onPress={() => setQuery(r.replace(/^[\d.½\s]+(g|ml|tsp|tbsp|katori|glass|cup|roti|piece)?\s*/i, ''))}>

@@ -3,7 +3,7 @@ import { Image, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT, FONT_HAND } from '../../../lib/theme';
+import { COLORS, FONT, FONT_HAND, BG, bg } from '../../../lib/theme';
 import { Button } from '../../../components/ui/Button';
 
 // Polish step 9 (board "Welcome"): the white logo on black with the blue glow behind it, one promise, one pen note,
@@ -30,10 +30,10 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={{ gap: 12, alignItems: 'center' }}>
-            <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -1, lineHeight: 40, textAlign: 'center', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.fg, fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -1, lineHeight: 40, textAlign: 'center', fontFamily: BG[800] }}>
               Your coach that{'\n'}fits your real day
             </Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, textAlign: 'center', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, textAlign: 'center', fontFamily: BG[400] }}>
               Workouts and meals planned around your gym, home or hostel. It changes when you do.
             </Text>
           </View>
@@ -48,7 +48,7 @@ export default function WelcomeScreen() {
           <Button variant="secondary" size="lg" fullWidth onPress={() => router.push('/screens/auth/sign-in')}>
             I already have an account
           </Button>
-          <Text style={{ color: COLORS.textFaint, fontSize: 13, lineHeight: 18, textAlign: 'center', marginTop: 4, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textFaint, fontSize: 13, lineHeight: 18, textAlign: 'center', marginTop: 4, fontFamily: BG[400] }}>
             By continuing you agree to the Terms and Privacy Policy.
           </Text>
         </View>

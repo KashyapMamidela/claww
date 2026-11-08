@@ -5,7 +5,7 @@ import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
 import { getGenerationUsageToday, getProfile, saveReminderSettings, saveScanTraining, setNotificationsEnabled } from '../lib/data';
@@ -98,15 +98,15 @@ export default function SettingsScreen() {
         </View>
 
         <Surface radius={20} padding={16}>
-          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT, marginBottom: 4 }}>Today's generation usage</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT, marginBottom: 14 }}>
+          <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700], marginBottom: 4 }}>Today's generation usage</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400], marginBottom: 14 }}>
             Resets at midnight. Hitting a limit means try again tomorrow.
           </Text>
           {rows.map((r, i) => (
             <View key={r.label} style={{ marginTop: i > 0 ? 14 : 0 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>{r.label}</Text>
-                <Text style={{ color: r.used >= r.cap ? COLORS.danger : '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>{r.label}</Text>
+                <Text style={{ color: r.used >= r.cap ? COLORS.danger : '#fff', fontSize: 13, fontFamily: BG[700] }}>
                   {r.used} / {r.cap}
                 </Text>
               </View>
@@ -131,8 +131,8 @@ export default function SettingsScreen() {
                 <Icon name="bell" size={16} color={COLORS.blue} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Reminders</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>Workout, meal, sleep and water nudges</Text>
+                <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[600] }}>Reminders</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>Workout, meal, sleep and water nudges</Text>
               </View>
               <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
@@ -142,7 +142,7 @@ export default function SettingsScreen() {
               </View>
             ) : null}
             {permissionDenied ? (
-              <Text style={{ color: COLORS.danger, fontSize: 11, marginTop: 10, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.danger, fontSize: 11, marginTop: 10, fontFamily: BG[400] }}>
                 Notifications are blocked for CLAWW in your device settings — enable them there first.
               </Text>
             ) : null}
@@ -155,8 +155,8 @@ export default function SettingsScreen() {
               <Icon name="camera" size={16} color={COLORS.green} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Help improve the scanner</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, lineHeight: 17, fontFamily: FONT }}>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>Help improve the scanner</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, lineHeight: 17, fontFamily: BG[400] }}>
                 When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals. Off by default. Turn it off any time.
               </Text>
             </View>
@@ -173,7 +173,7 @@ export default function SettingsScreen() {
 
         {notificationsSupported && SHOW_DEV_TOOLS ? (
           <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
-            <Text style={{ color: COLORS.amber, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>TEST TOOLS · NOT IN RELEASE BUILDS</Text>
+            <Text style={{ color: COLORS.amber, fontSize: 11, letterSpacing: 0.7, fontFamily: BG[800] }}>TEST TOOLS · NOT IN RELEASE BUILDS</Text>
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={async () => {
@@ -182,9 +182,9 @@ export default function SettingsScreen() {
               }}
               style={{ height: 44, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Send a test reminder in 2 minutes</Text>
+              <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Send a test reminder in 2 minutes</Text>
             </TouchableOpacity>
-            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>{testStatus}</Text> : null}
+            {testStatus ? <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>{testStatus}</Text> : null}
           </View>
         ) : null}
 
@@ -197,7 +197,7 @@ export default function SettingsScreen() {
             accessibilityRole="button"
             style={{ minHeight: 44, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', backgroundColor: '#151517', alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}
           >
-            <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Design system gallery</Text>
+            <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Design system gallery</Text>
           </TouchableOpacity>
         ) : null}
 
@@ -210,7 +210,7 @@ export default function SettingsScreen() {
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign out</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontFamily: BG[500] }}>Sign out</Text>
           </TouchableOpacity>
         </Surface>
       </View>
@@ -227,20 +227,20 @@ function PerfReadout() {
   const { setLatency, homeFirstPaintMs } = report;
   const row = (label: string, value: string) => (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-      <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>{label}</Text>
-      <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{value}</Text>
+      <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
+      <Text style={{ color: COLORS.fg, fontSize: 13, fontFamily: BG[700], fontVariant: ['tabular-nums'] }}>{value}</Text>
     </View>
   );
   return (
     <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 8 }}>
-      <Text style={{ color: COLORS.amber, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>SPEED NUMBERS · NOT IN RELEASE BUILDS</Text>
+      <Text style={{ color: COLORS.amber, fontSize: 11, letterSpacing: 0.7, fontFamily: BG[800] }}>SPEED NUMBERS · NOT IN RELEASE BUILDS</Text>
       {row('Sets timed', String(setLatency.count))}
       {row('Tap to next set, median', msText(setLatency.median))}
       {row('Tap to next set, slowest 10%', msText(setLatency.p90))}
       {row('Home first paint (this app start)', msText(homeFirstPaintMs))}
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
         <TouchableOpacity activeOpacity={0.8} onPress={() => setReport(getPerfReport())} style={{ flex: 1, height: 44, borderRadius: 12, backgroundColor: 'rgba(245,158,11,0.14)', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Refresh</Text>
+          <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Refresh</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -250,7 +250,7 @@ function PerfReadout() {
           }}
           style={{ flex: 1, height: 44, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.35)', alignItems: 'center', justifyContent: 'center' }}
         >
-          <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Reset set timings</Text>
+          <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Reset set timings</Text>
         </TouchableOpacity>
       </View>
     </View>

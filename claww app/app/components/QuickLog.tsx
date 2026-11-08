@@ -10,7 +10,7 @@ import { ActivitySheet } from './workouts/ActivityCard';
 import { useToast } from './ui/Toast';
 import { useAppState } from '../lib/appState';
 import { logWater } from '../lib/data';
-import { AREA_COLORS, COLORS, FONT, tint } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import { success } from '../lib/haptics';
 
 // Premium F1 (first version): the centre + in the tab bar. One sheet, the four things people log most.
@@ -31,8 +31,8 @@ function Action({ icon, color, title, sub, onPress }: { icon: string; color: str
             <Icon name={icon} size={22} color={color} />
           </View>
           <View>
-            <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{title}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{sub}</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{title}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{sub}</Text>
           </View>
         </View>
       </Surface>
@@ -64,7 +64,7 @@ export function QuickLogProvider({ children }: { children: React.ReactNode }) {
       {children}
       <BottomSheet visible={visible} onClose={close} maxHeightFraction={0.8}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>Quick log</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>Quick log</Text>
           <View style={{ flexDirection: 'row', gap: 12 }}>
             <Action icon="camera" color={AREA_COLORS.nutrition} title="Scan a meal" sub="Photo of your plate" onPress={() => { close(); router.push('/scan'); }} />
             <Action icon="utensils" color={AREA_COLORS.nutrition} title="Add food" sub="Search or describe" onPress={() => { close(); router.push('/meal-log'); }} />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { OnboardingTopBar } from './OnboardingTopBar';
 
 export interface SetupChipStepProps<T extends string> {
@@ -42,13 +42,13 @@ export function SetupChipStep<T extends string>({
       <View style={{ flex: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 14 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: accent }} />
-          <Text style={{ color: accent, fontSize: 11, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>{eyebrow}</Text>
+          <Text style={{ color: accent, fontSize: 11, letterSpacing: 1, fontFamily: BG[700] }}>{eyebrow}</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>
           {title}
         </Text>
         {subtitle ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, lineHeight: 19, fontFamily: FONT }}>{subtitle}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, lineHeight: 19, fontFamily: BG[400] }}>{subtitle}</Text>
         ) : null}
 
         <View style={{ marginTop: 26, gap: 12 }}>
@@ -71,7 +71,7 @@ export function SetupChipStep<T extends string>({
                   borderColor: isActive ? `${accent}60` : 'rgba(255,255,255,0.10)',
                 }}
               >
-                <Text style={{ color: isActive ? accent : '#fff', fontSize: 15, fontWeight: '700', flex: 1, fontFamily: FONT }}>
+                <Text style={{ color: isActive ? accent : '#fff', fontSize: 15, flex: 1, fontFamily: BG[700] }}>
                   {opt.label}
                 </Text>
                 {isActive && <Text style={{ color: accent, fontSize: 17 }}>✓</Text>}

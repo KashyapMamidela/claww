@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { getLastWeights } from '../../lib/adaptiveData';
 import { BodyMap, MUSCLES, type Muscle } from '../../components/BodyMap';
 import { PressScale } from '../../components/ui/PressScale';
@@ -11,7 +12,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
-import { COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { COLORS, FONT, FONT_HAND, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, BG, bg } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import {
@@ -82,7 +83,7 @@ function WorkoutsEmptyState() {
       <View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-          <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WORKOUTS</Text>
+          <Text style={{ color: A, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>WORKOUTS</Text>
         </View>
         <Display>No plan yet</Display>
       </View>
@@ -114,10 +115,10 @@ function WorkoutsEmptyState() {
           <Icon name="dumbbell" size={32} color={A} />
         </View>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', marginBottom: 8, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 17, marginBottom: 8, fontFamily: BG[800] }}>
             Your training plan lives here
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 20, maxWidth: 280, textAlign: 'center', fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 20, maxWidth: 280, textAlign: 'center', fontFamily: BG[400] }}>
             CLAWW builds a personalised plan from your profile and recovery — exercises, sets, and rest all tuned to you, updating as
             you log more days.
           </Text>
@@ -147,6 +148,7 @@ export default function WorkoutsTab() {
   const insets = useSafeAreaInsets();
   const tabPad100 = useTabBottomPad(100);
   const hideBar = useHideBarOnScroll('workouts');
+  const pull = usePullToRefresh('#3B82F6');
   const { status: sessionStatus, startSession } = useWorkoutSession();
   const router = useRouter();
   // Home's plan card links here with ?day=N so the same day it shows is the
@@ -426,7 +428,7 @@ export default function WorkoutsTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView ref={scrollRef} {...hideBar} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -439,9 +441,8 @@ export default function WorkoutsTab() {
             <View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
-                <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{weekLabel ? `${todayName} \u00b7 ${weekLabel}` : 'YOUR PLAN'}</Text>
+                <Text style={{ color: A, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>{weekLabel ? `${todayName} \u00b7 ${weekLabel}` : 'YOUR PLAN'}</Text>
               </View>
-              <LargeTitle>Train</LargeTitle>
             </View>
             {sessionStatus === 'idle' && !showRegenCard && !regenerating ? (
               <PressScale onPress={() => setMenuOpen(true)} accessibilityRole="button" accessibilityLabel="More options for your plan" hitSlop={4}>
@@ -468,8 +469,8 @@ export default function WorkoutsTab() {
               }}
             >
               <Icon name="wand-2" size={22} color={A} />
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Rebuilding your plan…</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Usually takes a few seconds</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Rebuilding your plan…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Usually takes a few seconds</Text>
             </View>
           ) : showRegenCard ? (
             <View
@@ -483,7 +484,7 @@ export default function WorkoutsTab() {
                 gap: 10,
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>What should change?</Text>
+              <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>What should change?</Text>
               {regenError ? (
                 <ErrorCard message={regenError} onRetry={lastReason ? () => handleRegenerate(lastReason) : undefined} retrying={regenerating} />
               ) : null}
@@ -508,7 +509,7 @@ export default function WorkoutsTab() {
                       borderColor: 'rgba(59,130,246,0.35)',
                     }}
                   >
-                    <Text style={{ color: A, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{label}</Text>
+                    <Text style={{ color: A, fontSize: 13, fontFamily: BG[700] }}>{label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -520,14 +521,14 @@ export default function WorkoutsTab() {
                 }}
                 style={{ alignSelf: 'flex-start' }}
               >
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Cancel</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>Cancel</Text>
               </TouchableOpacity>
             </View>
           ) : null}
 
           {dismissedOldPlan !== undefined && showOldPlanCard(workout, dismissedOldPlan) ? (
             <View style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 14, paddingRight: 2, borderRadius: 24, backgroundColor: 'rgba(59,130,246,0.10)' }}>
-              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: FONT }} numberOfLines={1}>Built with the old builder</Text>
+              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[400] }} numberOfLines={1}>Built with the old builder</Text>
               <Button variant="primary" size="sm" onPress={() => router.push('/workout-setup')}>Rebuild</Button>
               <PressScale
                 onPress={() => {
@@ -549,7 +550,7 @@ export default function WorkoutsTab() {
             <WeekStripView strip={strip} selectedPlanIndex={selectedDay} onSelect={setSelectedDay} />
           ) : (
             <View>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.7, marginBottom: 8, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.7, marginBottom: 8, fontFamily: BG[700] }}>
                 PICK A DAY {isSuggested ? '· SUGGESTED IS HIGHLIGHTED' : ''}
               </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 7 }}>
@@ -581,7 +582,7 @@ export default function WorkoutsTab() {
                     ) : suggested && !active ? (
                       <View style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: A }} />
                     ) : null}
-                    <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.day}</Text>
+                    <Text style={{ color: active ? '#fff' : '#A1A1AA', fontSize: 13, fontFamily: BG[700] }}>{d.day}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -596,24 +597,24 @@ export default function WorkoutsTab() {
                 <BodyMap muscles={heroMuscles} height={84} color="#BFDBFE" views="both" />
               </View>
             ) : null}
-            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
+            <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>
               {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: FONT }}>{day.focus}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: BG[800] }}>{day.focus}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
-                  <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{t}</Text>
+                  <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>{t}</Text>
                 </View>
               ))}
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
               <Icon name="shield-check" size={16} color="rgba(255,255,255,0.75)" />
-              <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, flex: 1, fontFamily: FONT }}>
+              <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, flex: 1, fontFamily: BG[400] }}>
                 {blueprint ? `${blueprint.title.split(',')[0]} blueprint${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
               </Text>
               <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="See the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Exercises {'\u203a'}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>Exercises {'\u203a'}</Text>
               </TouchableOpacity>
             </View>
             {sessionStatus === 'idle' && (canStart || selectedState.state === 'missed') ? (
@@ -627,7 +628,7 @@ export default function WorkoutsTab() {
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ color: A, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
+              <Text style={{ color: A, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
               {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
             </View>
             <View style={{ gap: 10 }}>
@@ -673,12 +674,12 @@ export default function WorkoutsTab() {
               }}
             >
               <Icon name="plus" size={14} color="#A1A1AA" />
-              <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Add exercise</Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[700] }}>Add exercise</Text>
             </TouchableOpacity>
           </View>
 
           {workout.plan.notes ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontStyle: 'italic', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontStyle: 'italic', fontFamily: BG[400] }}>
               {workout.plan.notes}
             </Text>
           ) : null}
@@ -702,7 +703,7 @@ export default function WorkoutsTab() {
             />
           ) : sessionStatus === 'idle' ? (
             <TouchableOpacity activeOpacity={0.8} onPress={handleSkip} disabled={skipping} style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[600] }}>
                 {skipping ? 'Skipping…' : 'Not today? Skip this workout'}
               </Text>
             </TouchableOpacity>
@@ -721,7 +722,7 @@ export default function WorkoutsTab() {
               }}
             >
               <Icon name="activity" size={15} color={A} />
-              <Text style={{ color: A, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Workout in progress — see the player below</Text>
+              <Text style={{ color: A, fontSize: 13, fontFamily: BG[700] }}>Workout in progress — see the player below</Text>
             </View>
           )}
 
@@ -734,7 +735,7 @@ export default function WorkoutsTab() {
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
       <BottomSheet visible={menuOpen} onClose={() => setMenuOpen(false)} maxHeightFraction={0.5}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 8 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT, marginBottom: 6 }}>Your plan</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], marginBottom: 6 }}>Your plan</Text>
           <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="repeat" size={16} color={A} />} onPress={() => { setMenuOpen(false); setRegenError(null); setShowRegenCard(true); }}>
             Regenerate the plan
           </Button>

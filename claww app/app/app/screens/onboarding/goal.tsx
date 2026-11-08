@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, FONT, FONT_HAND } from '../../../lib/theme';
+import { COLORS, FONT, FONT_HAND, BG, bg } from '../../../lib/theme';
 import { GOAL_OPTIONS, type GoalChoice } from '../../../lib/onboardingChoices';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { TintTile } from '../../../components/ui/TintTile';
@@ -23,9 +23,9 @@ export default function OnboardingGoal() {
       <OnboardingTopBar step={3} totalSteps={6} accent={picked.color} showBack />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, gap: 14 }}>
         <View style={{ gap: 6 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Set up your plan · step 1 of 4 · about a minute</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>What's your goal?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: FONT }}>Pick the one that matters most right now. You can change it any time.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Set up your plan · step 1 of 4 · about a minute</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, fontFamily: BG[800] }}>What's your goal?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 22, fontFamily: BG[400] }}>Pick the one that matters most right now. You can change it any time.</Text>
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }} accessibilityRole="radiogroup">
@@ -42,8 +42,8 @@ export default function OnboardingGoal() {
                     </View>
                   ) : null}
                 </View>
-                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{g.title}</Text>
-                <Text style={{ color: on ? 'rgba(255,255,255,0.75)' : COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{g.line}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{g.title}</Text>
+                <Text style={{ color: on ? 'rgba(255,255,255,0.75)' : COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{g.line}</Text>
               </View>
             );
             return (

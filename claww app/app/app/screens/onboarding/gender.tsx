@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { AREA_COLORS, COLORS, FONT } from '../../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
@@ -32,16 +32,16 @@ export default function OnboardingGender() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <OnboardingTopBar step={2} totalSteps={6} accent={COLORS.blue} showBack />
       <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Last thing about you</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How do you identify?</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: FONT }}>It tunes recovery and calorie targets to you.</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Last thing about you</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: BG[800] }}>How do you identify?</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: BG[400] }}>It tunes recovery and calorie targets to you.</Text>
 
         <View style={{ gap: 12 }} accessibilityRole="radiogroup">
           {GENDERS.map((g) => {
             const on = gender === g.id;
             const body = (
               <View style={{ minHeight: 40, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', flex: 1, fontFamily: FONT }}>{g.label}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, flex: 1, fontFamily: BG[800] }}>{g.label}</Text>
                 {on ? (
                   <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: g.color, alignItems: 'center', justifyContent: 'center' }}>
                     <Icon name="check" size={14} color={COLORS.bg} strokeWidth={3} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT, SURFACES, tint } from '../../lib/theme';
+import { COLORS, FONT, SURFACES, tint, BG, bg } from '../../lib/theme';
 import { Button } from './Button';
 import { Icon } from './Icon';
 import { Surface } from './Surface';
@@ -55,7 +55,7 @@ export function StateView({ variant, title, body, primary, secondary = [], label
         }}
       >
         <Icon name="wifi-off" size={16} color={COLORS.amber} />
-        <Text style={{ flex: 1, color: COLORS.ratingOkay, fontSize: 13, lineHeight: 19, fontWeight: '600', fontFamily: FONT }}>
+        <Text style={{ flex: 1, color: COLORS.ratingOkay, fontSize: 13, lineHeight: 19, fontFamily: BG[600] }}>
           {body ?? 'No signal. Everything you log is saved on your phone and syncs when you’re back.'}
         </Text>
       </View>
@@ -75,7 +75,7 @@ export function StateView({ variant, title, body, primary, secondary = [], label
         {label ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: accent }} />
-            <Text style={{ color: accent, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{label}</Text>
+            <Text style={{ color: accent, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>{label}</Text>
           </View>
         ) : null}
         {title ? (
@@ -84,9 +84,8 @@ export function StateView({ variant, title, body, primary, secondary = [], label
             style={{
               color: COLORS.fg,
               fontSize: variant === 'first-day' ? 21 : 17,
-              fontWeight: '800',
               lineHeight: variant === 'first-day' ? 25 : 22,
-              fontFamily: FONT,
+              fontFamily: BG[800],
               textAlign: centered ? 'center' : 'left',
             }}
           >
@@ -94,7 +93,7 @@ export function StateView({ variant, title, body, primary, secondary = [], label
           </Text>
         ) : null}
         {body ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: centered ? 'center' : 'left' }}>{body}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400], textAlign: centered ? 'center' : 'left' }}>{body}</Text>
         ) : null}
         {children}
         {primary || secondary.length ? (

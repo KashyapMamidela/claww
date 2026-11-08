@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Surface } from '../../../components/ui/Surface';
@@ -24,9 +24,9 @@ export default function OnboardingName() {
       <OnboardingTopBar step={0} totalSteps={6} accent={A} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Let's get started</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>What should we call you?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Let's get started</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: BG[800] }}>What should we call you?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: BG[400] }}>
             First name only. CLAWW uses it to personalise everything from here on.
           </Text>
           <Surface radius={16} padding={0} borderColor={name.length > 0 ? 'rgba(59,130,246,0.55)' : undefined}>
@@ -40,7 +40,7 @@ export default function OnboardingName() {
               autoCapitalize="words"
               returnKeyType="next"
               accessibilityLabel="Your first name"
-              style={{ height: 58, color: COLORS.fg, fontSize: 20, fontWeight: '700', paddingHorizontal: 18, fontFamily: FONT }}
+              style={{ height: 58, color: COLORS.fg, fontSize: 20, paddingHorizontal: 18, fontFamily: BG[700] }}
             />
           </Surface>
           <View style={{ flex: 1 }} />
