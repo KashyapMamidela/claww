@@ -42,9 +42,11 @@ Notes for Phase 3 (2026-11-08, checked on the phone): the rest-day and training 
 Notes for Phase 4 (2026-11-08): **buttons are now 50 / 40 / 32 tall with pill corners**, the tab bar is a 60 pt full capsule (user request, `premium/04-train`, separate commit so it can be reverted). The lift screen shows one huge current set (52 pt), a slim row of set pills, and How to / Swap / Change the numbers behind a ··· button; the old tick rows, cue strip and "tap ✓" hint are gone, and warm-ups became small tappable chips. Checked on the phone: the lift screen, week strip, slim notice, ··· menu button and hero body map. **Phase 4 follow-up (checked on the phone):** the ··· sheet, a logged set (the pill shows the logged numbers), the rest sheet with its ring, and the lock-screen notification (ongoing, countdown, 2 buttons, read from the system) all work. **Not felt/seen:** the 10 s tick and the success buzz at zero (code only), and the new-best moment (needs a session that beats a record). Exercise rows now show "last: 4 kg". The sport card left Train and Home: **Quick log has an Activity action** that opens a sheet (pick, minutes, log). Test data from these checks (one set, one water entry) was deleted from the database; the XP for them may have stayed.
 
 ## Phase 5 · Food and Progress (`premium/05-food-progress`)
-- [ ] N1 · [ ] N2 · [ ] N3 · [ ] N4 · [ ] N5
-- [ ] T1 · [ ] T2 · [ ] T3 · [ ] T4
-- [ ] P2 · [ ] P3
+- [x] N1 · [~] N2 · [x] N3 · [x] N4 · [x] N5
+- [x] T1 · [x] T2 · [x] T3 · [x] T4
+- [x] P2 · [~] P3
+
+Notes for Phase 5 (2026-11-08): Food has one big green Scan button with Search and Diary under it, macros in their own colours (protein pink, carbs amber, fat blue), a round meal tile on the up-next and missed cards (**real photos are not used on planned cards yet**, N2 is partial), and dish names that follow the scaled amounts (`mealTitle`, display only; the database templates were **not** renamed). Progress: strength lines join across weeks with a fainter line, the consistency grid fills the card, "This week" and "Training" headings, Adaptive opens in a sheet. Profile: achievements are medallions (`components/ui/Medallion.tsx`; earned have a coloured rim and glow, locked are dark). **P3 is partial:** the grouped rows with 44 pt tiles were done in Phase 2; values on the right (for example "Reminders On") are not added. Not seen on the phone: the Adaptive sheet, the Profile medallions. **Open item:** a test sleep entry (7 h, 1:30 am to 8:30 am, logged 18:32 on 8 Nov) was created by a mis-tap while testing and could not be deleted by Claude (database delete was blocked); delete it from the sleep log or the database.
 
 ## Phase 6 · Signature (`premium/06-signature`)
 - [ ] X1 · [ ] X2 · [ ] X3 · [ ] X4

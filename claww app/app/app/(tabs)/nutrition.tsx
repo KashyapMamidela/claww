@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { mealTitle } from '../../lib/mealPlanMeal';
 import { dayLabel } from '../../lib/format';
 import { useToast } from '../../components/ui/Toast';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
@@ -44,6 +45,9 @@ const DEFAULT_GOALS: NutritionDefaults = { calories: 2000, protein_g: 140, carbs
 const SLOTS: MealType[] = ['Breakfast', 'Lunch', 'Dinner'];
 
 const timeText = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+/** Premium N3: each macro keeps its own colour everywhere: protein pink, carbs amber, fat sky blue. */
+const MACRO = { protein: '#F472B6', carbs: '#F59E0B', fat: '#38BDF8' } as const;
 
 export default function NutritionTab() {
   const { userId, meals, saveMeal, removeMeal } = useAppState();
@@ -301,13 +305,16 @@ export default function NutritionTab() {
                 </ProgressRing>
                 <View style={{ flex: 1, gap: 12 }}>
                   {[
-                    { label: 'Protein', cur: protein, goal: goals.protein, color: G },
-                    { label: 'Carbs', cur: carbs, goal: goals.carbs, color: COLORS.amber },
-                    { label: 'Fat', cur: fats, goal: goals.fats, color: '#FB923C' },
+                    { label: 'Protein', cur: protein, goal: goals.protein, color: MACRO.protein },
+                    { label: 'Carbs', cur: carbs, goal: goals.carbs, color: MACRO.carbs },
+                    { label: 'Fat', cur: fats, goal: goals.fats, color: MACRO.fat },
                   ].map((m) => (
                     <View key={m.label}>
                       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.label}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                          <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: m.color, boxShadow: `0px 0px 6px ${m.color}` } as object} />
+                          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.label}</Text>
+                        </View>
                         <Text style={{ fontFamily: FONT, fontVariant: ['tabular-nums'] }}>
                           <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800' }}>{m.cur}</Text>
                           <Text style={{ color: COLORS.textMuted, fontSize: 13 }}> / {m.goal} g</Text>
@@ -323,10 +330,23 @@ export default function NutritionTab() {
             </Surface>
           )}
 
-          <View style={{ flexDirection: 'row', gap: 10 }}>
-            {action('Scan', 'camera', () => openAdd(addType), true, 1.3)}
-            {action('Search', 'search', () => setSearchOpen(true))}
-            {action('Diary', 'utensils', () => router.push('/diary'))}
+          {/* Premium N1: Scan a meal is the one big green button; Search and Diary sit under it, tinted. */}
+          <View style={{ gap: 10 }}>
+            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} onPress={() => openAdd(addType)} icon={<Icon name="camera" size={19} color="#fff" />}>
+              Scan a meal
+            </Button>
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flex: 1 }}>
+                <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => setSearchOpen(true)} icon={<Icon name="search" size={16} color={G} />}>
+                  Search
+                </Button>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => router.push('/diary')} icon={<Icon name="utensils" size={16} color={G} />}>
+                  Diary
+                </Button>
+              </View>
+            </View>
           </View>
 
           {usuals.length > 0 ? (
@@ -412,11 +432,17 @@ export default function NutritionTab() {
                 const old = plan?.replaced?.[v.slot];
                 return (
                   <Surface key={v.slot} radius={20} padding={16} borderColor={COLORS.greenBorderMd}><View style={{ gap: 10 }}>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · up next</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      {/* Premium N2: a round tile for the meal, so each card has a face before there is a photo. */}
+                      <View style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(34,197,94,0.14)', borderWidth: 1, borderColor: COLORS.greenBorderMd }}>
+                        <Icon name={v.slot === 'breakfast' ? 'coffee' : v.slot === 'lunch' ? 'salad' : 'utensils'} size={22} color={G} />
+                      </View>
+                      <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · up next</Text>
+                    </View>
                     {m ? (
                       <>
                         {old ? <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: FONT }}>{old}</Text> : null}
-                        <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', textDecorationLine: old ? 'underline' : 'none', fontFamily: FONT }}>{m.name}</Text>
+                        <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', textDecorationLine: old ? 'underline' : 'none', fontFamily: FONT }}>{mealTitle(m)}</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{itemsText(m)}</Text>
                         <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
@@ -471,10 +497,15 @@ export default function NutritionTab() {
                 const m = v.planned;
                 return (
                   <Surface key={v.slot} radius={20} padding={16}><View style={{ gap: 10 }}>
-                    <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · not logged yet</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <View style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }}>
+                        <Icon name={v.slot === 'breakfast' ? 'coffee' : v.slot === 'lunch' ? 'salad' : 'utensils'} size={17} color={COLORS.textMuted} />
+                      </View>
+                      <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · not logged yet</Text>
+                    </View>
                     {m ? (
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>
-                        {m.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        {mealTitle(m)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
                       </Text>
                     ) : null}
                     <View style={{ gap: 8 }}>
@@ -505,7 +536,7 @@ export default function NutritionTab() {
                   <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{label} · later</Text>
                   {v.planned ? (
                     <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>
-                      {v.planned.name} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
+                      {mealTitle(v.planned)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
                     </Text>
                   ) : null}
                   <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />

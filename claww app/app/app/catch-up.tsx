@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { mealTitle } from '../lib/mealPlanMeal';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -177,7 +178,7 @@ export default function CatchUpScreen() {
                       <View style={{ flex: 1 }}>
                         <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{`${cap(slot)} · ${answeredNow ? 'saved' : 'not logged'}`}</Text>
                         <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>
-                          {planned ? `Plan: ${planned.name}` : 'What did you have?'}
+                          {planned ? `Plan: ${mealTitle(planned)}` : 'What did you have?'}
                         </Text>
                         {planned && mode === null ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }} numberOfLines={1}>{itemsText(planned)}</Text> : null}
                       </View>

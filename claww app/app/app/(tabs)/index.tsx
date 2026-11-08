@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { mealTitle } from '../../lib/mealPlanMeal';
 import { SessionCard } from '../../components/home/SessionCard';
 import { dayMinutes } from '../../lib/planStory';
 import { timeLabel } from '../../lib/format';
@@ -479,7 +480,7 @@ function HomePopulated() {
   const todayMeals: TodayMealInput[] = slotsView.map((v) => ({
     slot: v.slot,
     state: v.state,
-    plannedName: v.planned?.name ?? null,
+    plannedName: v.planned ? mealTitle(v.planned) : null,
     loggedLine: v.logged ? `${Math.round(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
   }));
   const sessionItem = sessionPlanned && today
