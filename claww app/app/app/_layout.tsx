@@ -11,6 +11,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 import { AppStateProvider } from '../lib/appState';
 import { OfflineBanner } from '../components/OfflineBanner';
+import { ToastProvider } from '../components/ui/Toast';
+import { QuickLogProvider } from '../components/QuickLog';
 import { WorkoutSessionProvider } from '../lib/workoutSession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
@@ -150,12 +152,16 @@ function RootLayout() {
       <SafeAreaProvider>
         <AppStateProvider>
           <WorkoutSessionProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: '#050505' },
-              }}
-            />
+            <ToastProvider>
+              <QuickLogProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: '#050505' },
+                  }}
+                />
+              </QuickLogProvider>
+            </ToastProvider>
           </WorkoutSessionProvider>
           <OfflineBanner />
         </AppStateProvider>

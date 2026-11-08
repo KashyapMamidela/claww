@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -139,6 +140,7 @@ export default function WorkoutsTab() {
   const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
   const tabPad100 = useTabBottomPad(100);
+  const hideBar = useHideBarOnScroll();
   const { status: sessionStatus, startSession } = useWorkoutSession();
   const router = useRouter();
   // Home's plan card links here with ?day=N so the same day it shows is the
@@ -393,7 +395,7 @@ export default function WorkoutsTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} {...hideBar} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -408,7 +410,6 @@ export default function WorkoutsTab() {
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
                 <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{weekLabel ? `${todayName} \u00b7 ${weekLabel}` : 'YOUR PLAN'}</Text>
               </View>
-              <Display>Workouts</Display>
             </View>
             {sessionStatus === 'idle' && !showRegenCard && !regenerating ? (
               <TouchableOpacity

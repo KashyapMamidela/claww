@@ -25,6 +25,7 @@ import { LineChart } from '../charts/LineChart';
 import { HeatGrid } from '../charts/HeatGrid';
 import { BodyMap, type Muscle } from '../BodyMap';
 import { Icon } from '../ui/Icon';
+import { Surface } from '../ui/Surface';
 import { PressScale } from '../ui/PressScale';
 import { Skeleton } from '../ui/Skeleton';
 import type { ChartKind } from './TrackerBody';
@@ -256,10 +257,13 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
     <Modal visible animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 8 }}>
-          <PressScale onPress={onClose} accessibilityRole="button" accessibilityLabel="Close chart">
-            <View style={{ width: 40, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)' }}>
-              <Icon name="chevron-down" size={20} color="#A1A1AA" />
-            </View>
+          {/* Premium S3: a full-screen modal closes with the x tile, top left. */}
+          <PressScale onPress={onClose} accessibilityRole="button" accessibilityLabel="Close chart" hitSlop={4}>
+            <Surface radius={12} padding={0} grain={0.06} shadow={false} style={{ width: 44, height: 44 }}>
+              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="x" size={20} color="#D4D4D8" />
+              </View>
+            </Surface>
           </PressScale>
           <Text style={{ flex: 1, color, fontSize: 13, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>{title.toUpperCase()}</Text>
         </View>

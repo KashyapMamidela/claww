@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { BottomSheet } from './ui/BottomSheet';
+import { Button } from './ui/Button';
 import { COLORS, FONT } from '../lib/theme';
 import { Icon } from './ui/Icon';
 import { TimeWheelPicker, dateToTimeValue, timeValueToDate, timeValueToLabel, type TimeValue } from './ui/TimeWheelPicker';
@@ -100,20 +102,8 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <View
-          style={{
-            width: '100%',
-            maxWidth: 340,
-            backgroundColor: COLORS.card,
-            borderWidth: 1,
-            borderColor: COLORS.border,
-            borderRadius: 18,
-            padding: 20,
-            gap: 16,
-          }}
-        >
+    <BottomSheet visible={visible} onClose={onClose} maxHeightFraction={0.8}>
+        <View style={{ paddingHorizontal: 24, paddingBottom: 12, gap: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             {step === 'wake' && (
               <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" onPress={() => setStep('bedtime')} hitSlop={10}>
@@ -135,9 +125,6 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
               {step === 'bedtime' ? 'When did you go to bed?' : 'When did you wake up?'}
             </Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} hitSlop={10}>
-              <Icon name="x" size={18} color={COLORS.fgGrayDim} />
-            </TouchableOpacity>
           </View>
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
@@ -183,25 +170,10 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             </View>
           )}
 
-          <TouchableOpacity
-            activeOpacity={0.85}
-            disabled={!ready || saving}
-            onPress={step === 'bedtime' ? () => setStep('wake') : handleSave}
-            style={{
-              height: 48,
-              borderRadius: 13,
-              backgroundColor: SLEEP,
-              alignItems: 'center',
-              justifyContent: 'center',
-              opacity: !ready || saving ? 0.6 : 1,
-            }}
-          >
-            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
-              {step === 'bedtime' ? 'Next' : saving ? 'Saving…' : 'Log Sleep'}
-            </Text>
-          </TouchableOpacity>
+          <Button variant="primary" size="lg" fullWidth accent={SLEEP} accentDeep="#4F46E5" disabled={!ready || saving} onPress={step === 'bedtime' ? () => setStep('wake') : handleSave}>
+            {step === 'bedtime' ? 'Next' : saving ? 'Saving…' : 'Log sleep'}
+          </Button>
         </View>
-      </View>
-    </Modal>
+    </BottomSheet>
   );
 }

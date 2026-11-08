@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -71,7 +72,6 @@ function Header({ title, line, score, levelNum, locked }: HeaderProps) {
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <View style={{ flex: 1, paddingRight: 12 }}>
         <Text style={{ color: GD, fontSize: 11, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>{title}</Text>
-        <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
         <Text style={{ color: GD, fontSize: 13, marginTop: 5, fontFamily: FONT }}>{line}</Text>
       </View>
       <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: locked ? 0 : score }]} trackColor="rgba(255,255,255,0.07)">
@@ -86,6 +86,7 @@ export default function TrackerTab() {
   const { userId, xp, streak } = useAppState();
   const insets = useSafeAreaInsets();
   const tabPad32 = useTabBottomPad(32);
+  const hideBar = useHideBarOnScroll();
   const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [volume, setVolume] = useState(0);
@@ -139,7 +140,7 @@ export default function TrackerTab() {
 
   if (!loaded) {
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+      <ScrollView {...hideBar} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
         <TrackerLoadingSkeleton />
       </ScrollView>
     );

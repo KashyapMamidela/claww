@@ -15,6 +15,10 @@ const SIZES = {
 
 export interface ButtonProps {
   children: React.ReactNode;
+  /**
+   * Premium S4, three tiers: primary (filled, one per screen), secondary (tinted: 12% of the accent, no border) and
+   * ghost (plain text). `inverted` is a white filled button for use on a coloured hero.
+   */
   variant?: 'primary' | 'secondary' | 'ghost' | 'inverted';
   accent?: string;
   accentDeep?: string;
@@ -92,10 +96,11 @@ export function Button({
     variant === 'inverted'
       ? { backgroundColor: '#FFFFFF' }
       : variant === 'secondary'
-      ? { backgroundColor: `${accent}18`, borderWidth: 1, borderColor: `${accent}42` }
-      : { backgroundColor: 'transparent', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' };
+      ? { backgroundColor: `${accent}1F` }
+      : { backgroundColor: 'transparent' };
 
-  const textColor = variant === 'inverted' ? '#000000' : variant === 'secondary' ? accent : COLORS.fgGray;
+  const textColor =
+    variant === 'inverted' ? '#000000' : variant === 'secondary' ? accent : accent.toLowerCase() === COLORS.blue.toLowerCase() ? COLORS.fgGray : accent;
 
   return (
     <PressScale

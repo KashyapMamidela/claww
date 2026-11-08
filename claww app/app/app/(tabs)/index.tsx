@@ -1,4 +1,6 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { useToast } from '../../components/ui/Toast';
+import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { greetingName } from '../../lib/greeting';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -312,7 +314,8 @@ function HomeEmptyState() {
 
 function HomePopulated() {
   useFirstPaint('home');
-  const { userId, userName, recovery, meals, streak, todaySleep, saveMeal } = useAppState();
+  const { userId, userName, recovery, meals, streak, todaySleep, saveMeal, removeMeal } = useAppState();
+  const toast = useToast();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
@@ -490,6 +493,7 @@ function HomePopulated() {
     const row = await saveMeal(typeOf(slot), plannedToMeal(planned));
     setLogging(false);
     await replanAfter(row);
+    if (row) toast.show({ message: `Logged ${slot}`, actionLabel: 'Undo', onAction: () => { removeMeal(row.id); } });
   };
   const skipMeal = async (slot: MealSlot) => {
     if (logging) return;
@@ -513,7 +517,6 @@ function HomePopulated() {
       }}
     >
       <View style={{ gap: 2 }}>
-        <SectionLabel color={COLORS.green}>{`TODAY · ${clockLabel(now)}`}</SectionLabel>
         <Text
           numberOfLines={1}
           adjustsFontSizeToFit
@@ -721,8 +724,9 @@ function HomePopulated() {
 
 export default function HomeTab() {
   const { loading, hasPlan } = useAppState();
+  const hideBar = useHideBarOnScroll();
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+    <ScrollView {...hideBar} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       {loading ? <HomeLoadingSkeleton /> : hasPlan ? <HomePopulated /> : <HomeEmptyState />}
     </ScrollView>
   );

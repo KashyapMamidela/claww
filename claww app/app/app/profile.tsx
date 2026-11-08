@@ -27,7 +27,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
 import { PrivacyDataModal } from '../components/PrivacyDataModal';
-import { openSupportEmail } from '../lib/support';
+import { openStoreListing, openSupportEmail } from '../lib/support';
 
 const P = COLORS.amber;
 
@@ -138,9 +138,13 @@ export default function ProfileScreen() {
   ];
 
   const menuItems: MenuRow[] = [
+    { icon: 'settings', label: 'Settings', onPress: () => router.push('/settings') },
+    { icon: 'pencil', label: 'Your week, marked up', onPress: () => router.push('/week-review') },
     { icon: 'utensils', label: 'Food preferences', onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
     { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
+    { icon: 'star', label: 'Rate CLAWW', onPress: openStoreListing },
+    { icon: 'info', label: 'About', onPress: () => router.push('/about') },
   ];
 
   if (!loaded) {
@@ -347,7 +351,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="download" size={16} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>
               {exporting ? 'Preparing export…' : 'Download My Data'}
             </Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
@@ -368,7 +372,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Sign out</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Sign out</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -386,7 +390,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="trash-2" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Delete account</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Delete account</Text>
           </TouchableOpacity>
         </Surface>
 

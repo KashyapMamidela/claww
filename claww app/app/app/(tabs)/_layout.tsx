@@ -6,7 +6,8 @@ import { AppHeader } from '../../components/ui/AppHeader';
 import { TabBar } from '../../components/ui/TabBar';
 import { LiveWorkoutPlayer } from '../../components/LiveWorkoutPlayer';
 import { useWorkoutSession } from '../../lib/workoutSession';
-import { TAB_ACCENTS } from '../../lib/theme';
+import { useAppState } from '../../lib/appState';
+import { TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { useRenderCount } from '../../lib/perf';
 
 export default function TabsLayout() {
@@ -17,7 +18,14 @@ export default function TabsLayout() {
   const { status, endSession } = useWorkoutSession();
 
   const routeName = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
-  const wordmarkAccent = TAB_ACCENTS[routeName]?.wordmark ?? '#A1A1AA';
+  const { userName } = useAppState();
+  // Home and Progress are white/grey by tab; the header's logo tile always carries a colour.
+  const headerAccent = ({ index: '#3B82F6', workouts: '#3B82F6', nutrition: '#22C55E', tracker: '#2DD4BF', more: '#A1A1AA' } as Record<string, string>)[routeName] ?? '#3B82F6';
+  const now = new Date();
+  const headerTitle =
+    routeName === 'index'
+      ? now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })
+      : ({ workouts: 'Train', nutrition: 'Food', tracker: 'Progress', more: 'More' } as Record<string, string>)[routeName] ?? '';
 
   // Session hits 'completed' the instant the last set is finished (or the
   // last exercise skipped) — hand off to the real celebration screen, then
@@ -29,7 +37,7 @@ export default function TabsLayout() {
     }
   }, [status]);
 
-  const tabBarHeight = 52 + Math.max(insets.bottom, 20);
+  const tabBarHeight = TAB_BAR_HEIGHT + Math.max(insets.bottom, 12);
 
   // AppHeader and TabBar float over the scene now (see both components) so
   // their blur has real content behind it — Tabs fills the full screen and
@@ -45,14 +53,15 @@ export default function TabsLayout() {
         <Tabs.Screen name="workouts" />
         <Tabs.Screen name="nutrition" />
         <Tabs.Screen name="tracker" />
-        <Tabs.Screen name="more" />
       </Tabs>
-      {/* The bell implies a notification inbox, which doesn't exist — the
-          only real notification-related feature today is the reminders
-          toggle in Settings, so point there directly instead of a generic
-          "More" tab that has nothing bell-related on it at all. */}
-      <AppHeader wordmarkAccent={wordmarkAccent} onBellPress={() => router.push('/settings')} />
-      <LiveWorkoutPlayer bottomOffset={tabBarHeight + 10} />
+      <AppHeader
+        accent={headerAccent}
+        title={headerTitle}
+        initial={(userName || 'M').charAt(0).toUpperCase()}
+        onPenPress={() => router.push('/week-review')}
+        onAvatarPress={() => router.push('/profile')}
+      />
+      <LiveWorkoutPlayer bottomOffset={tabBarHeight + 8} />
     </View>
   );
 }

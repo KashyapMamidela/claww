@@ -17,16 +17,18 @@ Plan: `docs/premium-plan.md`. Tick each item when it is built **and** checked on
 Notes (2026-11-08, checked on the phone): B2 removed the bottom "This week" calendar (the strip is the week; history lives on Progress). B3 has a confirm sheet (Finish and save / Keep going / Discard) but **no undo yet**: undo arrives with the toast in Phase 2 (D4). B4 replaced the sticky Start with a Start / Do it today button on the session card; the Missed card keeps only "Keep today's plan". B8: the calendar was right (rest days count); rest days are now clearer and the copy explains it.
 
 ## Phase 2 · Frame (`premium/02-frame`)
-- [ ] Tokens, `lib/format.ts` (D12, D13), tabular numbers (D1)
-- [ ] S7 Typography components
-- [ ] S4 Button tiers, D6, D7
-- [ ] S5 Floating tab bar + centre +
-- [ ] S1/S2/H1 Collapsing title bar, no CLAWW word bar
-- [ ] S3 Back and close rule
-- [ ] S6 Sheets for everything small
-- [ ] D3 Haptics, D4 Undo toast
+- [x] Tokens, `lib/format.ts` (D12, D13), tabular numbers (D1)
+- [x] S7 Typography components
+- [x] S4 Button tiers, D6, D7
+- [x] S5 Floating tab bar + centre +
+- [x] S1/S2/H1 Collapsing title bar, no CLAWW word bar
+- [x] S3 Back and close rule
+- [x] S6 Sheets for everything small
+- [x] D3 Haptics, D4 Undo toast
 - [ ] D14 System bars, D16 Accent per tab
-- [ ] P1 Avatar opens Profile, More removed
+- [x] P1 Avatar opens Profile, More removed
+
+Notes for Phase 2 (2026-11-08, checked on the phone): the title bar is a **fixed 56 pt bar** (logo tile, name, pen, avatar); the collapsing large-title behaviour is **not built** and moves to Phase 6 (D11). The tab bar hides on scroll down and returns on scroll up or at the top (`lib/tabBarVisibility.ts`; spread `useHideBarOnScroll()` onto a tab ScrollView). Quick log (centre +) is a first version: Scan, Add food, Water 250 ml, Sleep. Undo toast (`components/ui/Toast.tsx`, `useToast()`) is wired to "As planned" on Home and Food and to Your usuals; **discarding a workout still has no undo** (B3). Button tiers: `secondary` is now tinted with no border, `ghost` is plain text; hand-built outlined buttons elsewhere are not all converted. D13 formatting helpers exist in `lib/format.ts` but are **not yet used across screens**; D1 tabular numbers and D14 system bar colours are not done. Typography components are added (`LargeTitle`...`BigNumber`) and not yet adopted by old screens. More tab removed: Profile now holds Settings, Your week, Help, Rate, About, Sign out.
 
 ## Phase 3 · Home (`premium/03-home`)
 - [ ] H2 · [ ] H3 · [ ] H4 · [ ] H5 · [ ] H6 · [ ] H7 · [ ] H8 · [ ] H9

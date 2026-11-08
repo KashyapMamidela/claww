@@ -99,15 +99,17 @@ export const FONT_HAND = 'Caveat';
 // material needs something behind it to blur) — these are their own
 // content heights, excluding safe-area insets, which each screen adds
 // back via useSafeAreaInsets() so content clears them.
-export const HEADER_CONTENT_HEIGHT = 46;
-export const TAB_BAR_CONTENT_HEIGHT = 52;
+export const HEADER_CONTENT_HEIGHT = 56;
+// Premium S5: the floating tab bar is 64 tall with 8 of air above it.
+export const TAB_BAR_CONTENT_HEIGHT = 72;
+export const TAB_BAR_HEIGHT = 64;
 
 // Per-tab accents (bottom nav + header wordmark buckets)
 export const TAB_ACCENTS: Record<string, { accent: string; wordmark: string }> = {
-  index: { accent: '#FFFFFF', wordmark: '#A1A1AA' },
+  index: { accent: '#3B82F6', wordmark: '#3B82F6' },
   workouts: { accent: '#3B82F6', wordmark: '#3B82F6' },
   nutrition: { accent: '#22C55E', wordmark: '#22C55E' },
-  tracker: { accent: '#E2E8F0', wordmark: '#A1A1AA' },
+  tracker: { accent: '#2DD4BF', wordmark: '#2DD4BF' },
   more: { accent: '#A1A1AA', wordmark: '#A1A1AA' },
 };
 
