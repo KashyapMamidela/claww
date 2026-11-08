@@ -158,7 +158,7 @@ export default function MealSetupSummary() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={3} sub="your resources" />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, fontFamily: FONT }}>Here is what you have</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: FONT }}>Here is what you have</Text>
 
         <Hero variant="green" accessibilityLabel="Your kitchen">
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR KITCHEN</Text>

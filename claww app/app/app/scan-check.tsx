@@ -238,7 +238,7 @@ export default function ScanCheckScreen() {
         {header}
         <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
           <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: 200, borderRadius: 20 }} resizeMode="cover" accessibilityLabel="Your photo" />
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT }}>Not sure about this one</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>Not sure about this one</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>Pick what it is, or log it by name. We would rather ask than guess your calories.</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {result.candidates.map((c) => (
@@ -361,7 +361,7 @@ export default function ScanCheckScreen() {
         </Surface>
 
         <View style={{ borderRadius: 18, borderWidth: 1, borderColor: rating.rating === 'good' ? 'rgba(34,197,94,0.5)' : rating.rating === 'okay' ? 'rgba(245,158,11,0.5)' : 'rgba(161,161,170,0.4)', backgroundColor: COLORS.card, padding: 14, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 15, fontWeight: '900', letterSpacing: 0.5, fontFamily: FONT }}>{rating.rating.toUpperCase()}</Text>
+          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 15, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: FONT }}>{rating.rating.toUpperCase()}</Text>
           <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, flex: 1, fontFamily: FONT }}>{rating.reason}</Text>
         </View>
         <Text style={{ color: COLORS.textMuted, fontSize: 20, textAlign: 'center', fontFamily: FONT_HAND }}>{optIn ? 'your fixes teach the scanner your portions' : 'your answers become your defaults next time'}</Text>

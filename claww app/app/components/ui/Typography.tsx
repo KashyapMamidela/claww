@@ -82,3 +82,17 @@ export const Caption = makeVariant({
   color: COLORS.textMuted,
   fontFamily: FONT,
 });
+
+// ── Premium S7: the type scale from docs/premium-plan.md section 1.1 ────────────────────────────────────────────
+// Large title 34 · Title 1 28 · Title 2 22 · Headline 17 · Body 17 · Callout 15 · Footnote 13 · Label 12 · Tab 11.
+// New code uses these; old screens move over as they are touched. Numbers that change use tabular figures.
+
+export const LargeTitle = makeVariant({ fontSize: 34, lineHeight: 40, fontWeight: '900', letterSpacing: -0.8, color: COLORS.fg, fontFamily: FONT });
+export const Title1 = makeVariant({ fontSize: 28, lineHeight: 34, fontWeight: '800', letterSpacing: -0.5, color: COLORS.fg, fontFamily: FONT });
+export const Title2 = makeVariant({ fontSize: 22, lineHeight: 28, fontWeight: '800', letterSpacing: -0.3, color: COLORS.fg, fontFamily: FONT });
+export const Headline = makeVariant({ fontSize: 17, lineHeight: 22, fontWeight: '700', color: COLORS.fg, fontFamily: FONT });
+export const BodyText = makeVariant({ fontSize: 17, lineHeight: 24, fontWeight: '500', color: COLORS.fgGray, fontFamily: FONT });
+export const Callout = makeVariant({ fontSize: 15, lineHeight: 21, fontWeight: '500', color: COLORS.fgGray, fontFamily: FONT });
+export const Footnote = makeVariant({ fontSize: 13, lineHeight: 18, fontWeight: '500', color: COLORS.textMuted, fontFamily: FONT });
+export const Label = makeVariant({ fontSize: 12, lineHeight: 16, fontWeight: '800', letterSpacing: 0.96, color: COLORS.textMuted, fontFamily: FONT, textTransform: 'uppercase' });
+export const BigNumber = makeVariant({ fontSize: 44, lineHeight: 48, fontWeight: '900', letterSpacing: -1, color: COLORS.fg, fontFamily: FONT, fontVariant: ['tabular-nums'] });

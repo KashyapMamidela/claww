@@ -33,7 +33,7 @@ export default function OnboardingGender() {
       <OnboardingTopBar step={2} totalSteps={6} accent={COLORS.blue} showBack />
       <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Last thing about you</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How do you identify?</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>How do you identify?</Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: FONT }}>It tunes recovery and calorie targets to you.</Text>
 
         <View style={{ gap: 12 }} accessibilityRole="radiogroup">

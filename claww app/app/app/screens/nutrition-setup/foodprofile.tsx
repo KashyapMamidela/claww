@@ -51,7 +51,7 @@ export default function NutritionSetupFoodProfile() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
       <OnboardingTopBar step={4} totalSteps={TOTAL_STEPS} accent={G} showBack />
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           What do you like to eat?
         </Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>

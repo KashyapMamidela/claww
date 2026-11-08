@@ -13,3 +13,13 @@ export function setDone(): void {
 export function success(): void {
   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
 }
+
+/** Premium D3: a light selection tick for tab changes, segmented controls and steppers. */
+export function tick(): void {
+  Haptics.selectionAsync().catch(() => {});
+}
+
+/** Premium D3: a warning buzz when something can be undone or is about to be lost. */
+export function warning(): void {
+  Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
+}

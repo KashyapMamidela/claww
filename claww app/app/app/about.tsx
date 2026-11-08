@@ -35,7 +35,7 @@ export default function AboutScreen() {
 
         <View style={{ alignItems: 'center', paddingVertical: 24, gap: 10 }}>
           <Image source={require('../assets/logo-mark.png')} style={{ width: 56, height: 56 }} resizeMode="contain" />
-          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontFamily: FONT }}>CLAWW</Text>
+          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>CLAWW</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{getAppVersionLabel()}</Text>
         </View>
 

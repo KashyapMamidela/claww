@@ -21,7 +21,7 @@ export function RatingPill({ rating }: { rating: Rating }) {
   return (
     <View accessibilityLabel={`Rated ${rating}`} style={{ minHeight: 32, paddingHorizontal: 14, borderRadius: 10, borderWidth: 1, borderColor: c.border, backgroundColor: c.bg, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
       {rating === 'good' ? <Icon name="check" size={13} color={c.fg} strokeWidth={3} /> : null}
-      <Text style={{ color: c.fg, fontSize: 13, fontWeight: '900', letterSpacing: 0.5, fontFamily: FONT }}>{RATING_LABEL[rating]}</Text>
+      <Text style={{ color: c.fg, fontSize: 13, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: FONT }}>{RATING_LABEL[rating]}</Text>
     </View>
   );
 }

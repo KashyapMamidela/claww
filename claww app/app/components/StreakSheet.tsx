@@ -40,7 +40,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
           ].map((s) => (
             <View key={s.label} style={{ flex: 1, padding: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.04)' }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
-              <Text style={{ color: s.label === 'CURRENT' ? C : '#fff', fontSize: 34, fontWeight: '900', fontFamily: FONT }}>
+              <Text style={{ color: s.label === 'CURRENT' ? C : '#fff', fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
                 {s.value}
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600' }}> {s.value === 1 ? 'day' : 'days'}</Text>
               </Text>

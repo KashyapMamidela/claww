@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -30,7 +31,7 @@ import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { ErrorCard } from '../../components/ui/ErrorCard';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { Display } from '../../components/ui/Typography';
+import { Display, LargeTitle } from '../../components/ui/Typography';
 import { ExercisePickerModal } from '../../components/ExercisePickerModal';
 import { LogSessionModal } from '../../components/LogSessionModal';
 import { CompletedDayCard, MissedDayCard, SkippedDayCard } from '../../components/PastDayCards';
@@ -139,6 +140,7 @@ export default function WorkoutsTab() {
   const { userId, bumpXp } = useAppState();
   const insets = useSafeAreaInsets();
   const tabPad100 = useTabBottomPad(100);
+  const hideBar = useHideBarOnScroll('workouts');
   const { status: sessionStatus, startSession } = useWorkoutSession();
   const router = useRouter();
   // Home's plan card links here with ?day=N so the same day it shows is the
@@ -393,7 +395,7 @@ export default function WorkoutsTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} {...hideBar} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -408,7 +410,7 @@ export default function WorkoutsTab() {
                 <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: A }} />
                 <Text style={{ color: A, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{weekLabel ? `${todayName} \u00b7 ${weekLabel}` : 'YOUR PLAN'}</Text>
               </View>
-              <Display>Workouts</Display>
+              <LargeTitle>Train</LargeTitle>
             </View>
             {sessionStatus === 'idle' && !showRegenCard && !regenerating ? (
               <TouchableOpacity
@@ -575,7 +577,7 @@ export default function WorkoutsTab() {
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
               {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
@@ -709,24 +711,9 @@ export default function WorkoutsTab() {
           )}
 
 
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setSessionModalOpen(true)}
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              paddingVertical: 13,
-              borderRadius: 14,
-              backgroundColor: '#151517',
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.12)',
-            }}
-          >
-            <Icon name="activity" size={14} color="#A1A1AA" />
-            <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Log a Session</Text>
-          </TouchableOpacity>
+          <Button variant="secondary" size="md" fullWidth accent={A} onPress={() => setSessionModalOpen(true)} icon={<Icon name="activity" size={15} color={A} />}>
+            Log a session
+          </Button>
         </View>
       </ScrollView>
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />

@@ -30,7 +30,7 @@ export default function WelcomeScreen() {
           </View>
 
           <View style={{ gap: 12, alignItems: 'center' }}>
-            <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -1, lineHeight: 40, textAlign: 'center', fontFamily: FONT }}>
+            <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -1, lineHeight: 40, textAlign: 'center', fontFamily: FONT }}>
               Your coach that{'\n'}fits your real day
             </Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 17, lineHeight: 24, textAlign: 'center', fontFamily: FONT }}>

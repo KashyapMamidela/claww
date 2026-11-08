@@ -115,7 +115,7 @@ export default function DiaryScreen() {
               <Pressable key={i} onPress={() => setSelected(i)} accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={`${d.toDateString()}: ${n} meals logged`} style={{ flex: 1 }}>
                 <View style={{ minHeight: 76, borderRadius: 16, alignItems: 'center', justifyContent: 'center', gap: 4, borderWidth: 1, borderColor: on ? G : COLORS.border, backgroundColor: on ? G : COLORS.card }}>
                   <Text style={{ color: on ? '#052e16' : COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.toLocaleDateString(undefined, { weekday: 'narrow' })}</Text>
-                  <Text style={{ color: on ? '#052e16' : COLORS.fg, fontSize: 20, fontWeight: '900', fontFamily: FONT }}>{d.getDate()}</Text>
+                  <Text style={{ color: on ? '#052e16' : COLORS.fg, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{d.getDate()}</Text>
                   <View style={{ flexDirection: 'row', gap: 3 }}>
                     {[0, 1, 2].map((j) => (
                       <View key={j} style={{ width: 5, height: 5, borderRadius: 3, backgroundColor: j < n ? (on ? '#052e16' : G) : on ? 'rgba(5,46,22,0.3)' : 'rgba(255,255,255,0.14)' }} />

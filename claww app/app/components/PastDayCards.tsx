@@ -93,7 +93,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
             ].map((s) => (
               <View key={s.label} style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.04)', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 9 }}>
                 <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
-                <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
+                <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', fontVariant: ['tabular-nums'], marginTop: 2, fontFamily: FONT }}>{s.value}</Text>
                 <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{s.sub}</Text>
               </View>
             ))}

@@ -220,7 +220,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       <Card color={AREA_COLORS.recovery} label="RECOVERY · ONE SCORE" onPress={() => onOpen('recovery')}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           <ProgressRing size={96} rings={[{ r: 41, strokeWidth: 8, color: AREA_COLORS.recovery, pct: recovery?.score ?? 0 }]} trackColor="rgba(255,255,255,0.07)">
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>{recovery ? recovery.score : '—'}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{recovery ? recovery.score : '—'}</Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{recovery ? recovery.band.toLowerCase() : 'no data'}</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 6 }}>
@@ -255,7 +255,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       >
         {sleepHours !== null ? (
           <>
-            <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', letterSpacing: -1, fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -1, fontFamily: FONT }}>
               {Math.floor(sleepHours)} h {Math.round((sleepHours % 1) * 60)} min
               <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '500', letterSpacing: 0, fontFamily: FONT }}>  goal 8 h</Text>
             </Text>
@@ -273,7 +273,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       <View style={{ flexDirection: 'row', gap: 12 }}>
         <View style={{ flex: 1 }}>
           <Card color={AREA_COLORS.water} label="WATER">
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {waterL} L
             </Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>of {TARGET_WATER_ML / 1000} L</Text>
@@ -284,7 +284,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         </View>
         <View style={{ flex: 1 }}>
           <Card color="#D4D4D8" label="WEIGHT" onPress={() => setWeightOpen(true)}>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>{latestWeight !== null ? `${latestWeight} kg` : '—'}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{latestWeight !== null ? `${latestWeight} kg` : '—'}</Text>
             <Text style={{ color: trend?.deltaKg ? COLORS.green : COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{trend ? weightDeltaText(trend.deltaKg) : 'tap to log your weight'}</Text>
             {spark ? (
               <Svg width="100%" height={30} viewBox="0 0 100 30" preserveAspectRatio="none">

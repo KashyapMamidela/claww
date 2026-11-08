@@ -62,7 +62,7 @@ export default function MealSetupWhere() {
       <MealSetupHeader step={1} sub="what you can get" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }} keyboardShouldPersistTaps="handled">
-          <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>Where does your food come from?</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>Where does your food come from?</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>
             Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
           </Text>

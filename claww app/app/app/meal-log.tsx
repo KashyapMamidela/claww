@@ -299,7 +299,7 @@ export default function MealLogScreen() {
         >
           <Icon name="check-circle-2" size={30} color={G.bright} />
         </View>
-        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '900', marginBottom: 6, fontFamily: FONT, textAlign: 'center' }}>
+        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], marginBottom: 6, fontFamily: FONT, textAlign: 'center' }}>
           Logged: {logged.description}
         </Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 24, fontFamily: FONT }}>{logged.meal_type ?? mealType}</Text>
@@ -484,7 +484,7 @@ export default function MealLogScreen() {
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: G.bright }} />
           <Text style={{ color: G.bright, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WHAT DID YOU EAT?</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: FONT }}>
           Just tell us — in your own words.
         </Text>
 

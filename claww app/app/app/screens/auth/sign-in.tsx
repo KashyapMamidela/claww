@@ -83,7 +83,7 @@ export default function SignInScreen() {
             </View>
           </View>
 
-          <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+          <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
             Welcome back
           </Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 30, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>

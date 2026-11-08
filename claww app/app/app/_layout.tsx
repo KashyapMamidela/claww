@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -11,6 +11,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 import { AppStateProvider } from '../lib/appState';
 import { OfflineBanner } from '../components/OfflineBanner';
+import { ToastProvider } from '../components/ui/Toast';
+import { QuickLogProvider } from '../components/QuickLog';
 import { WorkoutSessionProvider } from '../lib/workoutSession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
@@ -147,15 +149,21 @@ function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* Premium D14: light status bar icons over the dark app, drawn edge to edge. */}
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <SafeAreaProvider>
         <AppStateProvider>
           <WorkoutSessionProvider>
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: '#050505' },
-              }}
-            />
+            <ToastProvider>
+              <QuickLogProvider>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: '#050505' },
+                  }}
+                />
+              </QuickLogProvider>
+            </ToastProvider>
           </WorkoutSessionProvider>
           <OfflineBanner />
         </AppStateProvider>

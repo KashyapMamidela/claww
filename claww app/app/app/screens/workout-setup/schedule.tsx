@@ -83,7 +83,7 @@ export default function WorkoutSetupSchedule() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <OnboardingTopBar step={1} totalSteps={2} accent={A} showBack={!submitting} />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 30, paddingBottom: 24, flexGrow: 1 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           Which {need} days work for you?
         </Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>

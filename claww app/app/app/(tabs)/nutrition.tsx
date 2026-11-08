@@ -1,4 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { dayLabel } from '../../lib/format';
+import { useToast } from '../../components/ui/Toast';
+import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -22,7 +25,7 @@ import { SectionLabel } from '../../components/ui/SectionLabel';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Surface } from '../../components/ui/Surface';
-import { Display } from '../../components/ui/Typography';
+import { Display, LargeTitle } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PressScale } from '../../components/ui/PressScale';
 import { BottomSheet } from '../../components/ui/BottomSheet';
@@ -50,6 +53,7 @@ export default function NutritionTab() {
   const { search } = useLocalSearchParams<{ search?: string }>();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
+  const hideBar = useHideBarOnScroll('nutrition');
   const [targets, setTargets] = useState<NutritionDefaults | null>(null);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
   const [askFoodProfile, setAskFoodProfile] = useState(false);
@@ -58,8 +62,7 @@ export default function NutritionTab() {
   const [recent, setRecent] = useState<string[]>([]);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchFor, setSearchFor] = useState<MealType | null>(null); // a missed meal being answered with Something else
-  const [undo, setUndo] = useState<{ id: string; label: string } | null>(null);
-  const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const toast = useToast();
   const [plan, setPlan] = useState<StoredPlan | null>(null);
   const mealsRef = useRef(meals);
   mealsRef.current = meals;
@@ -99,7 +102,6 @@ export default function NutritionTab() {
   );
 
   useEffect(() => () => {
-    if (undoTimer.current) clearTimeout(undoTimer.current);
   }, []);
 
   const goals = targets
@@ -137,17 +139,9 @@ export default function NutritionTab() {
     const row = await saveMeal(type, { description: u.label, calories: u.kcal, protein_g: u.protein, carbs_g: u.carbs, fats_g: u.fats, planStatus: 'extra' });
     if (!row) return;
     replanToday(userId!, [...meals, row]).then((p) => p && setPlan(p));
-    setUndo({ id: row.id, label: u.label });
-    if (undoTimer.current) clearTimeout(undoTimer.current);
-    undoTimer.current = setTimeout(() => setUndo(null), 6000);
+    toast.show({ message: `Logged ${u.label}`, actionLabel: 'Undo', onAction: () => { removeMeal(row.id); } });
   };
 
-  const undoLast = async () => {
-    if (!undo) return;
-    const id = undo.id;
-    setUndo(null);
-    await removeMeal(id);
-  };
 
   useEffect(() => {
     if (!search || !['breakfast', 'lunch', 'dinner'].includes(search)) return;
@@ -163,8 +157,9 @@ export default function NutritionTab() {
     if (logging) return;
     setLogging(true);
     const type = (m.meal.charAt(0).toUpperCase() + m.meal.slice(1)) as MealType;
-    await saveMeal(type, plannedToMeal(m));
+    const row = await saveMeal(type, plannedToMeal(m));
     setLogging(false);
+    if (row) toast.show({ message: `Logged ${m.meal}`, actionLabel: 'Undo', onAction: () => { removeMeal(row.id); } });
   };
 
   // A meal logged some other way changes what is left of the day: plan the rest again.
@@ -235,7 +230,7 @@ export default function NutritionTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView {...hideBar} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -245,8 +240,8 @@ export default function NutritionTab() {
           }}
         >
           <View>
-            <SectionLabel color={G}>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase()}</SectionLabel>
-            <Display style={{ marginTop: 4 }}>Nutrition</Display>
+            <SectionLabel color={G}>{dayLabel(new Date()).toUpperCase()}</SectionLabel>
+            <LargeTitle style={{ marginTop: 4 }}>Food</LargeTitle>
           </View>
 
           {targetsLoaded && !targets && (
@@ -508,19 +503,6 @@ export default function NutritionTab() {
         </View>
       </ScrollView>
 
-      {undo ? (
-        <View
-          pointerEvents="box-none"
-          style={{ position: 'absolute', left: 16, right: 16, bottom: Math.max(insets.bottom, 12) + TAB_BAR_CONTENT_HEIGHT + 12 }}
-        >
-          <View style={{ minHeight: 52, borderRadius: 16, backgroundColor: '#1F1F23', borderWidth: 1, borderColor: COLORS.borderStrong, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: FONT }}>Logged {undo.label}</Text>
-            <TouchableOpacity onPress={undoLast} accessibilityRole="button" accessibilityLabel="Undo" style={{ minHeight: 44, minWidth: 56, justifyContent: 'center', alignItems: 'center' }}>
-              <Text style={{ color: G, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Undo</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : null}
 
       <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
       <FoodSearchSheet visible={searchOpen} mealType={searchFor ?? addType} recent={recent} planned={!!upSlot?.planned} onClose={() => { setSearchOpen(false); setSearchFor(null); }} onLogged={afterOtherLog} />
