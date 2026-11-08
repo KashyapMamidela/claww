@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../lib/penDays';
+import { Button } from '../components/ui/Button';
 import { BackTile } from '../components/ui/BackTile';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, Share, Text, View } from 'react-native';
@@ -201,6 +202,11 @@ export default function WeekReviewScreen() {
         <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>
           Undo puts your old plan back for that item. Every mark is made from your own logs, never guessed.
         </Text>
+
+        {/* Premium F5: the week as a four-card story. */}
+        <Button variant="secondary" size="lg" fullWidth accent={COLORS.blue} icon={<Icon name="play" size={15} color={COLORS.blue} />} onPress={() => router.push('/recap')}>
+          Watch your week
+        </Button>
 
         <Pressable onPress={shareLetter} disabled={sharing || !facts} accessibilityRole="button" accessibilityLabel="Share your week as a picture" style={{ minHeight: 50, borderRadius: 25, borderWidth: 1, borderColor: COLORS.borderStrong, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}>
           <Icon name="share-2" size={18} color={COLORS.fg} />

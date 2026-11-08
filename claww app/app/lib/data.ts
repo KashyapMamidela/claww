@@ -85,6 +85,8 @@ export interface PersonalizationProfile {
   scanTraining?: boolean;
   /** Exam week (NG PHASE 12): days in this range neither count toward nor break the plan streak. */
   examWeek?: { from: string; until: string } | null;
+  /** Premium F6: planned days the user froze, YYYY-MM-DD. */
+  frozenDates?: string[];
   /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
   foodProfile?: FoodProfile;
 }
@@ -1825,6 +1827,18 @@ export async function getCompletedSessionDates(userId: string, days = 120): Prom
     return [];
   }
   return Array.from(new Set((data ?? []).map((r) => dateKey(new Date(r.created_at as string)))));
+}
+
+export async function saveFrozenDates(userId: string, dates: string[]): Promise<boolean> {
+  const profile = await getProfile(userId);
+  const next: PersonalizationProfile = { ...(profile?.personalization_profile ?? {}), frozenDates: dates.slice(-60) };
+  const { error } = await supabase.from('profiles').update({ personalization_profile: next }).eq('id', userId);
+  invalidateProfile();
+  if (error) {
+    console.warn('[Claww] Failed to save streak freeze:', error.message);
+    return false;
+  }
+  return true;
 }
 
 export async function saveExamWeek(userId: string, week: { from: string; until: string } | null): Promise<boolean> {

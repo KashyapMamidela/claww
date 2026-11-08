@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Activity,
+  Snowflake,
   CalendarDays,
   MoreHorizontal,
   AlertTriangle,
@@ -106,6 +107,7 @@ const ICONS: Record<string, LucideIcon> = {
   mail: Mail,
   minus: Minus,
   moon: Moon,
+  snowflake: Snowflake,
   'more-horizontal': MoreHorizontal,
   calendar: CalendarDays,
   pause: Pause,

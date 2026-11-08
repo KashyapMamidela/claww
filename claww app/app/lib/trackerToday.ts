@@ -106,3 +106,27 @@ export function parseWeight(text: string): number | null {
   if (!Number.isFinite(v) || v <= 20 || v >= 400) return null;
   return Math.round(v * 10) / 10;
 }
+
+/**
+ * Premium F8: a 7-day moving average of the weight, so a heavy dinner or a salty day does not look like a change.
+ * One value per logged day (the last entry of a day), each averaged with the entries in the 7 days up to it.
+ * `days` is how far back to read; returns oldest first.
+ */
+export function smoothedWeights(logs: WeightPoint[], days = 60, now: Date = new Date()): { day: string; raw: number; avg: number }[] {
+  const since = now.getTime() - days * 86_400_000;
+  const byDay = new Map<string, { t: number; kg: number }>();
+  for (const l of logs) {
+    const t = new Date(l.loggedAt).getTime();
+    if (t < since) continue;
+    const d = new Date(t);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const prev = byDay.get(key);
+    if (!prev || t > prev.t) byDay.set(key, { t, kg: l.weightKg });
+  }
+  const points = [...byDay.entries()].map(([day, v]) => ({ day, t: v.t, raw: v.kg })).sort((a, b) => a.t - b.t);
+  return points.map((p) => {
+    const window = points.filter((q) => q.t <= p.t && q.t > p.t - 7 * 86_400_000);
+    const avg = window.reduce((s, q) => s + q.raw, 0) / window.length;
+    return { day: p.day, raw: p.raw, avg: Math.round(avg * 10) / 10 };
+  });
+}

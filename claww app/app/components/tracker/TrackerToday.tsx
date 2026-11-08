@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { LineChart } from '../charts/LineChart';
 import { TintTile } from '../ui/TintTile';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -14,7 +15,7 @@ import { getRecentLoggedSets, getRecoveryInputs } from '../../lib/adaptiveData';
 import { getTodaySteps, type StepsResult } from '../../lib/steps';
 import { burnedKcal, stepsProgress, stepsSourceLine } from '../../lib/dayStats';
 import { DEFAULT_STEPS_GOAL } from '../../lib/activityMath';
-import { bedtimeFor, parseWeight, recoveryFactors, todayAction, weightDeltaText, weightTrend } from '../../lib/trackerToday';
+import { bedtimeFor, parseWeight, recoveryFactors, todayAction, smoothedWeights, weightDeltaText, weightTrend } from '../../lib/trackerToday';
 import { BarChart } from '../charts/BarChart';
 import { BottomSheet } from '../ui/BottomSheet';
 import { Button } from '../ui/Button';
@@ -138,6 +139,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
     wakeHHMM: todaySleep?.wake_time ? `${String(new Date(todaySleep.wake_time).getHours()).padStart(2, '0')}:${String(new Date(todaySleep.wake_time).getMinutes()).padStart(2, '0')}` : null,
   });
   const trend = weightTrend(weights);
+  const smoothed = smoothedWeights(weights.map((w) => ({ weightKg: w.weightKg, loggedAt: w.loggedAt })));
   const latestWeight = trend?.latest ?? weightKg;
   const sleepHours = todaySleep?.hours ?? null;
   const waterL = Math.round((waterMl / 1000) * 10) / 10;
@@ -322,6 +324,20 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       <BottomSheet visible={weightOpen} onClose={() => setWeightOpen(false)}>
         <View style={{ padding: 20, gap: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Log your weight</Text>
+          {/* Premium F8: the 7-day average (solid) over each day's weight (faint), so one salty day does not look like a change. */}
+          {smoothed.length >= 2 ? (
+            <View style={{ gap: 6 }}>
+              <LineChart
+                height={110}
+                series={[
+                  { values: smoothed.map((p) => p.raw), color: 'rgba(255,255,255,0.28)' },
+                  { values: smoothed.map((p) => p.avg), color: COLORS.fg },
+                ]}
+                labels={[smoothed[0].day.slice(5).replace('-', '/'), smoothed[smoothed.length - 1].day.slice(5).replace('-', '/')]}
+              />
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>7-day average {smoothed[smoothed.length - 1].avg} kg</Text>
+            </View>
+          ) : null}
           <TextInput
             value={weightText}
             onChangeText={setWeightText}

@@ -8,7 +8,7 @@ import { weekdayIndex } from './trainingWeek';
 
 export interface LoadedStreak {
   stats: PlanStreakStats;
-  inputs: { plannedWeekdays: number[] | null; examWeek: { from: string; until: string } | null; planStart: string | undefined };
+  inputs: { plannedWeekdays: number[] | null; examWeek: { from: string; until: string } | null; planStart: string | undefined; frozenDates: string[] };
 }
 
 export async function loadPlanStreak(userId: string): Promise<LoadedStreak> {
@@ -23,6 +23,7 @@ export async function loadPlanStreak(userId: string): Promise<LoadedStreak> {
   const plannedWeekdays = labels.length > 0 && idx.every((i) => i !== null) ? (idx as number[]) : null;
   const examWeek = profile?.personalization_profile?.examWeek ?? null;
   const planStart = first.data?.created_at ? dateKey(new Date(first.data.created_at as string)) : undefined;
-  const stats = planStreakStats({ today: dateKey(new Date()), plannedWeekdays, completedDates: new Set(dates), examWeek, planStart });
-  return { stats, inputs: { plannedWeekdays, examWeek, planStart } };
+  const frozenDates = profile?.personalization_profile?.frozenDates ?? [];
+  const stats = planStreakStats({ today: dateKey(new Date()), plannedWeekdays, completedDates: new Set(dates), examWeek, planStart, frozenDates });
+  return { stats, inputs: { plannedWeekdays, examWeek, planStart, frozenDates } };
 }
