@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from 'react-native';
 import { Redirect, useRouter } from 'expo-router';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AREA_COLORS, COLORS, FONT } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, BG, bg } from '../../lib/theme';
 import { SHOW_DEV_TOOLS } from '../../lib/devTools';
 import { riseIn } from '../../lib/motion';
 import { setDone, success } from '../../lib/haptics';
@@ -41,7 +41,7 @@ function Swatch({ name, hex }: { name: string; hex: string }) {
   return (
     <View style={{ width: '23%', gap: 4 }}>
       <View style={{ height: 40, borderRadius: 10, backgroundColor: hex, borderWidth: 1, borderColor: COLORS.border }} />
-      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }} numberOfLines={1}>
+      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }} numberOfLines={1}>
         {name}
       </Text>
     </View>
@@ -67,7 +67,7 @@ export default function DesignGallery() {
             <Icon name="chevron-left" size={22} color={COLORS.fg} />
           </View>
         </PressScale>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Test tools · not in release builds</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Test tools · not in release builds</Text>
       </View>
 
       <View style={{ gap: 6 }}>
@@ -80,8 +80,8 @@ export default function DesignGallery() {
         <Heading>Heading 21 / 800</Heading>
         <Title>Title 14 / 700</Title>
         <Body>Body 13 / 500. The coach line and descriptions.</Body>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500', fontFamily: FONT }}>Small 12 / 500, textMuted</Text>
-        <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: FONT }}>textFaint, for struck-through old values</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[500] }}>Small 12 / 500, textMuted</Text>
+        <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: BG[400] }}>textFaint, for struck-through old values</Text>
       </Section>
 
       <Section title="COLOURS · DATA ONLY" index={1}>
@@ -103,21 +103,21 @@ export default function DesignGallery() {
         </Surface>
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <TintTile color={AREA_COLORS.steps} watermark="footprints" style={{ flex: 1 }}>
-            <Text style={{ color: AREA_COLORS.steps, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>STEPS</Text>
-            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>6,482</Text>
+            <Text style={{ color: AREA_COLORS.steps, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[800] }}>STEPS</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], fontVariant: ['tabular-nums'] }}>6,482</Text>
           </TintTile>
           <TintTile color={AREA_COLORS.streak} watermark="zap" style={{ flex: 1 }}>
-            <Text style={{ color: AREA_COLORS.streak, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>STREAK</Text>
-            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>5 days</Text>
+            <Text style={{ color: AREA_COLORS.streak, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[800] }}>STREAK</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>5 days</Text>
           </TintTile>
         </View>
         <Hero key={`blue-${heroKey}`}>
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>YOUR PLAN · DAY 3 OF 4</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: 1, fontFamily: BG[800] }}>YOUR PLAN · DAY 3 OF 4</Text>
           <Heading>Push day</Heading>
           <Body color="rgba(255,255,255,0.8)">Hero: app gradient, lines, one sheen on mount.</Body>
         </Hero>
         <Hero key={`green-${heroKey}`} variant="green">
-          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '800', letterSpacing: 1, fontFamily: FONT }}>NEXT ON YOUR PLAN · DINNER</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11, letterSpacing: 1, fontFamily: BG[800] }}>NEXT ON YOUR PLAN · DINNER</Text>
           <Heading>Egg bhurji + 2 roti</Heading>
         </Hero>
         <Button variant="ghost" size="sm" onPress={() => setHeroKey((k) => k + 1)}>
@@ -169,7 +169,7 @@ export default function DesignGallery() {
           <TickButton state="done" accessibilityLabel="Set 1 done" />
           <TickButton state="current" onPress={setDone} accessibilityLabel="Log set 2 as planned" />
           <TickButton state="pending" onPress={() => {}} accessibilityLabel="Set 3, not yet" />
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, flex: 1 }}>done · current · pending</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flex: 1 }}>done · current · pending</Text>
         </View>
       </Section>
 
@@ -197,7 +197,7 @@ export default function DesignGallery() {
         />
         <StateView variant="offline" />
         <View style={{ gap: 8 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Loading: skeletons in the real layout</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Loading: skeletons in the real layout</Text>
           <Skeleton height={18} width="45%" />
           <Skeleton height={120} />
         </View>

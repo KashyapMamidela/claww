@@ -3,7 +3,7 @@ import { adaptiveSummary } from '../../lib/adaptiveSummary';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useFocusEffect } from '@react-navigation/native';
-import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getLatestWorkout, getSuggestedDayIndex, getWorkoutDayEvents, type WorkoutRow } from '../../lib/data';
 import type { Readiness } from '../../lib/engine';
@@ -35,7 +35,7 @@ function Pill({ label, tone }: { label: string; tone: 'up' | 'down' | 'hold' | '
   const color = tone === 'up' ? COLORS.green : tone === 'down' ? COLORS.amber : tone === 'info' ? E : COLORS.textMuted;
   return (
     <View style={{ paddingHorizontal: 9, paddingVertical: 3, borderRadius: 100, backgroundColor: tint(color, 0.16) }}>
-      <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.3, fontFamily: FONT }}>{label.toUpperCase()}</Text>
+      <Text style={{ color, fontSize: 11, letterSpacing: 0.3, fontFamily: BG[800] }}>{label.toUpperCase()}</Text>
     </View>
   );
 }
@@ -44,7 +44,7 @@ function Option({ label, active, onPress }: { label: string; active: boolean; on
   return (
     <PressScale onPress={onPress} accessibilityRole="button" accessibilityState={{ selected: active }} accessibilityLabel={label}>
       <View style={{ minWidth: 44, height: 44, paddingHorizontal: 12, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: active ? T : 'rgba(255,255,255,0.06)' }}>
-        <Text style={{ color: active ? '#050505' : COLORS.fgGray, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color: active ? '#050505' : COLORS.fgGray, fontSize: 13, fontFamily: BG[700] }}>{label}</Text>
       </View>
     </PressScale>
   );
@@ -113,8 +113,8 @@ export function AdaptiveCard() {
           <Icon name="activity" size={18} color={E} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Adaptive</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }} numberOfLines={2}>{summary}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Adaptive</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }} numberOfLines={2}>{summary}</Text>
         </View>
         <Icon name="chevron-right" size={20} color={COLORS.textMuted} />
       </Pressable>
@@ -122,10 +122,10 @@ export function AdaptiveCard() {
       {/* Premium T4: the questions open in a sheet, so the Progress page does not jump down. */}
       <BottomSheet visible={open} onClose={() => setOpen(false)} maxHeightFraction={0.9}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24, gap: 14 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>Adaptive</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>Adaptive</Text>
           {bundle.muscles.length > 0 ? (
             <>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>
                 How do the muscles you train today feel? Optional. Your answers are used when you start the session.
               </Text>
               {bundle.muscles.map((m) => {
@@ -133,19 +133,19 @@ export function AdaptiveCard() {
                 return (
                   <View key={m} style={{ gap: 8 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, flexWrap: 'wrap' }}>
-                      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{cap(m)}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+                      <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{cap(m)}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
                         {trainedAgoLabel(planned.scores[m]?.hoursSinceTrained ?? null)}
                         {planned.scores[m]?.score != null ? ` · score ${planned.scores[m].score}${planned.scores[m].band && planned.scores[m].band !== 'Excellent' && planned.scores[m].band !== 'Good' ? ` · ${planned.scores[m].band}` : ''}` : ''}
                       </Text>
                     </View>
-                    <Text style={{ color: COLORS.fgGray, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Soreness (0 none, 5 severe)</Text>
+                    <Text style={{ color: COLORS.fgGray, fontSize: 13, fontFamily: BG[700] }}>Soreness (0 none, 5 severe)</Text>
                     <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                       {[0, 1, 2, 3, 4, 5].map((n) => (
                         <Option key={n} label={String(n)} active={c?.soreness === n} onPress={() => setCheckin(m, { soreness: c?.soreness === n ? null : n })} />
                       ))}
                     </View>
-                    <Text style={{ color: COLORS.fgGray, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>How strong does it feel?</Text>
+                    <Text style={{ color: COLORS.fgGray, fontSize: 13, fontFamily: BG[700] }}>How strong does it feel?</Text>
                     <View style={{ flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
                       {READINESS.map((r) => (
                         <Option key={r.value} label={r.label} active={c?.readiness === r.value} onPress={() => setCheckin(m, { readiness: c?.readiness === r.value ? null : r.value })} />
@@ -157,7 +157,7 @@ export function AdaptiveCard() {
             </>
           ) : null}
 
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', marginTop: 4, fontFamily: FONT }}>{`Today's prescription · ${day.focus}`}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, marginTop: 4, fontFamily: BG[800] }}>{`Today's prescription · ${day.focus}`}</Text>
           {planned.prescribed.map((p) => {
             const pill = commandPill(p.prescription.commands);
             const reason = reasonLine(p);
@@ -165,14 +165,14 @@ export function AdaptiveCard() {
             return (
               <View key={p.name} style={{ gap: 6, paddingTop: 10, borderTopWidth: 1, borderTopColor: COLORS.border }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{p.name}</Text>
+                  <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[800] }}>{p.name}</Text>
                   {p.managed ? <Pill label={pill.label} tone={pill.tone} /> : null}
                 </View>
-                <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                <Text style={{ color: COLORS.fg, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>
                   {w !== null ? `${w} kg · ` : ''}
                   {p.prescription.reps} reps {'×'} {p.prescription.sets} sets
                 </Text>
-                {reason ? <Text style={{ color: E, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>{reason}</Text> : null}
+                {reason ? <Text style={{ color: E, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{reason}</Text> : null}
               </View>
             );
           })}

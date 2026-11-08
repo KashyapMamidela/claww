@@ -2,7 +2,7 @@ import React from 'react';
 import { TiltLight } from '../ui/TiltLight';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint, BG, bg } from '../../lib/theme';
 import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
@@ -38,7 +38,7 @@ const PALETTE: Record<SessionCardState, { accent: string; kicker: string; top: s
 
 const Pill = ({ text }: { text: string }) => (
   <View style={{ borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: 'rgba(255,255,255,0.09)' }}>
-    <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{text}</Text>
+    <Text style={{ color: COLORS.fg, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{text}</Text>
   </View>
 );
 
@@ -68,17 +68,17 @@ export function SessionCard(p: SessionCardProps) {
     >
       <View style={{ gap: 10 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Text style={{ color: c.kicker, fontSize: 12, fontWeight: '800', letterSpacing: 0.96, fontFamily: FONT }}>{kicker}</Text>
+          <Text style={{ color: c.kicker, fontSize: 12, letterSpacing: 0.96, fontFamily: BG[800] }}>{kicker}</Text>
           {p.state === 'rest' && p.name ? (
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>next: {p.name}</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>next: {p.name}</Text>
           ) : p.state === 'done' ? (
             <Icon name="check-circle-2" size={18} color={c.accent} />
           ) : null}
         </View>
-        <Text style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>{title}</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, fontFamily: BG[800] }}>{title}</Text>
 
         {p.state === 'rest' ? (
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>Light movement clears soreness faster than sitting still.</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>Light movement clears soreness faster than sitting still.</Text>
         ) : (
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {p.exercises ? <Pill text={`${p.exercises} exercise${p.exercises === 1 ? '' : 's'}`} /> : null}
@@ -89,7 +89,7 @@ export function SessionCard(p: SessionCardProps) {
 
         {p.state === 'training' && p.progression ? (
           <View>
-            <Text style={{ color: '#C4C4CC', fontSize: 15, fontFamily: FONT }}>
+            <Text style={{ color: '#C4C4CC', fontSize: 15, fontFamily: BG[400] }}>
               {p.progression.name} <Text style={{ color: COLORS.textFaint, textDecorationLine: 'line-through' }}>{p.progression.oldText}</Text>{' '}
               <Text style={{ color: '#fff', fontWeight: '800' }}>{p.progression.newText}</Text>
             </Text>

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { Hero } from '../ui/Hero';
 import { Icon } from '../ui/Icon';
 
@@ -19,9 +19,9 @@ function PlanTileBase({ title, days, meta, chips, nearest }: PlanTileProps) {
     <Hero variant="blue" accessibilityLabel={`Your plan: ${title}, ${days} days a week`}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR PLAN</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.4, marginTop: 6, fontFamily: FONT }}>{title}</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 4, fontFamily: FONT }}>{meta}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>YOUR PLAN</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], letterSpacing: -0.4, marginTop: 6, fontFamily: BG[800] }}>{title}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 4, fontFamily: BG[400] }}>{meta}</Text>
         </View>
         <View style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="dumbbell" size={26} color={COLORS.fg} />
@@ -30,14 +30,14 @@ function PlanTileBase({ title, days, meta, chips, nearest }: PlanTileProps) {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
         {chips.map((t) => (
           <View key={t} style={{ borderRadius: 10, paddingHorizontal: 10, paddingVertical: 6, backgroundColor: 'rgba(255,255,255,0.10)' }}>
-            <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{t}</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 13, fontFamily: BG[700] }}>{t}</Text>
           </View>
         ))}
       </View>
-      {nearest ? <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 12, lineHeight: 17, fontFamily: FONT }}>{nearest}</Text> : null}
+      {nearest ? <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 12, lineHeight: 17, fontFamily: BG[400] }}>{nearest}</Text> : null}
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
         <Icon name="shield-check" size={16} color={COLORS.textMuted} />
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, flex: 1, fontFamily: FONT }}>Picked from trainer-reviewed plans, never generated</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, flex: 1, fontFamily: BG[400] }}>Picked from trainer-reviewed plans, never generated</Text>
       </View>
     </Hero>
   );

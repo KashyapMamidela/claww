@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { AREA_COLORS, COLORS, FONT } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
 import { Surface } from './ui/Surface';
@@ -39,8 +39,8 @@ export function MealSetupHeader({ step, sub, onBack }: { step: 1 | 2 | 3; sub: s
         </Surface>
       </View>
       <View>
-        <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Set up your meals</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Set up your meals</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
           Step {step} of 3 · {sub}
         </Text>
       </View>

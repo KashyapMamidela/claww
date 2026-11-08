@@ -3,7 +3,7 @@ import { Glass } from './Glass';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, TAB_BAR_HEIGHT } from '../../lib/theme';
+import { COLORS, FONT, TAB_BAR_HEIGHT, BG, bg } from '../../lib/theme';
 import { warning } from '../../lib/haptics';
 
 // Premium D4: "Logged breakfast · Undo", for 5 seconds, instead of a confirm dialog. One toast at a time, floating
@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <Animated.View entering={FadeInDown.duration(220)} exiting={FadeOutDown.duration(180)} accessibilityLiveRegion="polite">
           <Glass radius={24} tint="rgba(22,22,26,0.78)">
           <View style={{ minHeight: 48, paddingLeft: 18, paddingRight: 6, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '600', fontFamily: FONT }} numberOfLines={2}>
+            <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[600] }} numberOfLines={2}>
               {toast.message}
             </Text>
             {toast.actionLabel ? (
@@ -66,7 +66,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 }}
                 style={{ minHeight: 44, paddingHorizontal: 14, justifyContent: 'center' }}
               >
-                <Text style={{ color: '#93C5FD', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{toast.actionLabel}</Text>
+                <Text style={{ color: '#93C5FD', fontSize: 15, fontFamily: BG[800] }}>{toast.actionLabel}</Text>
               </Pressable>
             ) : (
               <View style={{ width: 10 }} />

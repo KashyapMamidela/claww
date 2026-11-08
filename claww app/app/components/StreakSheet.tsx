@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import type { PlanStreakStats, StreakDayStatus } from '../lib/planStreak';
 import { BottomSheet } from './ui/BottomSheet';
 import { Icon } from './ui/Icon';
@@ -31,7 +31,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 18 }}>
-        <Text style={{ color: C, fontSize: 13, fontWeight: '800', letterSpacing: 0.8, fontFamily: FONT }}>STREAK</Text>
+        <Text style={{ color: C, fontSize: 13, letterSpacing: 0.8, fontFamily: BG[800] }}>STREAK</Text>
 
         <View style={{ flexDirection: 'row', gap: 10 }}>
           {[
@@ -39,8 +39,8 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
             { label: 'BEST', value: stats?.best ?? 0 },
           ].map((s) => (
             <View key={s.label} style={{ flex: 1, padding: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.04)' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }}>{s.label}</Text>
-              <Text style={{ color: s.label === 'CURRENT' ? C : '#fff', fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.6, fontFamily: BG[800] }}>{s.label}</Text>
+              <Text style={{ color: s.label === 'CURRENT' ? C : '#fff', fontSize: 34, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
                 {s.value}
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600' }}> {s.value === 1 ? 'day' : 'days'}</Text>
               </Text>
@@ -48,7 +48,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
           ))}
         </View>
 
-        <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
+        <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>
           A day counts when you follow your plan: you trained on a training day, or rested on a rest day. A missed
           training day breaks it; today never does. Busy week? Turn on Exam week after a session and missed days won't
           break it for 7 days.
@@ -58,7 +58,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
           <View style={{ gap: 6 }}>
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {weeks[0].map((d, i) => (
-                <Text key={i} style={{ flex: 1, color: COLORS.textFaint, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>
+                <Text key={i} style={{ flex: 1, color: COLORS.textFaint, fontSize: 11, textAlign: 'center', fontFamily: BG[400] }}>
                   {d.date.toLocaleDateString([], { weekday: 'narrow' })}
                 </Text>
               ))}
@@ -85,7 +85,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                         gap: 2,
                       }}
                     >
-                      <Text style={{ color: done || rest ? '#fff' : COLORS.textFaint, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.date.getDate()}</Text>
+                      <Text style={{ color: done || rest ? '#fff' : COLORS.textFaint, fontSize: 13, fontFamily: BG[700] }}>{d.date.getDate()}</Text>
                       {done ? <Icon name="check" size={11} color={C} strokeWidth={3} /> : missed ? <Icon name="x" size={11} color={COLORS.danger} strokeWidth={3} /> : rest ? <Icon name="moon" size={11} color={C} /> : d.status === 'protected' ? <Icon name="shield" size={11} color={C} /> : null}
                     </View>
                   );
@@ -100,17 +100,17 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
               ] as const).map(([label, color]) => (
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: color }} />
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{label}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
                 </View>
               ))}
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Icon name="shield" size={11} color={C} />
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Exam week</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Exam week</Text>
               </View>
             </View>
           </View>
         ) : (
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Loading…</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Loading…</Text>
         )}
       </ScrollView>
     </BottomSheet>

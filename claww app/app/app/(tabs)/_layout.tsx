@@ -58,7 +58,7 @@ export default function TabsLayout() {
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
-        screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' }, animation: 'fade' }}
+        screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' }, freezeOnBlur: true }}
       >
         <Tabs.Screen name="index" />
         <Tabs.Screen name="workouts" />
@@ -69,7 +69,6 @@ export default function TabsLayout() {
       <AppHeader
         accent={headerAccent}
         title={headerTitle}
-        collapsing={routeName !== 'index'}
         penDot={penDot}
         initial={(userName || 'M').charAt(0).toUpperCase()}
         onPenPress={() => router.push('/week-review')}

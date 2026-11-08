@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { AREA_COLORS, COLORS, FONT, FONT_HAND, SURFACES } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, SURFACES, BG, bg } from '../../lib/theme';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import {
   currentSetIndex,
@@ -204,24 +204,24 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
               </View>
             </PressScale>
             <View style={{ flex: 1, minWidth: 0 }}>
-              <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
+              <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>
                 {today.focus || today.day}
               </Text>
               <View style={{ flexDirection: 'row' }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
                   Exercise {exerciseIndex + 1} of {exercises.length} ·{' '}
                 </Text>
                 {clock && !isPaused ? (
-                  <ElapsedClock clock={clock} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, fontVariant: ['tabular-nums'] }} />
+                  <ElapsedClock clock={clock} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], fontVariant: ['tabular-nums'] }} />
                 ) : (
-                  <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Paused</Text>
+                  <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Paused</Text>
                 )}
               </View>
             </View>
             {clock ? (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, height: 34, borderRadius: 12, borderWidth: 1, borderColor: COLORS.blueBorder, backgroundColor: COLORS.blueDim }}>
                 <Icon name="flame" size={14} color="#93C5FD" />
-                <KcalText clock={clock} weightKg={profile?.weight ?? null} style={{ color: '#93C5FD', fontSize: 13, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'] }} />
+                <KcalText clock={clock} weightKg={profile?.weight ?? null} style={{ color: '#93C5FD', fontSize: 13, fontFamily: BG[800], fontVariant: ['tabular-nums'] }} />
               </View>
             ) : null}
             <PressScale onPress={() => setListOpen(true)} accessibilityRole="button" accessibilityLabel="All exercises, pause or end the workout">
@@ -247,8 +247,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                   <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
                       <View style={{ flex: 1 }}>
-                        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
+                        <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>{exercise.name}</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: BG[400] }}>{metaLine}</Text>
                         {reasonLine ? <Text style={{ color: COLORS.fg, fontSize: 20, lineHeight: 24, marginTop: 6, fontFamily: FONT_HAND, fontWeight: '700' }}>{reasonLine}</Text> : null}
                       </View>
                       {/* Premium X5: How to, Swap and editing the numbers sit behind one button so the screen has one job. */}
@@ -290,7 +290,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     {/* Premium X5: the current set is the screen: its number is huge, everything else is a slim row. */}
                     {currentRow ? (
                       <View style={{ alignItems: 'center', gap: 6, paddingVertical: 8 }}>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 12, fontWeight: '800', letterSpacing: 0.96, fontFamily: FONT }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 12, letterSpacing: 0.96, fontFamily: BG[800] }}>
                           SET {setIndex + 1} OF {state.rows.length}
                           {rowHint(currentRow, true, repMax) ? ` \u00b7 ${rowHint(currentRow, true, repMax)!.toUpperCase()}` : ''}
                         </Text>
@@ -300,7 +300,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                           accessibilityLabel={`Set ${setIndex + 1}: ${setText(currentRow.weight, `${currentRow.reps}`)}. Change`}
                           style={{ minHeight: 64, justifyContent: 'center' }}
                         >
-                          <Text style={{ color: COLORS.fg, fontSize: 52, lineHeight: 58, fontWeight: '900', letterSpacing: -1.5, fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1} adjustsFontSizeToFit>
+                          <Text style={{ color: COLORS.fg, fontSize: 52, lineHeight: 58, letterSpacing: -1.5, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} numberOfLines={1} adjustsFontSizeToFit>
                             {currentRow.weight > 0 ? `${currentRow.weight}` : ''}
                             {currentRow.weight > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 24, fontWeight: '700' }}> kg  </Text> : null}
                             {currentRow.weight > 0 ? '\u00d7 ' : ''}
@@ -323,7 +323,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                             style={{ minHeight: 40, paddingHorizontal: 14, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: done ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.08)', opacity: done ? 0.55 : 1 }}
                           >
                             {done ? <Icon name="check" size={13} color={COLORS.green} strokeWidth={3} /> : null}
-                            <Text style={{ color: COLORS.fgGray, fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'], fontFamily: FONT }}>Warm-up {setText(w.weight, `${w.reps}`)}</Text>
+                            <Text style={{ color: COLORS.fgGray, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>Warm-up {setText(w.weight, `${w.reps}`)}</Text>
                           </Pressable>
                         );
                       })}
@@ -351,7 +351,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                             }}
                           >
                             {row.done ? <Icon name="check" size={13} color="#93C5FD" strokeWidth={3} /> : null}
-                            <Text style={{ color: row.done ? '#93C5FD' : isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                            <Text style={{ color: row.done ? '#93C5FD' : isCurrent ? COLORS.fg : COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
                               {row.done ? setText(row.weight, `${row.reps}`) : `Set ${s + 1}`}
                             </Text>
                           </Pressable>
@@ -361,7 +361,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
                     {RIR_CHIP_ENABLED && currentRow ? (
                       <View style={{ gap: 6 }}>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>Reps left in the tank · optional</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>Reps left in the tank · optional</Text>
                         <View style={{ flexDirection: 'row', gap: 8 }}>
                           {['0', '1', '2', '3+'].map((v, i) => (
                             <PressScale
@@ -376,7 +376,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                               accessibilityState={{ selected: rir === i }}
                             >
                               <View style={{ height: 44, borderRadius: 12, backgroundColor: rir === i ? A : 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={{ color: COLORS.fg, fontWeight: '700', fontFamily: FONT }}>{v}</Text>
+                                <Text style={{ color: COLORS.fg, fontFamily: BG[700] }}>{v}</Text>
                               </View>
                             </PressScale>
                           ))}
@@ -389,12 +389,12 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     {upNext ? (
                       <PressScale onPress={() => goToExercise(upNextIdx)} accessibilityRole="button" accessibilityLabel={`Up next: ${upNext.name}`}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 14, minHeight: 48, borderRadius: 14, backgroundColor: SURFACES.cardBottom, borderWidth: 1, borderColor: COLORS.border }}>
-                          <Text style={{ color: COLORS.textFaint, fontSize: 11, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>UP NEXT</Text>
-                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
+                          <Text style={{ color: COLORS.textFaint, fontSize: 11, letterSpacing: 0.7, fontFamily: BG[800] }}>UP NEXT</Text>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>
                             {upNext.name}
                           </Text>
                           {upNextRow ? (
-                            <Text style={{ color: COLORS.fgGray, fontSize: 13, fontFamily: FONT }}>
+                            <Text style={{ color: COLORS.fgGray, fontSize: 13, fontFamily: BG[400] }}>
                               {upNextRow.weight > 0 ? `${upNextRow.weight} × ${upNextRow.reps}` : `${upNext.sets} × ${upNextRow.reps}`}
                             </Text>
                           ) : null}
@@ -456,7 +456,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                   </>
                 ) : exerciseDone ? (
                   <>
-                    <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+                    <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[800] }}>
                       Exercise done
                       <Text style={{ color: COLORS.textMuted, fontWeight: '600' }}>
                         {exerciseVolume(state) > 0 ? ` · ${exerciseVolume(state).toLocaleString('en-IN')} kg volume` : ` · ${state.rows.length} sets`}
@@ -491,7 +491,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
         <BottomSheet visible={moreOpen} onClose={() => setMoreOpen(false)} maxHeightFraction={0.5}>
           <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 8 }}>
-            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT, marginBottom: 6 }} numberOfLines={1}>{exercise.name}</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], marginBottom: 6 }} numberOfLines={1}>{exercise.name}</Text>
             {forms[exercise.name] ? (
               <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="play" size={14} color={A} />} onPress={() => { setMoreOpen(false); setGuideName(exercise.name); }}>
                 How to do it
@@ -561,7 +561,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                     </Button>
                   </View>
                 </View>
-                <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', marginBottom: 4, fontFamily: FONT }}>Exercises</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 15, marginBottom: 4, fontFamily: BG[800] }}>Exercises</Text>
                 <ScrollView contentContainerStyle={{ gap: 6 }}>
                   {exercises.map((ex, i) => {
                     const st = plan[i];
@@ -579,10 +579,10 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                       >
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 48, paddingHorizontal: 12, borderRadius: 12, backgroundColor: i === exerciseIndex ? 'rgba(59,130,246,0.14)' : 'rgba(255,255,255,0.04)' }}>
                           <Icon name={done ? 'check-circle-2' : st?.skipped ? 'skip-forward' : 'circle'} size={18} color={done ? COLORS.green : st?.skipped ? '#71717A' : '#A1A1AA'} />
-                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>
                             {ex.name}
                           </Text>
-                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}</Text>
+                          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{st?.skipped ? 'Skipped' : `${logged}/${st?.rows.length ?? ex.sets}`}</Text>
                         </View>
                       </PressScale>
                     );

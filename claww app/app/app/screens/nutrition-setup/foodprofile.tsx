@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Chip } from '../../../components/ui/Chip';
@@ -51,10 +51,10 @@ export default function NutritionSetupFoodProfile() {
     <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }}>
       <OnboardingTopBar step={4} totalSteps={TOTAL_STEPS} accent={G} showBack />
       <ScrollView contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 24, paddingTop: 38, paddingBottom: 24 }} keyboardShouldPersistTaps="handled">
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>
           What do you like to eat?
         </Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: BG[400] }}>
           Optional. Meal suggestions will lean toward these and skip what you avoid.
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -64,14 +64,14 @@ export default function NutritionSetupFoodProfile() {
             </Chip>
           ))}
         </View>
-        <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', marginTop: 28, marginBottom: 8, fontFamily: FONT }}>Foods to avoid</Text>
+        <Text style={{ color: '#A1A1AA', fontSize: 13, marginTop: 28, marginBottom: 8, fontFamily: BG[700] }}>Foods to avoid</Text>
         <TextInput
           value={avoid}
           onChangeText={setAvoid}
           maxLength={AVOID_MAX_LENGTH}
           placeholder="e.g. mushrooms, brinjal, mayonnaise"
           placeholderTextColor="#52525B"
-          style={{ height: 48, borderRadius: 12, paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', fontFamily: FONT }}
+          style={{ height: 48, borderRadius: 12, paddingHorizontal: 14, backgroundColor: 'rgba(255,255,255,0.05)', color: '#fff', fontFamily: BG[400] }}
         />
         <View style={{ flex: 1, minHeight: 24 }} />
         <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth onPress={next} disabled={saving}>

@@ -5,7 +5,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState, type EstimatedMeal, type MealLogRow, type MealType } from '../lib/appState';
 import {
   getMealPhotoHistory,
@@ -299,10 +299,10 @@ export default function MealLogScreen() {
         >
           <Icon name="check-circle-2" size={30} color={G.bright} />
         </View>
-        <Text style={{ color: '#fff', fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], marginBottom: 6, fontFamily: FONT, textAlign: 'center' }}>
+        <Text style={{ color: '#fff', fontSize: 20, fontVariant: ['tabular-nums'], marginBottom: 6, fontFamily: BG[800], textAlign: 'center' }}>
           Logged: {logged.description}
         </Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 24, fontFamily: FONT }}>{logged.meal_type ?? mealType}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 24, fontFamily: BG[400] }}>{logged.meal_type ?? mealType}</Text>
 
         <View style={{ flexDirection: 'row', gap: 10, width: '100%', marginBottom: 28 }}>
           {[
@@ -323,8 +323,8 @@ export default function MealLogScreen() {
                 alignItems: 'center',
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>{s.label}</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>{s.value}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: BG[400] }}>{s.label}</Text>
             </View>
           ))}
         </View>
@@ -342,7 +342,7 @@ export default function MealLogScreen() {
   if (reviewing) {
     const field = (key: keyof typeof reviewFields, label: string, suffix: string) => (
       <View style={{ flex: 1 }}>
-        <Text style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6, fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 11, marginBottom: 6, fontFamily: BG[400] }}>{label}</Text>
         <View
           style={{
             flexDirection: 'row',
@@ -358,9 +358,9 @@ export default function MealLogScreen() {
             value={reviewFields[key]}
             onChangeText={(v) => setReviewFields((f) => ({ ...f, [key]: v.replace(/[^0-9]/g, '') }))}
             keyboardType="number-pad"
-            style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '700', fontFamily: FONT, paddingVertical: 12 }}
+            style={{ flex: 1, color: '#fff', fontSize: 17, fontFamily: BG[700], paddingVertical: 12 }}
           />
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{suffix}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{suffix}</Text>
         </View>
       </View>
     );
@@ -369,12 +369,12 @@ export default function MealLogScreen() {
       <View style={{ flex: 1, backgroundColor: '#050505' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: insets.top + 26, paddingHorizontal: 20, paddingBottom: 4 }}>
           <BackTile onPress={handleEditEstimate} label="Edit the estimate" />
-          <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Review estimate</Text>
+          <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Review estimate</Text>
         </View>
 
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 4, fontFamily: FONT }}>Does this look right? Adjust anything before logging it.</Text>
-          <Text style={{ color: '#fff', fontSize: 20, fontWeight: '800', marginBottom: 20, fontFamily: FONT }}>{reviewing.description}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 4, fontFamily: BG[400] }}>Does this look right? Adjust anything before logging it.</Text>
+          <Text style={{ color: '#fff', fontSize: 20, marginBottom: 20, fontFamily: BG[800] }}>{reviewing.description}</Text>
 
           <View style={{ flexDirection: 'row', gap: 10, marginBottom: 12 }}>
             {field('calories', 'Calories', 'kcal')}
@@ -432,13 +432,13 @@ export default function MealLogScreen() {
         >
           <Icon name="x" size={16} color="#A1A1AA" />
         </TouchableOpacity>
-        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Log {mealType || 'a Meal'}</Text>
+        <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Log {mealType || 'a Meal'}</Text>
       </View>
 
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
         {!photo && !text && photoHistory.length > 0 && (
           <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, marginBottom: 10, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.6, marginBottom: 10, fontFamily: BG[700] }}>
               EATEN THIS BEFORE?
             </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
@@ -449,10 +449,10 @@ export default function MealLogScreen() {
                     style={{ width: 96, height: 96, borderRadius: 14, backgroundColor: '#151517' }}
                     resizeMode="cover"
                   />
-                  <Text numberOfLines={1} style={{ color: '#fff', fontSize: 11, fontWeight: '700', marginTop: 5, fontFamily: FONT }}>
+                  <Text numberOfLines={1} style={{ color: '#fff', fontSize: 11, marginTop: 5, fontFamily: BG[700] }}>
                     {row.description}
                   </Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{Math.round(row.calories ?? 0)} kcal</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{Math.round(row.calories ?? 0)} kcal</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -482,9 +482,9 @@ export default function MealLogScreen() {
 
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: G.bright }} />
-          <Text style={{ color: G.bright, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>WHAT DID YOU EAT?</Text>
+          <Text style={{ color: G.bright, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>WHAT DID YOU EAT?</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 22, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: BG[800] }}>
           Just tell us — in your own words.
         </Text>
 
@@ -504,7 +504,7 @@ export default function MealLogScreen() {
                   paddingVertical: 9,
                 }}
               >
-                <Text style={{ color: text === s.label ? G.bright : '#A1A1AA', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>
+                <Text style={{ color: text === s.label ? G.bright : '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>
                   {s.label}
                 </Text>
               </TouchableOpacity>
@@ -553,23 +553,22 @@ export default function MealLogScreen() {
             style={{
               color: '#fff',
               fontSize: 17,
-              fontWeight: '500',
               padding: 16,
               minHeight: 96,
               textAlignVertical: 'top',
-              fontFamily: FONT,
+              fontFamily: BG[500],
               lineHeight: 24,
             }}
           />
           </Surface>
         )}
-        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: BG[400] }}>
           {photo
             ? 'CLAWW will read this photo and estimate calories and macros.'
             : 'Portion size, brand, or a rough guess all work — CLAWW fills in the rest.'}
         </Text>
 
-        <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginTop: 22, marginBottom: 10, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 13, marginTop: 22, marginBottom: 10, fontFamily: BG[700] }}>
           How much did you have?
         </Text>
         <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
@@ -589,10 +588,10 @@ export default function MealLogScreen() {
                 shadow={false}
               >
               <View style={{ alignItems: 'center', paddingVertical: 12 }}>
-              <Text style={{ color: portion === p.value ? G.bright : '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
+              <Text style={{ color: portion === p.value ? G.bright : '#fff', fontSize: 15, fontFamily: BG[700] }}>
                 {p.label}
               </Text>
-              <Text style={{ color: portion === p.value ? G.bright : COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>
+              <Text style={{ color: portion === p.value ? G.bright : COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>
                 {p.hint}
               </Text>
               </View>
@@ -600,7 +599,7 @@ export default function MealLogScreen() {
             </TouchableOpacity>
           ))}
         </View>
-        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: BG[400] }}>
           This scales the estimate up or down — pick what matches your plate.
         </Text>
 
@@ -629,7 +628,7 @@ export default function MealLogScreen() {
           <>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 22, marginBottom: 16 }}>
               <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-              <Text style={{ color: COLORS.textFaint, fontSize: 11, fontWeight: '700', letterSpacing: 0.8, fontFamily: FONT }}>OR</Text>
+              <Text style={{ color: COLORS.textFaint, fontSize: 11, letterSpacing: 0.8, fontFamily: BG[700] }}>OR</Text>
               <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
             </View>
 
@@ -651,7 +650,7 @@ export default function MealLogScreen() {
                 }}
               >
                 <Icon name="camera" size={16} color="#71717A" />
-                <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Take photo</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>Take photo</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 activeOpacity={0.8}
@@ -670,7 +669,7 @@ export default function MealLogScreen() {
                 }}
               >
                 <Icon name="image" size={16} color="#71717A" />
-                <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Choose photo</Text>
+                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>Choose photo</Text>
               </TouchableOpacity>
             </View>
           </>

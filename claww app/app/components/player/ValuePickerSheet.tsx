@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { quickValues, wheelValues } from '../../lib/sessionPlan';
 import { ITEM_HEIGHT, PAD, WheelColumn } from '../ui/TimeWheelPicker';
 import { PressScale } from '../ui/PressScale';
@@ -57,7 +57,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
             gap: 16,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{title}</Text>
+          <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>{title}</Text>
 
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {chips.map((v) => {
@@ -76,9 +76,9 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
                       borderColor: selected ? COLORS.blue : 'rgba(255,255,255,0.12)',
                     }}
                   >
-                    <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{format(kind, v)}</Text>
+                    <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>{format(kind, v)}</Text>
                     {tag ? (
-                      <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : COLORS.textMuted, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
+                      <Text style={{ color: selected ? 'rgba(255,255,255,0.8)' : COLORS.textMuted, fontSize: 11, fontFamily: BG[700] }}>
                         {tag.toUpperCase()}
                       </Text>
                     ) : null}
@@ -91,7 +91,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
           <View style={{ alignItems: 'center' }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <WheelColumn items={items.map((v) => format(kind, v))} initialIndex={initialIndex} onChange={(i) => setPending(items[i])} width={110} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT, marginLeft: 6 }}>{unit}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[700], marginLeft: 6 }}>{unit}</Text>
             </View>
             <View
               pointerEvents="none"
@@ -101,7 +101,7 @@ export function ValuePickerSheet({ kind, title, value, prescribed, last, onPick,
 
           <PressScale onPress={() => onPick(pending)}>
             <View style={{ height: 50, borderRadius: 25, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+              <Text style={{ color: COLORS.blueDeep, fontSize: 15, fontFamily: BG[800] }}>
                 Use {format(kind, pending)} {unit}
               </Text>
             </View>

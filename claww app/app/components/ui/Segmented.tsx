@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { Well } from './Well';
 
 // NG PHASE 1 (build plan 5.4): a Well with 3 px padding and 38 px buttons (44 px tall in
@@ -31,7 +31,7 @@ export function Segmented<T extends string>({ options, value, onChange, accent =
           const label = (
             <Text
               numberOfLines={1}
-              style={{ color: active ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: active ? '800' : '600', fontFamily: FONT }}
+              style={{ color: active ? '#fff' : COLORS.textMuted, fontSize: 13, fontFamily: bg(active ? '800' : '600') }}
             >
               {o.label}
             </Text>

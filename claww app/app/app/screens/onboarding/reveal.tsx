@@ -5,7 +5,7 @@ import { Animated, Image, Text, View } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -109,16 +109,16 @@ export default function OnboardingReveal() {
           <Image source={require('../../../assets/logo-mark.png')} style={{ width: 84, height: 80 }} resizeMode="contain" />
         </Animated.View>
 
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 6, fontFamily: FONT }}>Your profile is ready</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, marginBottom: 8, textAlign: 'center', lineHeight: 38, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 6, fontFamily: BG[400] }}>Your profile is ready</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, marginBottom: 8, textAlign: 'center', lineHeight: 38, fontFamily: BG[800] }}>
           You're in, {(name ?? '').trim() || 'there'}.
         </Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 15, marginBottom: 24, lineHeight: 22, maxWidth: 300, textAlign: 'center', fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 15, marginBottom: 24, lineHeight: 22, maxWidth: 300, textAlign: 'center', fontFamily: BG[400] }}>
           Training and nutrition targets are tuned for a {age ?? '—'}-year-old{genderLabel ? `, ${genderLabel.toLowerCase()}` : ''}.
         </Text>
 
         <Surface padding={16} style={{ width: '100%', marginBottom: 18 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, marginBottom: 14 }}>{MEDICAL_DISCLAIMER_BODY}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400], marginBottom: 14 }}>{MEDICAL_DISCLAIMER_BODY}</Text>
           <PressScale onPress={() => setDisclaimerAcked((v) => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: disclaimerAcked }} accessibilityLabel={MEDICAL_DISCLAIMER_ACK_LABEL}>
             <View style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View
@@ -135,7 +135,7 @@ export default function OnboardingReveal() {
               >
                 {disclaimerAcked ? <Icon name="check" size={14} color="#fff" strokeWidth={3} /> : null}
               </View>
-              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{MEDICAL_DISCLAIMER_ACK_LABEL}</Text>
+              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[600] }}>{MEDICAL_DISCLAIMER_ACK_LABEL}</Text>
             </View>
           </PressScale>
         </Surface>

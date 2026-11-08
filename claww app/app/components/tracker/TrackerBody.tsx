@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, AREA_COLORS, FONT, tint } from '../../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint, BG, bg } from '../../lib/theme';
 import type { TrackerData } from '../../lib/trackerData';
 import { MAJOR_MUSCLES } from '../../lib/muscleRecovery';
 import {
@@ -104,7 +104,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
               {v.strength.map((s, i) => (
                 <View key={s.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: lineTints[i] ?? BLUE }} />
-                  <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: FONT }}>
+                  <Text style={{ color: '#A1A1AA', fontSize: 11, fontFamily: BG[400] }}>
                     {s.name}
                     {s.last !== null ? ` ${s.last}` : ''}
                   </Text>
@@ -128,7 +128,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
             <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
               {recoveryMuscles.map((m) => (
                 <View key={m} style={{ paddingHorizontal: 9, paddingVertical: 4, borderRadius: 100, backgroundColor: tint(TEAL, 0.12) }}>
-                  <Text style={{ color: TEAL, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
+                  <Text style={{ color: TEAL, fontSize: 11, fontFamily: BG[700] }}>
                     {cap(m)} {data.recovery[m].score}
                   </Text>
                 </View>
@@ -160,10 +160,10 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
           <View style={{ gap: 8 }}>
             {v.records.map((r) => (
               <View key={r.exerciseName} style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
-                <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+                <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13, fontFamily: BG[700] }}>
                   {r.exerciseName}
                 </Text>
-                <Text style={{ color: BLUE, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: BLUE, fontSize: 13, fontFamily: BG[700] }}>
                   {r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `BW × ${r.reps}`}
                   <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}>{`  ${new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short' })}`}</Text>
                 </Text>
@@ -179,7 +179,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
         {v.nutrition.some((d) => d.logged) ? (
           <>
             <BarChart values={v.protein.map((p) => p ?? 0)} color={AREA_COLORS.nutrition} height={80} goal={data.proteinTargetG} labels={v.days7.map((b) => b.label)} />
-            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>
               {v.hits !== null ? `Protein target hit ${v.hits} of 7 days · ` : ''}avg {averageCalories(v.nutrition)?.toLocaleString()} kcal
             </Text>
           </>
@@ -189,7 +189,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
       </TrackerCard>
 
       <TrackerCard label="CLAWW INSIGHT" color={AREA_COLORS.engine} accentStripe>
-        <Text style={{ color: '#fff', fontSize: 15, lineHeight: 20, fontWeight: '600', fontFamily: FONT }}>{v.insight.text}</Text>
+        <Text style={{ color: '#fff', fontSize: 15, lineHeight: 20, fontFamily: BG[600] }}>{v.insight.text}</Text>
       </TrackerCard>
     </View>
   );

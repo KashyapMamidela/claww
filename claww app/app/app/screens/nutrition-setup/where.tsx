@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { useAppState } from '../../../lib/appState';
 import { basicsSummary, hasBasics, profileBasics, useProfile } from '../../../lib/profile';
 import { track } from '../../../lib/analytics';
@@ -62,8 +62,8 @@ export default function MealSetupWhere() {
       <MealSetupHeader step={1} sub="what you can get" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }} keyboardShouldPersistTaps="handled">
-          <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>Where does your food come from?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>Where does your food come from?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
             Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
           </Text>
 
@@ -84,7 +84,7 @@ export default function MealSetupWhere() {
                   placeholderTextColor={COLORS.textFaint}
                   keyboardType="numeric"
                   accessibilityLabel={ph as string}
-                  style={{ flex: 1, minWidth: 0, height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, fontWeight: '700', paddingHorizontal: 12, fontFamily: FONT }}
+                  style={{ flex: 1, minWidth: 0, height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, paddingHorizontal: 12, fontFamily: BG[700] }}
                 />
               ))}
             </View>
@@ -112,8 +112,8 @@ export default function MealSetupWhere() {
                       </View>
                     </View>
                     <View>
-                      <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.title}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{s.sub}</Text>
+                      <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[800] }}>{s.title}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{s.sub}</Text>
                     </View>
                   </View>
                 </PressScale>

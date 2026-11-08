@@ -1,4 +1,6 @@
 import { Stack, useRouter } from 'expo-router';
+import { BG } from '../lib/theme';
+import { BricolageGrotesque_400Regular, BricolageGrotesque_500Medium, BricolageGrotesque_600SemiBold, BricolageGrotesque_700Bold, BricolageGrotesque_800ExtraBold } from '@expo-google-fonts/bricolage-grotesque';
 import Animated, { FadeOut } from 'react-native-reanimated';
 import * as Sentry from '@sentry/react-native';
 import { useCallback, useEffect, useState } from 'react';
@@ -63,11 +65,16 @@ function RootLayout() {
   // re-registering a single-weight "Inter" face that would shadow the
   // native weight-mapped family. Only web (no config-plugin embedding)
   // still needs it loaded here.
-  const [fontsLoaded] = useFonts(
-    Platform.OS === 'web'
-      ? { Inter: require('../assets/fonts/Inter_400Regular.ttf'), Caveat: require('../assets/fonts/Caveat_500Medium.ttf') }
-      : {}
-  );
+  // Premium X4: Bricolage Grotesque is the app's typeface. Each weight is its own family (BG in lib/theme.ts), loaded
+  // here at start, because a font loaded from JS does not respond to fontWeight on Android.
+  const [fontsLoaded] = useFonts({
+    ...(Platform.OS === 'web' ? { Inter: require('../assets/fonts/Inter_400Regular.ttf'), Caveat: require('../assets/fonts/Caveat_500Medium.ttf') } : {}),
+    [BG[400]]: BricolageGrotesque_400Regular,
+    [BG[500]]: BricolageGrotesque_500Medium,
+    [BG[600]]: BricolageGrotesque_600SemiBold,
+    [BG[700]]: BricolageGrotesque_700Bold,
+    [BG[800]]: BricolageGrotesque_800ExtraBold,
+  });
   const [authState, setAuthState] = useState<AuthState>('loading');
   const [introDone, setIntroDone] = useState(false);
 

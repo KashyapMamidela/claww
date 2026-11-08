@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { useNow } from '../../lib/useNow';
 import { restFractionRemaining, restRemainingSeconds } from '../../lib/sessionClock';
@@ -34,7 +34,7 @@ function SheetRestRing() {
       <Text
         accessibilityLiveRegion="polite"
         accessibilityLabel={clock.pausedAt !== null ? `Rest paused, ${formatRest(remaining)} left` : `${formatRest(remaining)} of rest left`}
-        style={{ color: '#fff', fontSize: 34, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}
+        style={{ color: '#fff', fontSize: 34, letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}
       >
         {formatRest(remaining)}
       </Text>
@@ -46,7 +46,7 @@ function RoundButton({ label, a11y, onPress }: { label: string; a11y: string; on
   return (
     <PressScale onPress={onPress} scaleTo={0.92} accessibilityRole="button" accessibilityLabel={a11y}>
       <View style={{ width: 52, height: 52, borderRadius: 26, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)' }}>
-        <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{label}</Text>
+        <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>{label}</Text>
       </View>
     </PressScale>
   );
@@ -72,7 +72,7 @@ export function RestSheet() {
     <View style={{ gap: 14, alignItems: 'center' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
         <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: COLORS.blue }} />
-        <Text numberOfLines={1} style={{ color: COLORS.blue, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>
+        <Text numberOfLines={1} style={{ color: COLORS.blue, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[800] }}>
           REST{next ? ` · NEXT: ${next}` : ''}
         </Text>
       </View>
@@ -83,7 +83,7 @@ export function RestSheet() {
       </View>
       <PressScale onPress={skipRest} style={{ alignSelf: 'stretch' }} accessibilityRole="button" accessibilityLabel="Skip rest">
         <View style={{ height: 50, borderRadius: 25, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: COLORS.blueBorder, backgroundColor: COLORS.blueDim }}>
-          <Text style={{ color: '#93C5FD', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Skip rest</Text>
+          <Text style={{ color: '#93C5FD', fontSize: 17, fontFamily: BG[800] }}>Skip rest</Text>
         </View>
       </PressScale>
     </View>

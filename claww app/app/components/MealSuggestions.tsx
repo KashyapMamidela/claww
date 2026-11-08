@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
-import { AREA_COLORS, COLORS, FONT, tint } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import { suggestMeals, type DietaryRestriction, type EstimatedMeal, type MealSuggestion, type MealType, type RemainingMacros, type SuggestRefine } from '../lib/data';
 import { cuisineLabels, normalizeFoodProfile, type FoodProfile } from '../lib/foodProfile';
 import { Icon } from './ui/Icon';
@@ -30,8 +30,8 @@ export interface MealSuggestionsProps {
 function MacroPill({ label, value }: { label: string; value: string }) {
   return (
     <View style={{ flex: 1, paddingVertical: 8, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.04)', alignItems: 'center' }}>
-      <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
-      <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.5, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: '#fff', fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.5, fontFamily: BG[700] }}>{label}</Text>
     </View>
   );
 }
@@ -77,11 +77,11 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
   return (
     <Surface radius={20} padding={16} style={{ marginBottom: 20 }}>
     <View style={{ gap: 12 }}>
-      <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Not sure what to eat?</Text>
+      <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>Not sure what to eat?</Text>
 
       {remaining ? (
         <View style={{ gap: 6 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEFT TODAY</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.6, fontFamily: BG[700] }}>LEFT TODAY</Text>
           <View style={{ flexDirection: 'row', gap: 6 }}>
             <MacroPill label="KCAL" value={String(Math.round(remaining.calories))} />
             <MacroPill label="PROTEIN" value={`${Math.round(remaining.protein_g)} g`} />
@@ -95,7 +95,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
           {prefChips.map((p) => (
             <View key={p} style={{ paddingHorizontal: 9, paddingVertical: 4, borderRadius: 100, backgroundColor: tint(C, 0.12) }}>
-              <Text style={{ color: C, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{p}</Text>
+              <Text style={{ color: C, fontSize: 11, fontFamily: BG[700] }}>{p}</Text>
             </View>
           ))}
         </View>
@@ -106,14 +106,14 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
         onChangeText={setPreference}
         placeholder="e.g. something light, only have eggs and rice"
         placeholderTextColor="#52525B"
-        style={{ height: 44, borderRadius: 12, paddingHorizontal: 12, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 13, fontFamily: FONT }}
+        style={{ height: 44, borderRadius: 12, paddingHorizontal: 12, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', color: '#fff', fontSize: 13, fontFamily: BG[400] }}
       />
 
       {options === null || loading ? (
         <PressScale onPress={() => ask()} disabled={loading} accessibilityRole="button">
           <View style={{ height: 44, borderRadius: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, backgroundColor: tint(C, 0.14), borderWidth: 1, borderColor: tint(C, 0.3) }}>
             <Icon name="sparkles" size={14} color={C} />
-            <Text style={{ color: C, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+            <Text style={{ color: C, fontSize: 13, fontFamily: BG[700] }}>
               {loading ? 'Finding options…' : preference.trim() ? 'Suggest based on this' : 'Suggest 3 meals for me'}
             </Text>
           </View>
@@ -121,15 +121,15 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
       ) : (
         <>
           {generic ? (
-            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>Couldn't reach suggestions just now, so this is a typical portion instead.</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>Couldn't reach suggestions just now, so this is a typical portion instead.</Text>
           ) : null}
           {options.map((o) => (
             <View key={o.description} style={{ padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: o.bestFit ? tint(C, 0.45) : 'rgba(255,255,255,0.08)', gap: 8 }}>
               <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-                <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '800', lineHeight: 19, fontFamily: FONT }}>{o.description}</Text>
+                <Text style={{ flex: 1, color: '#fff', fontSize: 15, lineHeight: 19, fontFamily: BG[800] }}>{o.description}</Text>
                 {o.bestFit && !generic ? (
                   <View style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100, backgroundColor: tint(C, 0.18) }}>
-                    <Text style={{ color: C, fontSize: 11, fontWeight: '800', letterSpacing: 0.4, fontFamily: FONT }}>BEST FIT</Text>
+                    <Text style={{ color: C, fontSize: 11, letterSpacing: 0.4, fontFamily: BG[800] }}>BEST FIT</Text>
                   </View>
                 ) : null}
               </View>
@@ -141,9 +141,9 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
                 <Icon name="clock" size={12} color="#71717A" />
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{o.prep_minutes} min</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{o.prep_minutes} min</Text>
               </View>
-              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 17, fontFamily: FONT }}>{o.why}</Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>{o.why}</Text>
               <PressScale
                 onPress={() =>
                   onPick({ description: o.description, calories: o.calories, protein_g: o.protein_g, carbs_g: o.carbs_g, fats_g: o.fats_g })
@@ -152,7 +152,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
                 accessibilityLabel={`Log ${o.description}`}
               >
                 <View style={{ height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: o.bestFit ? C : tint(C, 0.16) }}>
-                  <Text style={{ color: o.bestFit ? '#050505' : C, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>Log this</Text>
+                  <Text style={{ color: o.bestFit ? '#050505' : C, fontSize: 13, fontFamily: BG[800] }}>Log this</Text>
                 </View>
               </PressScale>
             </View>
@@ -161,7 +161,7 @@ export function MealSuggestions({ mealType, remaining, restrictions, foodProfile
             {REFINES.map((r) => (
               <PressScale key={r.key} onPress={() => ask(r.key)} accessibilityRole="button">
                 <View style={{ paddingHorizontal: 12, paddingVertical: 8, borderRadius: 100, backgroundColor: COLORS.card, borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' }}>
-                  <Text style={{ color: '#D4D4D8', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{r.label}</Text>
+                  <Text style={{ color: '#D4D4D8', fontSize: 13, fontFamily: BG[600] }}>{r.label}</Text>
                 </View>
               </PressScale>
             ))}

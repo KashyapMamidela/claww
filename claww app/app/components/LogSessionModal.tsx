@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { Icon } from './ui/Icon';
 import { ExercisePickerModal } from './ExercisePickerModal';
@@ -63,12 +63,12 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
 
   const stepper = (label: string, value: number, unit: string, onChange: (v: number) => void, step: number) => (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-      <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>{label}</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Decrease" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={() => onChange(Math.max(0, value - step))} style={{ padding: 6 }}>
           <Icon name="chevron-left" size={16} color="#fff" />
         </TouchableOpacity>
-        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', width: 56, textAlign: 'center', fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 17, width: 56, textAlign: 'center', fontFamily: BG[800] }}>
           {value}
           {unit}
         </Text>
@@ -110,7 +110,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
           }}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Log a Session</Text>
+            <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Log a Session</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }} onPress={close}>
               <Icon name="x" size={18} color="#A1A1AA" />
             </TouchableOpacity>
@@ -118,7 +118,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
 
           {step === 'modality' ? (
             <>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
                 Something outside today's plan — an extra lift or a run. Counts toward your streak and stats like anything else.
               </Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -141,7 +141,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
                     }}
                   >
                     <Icon name={m === 'strength' ? 'dumbbell' : 'activity'} size={20} color="#fff" />
-                    <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', marginTop: 6, fontFamily: FONT }}>
+                    <Text style={{ color: '#fff', fontSize: 13, marginTop: 6, fontFamily: BG[700] }}>
                       {m === 'strength' ? 'Strength' : 'Cardio'}
                     </Text>
                   </TouchableOpacity>
@@ -151,7 +151,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
           ) : (
             exercise && (
               <>
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{exercise.name}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>{exercise.name}</Text>
                 {modality === 'strength' ? (
                   <>
                     {stepper('Reps', reps, '', setReps, 1)}
@@ -173,7 +173,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
                     opacity: saving ? 0.6 : 1,
                   }}
                 >
-                  <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+                  <Text style={{ color: '#000', fontSize: 15, fontFamily: BG[800] }}>
                     {saving ? 'Logging…' : 'Log Session'}
                   </Text>
                 </TouchableOpacity>

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { AccessibilityInfo, Animated, Easing, Text, View } from 'react-native';
 import Svg, { Defs, Path, RadialGradient, Stop, Circle } from 'react-native-svg';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { LOGO_PIECES, LOGO_VIEWBOX } from '../lib/logoPieces';
 
 // Polish step 9 (board "Welcome"): the logo's three pieces fly in and lock together, one band of light crosses the logo
@@ -123,13 +123,13 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
       </View>
 
       <Animated.View style={{ marginTop: 4, opacity: wordmark, transform: [{ translateY: wordmark.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] }}>
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, fontFamily: BG[800] }}>
           CLAW
           <Text style={{ color: COLORS.fgGray }}>W</Text>
         </Text>
       </Animated.View>
 
-      <Animated.Text style={{ marginTop: 8, color: COLORS.textMuted, fontSize: 13, fontWeight: '600', letterSpacing: 0.4, fontFamily: FONT, opacity: tagline }}>
+      <Animated.Text style={{ marginTop: 8, color: COLORS.textMuted, fontSize: 13, letterSpacing: 0.4, fontFamily: BG[600], opacity: tagline }}>
         Train smarter, every day.
       </Animated.Text>
     </Animated.View>

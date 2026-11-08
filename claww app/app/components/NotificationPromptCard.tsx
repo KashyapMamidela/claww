@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { requestNotificationPermission } from '../lib/notifications';
 import { refreshReminders } from '../lib/reminderSync';
 import { setNotificationPromptShown, setNotificationsEnabled } from '../lib/data';
@@ -66,9 +66,9 @@ export function NotificationPromptCard({ userId, onDismiss }: NotificationPrompt
         >
           <Icon name="bell" size={17} color={COLORS.blue} />
         </View>
-        <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Stay on track</Text>
+        <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Stay on track</Text>
       </View>
-      <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+      <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
         Get a nudge to train, log meals, and log sleep — nothing else, and you can turn it off anytime in Settings.
       </Text>
       <View style={{ flexDirection: 'row', gap: 10 }}>
@@ -78,7 +78,7 @@ export function NotificationPromptCard({ userId, onDismiss }: NotificationPrompt
           disabled={loading}
           style={{ flex: 1, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}
         >
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Not now</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>Not now</Text>
         </TouchableOpacity>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -94,7 +94,7 @@ export function NotificationPromptCard({ userId, onDismiss }: NotificationPrompt
             opacity: loading ? 0.6 : 1,
           }}
         >
-          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{loading ? 'Enabling…' : 'Enable'}</Text>
+          <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>{loading ? 'Enabling…' : 'Enable'}</Text>
         </TouchableOpacity>
       </View>
     </View>

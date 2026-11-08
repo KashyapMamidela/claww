@@ -55,8 +55,8 @@ export function TintTile({ color, watermark: _watermark, children, style, paddin
 // older Androids fall back to a plain shadow, which still reads as depth.
 function glow(color: string): ViewStyle {
   return Platform.select<ViewStyle>({
-    ios: { shadowColor: color, shadowOpacity: 0.35, shadowRadius: 14, shadowOffset: { width: 0, height: 8 } },
-    default: { elevation: 8, shadowColor: color },
+    ios: { shadowColor: color, shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+    default: { elevation: 3, shadowColor: color },
   })!;
 }
 

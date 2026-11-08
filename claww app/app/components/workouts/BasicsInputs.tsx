@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { Surface } from '../ui/Surface';
 
 // Height and weight fields with their own state: typing redraws only these two boxes. The parent hears about the values
@@ -14,7 +14,7 @@ export interface BasicsInputsProps {
 function Field({ label, unit, value, onChangeText, onEnd }: { label: string; unit: string; value: string; onChangeText: (t: string) => void; onEnd: () => void }) {
   return (
     <View style={{ flex: 1 }}>
-      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 6, fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 6, fontFamily: BG[400] }}>{label}</Text>
       <Surface radius={14} padding={0} borderColor={value.length > 0 ? 'rgba(59,130,246,0.5)' : undefined}>
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 }}>
           <TextInput
@@ -25,9 +25,9 @@ function Field({ label, unit, value, onChangeText, onEnd }: { label: string; uni
             placeholder="0"
             placeholderTextColor={COLORS.textFaint}
             accessibilityLabel={`${label} in ${unit}`}
-            style={{ flex: 1, height: 52, color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}
+            style={{ flex: 1, height: 52, color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}
           />
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{unit}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{unit}</Text>
         </View>
       </Surface>
     </View>

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT, FONT_HAND } from '../../../lib/theme';
+import { COLORS, FONT, FONT_HAND, BG, bg } from '../../../lib/theme';
 import { useAppState } from '../../../lib/appState';
 import { useProfile } from '../../../lib/profile';
 import { track } from '../../../lib/analytics';
@@ -141,8 +141,8 @@ export default function MealSetupSummary() {
   const tile = (label: string, value: string, onPress?: () => void) => {
     const body = (
       <View style={{ flex: 1, minHeight: 74, borderRadius: 14, padding: 12, backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.12)', justifyContent: 'center', gap: 4 }}>
-        <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.8, fontFamily: FONT }}>{label}</Text>
-        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{value}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.8, fontFamily: BG[700] }}>{label}</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{value}</Text>
       </View>
     );
     return onPress ? (
@@ -158,10 +158,10 @@ export default function MealSetupSummary() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={3} sub="your resources" />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: FONT }}>Here is what you have</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: BG[800] }}>Here is what you have</Text>
 
         <Hero variant="green" accessibilityLabel="Your kitchen">
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR KITCHEN</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>YOUR KITCHEN</Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 12 }}>
             {tile('FOOD FROM', sourcesLabel(draft.sources))}
             {tile('COOK WITH', cookLabel(draft.cookWith))}
@@ -173,7 +173,7 @@ export default function MealSetupSummary() {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
             {chips.map((r) => (
               <View key={r.key} style={{ borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7, backgroundColor: availability[r.key] === 'yes' ? 'rgba(255,255,255,0.12)' : 'rgba(245,158,11,0.22)' }}>
-                <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: COLORS.fg, fontSize: 13, fontFamily: BG[700] }}>
                   {r.title}
                   {availability[r.key] === 'sometimes' ? ' sometimes' : ''}
                 </Text>
@@ -186,17 +186,17 @@ export default function MealSetupSummary() {
           <Surface padding={16}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 }}>
               <Icon name="pencil" size={14} color={COLORS.textMuted} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>GAPS YOUR PLAN WORKS AROUND</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>GAPS YOUR PLAN WORKS AROUND</Text>
             </View>
             {gaps.map((g, i) => (
               <View key={g.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{g.title}</Text>
+                  <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{g.title}</Text>
                   <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND }}>{'→'} {g.fix}</Text>
                 </View>
                 <PressScale onPress={() => goBackTo(g.step)} accessibilityRole="button" accessibilityLabel={`Change: ${g.title}`}>
                   <View style={{ minHeight: 44, minWidth: 64, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ color: G, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Change</Text>
+                    <Text style={{ color: G, fontSize: 15, fontFamily: BG[800] }}>Change</Text>
                   </View>
                 </PressScale>
               </View>
@@ -207,24 +207,24 @@ export default function MealSetupSummary() {
         <Surface padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
             <SectionLabel color={G}>A DAY ON THIS PLAN</SectionLabel>
-            {sample && sample.meals.length > 0 ? <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', flexShrink: 1, textAlign: 'right', fontFamily: FONT }}>{planLine(sample)}</Text> : null}
+            {sample && sample.meals.length > 0 ? <Text style={{ color: COLORS.fg, fontSize: 13, flexShrink: 1, textAlign: 'right', fontFamily: BG[700] }}>{planLine(sample)}</Text> : null}
           </View>
           {sample && sample.meals.length > 0 ? (
             sample.meals.map((m, i) => (
               <View key={m.meal} style={{ paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border, marginTop: i === 0 ? 8 : 0 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
-                <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{m.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{m.name}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
                   {m.kcal} kcal · P {Math.round(m.protein)} g · {itemsText(m)}
                 </Text>
               </View>
             ))
           ) : (
-            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 8, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 8, fontFamily: BG[400] }}>
               Pick a diet to see a sample day built from nutritionist-reviewed meal templates.
             </Text>
           )}
-          <Text style={{ color: COLORS.textFaint, fontSize: 13, marginTop: 6, fontFamily: FONT }}>Built from meal templates (still being reviewed), never generated.</Text>
+          <Text style={{ color: COLORS.textFaint, fontSize: 13, marginTop: 6, fontFamily: BG[400] }}>Built from meal templates (still being reviewed), never generated.</Text>
         </Surface>
 
         {error ? <ErrorCard message={error} onRetry={save} /> : null}
@@ -236,8 +236,8 @@ export default function MealSetupSummary() {
 
       <BottomSheet visible={budgetOpen} onClose={() => setBudgetOpen(false)}>
         <View style={{ padding: 20, gap: 14 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Food budget a day</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Food budget a day</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>
             What you can spend each day beyond the meals your mess or tiffin already covers.
           </Text>
           <Stepper

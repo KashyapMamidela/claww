@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { LayoutChangeEvent, Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedProps, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
-import { AREA_COLORS, COLORS, FONT, FONT_HAND } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, FONT_HAND, BG, bg } from '../../lib/theme';
 import { EASE_OUT, MOTION } from '../../lib/motion';
 import { Well } from './Well';
 
@@ -73,7 +73,7 @@ function NewValue({ value, size }: { value: string; size: number }) {
   const onLayout = (e: LayoutChangeEvent) => setWidth(Math.round(e.nativeEvent.layout.width));
   return (
     <View onLayout={onLayout}>
-      <Text style={{ color: COLORS.pen, fontSize: size, fontWeight: '800', fontFamily: FONT, fontVariant: ['tabular-nums'], letterSpacing: -0.3 }}>{value}</Text>
+      <Text style={{ color: COLORS.pen, fontSize: size, fontFamily: BG[800], fontVariant: ['tabular-nums'], letterSpacing: -0.3 }}>{value}</Text>
       {width > 0 ? <Underline width={width} /> : null}
     </View>
   );
@@ -81,7 +81,7 @@ function NewValue({ value, size }: { value: string; size: number }) {
 
 function OldValue({ value, size }: { value: string; size: number }) {
   return (
-    <Text style={{ color: COLORS.textFaint, fontSize: size, fontWeight: '600', fontFamily: FONT, textDecorationLine: 'line-through', fontVariant: ['tabular-nums'] }}>
+    <Text style={{ color: COLORS.textFaint, fontSize: size, fontFamily: BG[600], textDecorationLine: 'line-through', fontVariant: ['tabular-nums'] }}>
       {value}
     </Text>
   );
@@ -104,7 +104,7 @@ function SmallButton({ label, onPress, primary }: { label: string; onPress?: () 
         transform: [{ scale: pressed ? MOTION.pressScale : 1 }],
       })}
     >
-      <Text style={{ color: COLORS.fg, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{label}</Text>
+      <Text style={{ color: COLORS.fg, fontSize: 13, fontFamily: BG[700] }}>{label}</Text>
     </Pressable>
   );
 }
@@ -121,7 +121,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
         {compact ? (
           <View style={{ gap: 6 }}>
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 10 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Target</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>Target</Text>
               {oldValue ? <OldValue value={oldValue} size={15} /> : null}
               <NewValue value={newValue} size={24} />
             </View>
@@ -129,9 +129,9 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
           </View>
         ) : (
           <View style={{ gap: 4 }}>
-            <Text style={{ color: areaColor, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{areaLabel}</Text>
+            <Text style={{ color: areaColor, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>{areaLabel}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT, flexShrink: 1 }} numberOfLines={2}>
+              <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700], flexShrink: 1 }} numberOfLines={2}>
                 {item}
               </Text>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, flexShrink: 1, justifyContent: 'flex-end' }}>
@@ -147,7 +147,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
       </Pressable>
       {open ? (
         <Well padding={12} style={{ marginTop: 10, gap: 10 }}>
-          <Text style={{ color: COLORS.fgGray, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>{reason}</Text>
+          <Text style={{ color: COLORS.fgGray, fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>{reason}</Text>
           <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
             <SmallButton
               label="Keep the mark"

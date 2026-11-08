@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AREA_COLORS, COLORS, FONT } from '../lib/theme';
+import { AREA_COLORS, COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getTodaysWaterMl, logWater } from '../lib/data';
 import { refreshReminders } from '../lib/reminderSync';
@@ -164,7 +164,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
           <Bottle width={bottleWidth} height={bottleHeight} fillAnim={fillAnim} scaleAnim={scaleAnim} />
           <Animated.Text
             style={[
-              { position: 'absolute', top: -6, left: '50%', marginLeft: -20, width: 40, textAlign: 'center', color: WATER, fontSize: 11, fontWeight: '800', fontFamily: FONT },
+              { position: 'absolute', top: -6, left: '50%', marginLeft: -20, width: 40, textAlign: 'center', color: WATER, fontSize: 11, fontFamily: BG[800] },
               popStyle,
             ]}
           >
@@ -172,8 +172,8 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
           </Animated.Text>
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: '#fff', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Water</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>Water</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 2, fontFamily: BG[400] }}>
             {formatMl(waterMl)} <Text style={{ color: COLORS.textFaint }}>/ {formatMl(WATER_TARGET_ML)}</Text>
           </Text>
           <View style={{ flexDirection: 'row', gap: 6, marginTop: 7 }}>
@@ -195,7 +195,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                 }}
               >
                 <Icon name="plus" size={11} color={WATER} />
-                <Text style={{ color: WATER, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>{p}ml</Text>
+                <Text style={{ color: WATER, fontSize: 11, fontFamily: BG[700] }}>{p}ml</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -216,7 +216,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
       }}
     >
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 14 }}>
-        <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Water intake</Text>
+        <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Water intake</Text>
         <View
           style={{
             backgroundColor: waterMl > 0 ? 'rgba(56,189,248,0.14)' : 'rgba(255,255,255,0.06)',
@@ -227,7 +227,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
             paddingVertical: 3,
           }}
         >
-          <Text style={{ color: waterMl > 0 ? WATER : COLORS.textMuted, fontSize: 11, fontWeight: '700', fontFamily: FONT }}>
+          <Text style={{ color: waterMl > 0 ? WATER : COLORS.textMuted, fontSize: 11, fontFamily: BG[700] }}>
             {formatMl(waterMl)} / {formatMl(WATER_TARGET_ML)}
           </Text>
         </View>
@@ -238,13 +238,13 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
           <Bottle width={bottleWidth} height={bottleHeight} fillAnim={fillAnim} scaleAnim={scaleAnim} />
           <Animated.Text
             style={[
-              { position: 'absolute', top: -10, left: '50%', marginLeft: -24, width: 48, textAlign: 'center', color: WATER, fontSize: 13, fontWeight: '800', fontFamily: FONT },
+              { position: 'absolute', top: -10, left: '50%', marginLeft: -24, width: 48, textAlign: 'center', color: WATER, fontSize: 13, fontFamily: BG[800] },
               popStyle,
             ]}
           >
             {popLabel}
           </Animated.Text>
-          <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>Tap to add</Text>
+          <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: BG[400] }}>Tap to add</Text>
         </TouchableOpacity>
 
         <View style={{ flex: 1, gap: 8 }}>
@@ -264,7 +264,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                   borderColor: 'rgba(56,189,248,0.25)',
                 }}
               >
-                <Text style={{ color: WATER, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>+{formatMl(p)}</Text>
+                <Text style={{ color: WATER, fontSize: 13, fontFamily: BG[700] }}>+{formatMl(p)}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -288,7 +288,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
                   color: '#fff',
                   fontSize: 13,
                   paddingHorizontal: 12,
-                  fontFamily: FONT,
+                  fontFamily: BG[400],
                 }}
               />
               <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add this amount" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
@@ -310,7 +310,7 @@ export function WaterWidget({ compact = false, onOpenFull, onAdded }: WaterWidge
             </View>
           ) : (
             <TouchableOpacity activeOpacity={0.8} onPress={() => setCustomOpen(true)} style={{ alignSelf: 'flex-start' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>+ Custom amount</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>+ Custom amount</Text>
             </TouchableOpacity>
           )}
         </View>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 
 // SHIP PHASE 8.4 bug fix — signInWithGoogle's redirectTo is
 // `claww://auth/callback`. On Android, the OS delivers that redirect both
@@ -16,7 +16,7 @@ export default function AuthCallbackScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center' }}>
       <ActivityIndicator color={COLORS.fgGray} />
-      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 16, fontFamily: FONT }}>Signing in…</Text>
+      <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 16, fontFamily: BG[400] }}>Signing in…</Text>
     </SafeAreaView>
   );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { FONT } from '../../lib/theme';
+import { FONT, BG, bg } from '../../lib/theme';
 
 export interface SectionLabelProps {
   children: React.ReactNode;
@@ -22,7 +22,7 @@ export function SectionLabel({ children, color = '#22C55E', dot = true }: Sectio
           }}
         />
       )}
-      <Text style={{ color, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{children}</Text>
+      <Text style={{ color, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>{children}</Text>
     </View>
   );
 }

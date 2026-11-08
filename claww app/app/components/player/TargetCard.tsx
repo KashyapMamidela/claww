@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { PLATE_COLORS, plateLoad, plateText, targetDiffers } from '../../lib/plateMath';
 import { PenMark } from '../ui/PenMark';
 import { Surface } from '../ui/Surface';
@@ -67,16 +67,16 @@ export function TargetCard({ currentKg, planKg, todayKg, note, reason, barKg, ba
             />
           ) : (
             <View style={{ gap: 4 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Target</Text>
-              <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT, fontVariant: ['tabular-nums'] }}>{fmt(currentKg)} kg</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>Target</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], fontVariant: ['tabular-nums'] }}>{fmt(currentKg)} kg</Text>
             </View>
           )}
         </View>
         {load ? (
           <View style={{ alignItems: 'flex-end', gap: 6, maxWidth: 150 }}>
             <PlateBar perSide={load.perSide} />
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, textAlign: 'right' }}>{plateText(load)}</Text>
-            {load.note ? <Text style={{ color: COLORS.amber, fontSize: 11, fontFamily: FONT, textAlign: 'right' }}>{load.note}</Text> : null}
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], textAlign: 'right' }}>{plateText(load)}</Text>
+            {load.note ? <Text style={{ color: COLORS.amber, fontSize: 11, fontFamily: BG[400], textAlign: 'right' }}>{load.note}</Text> : null}
           </View>
         ) : null}
       </View>

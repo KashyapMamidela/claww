@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TintTile } from '../ui/TintTile';
 import { Text, TextInput, View } from 'react-native';
-import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../../lib/theme';
 import { ACTIVITIES, ACTIVITY_MINUTES_MAX, ACTIVITY_MINUTES_MIN, ACTIVITY_MINUTES_STEP, DEFAULT_ACTIVITY_MINUTES } from '../../lib/activities';
 import { logActivity } from '../../lib/data';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -56,8 +56,8 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
           <Icon name="zap" size={20} color={C} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Played a sport or walked a lot?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>Log it as an activity. It counts for calories and recovery, and never as a missed workout.</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Played a sport or walked a lot?</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Log it as an activity. It counts for calories and recovery, and never as a missed workout.</Text>
         </View>
       </View>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
@@ -67,11 +67,11 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
           </Chip>
         ))}
       </View>
-      {done ? <Text style={{ color: COLORS.green, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{done}</Text> : null}
+      {done ? <Text style={{ color: COLORS.green, fontSize: 15, fontFamily: BG[700] }}>{done}</Text> : null}
 
       <BottomSheet visible={picked !== null} onClose={close}>
         <View style={{ padding: 20, gap: 14 }}>
-          <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>{picked === 'Other' ? 'Log an activity' : `Log ${picked}`}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>{picked === 'Other' ? 'Log an activity' : `Log ${picked}`}</Text>
           {picked === 'Other' ? (
             <TextInput
               value={other}
@@ -80,7 +80,7 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
               placeholderTextColor={COLORS.textFaint}
               maxLength={40}
               accessibilityLabel="Activity name"
-              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: FONT }}
+              style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: BG[400] }}
             />
           ) : null}
           <Stepper
@@ -144,8 +144,8 @@ export function ActivitySheet({ visible, userId, onClose, onLogged }: { visible:
   return (
     <BottomSheet visible={visible} onClose={close} maxHeightFraction={0.85}>
       <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT }}>Log an activity</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>Played a sport or walked a lot? It counts for calories and recovery, never as a missed workout.</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>Log an activity</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>Played a sport or walked a lot? It counts for calories and recovery, never as a missed workout.</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {[...ACTIVITIES.map((a) => a.name), 'Other'].map((n) => (
             <Chip key={n} accent={C} active={picked === n} onPress={() => setPicked(n)}>
@@ -161,7 +161,7 @@ export function ActivitySheet({ visible, userId, onClose, onLogged }: { visible:
             placeholderTextColor={COLORS.textFaint}
             maxLength={40}
             accessibilityLabel="Activity name"
-            style={{ height: 48, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: FONT }}
+            style={{ height: 48, borderRadius: 14, borderWidth: 1, borderColor: COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 17, paddingHorizontal: 14, fontFamily: BG[400] }}
           />
         ) : null}
         <Stepper

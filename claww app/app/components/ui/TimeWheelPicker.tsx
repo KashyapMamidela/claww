@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, NativeScrollEvent, NativeSyntheticEvent, ScrollView, Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 
 export const ITEM_HEIGHT = 38;
 const VISIBLE_ROWS = 5; // odd — the middle row is the selected value
@@ -98,7 +98,7 @@ export function WheelColumn({ items, initialIndex, onChange, width = 56 }: Wheel
                 transform: [{ perspective: 500 }, { rotateX }, { scale }],
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 20, fontWeight: '700', fontFamily: FONT }}>{item}</Text>
+              <Text style={{ color: '#fff', fontSize: 20, fontFamily: BG[700] }}>{item}</Text>
             </Animated.View>
           );
         })}
@@ -124,7 +124,7 @@ export function TimeWheelPicker({ initialValue, onChange }: TimeWheelPickerProps
           initialIndex={value.hour - 1}
           onChange={(i) => onChange({ ...value, hour: i + 1 })}
         />
-        <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT, marginHorizontal: 2 }}>:</Text>
+        <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800], marginHorizontal: 2 }}>:</Text>
         <WheelColumn
           items={MINUTES}
           initialIndex={Math.round(value.minute / 5)}

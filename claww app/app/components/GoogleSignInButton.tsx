@@ -1,6 +1,6 @@
 import React from 'react';
 import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 
 export interface GoogleSignInButtonProps {
   onPress: () => void;
@@ -47,7 +47,7 @@ export function GoogleSignInButton({ onPress, loading = false }: GoogleSignInBut
           <Text style={{ fontSize: 13, fontWeight: '900', fontVariant: ['tabular-nums'], color: '#000000' }}>G</Text>
         </View>
       )}
-      <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
+      <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>
         {loading ? 'Signing in…' : 'Continue with Google'}
       </Text>
     </TouchableOpacity>

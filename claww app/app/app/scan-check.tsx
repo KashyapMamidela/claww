@@ -3,7 +3,7 @@ import { BackTile } from '../components/ui/BackTile';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, FONT_HAND } from '../lib/theme';
+import { COLORS, FONT, FONT_HAND, BG, bg } from '../lib/theme';
 import { useAppState, type MealType } from '../lib/appState';
 import { getProfile, uploadMealPhoto } from '../lib/data';
 import {
@@ -101,7 +101,7 @@ export default function ScanCheckScreen() {
   if (!session) {
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.bg, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>No plate to check</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>No plate to check</Text>
         <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" onPress={() => router.replace('/scan')}>
           Scan a plate
         </Button>
@@ -196,8 +196,8 @@ export default function ScanCheckScreen() {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingTop: insets.top + 6, paddingBottom: 8 }}>
       <BackTile onPress={() => router.back()} />
       <View style={{ flex: 1 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>Check your plate</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{contextText(session.context)}</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Check your plate</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{contextText(session.context)}</Text>
       </View>
     </View>
   );
@@ -226,7 +226,7 @@ export default function ScanCheckScreen() {
         {header}
         <View style={{ padding: 40, alignItems: 'center', gap: 14 }}>
           <ActivityIndicator color={G} />
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>Reading the plate…</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Reading the plate…</Text>
         </View>
       </View>
     );
@@ -238,13 +238,13 @@ export default function ScanCheckScreen() {
         {header}
         <ScrollView contentContainerStyle={{ padding: 20, gap: 14 }}>
           <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: 200, borderRadius: 20 }} resizeMode="cover" accessibilityLabel="Your photo" />
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>Not sure about this one</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>Pick what it is, or log it by name. We would rather ask than guess your calories.</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>Not sure about this one</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>Pick what it is, or log it by name. We would rather ask than guess your calories.</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {result.candidates.map((c) => (
               <PressScale key={c} onPress={() => chooseCandidate(c)} accessibilityRole="button" accessibilityLabel={`It is ${c}`}>
                 <View style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 22, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', justifyContent: 'center' }}>
-                  <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{c}</Text>
+                  <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>{c}</Text>
                 </View>
               </PressScale>
             ))}
@@ -266,8 +266,8 @@ export default function ScanCheckScreen() {
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
             <Image source={{ uri: session.photoUri }} style={{ width: 64, height: 64, borderRadius: 18 }} resizeMode="cover" accessibilityLabel="Your photo" />
             <View style={{ flex: 1 }}>
-              <Text style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }} numberOfLines={2}>{dish}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }} numberOfLines={2}>{dish}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
             </View>
             <RatingPill rating={rating.rating} />
           </View>
@@ -279,8 +279,8 @@ export default function ScanCheckScreen() {
               ['fat', `${Math.round(totals.fat)} g`, COLORS.fg],
             ].map(([label, value, color]) => (
               <View key={label}>
-                <Text style={{ color, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{label}</Text>
+                <Text style={{ color, fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
               </View>
             ))}
           </View>
@@ -295,13 +295,13 @@ export default function ScanCheckScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingRight: 12, borderTopWidth: idx === 0 ? 0 : 1, borderTopColor: COLORS.border }}>
                 <View style={{ width: 4, alignSelf: 'stretch', borderRadius: 2, backgroundColor: hidden ? AMBER : G, marginLeft: 0 }} />
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{i.food ? (hidden ? 'Oil' : i.food.name) : i.heard}</Text>
+                  <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{i.food ? (hidden ? 'Oil' : i.food.name) : i.heard}</Text>
                   {!i.food ? (
                     <Pressable onPress={() => { setPickFor(i.key); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 40, justifyContent: 'center' }}>
-                      <Text style={{ color: AMBER, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Not in the database. Pick a food</Text>
+                      <Text style={{ color: AMBER, fontSize: 15, fontFamily: BG[700] }}>Not in the database. Pick a food</Text>
                     </Pressable>
                   ) : (
-                    <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{hidden ? `hidden · from ${session.context.oil} oil` : `from the photo${i.heard.toLowerCase() !== i.food.name.toLowerCase() ? `: ${i.heard}` : ''}`}</Text>
+                    <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{hidden ? `hidden · from ${session.context.oil} oil` : `from the photo${i.heard.toLowerCase() !== i.food.name.toLowerCase() ? `: ${i.heard}` : ''}`}</Text>
                   )}
                 </View>
                 {i.food ? (
@@ -319,10 +319,10 @@ export default function ScanCheckScreen() {
                     >
                       <View style={{ minWidth: 76, minHeight: 44, alignItems: 'center', justifyContent: 'center' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-                          <Text style={{ color: unitOpen === i.key ? G : COLORS.fg, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{fmtQty(i.qty)} {i.unit}</Text>
+                          <Text style={{ color: unitOpen === i.key ? G : COLORS.fg, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{fmtQty(i.qty)} {i.unit}</Text>
                           <Icon name={unitOpen === i.key ? 'chevron-up' : 'chevron-down'} size={14} color={G} />
                         </View>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{Math.round(i.grams)} g</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{Math.round(i.grams)} g</Text>
                       </View>
                     </PressScale>
                     <PressScale onPress={() => bump(i.key, 1)} accessibilityRole="button" accessibilityLabel={`More ${i.food.name}`}>
@@ -334,14 +334,14 @@ export default function ScanCheckScreen() {
                 ) : (
                   <PressScale onPress={() => remove(i.key)} accessibilityRole="button" accessibilityLabel={`Remove ${i.heard}`}>
                     <View style={{ minHeight: 44, paddingHorizontal: 12, justifyContent: 'center' }}>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Remove</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[700] }}>Remove</Text>
                     </View>
                   </PressScale>
                 )}
               </View>
               {i.food && unitOpen === i.key ? (
                 <View style={{ paddingLeft: 14, paddingBottom: 12, paddingRight: 12, gap: 8 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Measure in</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Measure in</Text>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                     {scanUnitChoices(i.food).map((u) => (
                       <Chip key={u} active={i.unit === u} accent={G} accentDeep={COLORS.greenDeep} onPress={() => changeUnit(i.key, u)}>
@@ -356,13 +356,13 @@ export default function ScanCheckScreen() {
             );
           })}
           <Pressable onPress={() => { setPickFor('add'); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 56, alignItems: 'center', justifyContent: 'center', borderTopWidth: 1, borderTopColor: COLORS.border }}>
-            <Text style={{ color: G, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>+ Add something we missed</Text>
+            <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>+ Add something we missed</Text>
           </Pressable>
         </Surface>
 
         <View style={{ borderRadius: 18, borderWidth: 1, borderColor: rating.rating === 'good' ? 'rgba(34,197,94,0.5)' : rating.rating === 'okay' ? 'rgba(245,158,11,0.5)' : 'rgba(161,161,170,0.4)', backgroundColor: COLORS.card, padding: 14, flexDirection: 'row', gap: 12, alignItems: 'center' }}>
-          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 15, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: FONT }}>{rating.rating.toUpperCase()}</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, flex: 1, fontFamily: FONT }}>{rating.reason}</Text>
+          <Text style={{ color: rating.rating === 'good' ? COLORS.ratingGood : rating.rating === 'okay' ? COLORS.ratingOkay : COLORS.ratingPoor, fontSize: 15, fontVariant: ['tabular-nums'], letterSpacing: 0.5, fontFamily: BG[800] }}>{rating.rating.toUpperCase()}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, flex: 1, fontFamily: BG[400] }}>{rating.reason}</Text>
         </View>
         <Text style={{ color: COLORS.textMuted, fontSize: 20, textAlign: 'center', fontFamily: FONT_HAND }}>{optIn ? 'your fixes teach the scanner your portions' : 'your answers become your defaults next time'}</Text>
         {error ? <ErrorCard message={error} onRetry={log} retrying={saving} /> : null}

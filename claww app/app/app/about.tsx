@@ -5,7 +5,7 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
 
@@ -35,19 +35,19 @@ export default function AboutScreen() {
 
         <View style={{ alignItems: 'center', paddingVertical: 24, gap: 10 }}>
           <Image source={require('../assets/logo-mark.png')} style={{ width: 56, height: 56 }} resizeMode="contain" />
-          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>CLAWW</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{getAppVersionLabel()}</Text>
+          <Text style={{ color: '#fff', fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>CLAWW</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{getAppVersionLabel()}</Text>
         </View>
 
         <Surface radius={16} padding={16}>
-          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 20, fontFamily: FONT }}>
+          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 20, fontFamily: BG[400] }}>
             CLAWW builds your workout and nutrition plans from real constraints — your equipment,
             experience, and injuries — then adapts them to what you actually log, not just what you
             said you'd do.
           </Text>
         </Surface>
 
-        <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: BG[400] }}>
           © 2026 CLAWW. All rights reserved.
         </Text>
       </View>

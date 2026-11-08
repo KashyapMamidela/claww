@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS, AREA_COLORS, FONT, tint } from '../../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint, BG, bg } from '../../lib/theme';
 import type { TrackerData } from '../../lib/trackerData';
 import { MAJOR_MUSCLES } from '../../lib/muscleRecovery';
 import { getStepsInRanges } from '../../lib/steps';
@@ -55,7 +55,7 @@ function Segment({ value, onChange }: { value: Range; onChange: (r: Range) => vo
       {(['week', 'month', 'all'] as Range[]).map((r) => (
         <PressScale key={r} onPress={() => onChange(r)} style={{ flex: 1 }} accessibilityRole="button" accessibilityState={{ selected: value === r }}>
           <View style={{ height: 34, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: value === r ? 'rgba(255,255,255,0.1)' : 'transparent' }}>
-            <Text style={{ color: value === r ? '#fff' : COLORS.textMuted, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{RANGE_LABEL[r]}</Text>
+            <Text style={{ color: value === r ? '#fff' : COLORS.textMuted, fontSize: 13, fontFamily: BG[700] }}>{RANGE_LABEL[r]}</Text>
           </View>
         </PressScale>
       ))}
@@ -104,7 +104,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
       case 'strength': {
         const lifts = pickMainLifts(data.logs, data.catalog, 5);
         const series = strengthSeries(data.logs, lifts, buckets);
-        if (series.every((s) => s.last === null)) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>No weighted sets in this range yet.</Text>;
+        if (series.every((s) => s.last === null)) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>No weighted sets in this range yet.</Text>;
         const shades = [BLUE, tint(BLUE, 0.75), tint(BLUE, 0.55), tint(BLUE, 0.4), tint(BLUE, 0.3)];
         return (
           <>
@@ -113,8 +113,8 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               {series.map((s, i) => (
                 <View key={s.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 9, height: 9, borderRadius: 5, backgroundColor: shades[i] }} />
-                  <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{s.name}</Text>
-                  <Text style={{ color: '#D4D4D8', fontSize: 13, fontFamily: FONT }}>
+                  <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[700] }}>{s.name}</Text>
+                  <Text style={{ color: '#D4D4D8', fontSize: 13, fontFamily: BG[400] }}>
                     {s.last !== null ? `${s.last} kg` : '—'}
                     {s.delta !== null ? `  ${s.delta >= 0 ? '+' : ''}${s.delta}` : ''}
                   </Text>
@@ -129,14 +129,14 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         const thisWeek = setsPerMuscle(data.logs, data.catalog, bucketsForRange('month', now)[4].start, bucketsForRange('month', now)[4].end);
         return (
           <>
-            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>Effective sets across all muscles (a set counts once for its main muscle and half for each helper).</Text>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>Effective sets across all muscles (a set counts once for its main muscle and half for each helper).</Text>
             <BarChart values={totals} color={BLUE} height={220} labels={labels} />
-            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>This week by muscle</Text>
+            <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>This week by muscle</Text>
             <View style={{ gap: 6 }}>
               {MAJOR_MUSCLES.map((m) => (
                 <View key={m} style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                  <Text style={{ color: '#D4D4D8', fontSize: 13, fontFamily: FONT }}>{cap(m)}</Text>
-                  <Text style={{ color: (thisWeek[m] ?? 0) >= WEEKLY_SETS_TARGET ? BLUE : '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>
+                  <Text style={{ color: '#D4D4D8', fontSize: 13, fontFamily: BG[400] }}>{cap(m)}</Text>
+                  <Text style={{ color: (thisWeek[m] ?? 0) >= WEEKLY_SETS_TARGET ? BLUE : '#A1A1AA', fontSize: 13, fontFamily: BG[700] }}>
                     {thisWeek[m] ?? 0} / {WEEKLY_SETS_TARGET}
                   </Text>
                 </View>
@@ -150,24 +150,24 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         const g = consistencyGrid(data.logs, now, weeks);
         return (
           <>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
               {g.sessions}
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}> training day{g.sessions === 1 ? '' : 's'}</Text>
             </Text>
             <HeatGrid weeks={g.weeks} color={BLUE} maxCell={range === 'all' ? 12 : 30} />
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Each column is a week, Monday at the top. A bright square is a day you logged sets.</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Each column is a week, Monday at the top. A bright square is a day you logged sets.</Text>
           </>
         );
       }
       case 'records': {
         const records = personalRecords(data.logs, 12);
-        if (records.length === 0) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Your best sets show up here as you log them.</Text>;
+        if (records.length === 0) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Your best sets show up here as you log them.</Text>;
         return (
           <View style={{ gap: 12 }}>
             {records.map((r) => (
               <View key={r.exerciseName} style={{ gap: 2 }}>
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{r.exerciseName}</Text>
-                <Text style={{ color: BLUE, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>{r.exerciseName}</Text>
+                <Text style={{ color: BLUE, fontSize: 15, fontFamily: BG[700] }}>
                   {r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `Bodyweight × ${r.reps}`}
                   <Text style={{ color: COLORS.textMuted, fontWeight: '500' }}>
                     {r.weight > 0 ? `  ·  est. 1RM ${r.score} kg` : ''}  ·  {new Date(r.achievedAt).toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -180,7 +180,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
       }
       case 'recovery': {
         const rows = MAJOR_MUSCLES.map((m) => data.recovery[m]).filter((r) => r && r.score !== null);
-        if (rows.length === 0) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Recovery appears once you have logged a workout.</Text>;
+        if (rows.length === 0) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Recovery appears once you have logged a workout.</Text>;
         return (
           <>
             <View style={{ alignItems: 'center', paddingVertical: 12, borderRadius: 16, backgroundColor: '#0B0B0D' }}>
@@ -190,8 +190,8 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               {rows.map((r) => (
                 <View key={r.muscle} style={{ gap: 4 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{cap(r.muscle)}</Text>
-                    <Text style={{ color: TEAL, fontSize: 15, fontWeight: '800', fontFamily: FONT }}>
+                    <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>{cap(r.muscle)}</Text>
+                    <Text style={{ color: TEAL, fontSize: 15, fontFamily: BG[800] }}>
                       {r.score} <Text style={{ color: '#A1A1AA', fontWeight: '500' }}>{r.band} · {r.confidence} confidence</Text>
                     </Text>
                   </View>
@@ -201,7 +201,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
                 </View>
               ))}
             </View>
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>
               An estimate from your recent sets, time since you trained each muscle, and the soreness and readiness you report before a session. Missing answers lower the confidence.
             </Text>
           </>
@@ -209,13 +209,13 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
       }
       case 'steps': {
         if (steps === undefined) return <Skeleton height={220} borderRadius={14} />;
-        if (steps === null) return <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>Step counting isn't connected on this device. Open Steps on Home to connect it.</Text>;
+        if (steps === null) return <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>Step counting isn't connected on this device. Open Steps on Home to connect it.</Text>;
         const days = range === 'week' ? 1 : range === 'month' ? 7 : 30;
         const goalForBucket = stepsGoal * days;
         return (
           <>
             <BarChart values={steps} color={AREA_COLORS.steps} height={220} goal={goalForBucket} labels={labels} />
-            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>
               {range === 'week' ? 'Steps per day' : range === 'month' ? 'Steps per week' : 'Steps per month'} · the dashed line is your goal ({stepsGoal.toLocaleString()} a day).
             </Text>
           </>
@@ -224,11 +224,11 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
       case 'nutrition': {
         const n = nutritionByBucket(data.meals, buckets);
         const p = proteinPerDay(n);
-        if (!n.some((d) => d.logged)) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>No meals logged in this range.</Text>;
+        if (!n.some((d) => d.logged)) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>No meals logged in this range.</Text>;
         return (
           <>
             <BarChart values={p.map((x) => x ?? 0)} color={AREA_COLORS.nutrition} height={220} goal={data.proteinTargetG} labels={labels} />
-            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: FONT }}>
+            <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>
               Protein in grams, {range === 'week' ? 'per day' : 'averaged over the days you logged'}.
               {data.proteinTargetG ? ` The dashed line is your ${data.proteinTargetG} g target.` : ''}
             </Text>
@@ -238,11 +238,11 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
       case 'sleep': {
         const hours = sleepByBucket(data.sleep, buckets);
         const known = hours.filter((h): h is number => h !== null);
-        if (known.length === 0) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>No sleep logged in this range.</Text>;
+        if (known.length === 0) return <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>No sleep logged in this range.</Text>;
         const avg = known.reduce((a, b) => a + b, 0) / known.length;
         return (
           <>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
               {formatHours(avg)}
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}> average</Text>
             </Text>
@@ -265,13 +265,13 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
               </View>
             </Surface>
           </PressScale>
-          <Text style={{ flex: 1, color, fontSize: 13, fontWeight: '800', letterSpacing: 0.7, fontFamily: FONT }}>{title.toUpperCase()}</Text>
+          <Text style={{ flex: 1, color, fontSize: 13, letterSpacing: 0.7, fontFamily: BG[800] }}>{title.toUpperCase()}</Text>
         </View>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 16 }} showsVerticalScrollIndicator={false}>
           {ranged ? (
             <>
               <Segment value={range} onChange={setRange} />
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{RANGE_NOTE[range]}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{RANGE_NOTE[range]}</Text>
             </>
           ) : null}
           {body}

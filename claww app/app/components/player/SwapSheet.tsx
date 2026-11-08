@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
-import { COLORS, FONT } from '../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { catalogKey, type CatalogEntry } from '../../lib/muscleRecovery';
 import { getCatalog, getSwapPool } from '../../lib/adaptiveData';
 import { swapCandidates } from '../../lib/swapCandidates';
@@ -68,10 +68,10 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
     <BottomSheet visible={visible} onClose={onClose} maxHeightFraction={0.8}>
       <View style={{ gap: 12 }}>
         <View style={{ gap: 4 }}>
-          <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 20, fontWeight: '800', fontFamily: FONT }}>
+          <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>
             Swap {exerciseName}
           </Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>
             Same muscle, same movement. Your sets and reps stay; weight starts from what you last did.
           </Text>
         </View>
@@ -84,7 +84,7 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
           </View>
         ) : load.kind === 'none' ? (
           <View style={{ gap: 12, paddingVertical: 8 }}>
-            <Text style={{ color: COLORS.fgGray, fontSize: 15, lineHeight: 20, fontFamily: FONT }}>
+            <Text style={{ color: COLORS.fgGray, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>
               {load.muscle
                 ? `No other ${load.muscle} exercise fits your equipment and injuries right now. Skip it with a swipe, or carry on with this one.`
                 : 'This exercise has no swap options yet. Skip it with a swipe, or carry on with it.'}
@@ -99,10 +99,10 @@ export function SwapSheet({ visible, exerciseName, todayNames, onPick, onClose }
               <PressScale key={o.id} onPress={() => onPick(o)} accessibilityRole="button" accessibilityLabel={`Swap to ${o.name}`}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingHorizontal: 14, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.04)', borderWidth: 1, borderColor: COLORS.border }}>
                   <View style={{ flex: 1 }}>
-                    <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>
+                    <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>
                       {o.name}
                     </Text>
-                    <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 2, fontFamily: FONT }}>
+                    <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 2, fontFamily: BG[400] }}>
                       {[titleCase(load.muscle), EQUIPMENT_LABEL[o.equipment ?? ''] ?? null].filter(Boolean).join(' · ')}
                     </Text>
                   </View>

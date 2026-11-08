@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, View } from 'react-native';
-import { FONT } from '../../lib/theme';
+import { FONT, BG, bg } from '../../lib/theme';
 
 export interface BadgeProps {
   children: React.ReactNode;
@@ -25,10 +25,9 @@ export function Badge({ children, color = '#3B82F6', filled = false, size = 'md'
       <Text
         style={{
           fontSize: size === 'sm' ? 8.5 : 9.5,
-          fontWeight: '700',
           letterSpacing: 0.55,
           color: filled ? '#000' : color,
-          fontFamily: FONT,
+          fontFamily: BG[700],
         }}
       >
         {children}

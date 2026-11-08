@@ -94,6 +94,14 @@ export const COLORS = {
 export const FONT = 'Inter';
 /** NG PHASE 1: Caveat, only for the Coach's Pen notes (the one-line handwritten reason). */
 export const FONT_HAND = 'Caveat';
+/** Premium X4: Bricolage Grotesque, one family name per weight (900 maps to 800, the heaviest cut). */
+export const BG = { 400: 'Bricolage-400', 500: 'Bricolage-500', 600: 'Bricolage-600', 700: 'Bricolage-700', 800: 'Bricolage-800' } as const;
+/** The Bricolage family for a fontWeight, for styles whose weight is decided at run time. */
+export function bg(weight?: string | number): string {
+  const w = Number(weight === 'bold' ? 700 : weight === 'normal' || weight === undefined ? 400 : weight);
+  return w >= 800 ? BG[800] : w >= 700 ? BG[700] : w >= 600 ? BG[600] : w >= 500 ? BG[500] : BG[400];
+}
+
 
 // AppHeader/TabBar float over scrollable content now (real translucent
 // material needs something behind it to blur) — these are their own

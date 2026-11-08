@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { BottomSheet } from './ui/BottomSheet';
 import { Button } from './ui/Button';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from './ui/Icon';
 import { TimeWheelPicker, dateToTimeValue, timeValueToDate, timeValueToLabel, type TimeValue } from './ui/TimeWheelPicker';
 import { getLatestSleepLog } from '../lib/data';
@@ -122,7 +122,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             >
               <Icon name="moon" size={17} color={SLEEP} />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontFamily: BG[800] }}>
               {step === 'bedtime' ? 'When did you go to bed?' : 'When did you wake up?'}
             </Text>
           </View>
@@ -156,17 +156,17 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
                     paddingHorizontal: 10,
                   }}
                 >
-                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{hours.toFixed(1)}h</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+                  <Text style={{ color: '#fff', fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{hours.toFixed(1)}h</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
                     {timeValueToLabel(bedtime)} → {timeValueToLabel(wake)}
                   </Text>
-                  <Text style={{ color: q.color, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{q.label}</Text>
+                  <Text style={{ color: q.color, fontSize: 13, fontFamily: BG[700] }}>{q.label}</Text>
                 </View>
               )}
             </>
           ) : (
             <View style={{ height: 220, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Loading…</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Loading…</Text>
             </View>
           )}
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
-import { COLORS, AREA_COLORS, FONT, tint } from '../lib/theme';
+import { COLORS, AREA_COLORS, FONT, tint, BG, bg } from '../lib/theme';
 import { getProfile, saveStepsGoal } from '../lib/data';
 import { DEFAULT_STEPS_GOAL } from '../lib/activityMath';
 import { stepsProgress } from '../lib/dayStats';
@@ -39,9 +39,9 @@ function Tile({
           <View style={{ width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(color, 0.2) }}>
             <Icon name={icon} size={13} color={color} />
           </View>
-          <Text style={{ color, fontSize: 11, fontWeight: '800', letterSpacing: 0.6, fontFamily: FONT }} numberOfLines={1}>{label}</Text>
+          <Text style={{ color, fontSize: 11, letterSpacing: 0.6, fontFamily: BG[800] }} numberOfLines={1}>{label}</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 20, lineHeight: 24, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }} numberOfLines={1} adjustsFontSizeToFit>
+        <Text style={{ color: '#fff', fontSize: 20, lineHeight: 24, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} numberOfLines={1} adjustsFontSizeToFit>
           {value}
         </Text>
         <View style={{ height: 6, justifyContent: 'center' }}>{children}</View>

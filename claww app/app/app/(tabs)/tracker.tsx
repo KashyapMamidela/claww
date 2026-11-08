@@ -5,7 +5,7 @@ import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { ScrollView, Share, Text, View } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AREA_COLORS, COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, HEADER_CONTENT_HEIGHT, TAB_BAR_CONTENT_HEIGHT, BG, bg } from '../../lib/theme';
 import { useAppState } from '../../lib/appState';
 import { getCompletedWorkoutDays, getLevelInfo, getTotalVolume } from '../../lib/data';
 import { loadTrackerData, type TrackerData } from '../../lib/trackerData';
@@ -72,13 +72,12 @@ function Header({ title, line, score, levelNum, locked }: HeaderProps) {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <View style={{ flex: 1, paddingRight: 12 }}>
-        <Text style={{ color: GD, fontSize: 11, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>{title}</Text>
-        <LargeTitle style={{ marginTop: 4 }}>Progress</LargeTitle>
-        <Text style={{ color: GD, fontSize: 13, marginTop: 5, fontFamily: FONT }}>{line}</Text>
+        <Text style={{ color: GD, fontSize: 11, letterSpacing: 1.1, fontFamily: BG[700] }}>{title}</Text>
+        <Text style={{ color: GD, fontSize: 13, marginTop: 5, fontFamily: BG[400] }}>{line}</Text>
       </View>
       <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: locked ? 0 : score }]} trackColor="rgba(255,255,255,0.07)">
-        <Text style={{ color: GD, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEVEL</Text>
-        <Text style={{ color: W, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{levelNum}</Text>
+        <Text style={{ color: GD, fontSize: 11, letterSpacing: 0.6, fontFamily: BG[700] }}>LEVEL</Text>
+        <Text style={{ color: W, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{levelNum}</Text>
       </ProgressRing>
     </View>
   );
@@ -192,7 +191,7 @@ export default function TrackerTab() {
               }}
             >
               <Icon name="lock" size={16} color={AREA_COLORS.score} />
-              <Text style={{ flex: 1, color: '#D4D4D8', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
+              <Text style={{ flex: 1, color: '#D4D4D8', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
                 Unlocks after {UNLOCK_AT} workout days. {remaining} more to go. Here is a preview of what it will show.
               </Text>
             </View>

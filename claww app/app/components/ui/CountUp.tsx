@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Text, TextProps } from 'react-native';
+import { Text, TextProps, TextStyle } from 'react-native';
 import { useReducedMotion } from 'react-native-reanimated';
 
 // Premium D2: a number that counts up to its value when it first appears. The last value shown for each `id` is kept in
@@ -7,7 +7,7 @@ import { useReducedMotion } from 'react-native-reanimated';
 
 const shown = new Map<string, number>();
 
-export function CountUp({ value, id, duration = 700, format = (n: number) => String(Math.round(n)), ...rest }: { value: number; id: string; duration?: number; format?: (n: number) => string } & TextProps) {
+export function CountUp({ value, id, duration = 700, format = (n: number) => String(Math.round(n)), textStyle, ...rest }: { value: number; id: string; duration?: number; format?: (n: number) => string; textStyle?: TextStyle } & TextProps) {
   const reduced = useReducedMotion();
   const [display, setDisplay] = useState(() => shown.get(id) ?? 0);
   const raf = useRef<number | null>(null);
@@ -34,5 +34,9 @@ export function CountUp({ value, id, duration = 700, format = (n: number) => Str
     };
   }, [value, id, duration, reduced]);
 
-  return <Text {...rest}>{format(display)}</Text>;
+  return (
+    <Text {...rest} style={textStyle}>
+      {format(display)}
+    </Text>
+  );
 }

@@ -1,10 +1,10 @@
 import React from 'react';
-import { Image, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { BlurView } from 'expo-blur';
 import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { headerProgress } from '../../lib/tabBarVisibility';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, HEADER_CONTENT_HEIGHT } from '../../lib/theme';
+import { COLORS, FONT, HEADER_CONTENT_HEIGHT, BG, bg } from '../../lib/theme';
 import { Icon } from './Icon';
 import { PressScale } from './PressScale';
 import { Surface } from './Surface';
@@ -32,10 +32,13 @@ export function AppHeader({ accent, title, collapsing, penDot, initial, onPenPre
   const titleStyle = useAnimatedStyle(() => ({ opacity: collapsing ? headerProgress.value : 1, transform: [{ translateY: collapsing ? (1 - headerProgress.value) * 6 : 0 }] }));
   return (
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
+      {/* Glass, the bar version: the same smoked tint and light blur as the tab bar, a hairline instead of a border. */}
       <BlurView
-        intensity={60}
+        intensity={22}
         tint="dark"
-        style={{ paddingTop: insets.top, backgroundColor: 'rgba(5,5,5,0.92)', borderBottomWidth: 1, borderBottomColor: 'rgba(255,255,255,0.06)' }}
+        experimentalBlurMethod="dimezisBlurView"
+        blurReductionFactor={3}
+        style={{ paddingTop: insets.top, backgroundColor: 'rgba(8,8,10,0.80)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.10)' }}
       >
         <View style={{ height: HEADER_CONTENT_HEIGHT, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>
@@ -54,7 +57,7 @@ export function AppHeader({ accent, title, collapsing, penDot, initial, onPenPre
             >
               <Image source={require('../../assets/logo-mark.png')} style={{ width: 17, height: 17 }} resizeMode="contain" />
             </View>
-            <Animated.Text style={[{ color: COLORS.fg, fontSize: 20, fontWeight: '800', letterSpacing: -0.4, fontFamily: FONT }, titleStyle]} numberOfLines={1}>
+            <Animated.Text style={[{ color: COLORS.fg, fontSize: 20, letterSpacing: -0.4, fontFamily: BG[800] }, titleStyle]} numberOfLines={1}>
               {title}
             </Animated.Text>
           </View>
@@ -70,7 +73,7 @@ export function AppHeader({ accent, title, collapsing, penDot, initial, onPenPre
             <PressScale onPress={onAvatarPress} accessibilityRole="button" accessibilityLabel="Profile" hitSlop={4}>
               <View style={{ width: 40, height: 40, borderRadius: 13, overflow: 'hidden', backgroundColor: '#FF4500', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)' }}>
                 <View style={{ position: 'absolute', inset: 0, backgroundColor: '#F59E0B', opacity: 0.55, transform: [{ rotate: '35deg' }, { scale: 1.6 }], left: 18 } as object} />
-                <Text style={{ color: '#fff', fontSize: 16, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{initial}</Text>
+                <Text style={{ color: '#fff', fontSize: 16, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{initial}</Text>
               </View>
             </PressScale>
           </View>

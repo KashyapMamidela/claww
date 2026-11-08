@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
+import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../../lib/theme';
 import type { TodayItem } from '../../lib/todayLine';
 import type { MealSlot } from '../../lib/mealPlanView';
 import { Button } from '../ui/Button';
@@ -57,10 +57,10 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
     <View style={{ gap: 4 }}>
     {/* Premium H7: the heading sits outside the card with a Plan link, the time has its own column, nodes follow the item's kind. */}
     <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 4 }}>
-      <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>Today</Text>
+      <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, letterSpacing: -0.3, fontFamily: BG[800] }}>Today</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
         <Pressable onPress={onPlan} accessibilityRole="button" accessibilityLabel="Open your plan" hitSlop={8} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 }}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Plan {'›'}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[700] }}>Plan {'›'}</Text>
         </Pressable>
         <Pressable
           onPress={() => setExpanded((e) => !e)}
@@ -83,7 +83,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
           const dim = it.state === 'done' || (it.state === 'upcoming' && it.kind !== 'sleep');
           return (
             <View key={it.id} style={{ flexDirection: 'row', gap: 10 }} accessibilityLabel={`${it.timeLabel} ${it.title}${it.line ? `, ${it.line}` : ''}${it.state === 'done' ? ', done' : it.state === 'missed' ? ', not done yet' : ''}`}>
-              <Text style={{ width: 44, color: COLORS.textMuted, fontSize: 13, lineHeight: 20, paddingTop: 2, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{it.timeLabel}</Text>
+              <Text style={{ width: 44, color: COLORS.textMuted, fontSize: 13, lineHeight: 20, paddingTop: 2, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{it.timeLabel}</Text>
               <View style={{ alignItems: 'center', width: 16 }}>
                 <View style={{ marginTop: 3 }}>
                   <Node state={it.state} color={color} />
@@ -92,11 +92,11 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
               </View>
               <View style={{ flex: 1, paddingBottom: last ? 0 : 16, gap: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-                  <Text style={{ color: dim ? COLORS.textMuted : COLORS.fg, fontSize: open ? 17 : 15, fontWeight: open ? '800' : '600', flexShrink: 1, fontFamily: FONT }}>{it.title}</Text>
+                  <Text style={{ color: dim ? COLORS.textMuted : COLORS.fg, fontSize: open ? 17 : 15, flexShrink: 1, fontFamily: bg(open ? '800' : '600') }}>{it.title}</Text>
                 </View>
                 {it.line ? (
                   <Text
-                    style={{ color: it.state === 'done' ? G : it.state === 'current' ? '#C4C4CC' : COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}
+                    style={{ color: it.state === 'done' ? G : it.state === 'current' ? '#C4C4CC' : COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}
                     numberOfLines={open ? 3 : 1}
                   >
                     {it.state === 'current' && it.kind === 'meal' ? `${mealLead(it.at)} · ${it.line}` : it.line}
@@ -156,7 +156,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
       </View>
       {!expanded && hidden > 0 ? (
         <Pressable onPress={() => setExpanded(true)} accessibilityRole="button" style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
-          <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
+          <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>
             {missedHidden > 0 ? `${missedHidden} more to answer · ${hidden} in the day` : `${hidden} more in your day`}
           </Text>
           <Icon name="chevron-down" size={18} color={COLORS.textMuted} />

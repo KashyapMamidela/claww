@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Image, Modal, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import type { MealLogRow } from '../lib/data';
 import { Icon } from './ui/Icon';
 import { mealTypeIcon, useSignedMealPhoto } from './MealPhoto';
@@ -79,15 +79,15 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   </View>
                 ) : null}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{meal.meal_type ?? 'Meal'}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
+                  <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>{meal.meal_type ?? 'Meal'}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
                     {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     {meal.estimated ? ' · estimated' : ''}
                   </Text>
                 </View>
               </View>
 
-              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>{meal.description}</Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>{meal.description}</Text>
 
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {[
@@ -107,8 +107,8 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                       paddingHorizontal: 12,
                     }}
                   >
-                    <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{s.label}</Text>
-                    <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
+                    <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{s.label}</Text>
+                    <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>{s.value}</Text>
                   </View>
                 ))}
               </View>
@@ -123,7 +123,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   style={{ height: 50, borderRadius: 25, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: isPlate ? COLORS.greenGlow : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
                 >
                   <Icon name={isPlate ? 'check' : 'plus'} size={16} color={COLORS.green} />
-                  <Text style={{ color: COLORS.green, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>
+                  <Text style={{ color: COLORS.green, fontSize: 15, fontFamily: BG[700] }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>
                 </TouchableOpacity>
               ) : null}
 
@@ -139,7 +139,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   marginTop: 4,
                 }}
               >
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Close</Text>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Close</Text>
               </TouchableOpacity>
             </View>
           )}

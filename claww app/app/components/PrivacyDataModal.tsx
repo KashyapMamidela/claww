@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from './ui/Icon';
 
 export interface PrivacyDataModalProps {
@@ -47,10 +47,10 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
             >
               <Icon name="shield" size={18} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontWeight: '800', fontFamily: FONT }}>Privacy & Data</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Privacy & Data</Text>
           </View>
 
-          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
+          <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>
             CLAWW stores your profile, workout and meal logs, and progress data to build and adapt
             your plans. Meal photos and injury notes are sent to our AI provider only to generate
             estimates — never sold, never shared beyond what's needed to run the app.
@@ -75,7 +75,7 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
             }}
           >
             <Icon name="download" size={16} color="#A1A1AA" />
-            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Download my data</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 13, fontFamily: BG[600] }}>Download my data</Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>
 
@@ -98,7 +98,7 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
             }}
           >
             <Icon name="trash-2" size={16} color={COLORS.danger} />
-            <Text style={{ flex: 1, color: COLORS.danger, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Delete account</Text>
+            <Text style={{ flex: 1, color: COLORS.danger, fontSize: 13, fontFamily: BG[600] }}>Delete account</Text>
             <Icon name="chevron-right" size={15} color={COLORS.danger} />
           </TouchableOpacity>
 
@@ -113,7 +113,7 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
               marginTop: 2,
             }}
           >
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Close</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>

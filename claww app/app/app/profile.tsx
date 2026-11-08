@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT } from '../lib/theme';
+import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { signOut } from '../lib/auth';
 import {
@@ -186,13 +186,13 @@ export default function ProfileScreen() {
               end={{ x: 1, y: 1 }}
               style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], color: '#fff', fontFamily: FONT }}>
+              <Text style={{ fontSize: 22, fontVariant: ['tabular-nums'], color: '#fff', fontFamily: BG[800] }}>
                 {displayName.charAt(0).toUpperCase()}
               </Text>
             </LinearGradient>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: '#fff', fontSize: 17, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>{displayName}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: FONT }}>{profile?.email ?? ''} · {tier}</Text>
+              <Text style={{ color: '#fff', fontSize: 17, letterSpacing: -0.3, fontFamily: BG[800] }}>{displayName}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>{profile?.email ?? ''} · {tier}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
                 <Badge color={P}>LVL {level}</Badge>
                 <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
@@ -201,8 +201,8 @@ export default function ProfileScreen() {
           </View>
           <View style={{ marginTop: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>XP Progress — Level {level}</Text>
-              <Text style={{ color: P, fontSize: 11, fontWeight: '600', fontFamily: FONT }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>XP Progress — Level {level}</Text>
+              <Text style={{ color: P, fontSize: 11, fontFamily: BG[600] }}>
                 {xpIntoLevel} / {xpForNextLevel}
               </Text>
             </View>
@@ -234,22 +234,22 @@ export default function ProfileScreen() {
               }}
             >
               <Icon name={s.icon} size={14} color={s.color} />
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>{s.value}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, textAlign: 'center', fontFamily: FONT }}>{s.label}</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>{s.value}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, textAlign: 'center', fontFamily: BG[400] }}>{s.label}</Text>
             </View>
           ))}
         </View>
 
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 17, fontWeight: '700', fontFamily: FONT }}>Achievements</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{earnedCount}/{achievements.length} earned</Text>
+            <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[700] }}>Achievements</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{earnedCount}/{achievements.length} earned</Text>
           </View>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {achievements.map((b) => (
               <View key={b.label} style={{ width: '22.5%', alignItems: 'center', gap: 6 }}>
                 <Medallion icon={b.icon} color={b.color} earned={b.earned} />
-                <Text style={{ color: b.earned ? COLORS.fgGray : COLORS.textFaint, fontSize: 13, textAlign: 'center', lineHeight: 16, fontFamily: FONT }}>{b.label}</Text>
+                <Text style={{ color: b.earned ? COLORS.fgGray : COLORS.textFaint, fontSize: 13, textAlign: 'center', lineHeight: 16, fontFamily: BG[400] }}>{b.label}</Text>
               </View>
             ))}
           </View>
@@ -257,7 +257,7 @@ export default function ProfileScreen() {
 
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-            <Text style={{ color: '#fff', fontSize: 13, fontWeight: '600', fontFamily: FONT }}>Body stats</Text>
+            <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[600] }}>Body stats</Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             {bodyStats.map((bs) => (
@@ -272,8 +272,8 @@ export default function ProfileScreen() {
                   padding: 10,
                 }}
               >
-                <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: FONT }}>{bs.l}</Text>
-                <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', marginTop: 3, fontFamily: FONT }}>{bs.v}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{bs.l}</Text>
+                <Text style={{ color: '#fff', fontSize: 15, marginTop: 3, fontFamily: BG[700] }}>{bs.v}</Text>
               </View>
             ))}
           </View>
@@ -298,7 +298,7 @@ export default function ProfileScreen() {
               <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
                 <Icon name={item.icon} size={16} color="#A1A1AA" />
               </View>
-              <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>{item.label}</Text>
+              <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[600] }}>{item.label}</Text>
               <Icon name="chevron-right" size={15} color="#71717A" />
             </TouchableOpacity>
           ))}
@@ -318,7 +318,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="alert-triangle" size={16} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Medical disclaimer</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[600] }}>Medical disclaimer</Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>
           <TouchableOpacity
@@ -339,7 +339,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="download" size={16} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[600] }}>
               {exporting ? 'Preparing export…' : 'Download My Data'}
             </Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
@@ -360,7 +360,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="log-out" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Sign out</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontFamily: BG[600] }}>Sign out</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -378,7 +378,7 @@ export default function ProfileScreen() {
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
               <Icon name="trash-2" size={16} color="#EF4444" />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontWeight: '600', fontFamily: FONT }}>Delete account</Text>
+            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontFamily: BG[600] }}>Delete account</Text>
           </TouchableOpacity>
         </Surface>
 

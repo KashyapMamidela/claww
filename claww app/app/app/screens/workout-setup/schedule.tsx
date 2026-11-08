@@ -3,7 +3,7 @@ import { useProfile } from '../../../lib/profile';
 import { ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { useAppState } from '../../../lib/appState';
 import { OnboardingTopBar } from '../../../components/OnboardingTopBar';
 import { Button } from '../../../components/ui/Button';
@@ -83,10 +83,10 @@ export default function WorkoutSetupSchedule() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <OnboardingTopBar step={1} totalSteps={2} accent={A} showBack={!submitting} />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 30, paddingBottom: 24, flexGrow: 1 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>
           Which {need} days work for you?
         </Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: FONT }}>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 10, marginBottom: 22, lineHeight: 19, fontFamily: BG[400] }}>
           Your plan has {need} sessions. Pick the weekdays and each session lands exactly there.
         </Text>
 
@@ -97,11 +97,11 @@ export default function WorkoutSetupSchedule() {
             </Chip>
           ))}
         </View>
-        <Text style={{ color: ready ? COLORS.textMuted : COLORS.amber, fontSize: 13, marginTop: 12, fontFamily: FONT }}>
+        <Text style={{ color: ready ? COLORS.textMuted : COLORS.amber, fontSize: 13, marginTop: 12, fontFamily: BG[400] }}>
           {ready ? `${need} of ${need} picked` : `${trainingDays.length} of ${need} picked. Tap ${need - trainingDays.length} more.`}
         </Text>
 
-        <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, marginTop: 28, marginBottom: 12, fontFamily: FONT }}>USUAL TIME (OPTIONAL)</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.9, marginTop: 28, marginBottom: 12, fontFamily: BG[700] }}>USUAL TIME (OPTIONAL)</Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {TIME_OPTIONS.map((opt) => (
             <Chip key={opt.label} active={usualTime === opt.value} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setUsualTime(opt.value)}>

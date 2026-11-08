@@ -4,7 +4,7 @@ import { BackTile } from '../../../components/ui/BackTile';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { COLORS, FONT } from '../../../lib/theme';
+import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { resetPasswordForEmail } from '../../../lib/auth';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
@@ -60,22 +60,22 @@ export default function ForgotPasswordScreen() {
               >
                 <Icon name="check-circle-2" size={30} color={COLORS.fg} />
               </View>
-              <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 22, fontVariant: ['tabular-nums'], marginBottom: 8, fontFamily: BG[800], textAlign: 'center' }}>
                 Check your email
               </Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: BG[400], textAlign: 'center', maxWidth: 280 }}>
                 If an account exists for {email.trim()}, a reset link is on its way.
               </Text>
               <TouchableOpacity onPress={() => router.replace('/screens/auth/sign-in')} style={{ marginTop: 24 }}>
-                <Text style={{ color: A, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Back to sign in</Text>
+                <Text style={{ color: A, fontSize: 13, fontFamily: BG[700] }}>Back to sign in</Text>
               </TouchableOpacity>
             </View>
           ) : (
             <>
-              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: BG[800], textAlign: 'center' }}>
                 Reset your password
               </Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: BG[400], textAlign: 'center' }}>
                 Enter the email on your account and we'll send a reset link.
               </Text>
               <FieldInput
@@ -90,7 +90,7 @@ export default function ForgotPasswordScreen() {
                 onSubmitEditing={handleSubmit}
                 active={email.length > 0}
               />
-              {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: FONT }}>{error}</Text> : null}
+              {error ? <Text style={{ color: COLORS.danger, fontSize: 13, marginTop: 12, fontFamily: BG[400] }}>{error}</Text> : null}
               <View style={{ marginTop: 24 }}>
                 <Button variant="inverted" size="lg" fullWidth disabled={!canSubmit} onPress={handleSubmit}>
                   {loading ? 'Sending…' : 'Send reset link'}
