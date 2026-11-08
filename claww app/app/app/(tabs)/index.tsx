@@ -558,7 +558,7 @@ function HomePopulated() {
             }
             trackColor="rgba(255,255,255,0.055)"
           >
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>{dailyGoalPct}%</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{dailyGoalPct}%</Text>
             <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: FONT }}>Daily goal</Text>
           </ProgressRing>
           <View style={{ flex: 1, gap: 11 }}>

@@ -205,7 +205,7 @@ export default function ScanScreen() {
             ) : null}
 
             <View>
-              <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT }}>{last ? 'Or answer two quick questions' : 'Two quick questions'}</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{last ? 'Or answer two quick questions' : 'Two quick questions'}</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: FONT }}>Photos cannot see oil or portion. This makes the numbers honest.</Text>
             </View>
 

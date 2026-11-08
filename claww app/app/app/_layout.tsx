@@ -1,7 +1,7 @@
 import { Stack, useRouter } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform, View } from 'react-native';
+import { Platform, View, StatusBar } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
@@ -149,6 +149,8 @@ function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* Premium D14: light status bar icons over the dark app, drawn edge to edge. */}
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
       <SafeAreaProvider>
         <AppStateProvider>
           <WorkoutSessionProvider>

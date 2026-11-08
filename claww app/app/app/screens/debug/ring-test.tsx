@@ -24,7 +24,7 @@ export default function RingTestScreen() {
         <View key={c.label} style={{ alignItems: 'center', gap: 12 }}>
           <Text style={{ color: '#fff', fontFamily: FONT, fontSize: 13 }}>{c.label}</Text>
           <ProgressRing size={200} rings={[{ r: 80, strokeWidth: 18, color: COLORS.green, pct: c.pct }]}>
-            <Text style={{ color: '#fff', fontFamily: FONT, fontSize: 20, fontWeight: '900' }}>{c.pct}%</Text>
+            <Text style={{ color: '#fff', fontFamily: FONT, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'] }}>{c.pct}%</Text>
           </ProgressRing>
         </View>
       ))}

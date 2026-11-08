@@ -206,7 +206,7 @@ export default function WorkoutSetup() {
               return (
                 <Pressable key={n} onPress={() => setDays(n)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${n} days a week`} style={{ flex: 1 }}>
                   <View style={{ height: 54, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: on ? A : COLORS.border, backgroundColor: on ? 'rgba(59,130,246,0.22)' : COLORS.card }}>
-                    <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 20, fontWeight: '900', fontFamily: FONT }}>{n}</Text>
+                    <Text style={{ color: on ? '#fff' : COLORS.textMuted, fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{n}</Text>
                   </View>
                 </Pressable>
               );

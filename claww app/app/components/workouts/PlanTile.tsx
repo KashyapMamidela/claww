@@ -20,7 +20,7 @@ function PlanTileBase({ title, days, meta, chips, nearest }: PlanTileProps) {
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>YOUR PLAN</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', letterSpacing: -0.4, marginTop: 6, fontFamily: FONT }}>{title}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.4, marginTop: 6, fontFamily: FONT }}>{title}</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 4, fontFamily: FONT }}>{meta}</Text>
         </View>
         <View style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.10)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' }}>

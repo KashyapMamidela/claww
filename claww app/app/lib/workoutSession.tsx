@@ -153,6 +153,8 @@ interface WorkoutSessionState {
   endSession: () => void;
   /** Premium B3: end now and keep what was logged (finishes like the last set when any set is done). */
   finishNow: () => void;
+  /** Premium B3: close the session without finishing it. Returns a function that brings it back. */
+  closeSession: () => () => void;
 }
 
 const WorkoutSessionContext = createContext<WorkoutSessionState | null>(null);
@@ -553,6 +555,21 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     setClock(null);
   }, [setPlan]);
 
+  const closeSession = useCallback(() => {
+    const snap = { status, workout, dayIndex, exerciseIndex, plan: planRef.current, clock, prescribed: prescribedRef.current };
+    endSession();
+    return () => {
+      sessionKey.current += 1;
+      setWorkout(snap.workout);
+      setDayIndex(snap.dayIndex);
+      setExerciseIndex(snap.exerciseIndex);
+      setPlan(snap.plan);
+      setClock(snap.clock);
+      setPrescribed(snap.prescribed);
+      setStatus(snap.status);
+    };
+  }, [status, workout, dayIndex, exerciseIndex, clock, endSession, setPlan]);
+
   const finishNow = useCallback(() => {
     const current = planRef.current;
     if (current.some((ex) => ex.rows.some((r) => r.done))) finish(current);
@@ -672,6 +689,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       adjustRest,
       endSession,
       finishNow,
+      closeSession,
     }),
     [
       status,
@@ -706,6 +724,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       adjustRest,
       endSession,
       finishNow,
+      closeSession,
     ]
   );
 

@@ -25,7 +25,7 @@ export default function OnboardingName() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={{ flex: 1, paddingHorizontal: 20, paddingTop: 32, paddingBottom: 20 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Let's get started</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>What should we call you?</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 6, fontFamily: FONT }}>What should we call you?</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, marginBottom: 26, lineHeight: 22, fontFamily: FONT }}>
             First name only. CLAWW uses it to personalise everything from here on.
           </Text>

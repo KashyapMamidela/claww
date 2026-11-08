@@ -87,7 +87,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
         <Pressable onPress={() => {}} style={{ backgroundColor: COLORS.card, borderTopLeftRadius: 22, borderTopRightRadius: 22, maxHeight: '90%' }}>
           <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 32, gap: 16 }} showsVerticalScrollIndicator={false}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-              <Text style={{ flex: 1, color: '#fff', fontSize: 20, fontWeight: '900', fontFamily: FONT }}>{name}</Text>
+              <Text style={{ flex: 1, color: '#fff', fontSize: 20, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{name}</Text>
               <PressScale onPress={onClose} accessibilityRole="button" accessibilityLabel="Close guide">
                 <View style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.07)' }}>
                   <Icon name="x" size={16} color="#A1A1AA" />

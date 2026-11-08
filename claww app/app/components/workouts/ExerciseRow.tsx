@@ -32,7 +32,7 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
     <View style={{ gap: 8 }}>
       <Pressable onPress={onOpenGuide} accessibilityRole="button" accessibilityLabel={`${name}: how to do it`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
         <View style={{ width: 38, height: 38, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(59,130,246,0.14)', borderWidth: 1, borderColor: 'rgba(59,130,246,0.3)' }}>
-          <Text style={{ color: A, fontSize: 15, fontWeight: '900', fontFamily: FONT }}>{index}</Text>
+          <Text style={{ color: A, fontSize: 15, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{index}</Text>
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontFamily: FONT }}>{name}</Text>
@@ -53,7 +53,7 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, mark, onOp
       {mark && !marked ? (
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'baseline', gap: 6 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: FONT }}>{mark.oldText}</Text>
-          <Text style={{ color: COLORS.pen, fontSize: 17, fontWeight: '900', textDecorationLine: 'underline', fontFamily: FONT }}>{mark.newText}</Text>
+          <Text style={{ color: COLORS.pen, fontSize: 17, fontWeight: '900', fontVariant: ['tabular-nums'], textDecorationLine: 'underline', fontFamily: FONT }}>{mark.newText}</Text>
         </View>
       ) : null}
 

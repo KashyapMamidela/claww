@@ -156,7 +156,7 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
                     paddingHorizontal: 10,
                   }}
                 >
-                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', fontFamily: FONT }}>{hours.toFixed(1)}h</Text>
+                  <Text style={{ color: '#fff', fontSize: 17, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{hours.toFixed(1)}h</Text>
                   <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>
                     {timeValueToLabel(bedtime)} → {timeValueToLabel(wake)}
                   </Text>

@@ -44,7 +44,7 @@ export function SetupChipStep<T extends string>({
           <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: accent }} />
           <Text style={{ color: accent, fontSize: 11, fontWeight: '700', letterSpacing: 1, fontFamily: FONT }}>{eyebrow}</Text>
         </View>
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>
           {title}
         </Text>
         {subtitle ? (

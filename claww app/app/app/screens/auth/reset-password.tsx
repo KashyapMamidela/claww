@@ -100,7 +100,7 @@ export default function ResetPasswordScreen() {
             </View>
           ) : (
             <>
-              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Set a new password
               </Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, fontFamily: FONT, textAlign: 'center' }}>

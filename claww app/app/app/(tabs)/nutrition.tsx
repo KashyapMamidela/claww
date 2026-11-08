@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { dayLabel } from '../../lib/format';
 import { useToast } from '../../components/ui/Toast';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -24,7 +25,7 @@ import { SectionLabel } from '../../components/ui/SectionLabel';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Surface } from '../../components/ui/Surface';
-import { Display } from '../../components/ui/Typography';
+import { Display, LargeTitle } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PressScale } from '../../components/ui/PressScale';
 import { BottomSheet } from '../../components/ui/BottomSheet';
@@ -52,7 +53,7 @@ export default function NutritionTab() {
   const { search } = useLocalSearchParams<{ search?: string }>();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
-  const hideBar = useHideBarOnScroll();
+  const hideBar = useHideBarOnScroll('nutrition');
   const [targets, setTargets] = useState<NutritionDefaults | null>(null);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
   const [askFoodProfile, setAskFoodProfile] = useState(false);
@@ -239,7 +240,8 @@ export default function NutritionTab() {
           }}
         >
           <View>
-            <SectionLabel color={G}>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' }).toUpperCase()}</SectionLabel>
+            <SectionLabel color={G}>{dayLabel(new Date()).toUpperCase()}</SectionLabel>
+            <LargeTitle style={{ marginTop: 4 }}>Food</LargeTitle>
           </View>
 
           {targetsLoaded && !targets && (

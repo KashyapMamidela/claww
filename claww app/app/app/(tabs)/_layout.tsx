@@ -7,6 +7,8 @@ import { TabBar } from '../../components/ui/TabBar';
 import { LiveWorkoutPlayer } from '../../components/LiveWorkoutPlayer';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { useAppState } from '../../lib/appState';
+import { dayLabel } from '../../lib/format';
+import { setCurrentTab } from '../../lib/tabBarVisibility';
 import { TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { useRenderCount } from '../../lib/perf';
 
@@ -19,12 +21,13 @@ export default function TabsLayout() {
 
   const routeName = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
   const { userName } = useAppState();
+  useEffect(() => { setCurrentTab(routeName); }, [routeName]);
   // Home and Progress are white/grey by tab; the header's logo tile always carries a colour.
   const headerAccent = ({ index: '#3B82F6', workouts: '#3B82F6', nutrition: '#22C55E', tracker: '#2DD4BF', more: '#A1A1AA' } as Record<string, string>)[routeName] ?? '#3B82F6';
   const now = new Date();
   const headerTitle =
     routeName === 'index'
-      ? now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })
+      ? dayLabel(now)
       : ({ workouts: 'Train', nutrition: 'Food', tracker: 'Progress', more: 'More' } as Record<string, string>)[routeName] ?? '';
 
   // Session hits 'completed' the instant the last set is finished (or the
@@ -57,6 +60,7 @@ export default function TabsLayout() {
       <AppHeader
         accent={headerAccent}
         title={headerTitle}
+        collapsing={routeName !== 'index'}
         initial={(userName || 'M').charAt(0).toUpperCase()}
         onPenPress={() => router.push('/week-review')}
         onAvatarPress={() => router.push('/profile')}

@@ -13,7 +13,7 @@ import { getStepsInRanges } from '../../lib/steps';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { ProgressRing } from '../../components/ui/ProgressRing';
-import { Display } from '../../components/ui/Typography';
+import { Display, LargeTitle } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { TrackerBody, type ChartKind } from '../../components/tracker/TrackerBody';
 import { AdaptiveCard } from '../../components/tracker/AdaptiveCard';
@@ -72,11 +72,12 @@ function Header({ title, line, score, levelNum, locked }: HeaderProps) {
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <View style={{ flex: 1, paddingRight: 12 }}>
         <Text style={{ color: GD, fontSize: 11, fontWeight: '700', letterSpacing: 1.1, fontFamily: FONT }}>{title}</Text>
+        <LargeTitle style={{ marginTop: 4 }}>Progress</LargeTitle>
         <Text style={{ color: GD, fontSize: 13, marginTop: 5, fontFamily: FONT }}>{line}</Text>
       </View>
       <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: locked ? 0 : score }]} trackColor="rgba(255,255,255,0.07)">
         <Text style={{ color: GD, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEVEL</Text>
-        <Text style={{ color: W, fontSize: 22, fontWeight: '900', fontFamily: FONT }}>{levelNum}</Text>
+        <Text style={{ color: W, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{levelNum}</Text>
       </ProgressRing>
     </View>
   );
@@ -86,7 +87,7 @@ export default function TrackerTab() {
   const { userId, xp, streak } = useAppState();
   const insets = useSafeAreaInsets();
   const tabPad32 = useTabBottomPad(32);
-  const hideBar = useHideBarOnScroll();
+  const hideBar = useHideBarOnScroll('tracker');
   const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [volume, setVolume] = useState(0);

@@ -108,7 +108,7 @@ export default function DesignGallery() {
           </TintTile>
           <TintTile color={AREA_COLORS.streak} watermark="zap" style={{ flex: 1 }}>
             <Text style={{ color: AREA_COLORS.streak, fontSize: 11, fontWeight: '800', letterSpacing: 0.9, fontFamily: FONT }}>STREAK</Text>
-            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontFamily: FONT }}>5 days</Text>
+            <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>5 days</Text>
           </TintTile>
         </View>
         <Hero key={`blue-${heroKey}`}>

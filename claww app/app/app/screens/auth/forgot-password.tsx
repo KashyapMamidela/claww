@@ -60,7 +60,7 @@ export default function ForgotPasswordScreen() {
               >
                 <Icon name="check-circle-2" size={30} color={COLORS.fg} />
               </View>
-              <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Check your email
               </Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 19, fontFamily: FONT, textAlign: 'center', maxWidth: 280 }}>
@@ -72,7 +72,7 @@ export default function ForgotPasswordScreen() {
             </View>
           ) : (
             <>
-              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
+              <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, marginBottom: 8, fontFamily: FONT, textAlign: 'center' }}>
                 Reset your password
               </Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginBottom: 28, lineHeight: 19, fontFamily: FONT, textAlign: 'center' }}>

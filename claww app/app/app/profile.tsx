@@ -185,7 +185,7 @@ export default function ProfileScreen() {
               end={{ x: 1, y: 1 }}
               style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
             >
-              <Text style={{ fontSize: 22, fontWeight: '900', color: '#fff', fontFamily: FONT }}>
+              <Text style={{ fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], color: '#fff', fontFamily: FONT }}>
                 {displayName.charAt(0).toUpperCase()}
               </Text>
             </LinearGradient>

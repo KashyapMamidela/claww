@@ -69,7 +69,7 @@ export default function MealSetupFoods() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={2} sub="can you get these?" />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, fontFamily: FONT }}>Can you get these?</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: FONT }}>Can you get these?</Text>
         <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: FONT }}>
           We filled these in from <Text style={{ color: COLORS.fg, fontWeight: '800' }}>{because}</Text>. Fix only what is wrong; the diary learns the rest.
           {draft.diet ? ` (${dietLabel(draft.diet)})` : ''}

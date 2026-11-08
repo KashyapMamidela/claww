@@ -44,7 +44,7 @@ export default function OnboardingReminders() {
         <View style={{ width: 64, height: 64, borderRadius: 18, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
           <Icon name="bell" size={28} color={COLORS.blue} />
         </View>
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>Want a nudge?</Text>
+        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>Want a nudge?</Text>
         <Text style={{ color: '#A1A1AA', fontSize: 15, lineHeight: 21, fontFamily: FONT }}>
           A reminder before you train, and one if a meal or last night's sleep isn't logged yet. Never more than 2 a day, and you can change or turn
           them off anytime in Settings.

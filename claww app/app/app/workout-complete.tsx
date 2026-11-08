@@ -203,7 +203,7 @@ export default function WorkoutCompleteScreen() {
               <Text style={{ color: COLORS.amber, fontSize: 13, fontWeight: '800', fontFamily: FONT }}>+{summary?.xpEarned ?? 0} CLAWW</Text>
             </View>
           </View>
-          <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: FONT }}>
+          <Text style={{ color: '#fff', fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: FONT }}>
             {title},{'\n'}{userName || 'you'}.
           </Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>

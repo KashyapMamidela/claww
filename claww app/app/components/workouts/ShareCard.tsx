@@ -24,7 +24,7 @@ export interface ShareCardData {
 function Tile({ value, label }: { value: string; label: string }) {
   return (
     <View style={{ width: 440, borderRadius: 40, borderWidth: 2, borderColor: 'rgba(255,255,255,0.22)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 36, gap: 10 }}>
-      <Text style={{ color: '#fff', fontSize: 84, fontWeight: '900', letterSpacing: -2, fontFamily: FONT }}>{value}</Text>
+      <Text style={{ color: '#fff', fontSize: 84, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -2, fontFamily: FONT }}>{value}</Text>
       <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 34, fontFamily: FONT }}>{label}</Text>
     </View>
   );
@@ -36,13 +36,13 @@ export const ShareCard = forwardRef<View, { data: ShareCardData }>(function Shar
       <LinearGradient colors={[...SURFACES.heroBlue]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
       <View style={{ flex: 1, padding: 90, justifyContent: 'space-between' }}>
         <View>
-          <Text style={{ color: '#fff', fontSize: 64, fontWeight: '900', letterSpacing: 2, fontFamily: FONT }}>CLAWW</Text>
+          <Text style={{ color: '#fff', fontSize: 64, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: 2, fontFamily: FONT }}>CLAWW</Text>
           <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 44, marginTop: 8, fontFamily: FONT }}>{data.dateText}</Text>
         </View>
 
         <View style={{ gap: 28 }}>
           <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 44, fontWeight: '800', letterSpacing: 3, fontFamily: FONT }}>{`${data.focus.toUpperCase()} · COMPLETE`}</Text>
-          <Text style={{ color: '#fff', fontSize: 150, fontWeight: '900', letterSpacing: -4, lineHeight: 156, fontFamily: FONT }}>{`${data.title},\n${data.name || 'you'}.`}</Text>
+          <Text style={{ color: '#fff', fontSize: 150, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -4, lineHeight: 156, fontFamily: FONT }}>{`${data.title},\n${data.name || 'you'}.`}</Text>
         </View>
 
         <View style={{ gap: 28 }}>
@@ -56,7 +56,7 @@ export const ShareCard = forwardRef<View, { data: ShareCardData }>(function Shar
           </View>
           {data.bestLine ? (
             <View style={{ borderRadius: 40, borderWidth: 2, borderColor: 'rgba(245,158,11,0.6)', backgroundColor: 'rgba(245,158,11,0.16)', padding: 40 }}>
-              <Text style={{ color: COLORS.amber, fontSize: 44, fontWeight: '900', fontFamily: FONT }}>New best</Text>
+              <Text style={{ color: COLORS.amber, fontSize: 44, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>New best</Text>
               <Text style={{ color: '#fff', fontSize: 52, fontWeight: '800', marginTop: 6, fontFamily: FONT }}>{data.bestLine}</Text>
             </View>
           ) : null}

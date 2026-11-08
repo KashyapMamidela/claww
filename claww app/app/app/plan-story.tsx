@@ -73,7 +73,7 @@ export default function PlanStory() {
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 28, paddingBottom: 24, gap: 14 }}>
         <View style={{ gap: 6 }}>
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>Your plan · story {i + 1} of 4</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>{title}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 34, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, fontFamily: FONT }}>{title}</Text>
         </View>
 
         {!loaded ? (

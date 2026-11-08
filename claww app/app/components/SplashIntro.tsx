@@ -123,7 +123,7 @@ export function SplashIntro({ onFinish }: SplashIntroProps) {
       </View>
 
       <Animated.View style={{ marginTop: 4, opacity: wordmark, transform: [{ translateY: wordmark.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] }}>
-        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', letterSpacing: -0.5, fontFamily: FONT }}>
+        <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, fontFamily: FONT }}>
           CLAW
           <Text style={{ color: COLORS.fgGray }}>W</Text>
         </Text>

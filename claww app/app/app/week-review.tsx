@@ -155,7 +155,7 @@ export default function WeekReviewScreen() {
 
         <Hero variant="green" accessibilityLabel="The week in one line">
           <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>{blockWeek ? `WEEK ${blockWeek} IN ONE LINE` : 'THIS WEEK IN ONE LINE'}</Text>
-          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.4, lineHeight: 30, marginTop: 8, fontFamily: FONT }}>{line}</Text>
+          <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.4, lineHeight: 30, marginTop: 8, fontFamily: FONT }}>{line}</Text>
           <View style={{ flexDirection: 'row', gap: 8, marginTop: 14 }}>
             {[`${counts.kept + counts.active} kept`, `${counts.undone} undone`].map((t) => (
               <View key={t} style={{ minHeight: 34, paddingHorizontal: 14, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.14)', justifyContent: 'center' }}>

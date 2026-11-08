@@ -150,7 +150,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         const g = consistencyGrid(data.logs, now, weeks);
         return (
           <>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {g.sessions}
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}> training day{g.sessions === 1 ? '' : 's'}</Text>
             </Text>
@@ -242,7 +242,7 @@ export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerCh
         const avg = known.reduce((a, b) => a + b, 0) / known.length;
         return (
           <>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontFamily: FONT }}>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
               {formatHours(avg)}
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '500' }}> average</Text>
             </Text>

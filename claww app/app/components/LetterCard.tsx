@@ -21,20 +21,20 @@ export const LetterCard = forwardRef<View, { data: LetterData }>(function Letter
       <LinearGradient colors={[...SURFACES.heroGreen]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ position: 'absolute', left: 0, top: 0, right: 0, bottom: 0 }} />
       <View style={{ flex: 1, padding: 90, justifyContent: 'space-between' }}>
         <View>
-          <Text style={{ color: COLORS.fg, fontSize: 64, fontWeight: '900', letterSpacing: 2, fontFamily: FONT }}>CLAWW</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 64, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: 2, fontFamily: FONT }}>CLAWW</Text>
           <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 44, marginTop: 8, fontFamily: FONT }}>{data.dateText}</Text>
         </View>
 
         <View style={{ gap: 28 }}>
           <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 44, fontWeight: '800', letterSpacing: 3, fontFamily: FONT }}>YOUR WEEK, MARKED UP</Text>
-          <Text style={{ color: COLORS.fg, fontSize: 112, fontWeight: '900', letterSpacing: -3, lineHeight: 122, fontFamily: FONT }}>{data.line}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 112, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -3, lineHeight: 122, fontFamily: FONT }}>{data.line}</Text>
         </View>
 
         <View style={{ gap: 28 }}>
           <View style={{ flexDirection: 'row', gap: 28 }}>
             {data.numbers.map((n) => (
               <View key={n.label} style={{ flex: 1, borderRadius: 40, borderWidth: 2, borderColor: 'rgba(255,255,255,0.22)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 30, gap: 8 }}>
-                <Text style={{ color: COLORS.fg, fontSize: 76, fontWeight: '900', letterSpacing: -2, fontFamily: FONT }}>{n.value}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 76, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -2, fontFamily: FONT }}>{n.value}</Text>
                 <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 34, lineHeight: 40, fontFamily: FONT }}>{n.label}</Text>
               </View>
             ))}

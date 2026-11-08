@@ -244,7 +244,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                 <Animated.View style={[{ flex: 1 }, contentStyle]}>
                   <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
                     <View>
-                      <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
+                      <Text style={{ color: COLORS.fg, fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: FONT }}>{exercise.name}</Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 4, fontFamily: FONT }}>{metaLine}</Text>
                       {reasonLine ? <Text style={{ color: AREA_COLORS.engine, fontSize: 13, fontWeight: '600', marginTop: 6, fontFamily: FONT }}>{reasonLine}</Text> : null}
                     </View>
