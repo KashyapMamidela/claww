@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { PrMoment } from '../components/PrMoment';
 import { Pressable, ScrollView, Share, Switch, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -173,6 +174,16 @@ export default function WorkoutCompleteScreen() {
 
   const handleDone = () => router.dismissTo('/(tabs)');
 
+  // Premium X6: the new best gets its own moment first, once.
+  const [prOpen, setPrOpen] = useState(false);
+  const prShown = useRef(false);
+  useEffect(() => {
+    if (best && !prShown.current) {
+      prShown.current = true;
+      setPrOpen(true);
+    }
+  }, [best]);
+
   const tile = (value: string, label: string) => (
     <View style={{ flex: 1, minHeight: 88, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 14, justifyContent: 'center' }}>
       <Text style={{ color: '#fff', fontSize: 22, fontWeight: '900', letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{value}</Text>
@@ -280,6 +291,20 @@ export default function WorkoutCompleteScreen() {
         </View>
         <View style={{ height: Math.max(insets.bottom, 8) }} />
       </ScrollView>
+
+      {best ? (
+        <PrMoment
+          visible={prOpen}
+          name={best.name}
+          detail={newBestText(best)}
+          next={bestNext ? `next: ${bestNext} kg` : null}
+          onShare={() => {
+            setPrOpen(false);
+            setTimeout(share, 400);
+          }}
+          onClose={() => setPrOpen(false)}
+        />
+      ) : null}
 
       {/* The share image is laid out at its real 1080 x 1920 pixels, invisible and behind everything, only to be captured. */}
       <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, opacity: 0.01 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">

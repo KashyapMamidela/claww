@@ -200,7 +200,8 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   const finishRest = useCallback(() => {
     setClock((c) => (c ? endRest(c) : c));
     setStatus((s) => (s === 'resting' ? 'active' : s));
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    // Premium F4: rest over is a double buzz you can feel with the phone in a pocket.
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
   }, []);
 
   // One timeout to the rest's end time — not a per-second interval. Re-armed
@@ -213,7 +214,12 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       return;
     }
     const id = setTimeout(finishRest, ms);
-    return () => clearTimeout(id);
+    // Premium F4: a light warning tick 10 seconds before the rest ends.
+    const warnId = ms > 10500 ? setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}), ms - 10000) : null;
+    return () => {
+      clearTimeout(id);
+      if (warnId) clearTimeout(warnId);
+    };
   }, [status, clock, finishRest]);
 
   // JS timers are suspended in the background, so the timeout above can't

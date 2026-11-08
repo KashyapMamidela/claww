@@ -1,4 +1,7 @@
 import { Surface } from '../../components/ui/Surface';
+import { BodyMap, MUSCLES, type Muscle } from '../../components/BodyMap';
+import { PressScale } from '../../components/ui/PressScale';
+import { BottomSheet } from '../../components/ui/BottomSheet';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -135,6 +138,8 @@ function WorkoutsEmptyState() {
   );
 }
 
+const MUSCLE_SET = new Set<string>(MUSCLES);
+
 export default function WorkoutsTab() {
   useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
@@ -169,6 +174,7 @@ export default function WorkoutsTab() {
   const [todayStats, setTodayStats] = useState<TodayWorkoutStats | null>(null);
   const [equipment, setEquipment] = useState<Equipment>('gym');
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   // NG PHASE 12: what the engine would prescribe for the selected day, for the marks and weights in the list.
   const [prescribed, setPrescribed] = useState<PrescribedExercise[]>([]);
   const scrollRef = useRef<ScrollView>(null);
@@ -316,6 +322,18 @@ export default function WorkoutsTab() {
   const dayMinutes = Math.round((totalSets * 130) / 60 + 5);
   const weekLabel = workout.block_week ? `WEEK ${workout.block_week} OF 6` : null;
   const todayName = WEEKDAY_NAMES[(nowDate.getDay() + 6) % 7].toUpperCase();
+  const heroMuscles = (() => {
+    const out: { muscle: Muscle; intensity: number }[] = [];
+    const seen = new Set<string>();
+    for (const ex of day.exercises) {
+      const m = prescribedByName.get(ex.name)?.entry?.primaryMuscle;
+      if (m && MUSCLE_SET.has(m) && !seen.has(m)) {
+        seen.add(m);
+        out.push({ muscle: m as Muscle, intensity: 1 });
+      }
+    }
+    return out;
+  })();
   const canStart = sessionStatus === 'idle' && (selectedState.state === 'suggested' || selectedState.state === 'upcoming');
 
   const handleSkip = async () => {
@@ -413,28 +431,13 @@ export default function WorkoutsTab() {
               <LargeTitle>Train</LargeTitle>
             </View>
             {sessionStatus === 'idle' && !showRegenCard && !regenerating ? (
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => {
-                  setRegenError(null);
-                  setShowRegenCard(true);
-                }}
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: 5,
-                  paddingHorizontal: 11,
-                  paddingVertical: 7,
-                  borderRadius: 100,
-                  backgroundColor: '#151517',
-                  borderWidth: 1,
-                  borderColor: 'rgba(255,255,255,0.12)',
-                  marginTop: 4,
-                }}
-              >
-                <Icon name="repeat" size={12} color="#A1A1AA" />
-                <Text style={{ color: '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>Regenerate</Text>
-              </TouchableOpacity>
+              <PressScale onPress={() => setMenuOpen(true)} accessibilityRole="button" accessibilityLabel="More options for your plan" hitSlop={4}>
+                <Surface radius={12} padding={0} grain={0.06} shadow={false} style={{ width: 44, height: 44 }}>
+                  <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="more-horizontal" size={20} color="#D4D4D8" />
+                  </View>
+                </Surface>
+              </PressScale>
             ) : null}
           </View>
 
@@ -510,23 +513,23 @@ export default function WorkoutsTab() {
           ) : null}
 
           {dismissedOldPlan !== undefined && showOldPlanCard(workout, dismissedOldPlan) ? (
-            <Surface radius={20} padding={16}><View style={{ gap: 10 }}>
-              <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Your plan was made with the old builder</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: FONT }}>The new one builds full sessions around your goal, days and time. Rebuild it?</Text>
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <Button variant="primary" size="md" onPress={() => router.push('/workout-setup')}>Rebuild my plan</Button>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  onPress={() => {
-                    setDismissedOldPlan(workout.id);
-                    AsyncStorage.setItem(OLD_PLAN_CARD_KEY, workout.id).catch(() => {});
-                  }}
-                >
-                  Not now
-                </Button>
-              </View>
-            </View></Surface>
+            <View style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: 14, paddingRight: 2, borderRadius: 24, backgroundColor: 'rgba(59,130,246,0.10)' }}>
+              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: FONT }} numberOfLines={1}>Built with the old builder</Text>
+              <Button variant="primary" size="sm" onPress={() => router.push('/workout-setup')}>Rebuild</Button>
+              <PressScale
+                onPress={() => {
+                  setDismissedOldPlan(workout.id);
+                  AsyncStorage.setItem(OLD_PLAN_CARD_KEY, workout.id).catch(() => {});
+                }}
+                accessibilityRole="button"
+                accessibilityLabel="Dismiss"
+                hitSlop={4}
+              >
+                <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon name="x" size={16} color={COLORS.textMuted} />
+                </View>
+              </PressScale>
+            </View>
           ) : null}
 
           {strip ? (
@@ -574,10 +577,16 @@ export default function WorkoutsTab() {
           )}
 
           <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
+            {/* Premium W3: the muscles this session works, lit on a small body map in the corner. */}
+            {heroMuscles.length > 0 ? (
+              <View pointerEvents="none" style={{ position: 'absolute', right: 14, top: 14, opacity: 0.9 }}>
+                <BodyMap muscles={heroMuscles} height={84} color="#BFDBFE" views="both" />
+              </View>
+            ) : null}
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, fontWeight: '700', letterSpacing: 0.9, fontFamily: FONT }}>
               {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
-            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, fontFamily: FONT }}>{day.focus}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontWeight: '900', fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: FONT }}>{day.focus}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
@@ -626,6 +635,7 @@ export default function WorkoutsTab() {
                     sub={sub}
                     setsText={`${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
                     weightText={weight !== null && weight > 0 ? `${Math.round(weight * 100) / 100} kg` : null}
+                    muscle={entry?.primaryMuscle && MUSCLE_SET.has(entry.primaryMuscle) ? (entry.primaryMuscle as Muscle) : null}
                     mark={markByName.get(ex.name)}
                     onOpenGuide={() => setGuideName(ex.name)}
                   />
@@ -717,6 +727,20 @@ export default function WorkoutsTab() {
         </View>
       </ScrollView>
       <ExercisePickerModal visible={pickerOpen} equipment={equipment} recoveryHints={recoveryHints} onSelect={handleAddExercise} onClose={() => setPickerOpen(false)} />
+      <BottomSheet visible={menuOpen} onClose={() => setMenuOpen(false)} maxHeightFraction={0.5}>
+        <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 8 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontWeight: '800', fontFamily: FONT, marginBottom: 6 }}>Your plan</Text>
+          <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="repeat" size={16} color={A} />} onPress={() => { setMenuOpen(false); setRegenError(null); setShowRegenCard(true); }}>
+            Regenerate the plan
+          </Button>
+          <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="calendar" size={16} color={A} />} onPress={() => { setMenuOpen(false); router.push('/workout-setup'); }}>
+            Change days or goal
+          </Button>
+          <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="plus" size={16} color={A} />} onPress={() => { setMenuOpen(false); setPickerOpen(true); }}>
+            Add an exercise
+          </Button>
+        </View>
+      </BottomSheet>
       {guideName ? <ExerciseGuideSheet name={guideName} onClose={() => setGuideName(null)} /> : null}
       <LogSessionModal
         visible={sessionModalOpen}
