@@ -1,5 +1,5 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
 import { AREA_COLORS, COLORS, FONT, tint } from '../../lib/theme';
 import type { TodayItem } from '../../lib/todayLine';
 import type { MealSlot } from '../../lib/mealPlanView';
@@ -20,18 +20,19 @@ export interface TodayLineProps {
   onSomethingElse: (slot: MealSlot) => void;
   onSkipped: (slot: MealSlot) => void;
   onStart: () => void;
+  onPlan: () => void;
 }
 
 function Node({ state, color }: { state: TodayItem['state']; color: string }) {
   if (state === 'done') {
     return (
-      <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: G, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: 16, height: 16, borderRadius: 8, backgroundColor: color, alignItems: 'center', justifyContent: 'center' }}>
         <Icon name="check" size={10} color={COLORS.bg} strokeWidth={3.5} />
       </View>
     );
   }
-  if (state === 'current') return <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: COLORS.fg, backgroundColor: tint(color, 0.35) }} />;
-  if (state === 'missed') return <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: COLORS.amber }} />;
+  if (state === 'current') return <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: color, backgroundColor: tint(color, 0.3), boxShadow: `0px 0px 8px ${tint(color, 0.7)}` } as object} />;
+  if (state === 'missed') return <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: color }} />;
   return <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: 'rgba(255,255,255,0.22)' }} />;
 }
 
@@ -43,18 +44,46 @@ function mealLead(at: number): string {
   return at - now > 60 ? 'Next' : 'Now';
 }
 
-export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onSkipped, onStart }: TodayLineProps) {
+export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onSkipped, onStart, onPlan }: TodayLineProps) {
+  // Closed by default: only what needs you now (the current item, else the first missed one, else the next one). The
+  // arrow opens the whole day. Several missed meals plus buttons made this card taller than a screen.
+  const [expanded, setExpanded] = useState(false);
+  const focus = items.find((i) => i.state === 'current') ?? items.find((i) => i.state === 'missed') ?? items.find((i) => i.state === 'upcoming') ?? items[items.length - 1];
+  const all = items;
+  items = expanded || !focus ? all : [focus];
+  const hidden = all.length - items.length;
+  const missedHidden = !expanded ? all.filter((i) => i.state === 'missed' && i.id !== focus?.id).length : 0;
   return (
+    <View style={{ gap: 4 }}>
+    {/* Premium H7: the heading sits outside the card with a Plan link, the time has its own column, nodes follow the item's kind. */}
+    <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 4 }}>
+      <Text accessibilityRole="header" style={{ color: COLORS.fg, fontSize: 22, lineHeight: 28, fontWeight: '800', letterSpacing: -0.3, fontFamily: FONT }}>Today</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Pressable onPress={onPlan} accessibilityRole="button" accessibilityLabel="Open your plan" hitSlop={8} style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 6 }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Plan {'›'}</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => setExpanded((e) => !e)}
+          accessibilityRole="button"
+          accessibilityState={{ expanded }}
+          accessibilityLabel={expanded ? 'Show less of today' : 'Show the whole day'}
+          hitSlop={4}
+          style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Icon name={expanded ? 'chevron-up' : 'chevron-down'} size={20} color={COLORS.textMuted} />
+        </Pressable>
+      </View>
+    </View>
     <Surface padding={16}>
-      <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', marginBottom: 12, fontFamily: FONT }}>Today</Text>
       <View accessibilityRole="list">
         {items.map((it, idx) => {
-          const color = it.kind === 'meal' ? G : it.kind === 'session' ? B : AREA_COLORS.sleep;
+          const color = it.kind === 'meal' ? AREA_COLORS.burned : it.kind === 'session' ? B : AREA_COLORS.sleep;
           const last = idx === items.length - 1;
           const open = it.state === 'current' || it.state === 'missed';
           const dim = it.state === 'done' || (it.state === 'upcoming' && it.kind !== 'sleep');
           return (
-            <View key={it.id} style={{ flexDirection: 'row', gap: 12 }} accessibilityLabel={`${it.timeLabel} ${it.title}${it.line ? `, ${it.line}` : ''}${it.state === 'done' ? ', done' : it.state === 'missed' ? ', not done yet' : ''}`}>
+            <View key={it.id} style={{ flexDirection: 'row', gap: 10 }} accessibilityLabel={`${it.timeLabel} ${it.title}${it.line ? `, ${it.line}` : ''}${it.state === 'done' ? ', done' : it.state === 'missed' ? ', not done yet' : ''}`}>
+              <Text style={{ width: 44, color: COLORS.textMuted, fontSize: 13, lineHeight: 20, paddingTop: 2, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{it.timeLabel}</Text>
               <View style={{ alignItems: 'center', width: 16 }}>
                 <View style={{ marginTop: 3 }}>
                   <Node state={it.state} color={color} />
@@ -63,7 +92,6 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
               </View>
               <View style={{ flex: 1, paddingBottom: last ? 0 : 16, gap: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{it.timeLabel}</Text>
                   <Text style={{ color: dim ? COLORS.textMuted : COLORS.fg, fontSize: open ? 17 : 15, fontWeight: open ? '800' : '600', flexShrink: 1, fontFamily: FONT }}>{it.title}</Text>
                 </View>
                 {it.line ? (
@@ -80,7 +108,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                     {it.hasPlan ? (
                       <View style={{ flex: 1 }}>
                         <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="md" fullWidth disabled={logging} onPress={() => onAteAsPlanned(it.slot!)}>
-                          Ate as planned
+                          As planned
                         </Button>
                       </View>
                     ) : null}
@@ -126,6 +154,15 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
           );
         })}
       </View>
+      {!expanded && hidden > 0 ? (
+        <Pressable onPress={() => setExpanded(true)} accessibilityRole="button" style={{ minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.08)' }}>
+          <Text style={{ flex: 1, color: COLORS.textMuted, fontSize: 15, fontFamily: FONT }}>
+            {missedHidden > 0 ? `${missedHidden} more to answer · ${hidden} in the day` : `${hidden} more in your day`}
+          </Text>
+          <Icon name="chevron-down" size={18} color={COLORS.textMuted} />
+        </Pressable>
+      ) : null}
     </Surface>
+    </View>
   );
 }

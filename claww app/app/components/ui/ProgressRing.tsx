@@ -20,6 +20,8 @@ export interface RingSpec {
   strokeWidth: number;
   color: string;
   pct: number;
+  /** Track colour for this ring only; falls back to the ProgressRing's trackColor. */
+  track?: string;
 }
 
 /** Parses a "#rrggbb" color and returns a darkened/brightened "rgb(...)"
@@ -263,7 +265,7 @@ export function ProgressRing({
             strokeWidth={ring.strokeWidth}
             color={ring.color}
             progress={ring.pct / 100}
-            trackColor={trackColor}
+            trackColor={ring.track ?? trackColor}
             trackDash={trackDash}
             startAngle={startAngle}
             sweepTotal={sweepTotal}

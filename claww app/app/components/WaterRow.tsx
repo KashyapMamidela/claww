@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect } from '@react-navigation/native';
@@ -69,17 +70,21 @@ export function WaterRow({ userId }: { userId: string | null }) {
   return (
     <>
       <PressScale onPress={() => setSheetOpen(true)} accessibilityRole="button" accessibilityLabel={`Water: ${litres(total)} of ${litres(TARGET_ML)}. Open today's water log.`}>
-        <Surface radius={14} padding={0} grain={0.06} style={{ height: 48 }}>
-        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, paddingLeft: 14, paddingRight: 6 }}>
-          <Icon name="droplets" size={17} color={C} />
-          <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
-            {litres(total)}
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600' }}> / {litres(TARGET_ML)}</Text>
-          </Text>
-          <View style={{ flex: 1, flexDirection: 'row', gap: 3 }}>
-            {Array.from({ length: SEGMENTS }, (_, i) => (
-              <View key={i} style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: i < filled ? C : tint(C, 0.15) }} />
-            ))}
+        <Surface radius={18} padding={0} grain={0.06} style={{ height: 64 }}>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingLeft: 12, paddingRight: 10 }}>
+          <View style={{ width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(C, 0.14), borderWidth: 1, borderColor: tint(C, 0.3) }}>
+            <Icon name="droplets" size={19} color={C} />
+          </View>
+          <View style={{ flex: 1, gap: 7 }}>
+            <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>
+              {litres(total)}
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontWeight: '600' }}> of {litres(TARGET_ML)}</Text>
+            </Text>
+            <View style={{ flexDirection: 'row', gap: 3 }}>
+              {Array.from({ length: SEGMENTS }, (_, i) => (
+                <View key={i} style={[{ flex: 1, height: 7, borderRadius: 4, backgroundColor: i < filled ? C : tint(C, 0.15) }, i < filled ? ({ boxShadow: `0px 0px 6px ${tint(C, 0.8)}` } as object) : null]} />
+              ))}
+            </View>
           </View>
           <PressScale
             onPress={() => add(GLASS_ML)}
@@ -92,9 +97,9 @@ export function WaterRow({ userId }: { userId: string | null }) {
             accessibilityLabel="Add a 250 millilitre glass. Long press for more amounts."
             hitSlop={4}
           >
-            <View style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: tint(C, 0.16), alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="plus" size={18} color={C} />
-            </View>
+            <LinearGradient colors={['#0369A1', '#38BDF8']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={{ width: 48, height: 48, borderRadius: 15, alignItems: 'center', justifyContent: 'center', boxShadow: `0px 8px 18px -8px ${tint(C, 0.9)}` } as object}>
+              <Icon name="plus" size={20} color="#fff" strokeWidth={2.6} />
+            </LinearGradient>
           </PressScale>
         </View>
         </Surface>
