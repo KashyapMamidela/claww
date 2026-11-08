@@ -433,7 +433,7 @@ export default function NutritionTab() {
                             </Button>
                           </View>
                           <PressScale onPress={() => openAdd(upNext ?? 'Snack')} accessibilityRole="button" accessibilityLabel="Log with a photo">
-                            <View style={{ width: 48, height: 44, borderRadius: 12, borderWidth: 1, borderColor: COLORS.greenBorderMd, alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ width: 44, height: 40, borderRadius: 20, borderWidth: 1, borderColor: COLORS.greenBorderMd, alignItems: 'center', justifyContent: 'center' }}>
                               <Icon name="camera" size={18} color={G} />
                             </View>
                           </PressScale>

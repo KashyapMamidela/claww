@@ -198,7 +198,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
             ) : null}
 
             <PressScale onPress={onClose}>
-              <View style={{ height: 54, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
+              <View style={{ height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Done</Text>
               </View>
             </PressScale>
