@@ -10,6 +10,7 @@ import { MICRO_LABELS, microTargets, nextMealFor, normaliseSex, rateMeal, sodium
 import { MealCard } from '../components/nutrition/MealCard';
 import { MealDetailModal } from '../components/MealDetailModal';
 import { Display } from '../components/ui/Typography';
+import { BackTile } from '../components/ui/BackTile';
 import { Icon } from '../components/ui/Icon';
 import { PressScale } from '../components/ui/PressScale';
 import { ProgressBar } from '../components/ui/ProgressBar';
@@ -93,18 +94,17 @@ export default function DiaryScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: insets.bottom + 40, gap: 14 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <View>
-            <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Back" style={{ minHeight: 44, justifyContent: 'center' }}>
-              <SectionLabel color={G}>FOOD DIARY</SectionLabel>
-            </Pressable>
-            <Display>{title}</Display>
-          </View>
-          <PressScale onPress={() => router.push('/(tabs)/nutrition')} accessibilityRole="button" accessibilityLabel="Add food on the Nutrition tab">
-            <View style={{ width: 52, height: 52, borderRadius: 16, backgroundColor: G, alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="plus" size={24} color="#052e16" strokeWidth={3} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <BackTile onPress={() => router.back()} />
+          <PressScale onPress={() => router.push('/meal-log')} accessibilityRole="button" accessibilityLabel="Add a meal" hitSlop={4}>
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: G, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="plus" size={22} color="#052e16" strokeWidth={3} />
             </View>
           </PressScale>
+        </View>
+        <View>
+          <SectionLabel color={G}>FOOD DIARY</SectionLabel>
+          <Display>{title}</Display>
         </View>
 
         <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -167,7 +167,7 @@ export default function DiaryScreen() {
         {week !== null && rated.length === 0 ? (
           <View style={{ borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: COLORS.borderStrong, padding: 22, alignItems: 'center', gap: 6 }}>
             <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '700', fontFamily: FONT }}>Nothing logged {selected === 6 ? 'yet today' : 'this day'}</Text>
-            <Text style={{ color: COLORS.textMuted, fontSize: 15, textAlign: 'center', fontFamily: FONT }}>Add a meal from the Nutrition tab and it shows up here with a rating.</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, textAlign: 'center', fontFamily: FONT }}>Tap + to add a meal. It shows up here with a rating.</Text>
           </View>
         ) : null}
 

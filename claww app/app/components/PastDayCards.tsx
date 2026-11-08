@@ -169,7 +169,7 @@ export function SkippedDayCard({ day, event, onDoToday, onKeepToday }: SkippedDa
       </Text>
       <View style={{ gap: 8 }}>
         <Button variant="primary" accent={COLORS.blue} accentDeep={COLORS.blueDeep} fullWidth onPress={onDoToday} icon={<Icon name="play" size={14} color="#fff" />}>
-          Do it today instead
+          Do it today
         </Button>
         <Button variant="ghost" fullWidth onPress={onKeepToday}>
           Keep today's plan
@@ -205,15 +205,11 @@ export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCa
       <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: FONT }}>
         {day.focus} · {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}. Nothing was logged for this day.
       </Text>
-      <View style={{ gap: 8 }}>
-        <Button variant="primary" accent={COLORS.blue} accentDeep={COLORS.blueDeep} fullWidth onPress={onDoToday} icon={<Icon name="play" size={14} color="#fff" />}>
-          Do {day.focus} today instead
-        </Button>
-        <Button variant="ghost" fullWidth onPress={onKeepToday}>
-          Keep today's plan
-        </Button>
-      </View>
-      <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: FONT }}>Either way, {day.day} stays marked as missed.</Text>
+      {/* Premium B4: "Do it today" lives on the session card above, so this card only offers the other choice. */}
+      <Button variant="ghost" fullWidth onPress={onKeepToday}>
+        Keep today's plan
+      </Button>
+      <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: FONT }}>Either way, {day.day} stays marked as missed.</Text>
     </View>
     </Surface>
   );

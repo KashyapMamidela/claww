@@ -49,8 +49,9 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
         </View>
 
         <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: FONT }}>
-          Your streak counts the days you followed your plan: a session done, or a rest day. A missed session breaks it, and
-          today never does until the day is over. Turn on Exam week after a session to protect it for 7 days.
+          A day counts when you follow your plan: you trained on a training day, or rested on a rest day. A missed
+          training day breaks it; today never does. Busy week? Turn on Exam week after a session and missed days won't
+          break it for 7 days.
         </Text>
 
         {stats ? (
@@ -76,7 +77,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                         flex: 1,
                         aspectRatio: 1,
                         borderRadius: 10,
-                        backgroundColor: done ? tint(C, 0.28) : rest ? tint(C, 0.1) : missed ? tint(COLORS.danger, 0.16) : 'rgba(255,255,255,0.04)',
+                        backgroundColor: done ? tint(C, 0.28) : rest ? tint(C, 0.16) : missed ? tint(COLORS.danger, 0.16) : 'rgba(255,255,255,0.04)',
                         borderWidth: d.status === 'today' ? 1.5 : 0,
                         borderColor: C,
                         alignItems: 'center',
@@ -85,7 +86,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
                       }}
                     >
                       <Text style={{ color: done || rest ? '#fff' : COLORS.textFaint, fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{d.date.getDate()}</Text>
-                      {done ? <Icon name="check" size={11} color={C} strokeWidth={3} /> : missed ? <Icon name="x" size={11} color={COLORS.danger} strokeWidth={3} /> : d.status === 'protected' ? <Icon name="shield" size={11} color={C} /> : null}
+                      {done ? <Icon name="check" size={11} color={C} strokeWidth={3} /> : missed ? <Icon name="x" size={11} color={COLORS.danger} strokeWidth={3} /> : rest ? <Icon name="moon" size={11} color={C} /> : d.status === 'protected' ? <Icon name="shield" size={11} color={C} /> : null}
                     </View>
                   );
                 })}
@@ -94,7 +95,7 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 6 }}>
               {([
                 ['Session done', tint(C, 0.28)],
-                ['Rest day', tint(C, 0.1)],
+                ['Rest day', tint(C, 0.16)],
                 ['Missed', tint(COLORS.danger, 0.16)],
               ] as const).map(([label, color]) => (
                 <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>

@@ -35,6 +35,14 @@ function Node({ state, color }: { state: TodayItem['state']; color: string }) {
   return <View style={{ width: 16, height: 16, borderRadius: 8, borderWidth: 2, borderColor: 'rgba(255,255,255,0.22)' }} />;
 }
 
+
+/** Premium B6: "Now" only within an hour of the meal's time; earlier it is "Next". */
+function mealLead(at: number): string {
+  const d = new Date();
+  const now = d.getHours() * 60 + d.getMinutes();
+  return at - now > 60 ? 'Next' : 'Now';
+}
+
 export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onSkipped, onStart }: TodayLineProps) {
   return (
     <Surface padding={16}>
@@ -63,7 +71,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
                     style={{ color: it.state === 'done' ? G : it.state === 'current' ? '#C4C4CC' : COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: FONT }}
                     numberOfLines={open ? 3 : 1}
                   >
-                    {it.state === 'current' && it.kind === 'meal' ? `Now · ${it.line}` : it.line}
+                    {it.state === 'current' && it.kind === 'meal' ? `${mealLead(it.at)} · ${it.line}` : it.line}
                   </Text>
                 ) : null}
 

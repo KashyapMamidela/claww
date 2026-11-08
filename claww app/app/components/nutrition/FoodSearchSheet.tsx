@@ -34,6 +34,17 @@ export interface FoodSearchSheetProps {
   onLogged: (row: MealLogRow) => void;
 }
 
+
+/** Premium B9: "5 idli Idli" reads "5 idli"; long names are shortened on a word. */
+export function tidyName(raw: string): string {
+  const words = raw.trim().split(/\s+/);
+  const out: string[] = [];
+  for (const w of words) if (!out.length || out[out.length - 1].toLowerCase() !== w.toLowerCase()) out.push(w);
+  let t = out.join(' ');
+  if (t.length > 26) t = `${t.slice(0, 26).replace(/\s+\S*$/, '')}…`;
+  return t;
+}
+
 export function FoodSearchSheet({ visible, mealType, recent, planned = false, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
   const router = useRouter();
   const { saveMeal, userId } = useAppState();
@@ -258,7 +269,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                     {recent.slice(0, 6).map((r) => (
                       <Chip key={r} accent={G} onPress={() => setQuery(r.replace(/^[\d.½\s]+(g|ml|tsp|tbsp|katori|glass|cup|roti|piece)?\s*/i, ''))}>
-                        {r.length > 26 ? `${r.slice(0, 26)}…` : r}
+                        {tidyName(r)}
                       </Chip>
                     ))}
                   </View>
@@ -269,6 +280,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
               <View style={{ flex: 1 }}>
                 <Button
                   variant="secondary"
+                  accent={G}
                   size="md"
                   fullWidth
                   onPress={() => {

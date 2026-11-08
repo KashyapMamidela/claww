@@ -151,6 +151,8 @@ interface WorkoutSessionState {
   /** Adds or removes rest time, in seconds (e.g. ±15). */
   adjustRest: (deltaSeconds: number) => void;
   endSession: () => void;
+  /** Premium B3: end now and keep what was logged (finishes like the last set when any set is done). */
+  finishNow: () => void;
 }
 
 const WorkoutSessionContext = createContext<WorkoutSessionState | null>(null);
@@ -551,6 +553,12 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     setClock(null);
   }, [setPlan]);
 
+  const finishNow = useCallback(() => {
+    const current = planRef.current;
+    if (current.some((ex) => ex.rows.some((r) => r.done))) finish(current);
+    else endSession();
+  }, [finish, endSession]);
+
   const prescriptionFor = useCallback(
     (exerciseName: string) => {
       const p = prescribed.find((x) => x.name === exerciseName);
@@ -663,6 +671,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       skipRest,
       adjustRest,
       endSession,
+      finishNow,
     }),
     [
       status,
@@ -696,6 +705,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       skipRest,
       adjustRest,
       endSession,
+      finishNow,
     ]
   );
 

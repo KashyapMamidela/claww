@@ -39,6 +39,9 @@ function Segment({ value, onChange }: { value: Range; onChange: (r: Range) => vo
 /** Steps detail sheet (V2 PHASE 4.2): ring against the goal, distance, calories, and Day/Week/Month bars. */
 export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weightKg, heightCm }: StepsSheetProps) {
   const [range, setRange] = useState<Range>('day');
+  // Premium: a goal chip asks first instead of changing the goal on one tap.
+  const [pendingGoal, setPendingGoal] = useState<number | null>(null);
+  useEffect(() => { if (!visible) setPendingGoal(null); }, [visible]);
   const [series, setSeries] = useState<Record<Range, number[] | null>>({ day: null, week: null, month: null });
 
   useEffect(() => {
@@ -101,13 +104,28 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
               </ProgressRing>
               <View style={{ flexDirection: 'row', gap: 6 }}>
                 {GOAL_CHOICES.map((g) => (
-                  <PressScale key={g} onPress={() => onGoalChange(g)} accessibilityRole="button" accessibilityState={{ selected: g === goal }} hitSlop={4}>
+                  <PressScale key={g} onPress={() => setPendingGoal(g === goal ? null : g)} accessibilityRole="button" accessibilityState={{ selected: g === goal }} hitSlop={4}>
                     <View style={{ paddingHorizontal: 12, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: g === goal ? tint(C, 0.22) : 'rgba(255,255,255,0.05)' }}>
                       <Text style={{ color: g === goal ? C : '#A1A1AA', fontSize: 13, fontWeight: '700', fontFamily: FONT }}>{g / 1000}k</Text>
                     </View>
                   </PressScale>
                 ))}
               </View>
+              {pendingGoal !== null ? (
+                <View style={{ alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 8, padding: 10, borderRadius: 14, backgroundColor: tint(C, 0.1) }}>
+                  <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: FONT }}>Set your goal to {pendingGoal.toLocaleString()} steps a day?</Text>
+                  <PressScale onPress={() => setPendingGoal(null)} accessibilityRole="button" hitSlop={4}>
+                    <View style={{ height: 36, paddingHorizontal: 12, justifyContent: 'center' }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 15, fontWeight: '700', fontFamily: FONT }}>Cancel</Text>
+                    </View>
+                  </PressScale>
+                  <PressScale onPress={() => { onGoalChange(pendingGoal); setPendingGoal(null); }} accessibilityRole="button" hitSlop={4}>
+                    <View style={{ height: 36, paddingHorizontal: 14, borderRadius: 10, justifyContent: 'center', backgroundColor: C }}>
+                      <Text style={{ color: '#000', fontSize: 15, fontWeight: '800', fontFamily: FONT }}>Set goal</Text>
+                    </View>
+                  </PressScale>
+                </View>
+              ) : null}
             </View>
 
             <View style={{ flexDirection: 'row', gap: 10 }}>

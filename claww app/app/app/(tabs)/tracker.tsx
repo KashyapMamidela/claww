@@ -60,11 +60,13 @@ function TrackerLoadingSkeleton() {
 interface HeaderProps {
   title: string;
   line: string;
+  /** Premium B5: progress through the current level, 0-100 (same numbers as Profile). */
   score: number;
+  levelNum: number;
   locked: boolean;
 }
 
-function Header({ title, line, score, locked }: HeaderProps) {
+function Header({ title, line, score, levelNum, locked }: HeaderProps) {
   return (
     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
       <View style={{ flex: 1, paddingRight: 12 }}>
@@ -72,9 +74,9 @@ function Header({ title, line, score, locked }: HeaderProps) {
         <Display style={{ marginTop: 6 }}>CLAWW Tracker</Display>
         <Text style={{ color: GD, fontSize: 13, marginTop: 5, fontFamily: FONT }}>{line}</Text>
       </View>
-      <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: locked ? 0 : (score / 1000) * 100 }]} trackColor="rgba(255,255,255,0.07)">
-        <Text style={{ color: W, fontSize: 17, fontWeight: '900', fontFamily: FONT }}>{score}</Text>
-        <Text style={{ color: GD, fontSize: 11, fontFamily: FONT }}>/1000</Text>
+      <ProgressRing size={68} rings={[{ r: 31, strokeWidth: 6, color: W, pct: locked ? 0 : score }]} trackColor="rgba(255,255,255,0.07)">
+        <Text style={{ color: GD, fontSize: 11, fontWeight: '700', letterSpacing: 0.6, fontFamily: FONT }}>LEVEL</Text>
+        <Text style={{ color: W, fontSize: 22, fontWeight: '900', fontFamily: FONT }}>{levelNum}</Text>
       </ProgressRing>
     </View>
   );
@@ -157,7 +159,8 @@ export default function TrackerTab() {
           <Header
             title={locked ? `${monthYear} · BUILDING YOUR BASELINE` : `${monthYear} · PERFORMANCE`}
             line={locked ? `${workoutsCompleted} of ${UNLOCK_AT} workout days logged` : `Level ${level.level} · ${level.xpForNextLevel - level.xpIntoLevel} XP to Level ${level.level + 1}`}
-            score={score}
+            score={(level.xpIntoLevel / level.xpForNextLevel) * 100}
+            levelNum={level.level}
             locked={locked}
           />
 
