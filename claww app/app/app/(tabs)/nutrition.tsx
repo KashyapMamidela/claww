@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { mealTitle } from '../../lib/mealPlanMeal';
 import { dayLabel } from '../../lib/format';
 import { useToast } from '../../components/ui/Toast';
@@ -58,6 +59,7 @@ export default function NutritionTab() {
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
   const hideBar = useHideBarOnScroll('nutrition');
+  const pull = usePullToRefresh('#22C55E');
   const [targets, setTargets] = useState<NutritionDefaults | null>(null);
   const [targetsLoaded, setTargetsLoaded] = useState(false);
   const [askFoodProfile, setAskFoodProfile] = useState(false);
@@ -236,7 +238,7 @@ export default function NutritionTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
-      <ScrollView {...hideBar} showsVerticalScrollIndicator={false}>
+      <ScrollView {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -373,8 +375,8 @@ export default function NutritionTab() {
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <SectionLabel color={G}>{plan ? "TODAY'S PLAN · 3 MEALS" : "TODAY'S MEALS"}</SectionLabel>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 1, marginLeft: 12 }}>
+                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: FONT, flexShrink: 1 }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
                 {missedSlots.length > 0 ? (
                   <PressScale onPress={() => setShowMissed((x) => !x)} accessibilityRole="button" accessibilityState={{ expanded: showMissed }} accessibilityLabel={showMissed ? 'Hide meals you have not logged' : 'Show meals you have not logged'} hitSlop={4}>
                     <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>

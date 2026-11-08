@@ -1,13 +1,12 @@
 import React, { useEffect } from 'react';
 import { Pressable, Text, View, useWindowDimensions } from 'react-native';
-import { BlurView } from 'expo-blur';
+import { Glass } from './Glass';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { tick } from '../../lib/haptics';
-import { barHidden } from '../../lib/tabBarVisibility';
 import { Icon } from './Icon';
 import { useQuickLog } from '../QuickLog';
 
@@ -37,25 +36,17 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   const x = useSharedValue(activeSlot * slotW);
   useEffect(() => {
-    x.value = withSpring(activeSlot * slotW, { damping: 18, stiffness: 220 });
+    x.value = withTiming(activeSlot * slotW, { duration: 300, easing: Easing.bezier(0.22, 1, 0.36, 1) });
   }, [activeSlot, slotW, x]);
   const pillStyle = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
-  const hideStyle = useAnimatedStyle(() => ({ transform: [{ translateY: barHidden.value * (TAB_BAR_HEIGHT + 40) }], opacity: 1 - barHidden.value * 0.6 }));
 
   return (
-    <Animated.View pointerEvents="box-none" style={[{ position: 'absolute', left: SIDE, right: SIDE, bottom: Math.max(insets.bottom, 12), zIndex: 10 }, hideStyle]}>
-      <View
-        style={{
-          height: TAB_BAR_HEIGHT,
-          borderRadius: 30,
-          overflow: 'hidden',
-          borderWidth: 1,
-          borderColor: 'rgba(255,255,255,0.10)',
-          boxShadow: '0px 18px 30px -12px rgba(0,0,0,0.9)',
-        } as object}
-      >
-        <BlurView intensity={50} tint="dark" style={{ flex: 1, backgroundColor: 'rgba(18,18,21,0.94)', padding: PAD }}>
-          <LinearGradient colors={['rgba(255,255,255,0.09)', 'rgba(255,255,255,0)']} style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1 }} />
+    <>
+      {/* A fade under the bar: content scrolls away into the page colour instead of colliding with the bar. */}
+      <LinearGradient pointerEvents="none" colors={['rgba(5,5,5,0)', 'rgba(5,5,5,0.92)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: Math.max(insets.bottom, 12) + TAB_BAR_HEIGHT + 34 }} />
+      <View pointerEvents="box-none" style={{ position: 'absolute', left: SIDE, right: SIDE, bottom: Math.max(insets.bottom, 12), zIndex: 10 }}>
+        <Glass radius={TAB_BAR_HEIGHT / 2} style={{ height: TAB_BAR_HEIGHT }}>
+          <View style={{ flex: 1, padding: PAD }}>
           <Animated.View
             pointerEvents="none"
             style={[
@@ -125,8 +116,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               );
             })}
           </View>
-        </BlurView>
+          </View>
+        </Glass>
       </View>
-    </Animated.View>
+    </>
   );
 }

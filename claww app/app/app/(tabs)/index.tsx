@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { riseIn } from '../../lib/motion';
 import Animated from 'react-native-reanimated';
 import { CountUp } from '../../components/ui/CountUp';
@@ -736,8 +737,9 @@ function HomePopulated() {
 export default function HomeTab() {
   const { loading, hasPlan } = useAppState();
   const hideBar = useHideBarOnScroll();
+  const pull = usePullToRefresh('#3B82F6');
   return (
-    <ScrollView {...hideBar} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+    <ScrollView {...hideBar} key={pull.key} refreshControl={pull.refreshControl} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       {loading ? <HomeLoadingSkeleton /> : hasPlan ? <HomePopulated /> : <HomeEmptyState />}
     </ScrollView>
   );

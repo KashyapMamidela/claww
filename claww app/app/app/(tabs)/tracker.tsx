@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import { ScrollView, Share, Text, View } from 'react-native';
@@ -88,6 +89,7 @@ export default function TrackerTab() {
   const insets = useSafeAreaInsets();
   const tabPad32 = useTabBottomPad(32);
   const hideBar = useHideBarOnScroll('tracker');
+  const pull = usePullToRefresh('#2DD4BF');
   const [loaded, setLoaded] = useState(false);
   const [workoutsCompleted, setWorkoutsCompleted] = useState(0);
   const [volume, setVolume] = useState(0);
@@ -149,7 +151,7 @@ export default function TrackerTab() {
 
   return (
     <>
-      <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
+      <ScrollView {...hideBar} key={pull.key} refreshControl={pull.refreshControl} style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,

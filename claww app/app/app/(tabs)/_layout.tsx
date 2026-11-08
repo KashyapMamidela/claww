@@ -58,7 +58,7 @@ export default function TabsLayout() {
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
-        screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' } }}
+        screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' }, animation: 'fade' }}
       >
         <Tabs.Screen name="index" />
         <Tabs.Screen name="workouts" />

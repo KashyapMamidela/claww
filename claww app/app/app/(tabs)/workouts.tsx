@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { getLastWeights } from '../../lib/adaptiveData';
 import { BodyMap, MUSCLES, type Muscle } from '../../components/BodyMap';
 import { PressScale } from '../../components/ui/PressScale';
@@ -147,6 +148,7 @@ export default function WorkoutsTab() {
   const insets = useSafeAreaInsets();
   const tabPad100 = useTabBottomPad(100);
   const hideBar = useHideBarOnScroll('workouts');
+  const pull = usePullToRefresh('#3B82F6');
   const { status: sessionStatus, startSession } = useWorkoutSession();
   const router = useRouter();
   // Home's plan card links here with ?day=N so the same day it shows is the
@@ -426,7 +428,7 @@ export default function WorkoutsTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView ref={scrollRef} {...hideBar} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false}>
         <View
           style={{
             paddingHorizontal: 16,

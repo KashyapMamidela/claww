@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Glass } from './Glass';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -50,23 +51,9 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       {toast ? (
         <View pointerEvents="box-none" style={{ position: 'absolute', left: 16, right: 16, bottom: Math.max(insets.bottom, 12) + TAB_BAR_HEIGHT + 12, zIndex: 50 }}>
-          <Animated.View
-            entering={FadeInDown.duration(200)}
-            exiting={FadeOutDown.duration(160)}
-            accessibilityLiveRegion="polite"
-            style={{
-              minHeight: 48,
-              borderRadius: 16,
-              paddingLeft: 16,
-              paddingRight: 6,
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 8,
-              backgroundColor: '#1F1F23',
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.14)',
-            }}
-          >
+          <Animated.View entering={FadeInDown.duration(220)} exiting={FadeOutDown.duration(180)} accessibilityLiveRegion="polite">
+          <Glass radius={24} tint="rgba(22,22,26,0.78)">
+          <View style={{ minHeight: 48, paddingLeft: 18, paddingRight: 6, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
             <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontWeight: '600', fontFamily: FONT }} numberOfLines={2}>
               {toast.message}
             </Text>
@@ -84,6 +71,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             ) : (
               <View style={{ width: 10 }} />
             )}
+          </View>
+          </Glass>
           </Animated.View>
         </View>
       ) : null}
