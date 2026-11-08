@@ -1,4 +1,8 @@
 import React, { useCallback, useState } from 'react';
+import { mealForClock } from '../components/nutrition/MealTypePicker';
+import { scanPlate, setScanSession } from '../lib/scanner';
+import { DEFAULT_CONTEXT, PORTION_FACTOR } from '../lib/engine';
+import { describeToItems } from '../lib/describeMeal';
 import { BackTile } from '../components/ui/BackTile';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -209,8 +213,19 @@ export default function MealLogScreen() {
 
     if (result.canceled || !result.assets?.[0]?.base64) return;
     const asset = result.assets[0];
-    setPhoto({ uri: asset.uri, base64: asset.base64!, mimeType: asset.mimeType ?? 'image/jpeg' });
-    setText('');
+    // A photo goes through the same plate check as the Scan button: items in household units you can fix, then log.
+    const mime = asset.mimeType ?? 'image/jpeg';
+    setScanSession({
+      photoUri: asset.uri,
+      base64: asset.base64!,
+      mimeType: mime,
+      source: 'photo',
+      mealType: (mealType as string) || mealForClock(new Date().getHours()),
+      pending: scanPlate(`data:${mime};base64,${asset.base64}`),
+      outcome: null,
+      context: DEFAULT_CONTEXT,
+    });
+    router.push('/scan-check');
   };
 
   // Step 1: estimate only — never saves. Populates the review step below so
@@ -219,6 +234,27 @@ export default function MealLogScreen() {
     if (!canSubmit) return;
     setSaving(true);
     setError(null);
+
+    // Premium: a meal described in words is matched to the food database and checked on the same screen as a plate.
+    if (!photo && text.trim()) {
+      const items = await describeToItems(text.trim(), PORTION_FACTOR[portion === 'small' ? 'small' : portion === 'large' ? 'large' : 'regular']);
+      if (items.some((i) => i.food)) {
+        const dish = text.trim().replace(/\s+/g, ' ');
+        setSaving(false);
+        setScanSession({
+          photoUri: '',
+          base64: '',
+          mimeType: '',
+          source: 'text',
+          mealType: (mealType as string) || mealForClock(new Date().getHours()),
+          pending: Promise.resolve({ ok: true as const, result: { route: 'ok' as const, dish: dish.charAt(0).toUpperCase() + dish.slice(1), confidence: 1, candidates: [], items, oilFood: null, model: 'text' } }),
+          outcome: null,
+          context: DEFAULT_CONTEXT,
+        });
+        router.push('/scan-check');
+        return;
+      }
+    }
 
     const result = photo
       ? await estimateMealPhoto((mealType as MealType) ?? 'Snack', `data:${photo.mimeType};base64,${photo.base64}`, portion)

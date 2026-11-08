@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQuickLog } from '../../components/QuickLog';
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { mealTitle } from '../../lib/mealPlanMeal';
@@ -160,6 +161,10 @@ export default function NutritionTab() {
   const slots = useMemo(() => slotViews(plan, meals, hour), [plan, meals, hour]);
   const upSlot = slots.find((v) => v.state === 'up_next') ?? null;
   const missedSlots = slots.filter((v) => v.state === 'missed');
+  // Everything eaten that is not the one meal a slot shows: snacks, and a second lunch.
+  const claimed = new Set(slots.map((v) => v.logged?.id).filter(Boolean) as string[]);
+  const extras = meals.filter((m) => !claimed.has(m.id) && m.plan_status !== 'skipped');
+  const { open: openQuickLog } = useQuickLog();
   const [showMissed, setShowMissed] = useState(false);
 
   const ateAsPlanned = async (m: PlannedMeal) => {
@@ -554,6 +559,35 @@ export default function NutritionTab() {
                 Finish "Set up your meals" and your three meals a day are planned from what you can get.
               </Text>
             ) : null}
+          </View>
+
+          {/* Premium: snacks and extras. The three planned meals are a plan; anything else you eat (a packet, a fruit, a
+              post-workout shake) is a snack, as many as you like. They are listed here and count in your day. */}
+          <View style={{ gap: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <SectionLabel color={G}>SNACKS AND EXTRAS</SectionLabel>
+              {extras.length > 0 ? (
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[500] }}>
+                  {Math.round(extras.reduce((s, m) => s + (m.calories ?? 0), 0))} kcal
+                </Text>
+              ) : null}
+            </View>
+            {extras.map((m) => (
+              <MealCard
+                key={m.id}
+                mealType={m.meal_type}
+                time={timeText(m.logged_at)}
+                planStatus="extra"
+                name={m.description}
+                macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} g`}
+                photoPath={(m as MealLogRow).photo_url}
+                rating={rated.find((x) => x.meal.id === m.id)?.rating}
+                onPress={() => setSelectedMeal(m as MealLogRow)}
+              />
+            ))}
+            <Button variant="secondary" size="md" fullWidth accent={G} onPress={openQuickLog} icon={<Icon name="plus" size={16} color={G} />}>
+              Add a snack
+            </Button>
           </View>
 
           <PressScale onPress={() => router.push('/diary')} accessibilityRole="button" accessibilityLabel="Food diary: photos, ratings and micronutrients">
