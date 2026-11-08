@@ -28,7 +28,7 @@ export function AppHeader({ wordmarkAccent, onBellPress }: AppHeaderProps) {
           paddingTop: insets.top,
           borderBottomWidth: 1,
           borderBottomColor: 'rgba(255,255,255,0.08)',
-          backgroundColor: 'rgba(5,5,5,0.45)',
+          backgroundColor: '#050505',
         }}
       >
         <View

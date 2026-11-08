@@ -45,12 +45,12 @@ export function Surface({
 }: SurfaceProps) {
   return (
     <View style={[{ borderRadius: radius }, shadow && styles.shadow, style]} accessibilityLabel={accessibilityLabel}>
-      <View style={{ borderRadius: radius, overflow: 'hidden', borderWidth: 1, borderColor }}>
+      <View style={{ borderRadius: radius, overflow: 'hidden', borderWidth: 1, borderColor, flexGrow: 1 }}>
         <LinearGradient colors={colors} style={StyleSheet.absoluteFill} />
         {grain > 0 ? <Image source={NOISE} resizeMode="repeat" style={[StyleSheet.absoluteFill, { opacity: grain }]} /> : null}
         <View pointerEvents="none" style={[styles.topLight, { borderTopLeftRadius: radius, borderTopRightRadius: radius }]} />
         {decoration}
-        <View style={{ padding }}>{children}</View>
+        <View style={{ padding, flexGrow: 1 }}>{children}</View>
       </View>
     </View>
   );

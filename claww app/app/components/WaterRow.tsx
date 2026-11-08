@@ -16,7 +16,9 @@ const GLASS_ML = 250;
 const SEGMENTS = TARGET_ML / GLASS_ML; // 8
 
 function litres(ml: number): string {
-  return `${(ml / 1000).toFixed(ml % 1000 === 0 ? 0 : 2).replace(/0$/, '')} L`;
+  const l = ml / 1000;
+  const text = ml % 1000 === 0 ? String(l) : l.toFixed(2).replace(/0$/, '');
+  return `${text} L`;
 }
 
 /**

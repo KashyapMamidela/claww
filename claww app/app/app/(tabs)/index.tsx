@@ -518,7 +518,7 @@ function HomePopulated() {
           {greeting},{'\n'}{greetingName(userName)}.
         </Display>
         <TouchableOpacity activeOpacity={sleepHours === null ? 0.7 : 1} onPress={sleepHours === null ? () => setSleepOpen(true) : undefined} accessibilityRole={sleepHours === null ? 'button' : 'text'}>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 8, lineHeight: 22, fontFamily: FONT }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, marginTop: 6, lineHeight: 20, fontFamily: FONT }}>
             {coach.map((seg, i) => (
               <Text key={i} style={seg.bold ? { color: '#fff', fontWeight: '800' } : undefined}>
                 {seg.text}

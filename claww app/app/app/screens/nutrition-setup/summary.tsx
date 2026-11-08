@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, FONT, FONT_HAND } from '../../../lib/theme';
@@ -30,6 +30,8 @@ const G = COLORS.green;
 const BUDGET_STEP = 25;
 const BUDGET_MIN = 50;
 const BUDGET_MAX = 1000;
+/** Time for the setup screens to finish closing before anything under them is redrawn. */
+const LEAVE_MS = 700;
 
 // NG PHASE 6, step 3 (screen 13): what the user has, the gaps the plan works around (each with a Change link), and
 // where the day's meals will appear once the meal planner ships (NG PHASE 7). Saving here writes the food
@@ -41,7 +43,9 @@ export default function MealSetupSummary() {
   const { profile } = useProfile(userId);
   const [draft, setDraft] = useState(getDraft());
   const [budgetOpen, setBudgetOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+  // A ref, not state: this screen must not redraw between the tap and leaving (a redraw just before the screens close
+  // crashes Android, "child already has a parent"), so there is no "Saving…" label.
+  const saving = React.useRef(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -81,9 +85,9 @@ export default function MealSetupSummary() {
 
   const setBudget = (b: number) => setDraft(patchDraft({ budget: Math.max(BUDGET_MIN, Math.min(BUDGET_MAX, b)) }));
 
-  const save = async () => {
-    if (!userId || saving || !draft.diet) return;
-    setSaving(true);
+  const save = () => {
+    if (!userId || saving.current || !draft.diet) return;
+    saving.current = true;
     setError(null);
 
     const existingTargets = profile?.personalization_profile?.nutritionDefaults ?? null;
@@ -104,26 +108,34 @@ export default function MealSetupSummary() {
     }
 
     const restrictions = restrictionsForDiet(draft.diet, profile?.personalization_profile?.dietaryRestrictions ?? []);
-    const okTargets = targets
-      ? await saveNutritionTargets(userId, targets, restrictions, draft.basics ? { height: draft.basics.height, weight: draft.basics.weight, age: draft.basics.age } : undefined)
-      : true;
-    const okResources = await saveUserResources(userId, {
+    const basics = draft.basics ? { height: draft.basics.height, weight: draft.basics.weight, age: draft.basics.age } : undefined;
+    const resources = {
       sources: draft.sources,
       cookWith: draft.cookWith,
       diet: draft.diet,
       budgetInrDay: budget,
       planStyle: draft.planStyle,
       availability,
-      avoid: [],
-    });
-    if (okResources) await resetMealPlans(userId).catch(() => {});
-    setSaving(false);
-    if (!okTargets || !okResources) {
-      setError('Could not save your answers. Check your connection and try again.');
-      return;
-    }
-    resetDraft();
+      avoid: [] as string[],
+    };
+
+    // Leave first, save after the screens have closed. Saving here rewrites the profile, which redraws the Nutrition
+    // tab underneath, and redrawing a tab while the stack above it is closing crashed Android. If the save fails the
+    // answers are kept and the user is offered another try.
     router.dismissTo('/(tabs)/nutrition');
+    setTimeout(async () => {
+      const okTargets = targets ? await saveNutritionTargets(userId, targets, restrictions, basics) : true;
+      const okResources = await saveUserResources(userId, resources);
+      if (okResources) await resetMealPlans(userId).catch(() => {});
+      if (okTargets && okResources) {
+        resetDraft();
+        return;
+      }
+      Alert.alert('Could not save your meal setup', 'Check your connection and try again. Your answers are kept.', [
+        { text: 'Not now', style: 'cancel' },
+        { text: 'Try again', onPress: () => router.push('/nutrition-setup') },
+      ]);
+    }, LEAVE_MS);
   };
 
   const tile = (label: string, value: string, onPress?: () => void) => {
@@ -215,10 +227,10 @@ export default function MealSetupSummary() {
           <Text style={{ color: COLORS.textFaint, fontSize: 12, marginTop: 6, fontFamily: FONT }}>Built from meal templates (still being reviewed), never generated.</Text>
         </Surface>
 
-        {error ? <ErrorCard message={error} onRetry={save} retrying={saving} /> : null}
+        {error ? <ErrorCard message={error} onRetry={save} /> : null}
 
-        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving || !draft.diet} onPress={save} icon={<Icon name="check" size={16} color="#fff" />}>
-          {saving ? 'Saving…' : 'Save my setup'}
+        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={!draft.diet} onPress={save} icon={<Icon name="check" size={16} color="#fff" />}>
+          Save my setup
         </Button>
       </ScrollView>
 

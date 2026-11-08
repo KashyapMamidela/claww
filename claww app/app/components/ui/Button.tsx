@@ -6,9 +6,9 @@ import { MOTION } from '../../lib/motion';
 import { PressScale } from './PressScale';
 
 const SIZES = {
-  sm: { height: 38, fontSize: 13, paddingH: 14, radius: 10, gap: 6 },
-  md: { height: 48, fontSize: 14, paddingH: 18, radius: 14, gap: 8 },
-  lg: { height: 54, fontSize: 15, paddingH: 22, radius: 16, gap: 10 },
+  sm: { height: 34, fontSize: 13, paddingH: 12, radius: 10, gap: 6 },
+  md: { height: 42, fontSize: 14, paddingH: 16, radius: 12, gap: 8 },
+  lg: { height: 48, fontSize: 15, paddingH: 20, radius: 14, gap: 8 },
 };
 
 export interface ButtonProps {

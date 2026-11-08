@@ -41,7 +41,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       intensity={70}
       tint="dark"
       style={{
-        backgroundColor: 'rgba(9,9,10,0.94)',
+        backgroundColor: '#09090A',
         borderTopWidth: 1,
         borderTopColor: 'rgba(255,255,255,0.08)',
         paddingTop: 6,

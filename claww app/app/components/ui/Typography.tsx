@@ -25,10 +25,10 @@ function makeVariant(base: TextStyle) {
 
 /** Page-level title — "Workouts", "Good morning, X." 28-32px. */
 export const Display = makeVariant({
-  fontSize: 28,
+  fontSize: 26,
   fontWeight: '900',
   letterSpacing: -0.6,
-  lineHeight: 31,
+  lineHeight: 30,
   color: COLORS.fg,
   fontFamily: FONT,
 });
