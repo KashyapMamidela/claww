@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { getLastWeights } from '../../lib/adaptiveData';
 import { BodyMap, MUSCLES, type Muscle } from '../../components/BodyMap';
 import { PressScale } from '../../components/ui/PressScale';
 import { BottomSheet } from '../../components/ui/BottomSheet';
@@ -163,6 +164,18 @@ export default function WorkoutsTab() {
   useEffect(() => {
     AsyncStorage.getItem(OLD_PLAN_CARD_KEY).then((v) => setDismissedOldPlan(v)).catch(() => setDismissedOldPlan(null));
   }, []);
+  // Premium W4: the weight each exercise was last done at, shown in grey under today's number.
+  const [lastKg, setLastKg] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const names = workout?.plan.days[selectedDay]?.exercises.map((e) => e.name) ?? [];
+    if (!userId || names.length === 0) {
+      setLastKg({});
+      return;
+    }
+    let cancelled = false;
+    getLastWeights(userId, names).then((m) => { if (!cancelled) setLastKg(m); });
+    return () => { cancelled = true; };
+  }, [userId, workout, selectedDay]);
   const [starting, setStarting] = useState(false);
   const [guideName, setGuideName] = useState<string | null>(null);
   const [recoveryHints, setRecoveryHints] = useState<Record<string, string>>({});
@@ -636,6 +649,7 @@ export default function WorkoutsTab() {
                     setsText={`${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
                     weightText={weight !== null && weight > 0 ? `${Math.round(weight * 100) / 100} kg` : null}
                     muscle={entry?.primaryMuscle && MUSCLE_SET.has(entry.primaryMuscle) ? (entry.primaryMuscle as Muscle) : null}
+                    lastText={(lastKg[catalogKey(ex.name)] ?? 0) > 0 ? `last: ${Math.round(lastKg[catalogKey(ex.name)] * 100) / 100} kg` : null}
                     mark={markByName.get(ex.name)}
                     onOpenGuide={() => setGuideName(ex.name)}
                   />
@@ -669,15 +683,6 @@ export default function WorkoutsTab() {
             </Text>
           ) : null}
 
-          <ActivityCard
-            userId={userId}
-            onLogged={async () => {
-              if (userId) {
-                const p = await getProfile(userId);
-                setTodayStats(await getTodayWorkoutStats(userId, p?.weight ?? null));
-              }
-            }}
-          />
 
           {sessionStatus === 'idle' && selectedState.state === 'completed' && selectedState.event && userId ? (
             <CompletedDayCard userId={userId} day={day} event={selectedState.event} />

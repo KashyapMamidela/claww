@@ -21,6 +21,8 @@ export interface ExerciseRowProps {
   setsText: string;
   /** "60 kg", null for bodyweight and timed work. */
   weightText: string | null;
+  /** "last: 60 kg", the weight this exercise was last done at. */
+  lastText?: string | null;
   /** Primary muscle, lit on the tile. */
   muscle?: Muscle | null;
   mark?: PlanMark;
@@ -29,7 +31,7 @@ export interface ExerciseRowProps {
 
 const BACK = new Set<Muscle>(['back', 'triceps', 'hamstrings', 'glutes', 'calves']);
 
-export function ExerciseRow({ index, name, sub, setsText, weightText, muscle, mark, onOpenGuide }: ExerciseRowProps) {
+export function ExerciseRow({ index, name, sub, setsText, weightText, lastText, muscle, mark, onOpenGuide }: ExerciseRowProps) {
   const [open, setOpen] = useState(false);
   const marked = !!mark && mark.kind === 'weight';
   return (
@@ -47,6 +49,7 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, muscle, ma
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontWeight: '800', fontVariant: ['tabular-nums'], fontFamily: FONT }}>{setsText}</Text>
+          {lastText ? <Text style={{ color: COLORS.textFaint, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{lastText}</Text> : null}
           {weightText && !marked ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: FONT }}>{weightText}</Text> : null}
           {marked ? (
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 6 }}>
