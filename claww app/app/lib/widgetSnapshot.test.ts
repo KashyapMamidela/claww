@@ -1,49 +1,127 @@
 import { describe, it, expect } from 'vitest';
-import { EMPTY_SNAPSHOT, sameSnapshot, widgetLines, type WidgetSnapshot } from './widgetSnapshot';
+import { EMPTY_SNAPSHOT, activityView, dayKey, forToday, nutritionView, sameSnapshot, sizeClass, staleLabel, waterView, type WidgetSnapshot } from './widgetSnapshot';
 import { ringsSvg } from './widgetSvg';
 
-const day: WidgetSnapshot = { ...EMPTY_SNAPSHOT, userId: 'u', kcal: 609, kcalTarget: 2461, proteinLeft: 107.4, session: 'Push', streak: 1, workoutPct: 0, nutritionPct: 25, recoveryPct: 78, dailyPct: 34, steps: 1851, stepsGoal: 8000, waterMl: 750, waterGoalMl: 2000, updatedAt: 1 };
+const NOW = new Date(2026, 10, 9, 13, 47);
+const day: WidgetSnapshot = {
+  ...EMPTY_SNAPSHOT,
+  userId: 'u',
+  day: dayKey(NOW),
+  kcal: 609,
+  kcalTarget: 2461,
+  protein: 15,
+  proteinTarget: 122,
+  carbs: 100,
+  carbsTarget: 340,
+  fat: 16,
+  fatTarget: 68,
+  mealsLogged: 2,
+  nextMeal: { slot: 'Lunch', name: 'Soya chunks curry' },
+  session: 'Push',
+  sessionTime: '6 pm',
+  streak: 1,
+  nutritionPct: 25,
+  recoveryPct: 78,
+  recoveryScore: 78,
+  dailyPct: 34,
+  steps: 1851,
+  stepsGoal: 10000,
+  waterMl: 750,
+  updatedAt: NOW.getTime(),
+};
 
-describe('widget lines', () => {
-  it('reads a normal day', () => {
-    const l = widgetLines(day);
-    expect(l.kcal).toBe('609 / 2,461 kcal');
-    expect(l.protein).toBe('107 g protein left');
-    expect(l.steps).toBe('1,851 / 8,000 steps');
-    expect(l.session).toBe('Push today');
-    expect(l.streak).toBe('1 day streak');
-    expect(l.daily).toBe('34%');
-    expect(l.water).toBe('0.75');
-    expect(l.waterOf).toBe('of 2 L');
-    expect(l.glasses).toBe('3 of 8 glasses');
-    expect(l.waterPct).toBeCloseTo(0.375, 3);
+describe('activity view', () => {
+  it('reads like Home', () => {
+    const v = activityView(day);
+    expect(v.daily).toBe('34%');
+    expect(v.rows.map((r) => r.value)).toEqual(['Push · 6 pm', '609 / 2,461 kcal', '78 / 100']);
+    expect(v.steps).toBe('1,851');
+    expect(v.stepsGoal).toBe('10,000');
+    expect(v.stepsPct).toBeCloseTo(0.1851, 4);
   });
-  it('says done, rest and no target in plain words', () => {
-    const l = widgetLines({ ...EMPTY_SNAPSHOT, session: 'Pull', sessionDone: true, proteinLeft: 0, streak: 5 });
-    expect(l.session).toBe('Pull · done');
-    expect(l.protein).toBe('Protein done');
-    expect(l.streak).toBe('5 day streak');
-    expect(widgetLines(EMPTY_SNAPSHOT).session).toBe('Rest day');
-    expect(widgetLines(EMPTY_SNAPSHOT).protein).toContain('targets');
-    expect(widgetLines(EMPTY_SNAPSHOT).kcal).toBe('0 kcal');
+  it('says rest day, done and missing sleep in words', () => {
+    expect(activityView({ ...day, session: null }).rows[0].value).toBe('Rest day');
+    expect(activityView({ ...day, sessionDone: true }).rows[0].value).toBe('Push done');
+    expect(activityView({ ...day, recoveryScore: null }).rows[2].value).toBe('Log your sleep');
+    expect(activityView({ ...day, userId: null }).signedOut).toBe(true);
   });
-  it('caps water and the daily number', () => {
-    expect(widgetLines({ ...day, waterMl: 5000 }).waterPct).toBe(1);
-    expect(widgetLines({ ...day, dailyPct: 140 }).daily).toBe('100%');
+});
+
+describe('nutrition view', () => {
+  it('leads with calories left and the three macros', () => {
+    const v = nutritionView(day);
+    expect(v.hero).toBe('1,852');
+    expect(v.heroLabel).toBe('kcal left');
+    expect(v.over).toBe(false);
+    expect(v.macros.map((m) => m.value)).toEqual(['15 / 122 g', '100 / 340 g', '16 / 68 g']);
+    expect(v.next).toBe('Lunch · Soya chunks curry');
+    expect(v.meals).toBe('2 meals logged');
+  });
+  it('says over when past the target, and eaten without one', () => {
+    const over = nutritionView({ ...day, kcal: 2600 });
+    expect(over.hero).toBe('139');
+    expect(over.heroLabel).toBe('kcal over');
+    expect(over.over).toBe(true);
+    expect(over.ringPct).toBe(1);
+    const none = nutritionView({ ...day, kcalTarget: null, proteinTarget: null });
+    expect(none.heroLabel).toBe('kcal eaten');
+    expect(none.macros[0].value).toBe('15 g');
+  });
+});
+
+describe('water view', () => {
+  it('counts glasses and what is left', () => {
+    const v = waterView(day);
+    expect(v.amount).toBe('0.75');
+    expect(v.goal).toBe('2 L');
+    expect(v.glassesDone).toBe(3);
+    expect(v.glassesGoal).toBe(8);
+    expect(v.line).toBe('5 more glasses to go');
+    expect(waterView({ ...day, waterMl: 1750 }).line).toBe('1 more glass to go');
+    expect(waterView({ ...day, waterMl: 2500 }).done).toBe(true);
+    expect(waterView({ ...day, waterMl: 2500 }).glassesDone).toBe(8);
+  });
+});
+
+describe('a new day', () => {
+  it('shows yesterday as a fresh day, keeping goals and the streak', () => {
+    const tomorrow = new Date(2026, 10, 10, 7, 0);
+    const s = forToday(day, tomorrow);
+    expect(s.day).toBe('2026-11-10');
+    expect(s.kcal).toBe(0);
+    expect(s.waterMl).toBe(0);
+    expect(s.steps).toBe(0);
+    expect(s.session).toBe(null);
+    expect(s.kcalTarget).toBe(2461);
+    expect(s.streak).toBe(1);
+    expect(forToday(day, NOW)).toBe(day);
+  });
+  it('says when the numbers are old', () => {
+    expect(staleLabel(day, NOW)).toBe(null);
+    expect(staleLabel(day, new Date(NOW.getTime() + 4 * 3_600_000))).toBe('4h ago');
+    expect(staleLabel(day, new Date(NOW.getTime() + 30 * 3_600_000))).toBe('Open to refresh');
+  });
+});
+
+describe('sizes and change detection', () => {
+  it('picks a layout from the size', () => {
+    expect(sizeClass(160, 160)).toBe('small');
+    expect(sizeClass(330, 180)).toBe('medium');
+    expect(sizeClass(330, 300)).toBe('large');
   });
   it('treats rounding-only changes as the same', () => {
-    expect(sameSnapshot(day, { ...day, kcal: 609.4, proteinLeft: 106.8, updatedAt: 99 })).toBe(true);
+    expect(sameSnapshot(day, { ...day, kcal: 609.4, updatedAt: 99 })).toBe(true);
     expect(sameSnapshot(day, { ...day, waterMl: 1000 })).toBe(false);
-    expect(sameSnapshot(day, { ...day, steps: 2000 })).toBe(false);
+    expect(sameSnapshot(day, { ...day, nextMeal: { slot: 'Dinner', name: null } })).toBe(false);
   });
 });
 
 describe('rings svg', () => {
   it('draws a track per ring and a bar only when there is progress', () => {
     const svg = ringsSvg([{ pct: 50, color: '#3B82F6' }, { pct: 0, color: '#22C55E' }, { pct: 100, color: '#2DD4BF' }]);
-    expect((svg.match(/stroke="#26262B"/g) ?? []).length).toBe(3);
-    expect(svg).toContain('stroke="#3B82F6"');
-    expect(svg).not.toContain('stroke="#22C55E"');
+    // a dimmed track in every ring's own colour, plus a bar where there is progress
+    expect((svg.match(/stroke="#3B82F6"/g) ?? []).length).toBe(2);
+    expect((svg.match(/stroke="#22C55E"/g) ?? []).length).toBe(1);
     expect(svg).toContain('stroke="#2DD4BF"');
     expect(svg).toContain('rotate(-90 50 50)');
   });

@@ -1,9 +1,14 @@
 import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { requestWidgetUpdate, type WidgetTaskHandlerProps } from 'react-native-android-widget';
-import { EMPTY_SNAPSHOT, WIDGET_KEY, type WidgetSnapshot } from '../lib/widgetSnapshot';
-import { TodayWidget } from './TodayWidget';
-import { QuickWidget } from './QuickWidget';
+import { requestWidgetUpdate, type WidgetInfo, type WidgetTaskHandlerProps } from 'react-native-android-widget';
+import { EMPTY_SNAPSHOT, WIDGET_KEY, dayKey, forToday, type WidgetSnapshot } from '../lib/widgetSnapshot';
+import { ActivityWidget } from './ActivityWidget';
+import { NutritionWidget } from './NutritionWidget';
+import { WaterWidget } from './WaterWidget';
+
+// Provider names are fixed once a widget is on someone's home screen: "Today" is the activity widget and "Quick" the
+// water widget (their first names), "Nutrition" is new.
+export const WIDGET_NAMES = ['Today', 'Nutrition', 'Quick'] as const;
 
 export async function readSnapshot(): Promise<WidgetSnapshot> {
   try {
@@ -18,44 +23,48 @@ export async function writeSnapshot(s: WidgetSnapshot): Promise<void> {
   try {
     await AsyncStorage.setItem(WIDGET_KEY, JSON.stringify(s));
   } catch {
-    // The widget just keeps its last picture.
+    // The widgets keep their last picture.
   }
 }
 
-export const WIDGET_NAMES = ['Today', 'Quick'] as const;
-
-export function widgetFor(name: string, snapshot: WidgetSnapshot) {
-  return name === 'Quick' ? <QuickWidget snapshot={snapshot} /> : <TodayWidget snapshot={snapshot} />;
+export function widgetFor(name: string, snapshot: WidgetSnapshot, info: Pick<WidgetInfo, 'width' | 'height'>) {
+  const now = new Date();
+  const s = forToday(snapshot, now);
+  const width = info.width || 330;
+  const height = info.height || 180;
+  if (name === 'Quick') return <WaterWidget snapshot={s} width={width} height={height} />;
+  if (name === 'Nutrition') return <NutritionWidget snapshot={s} width={width} height={height} />;
+  return <ActivityWidget snapshot={s} width={width} height={height} now={now} />;
 }
 
-/** Redraws every widget on the home screen from one snapshot. */
+/** Redraws every CLAWW widget on the home screen from one snapshot, each at its own size. */
 export async function redrawAll(snapshot: WidgetSnapshot): Promise<void> {
   for (const name of WIDGET_NAMES) {
-    await requestWidgetUpdate({ widgetName: name, renderWidget: () => widgetFor(name, snapshot) });
+    await requestWidgetUpdate({ widgetName: name, renderWidget: (info) => widgetFor(name, snapshot, info) });
   }
 }
 
-/** Runs when Android adds, resizes, refreshes or taps the widgets, even if the app is closed. */
+/** Runs when Android adds, resizes, refreshes (every 30 min) or taps a widget, even with the app closed. */
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
-  const name = props.widgetInfo.widgetName;
-  if (props.widgetAction === 'WIDGET_DELETED') return;
+  const { widgetInfo, widgetAction } = props;
+  if (widgetAction === 'WIDGET_DELETED') return;
 
-  let snapshot = await readSnapshot();
+  let snapshot = forToday(await readSnapshot(), new Date());
 
-  if (props.widgetAction === 'WIDGET_CLICK' && props.clickAction === 'ADD_WATER') {
+  if (widgetAction === 'WIDGET_CLICK' && props.clickAction === 'ADD_WATER') {
     const ml = Number((props.clickActionData as { ml?: number } | undefined)?.ml) || 250;
     if (snapshot.userId) {
-      // The same write path as the app: saved on the phone first, sent from there (see lib/writeQueue).
+      // The same write path as the app: saved on the phone first, sent from there (lib/writeQueue), so a tap without
+      // signal is not lost.
       const { logWater } = require('../lib/data');
       await logWater(snapshot.userId, ml);
+      snapshot = { ...snapshot, day: snapshot.day || dayKey(new Date()), waterMl: snapshot.waterMl + ml, updatedAt: Date.now() };
+      await writeSnapshot(snapshot);
     }
-    snapshot = { ...snapshot, waterMl: snapshot.waterMl + ml, updatedAt: Date.now() };
-    await writeSnapshot(snapshot);
-    props.renderWidget(widgetFor(name, snapshot));
-    // The other widget shows no water, but a future one might: redraw them all.
+    props.renderWidget(widgetFor(widgetInfo.widgetName, snapshot, widgetInfo));
     redrawAll(snapshot).catch(() => {});
     return;
   }
 
-  props.renderWidget(widgetFor(name, snapshot));
+  props.renderWidget(widgetFor(widgetInfo.widgetName, snapshot, widgetInfo));
 }

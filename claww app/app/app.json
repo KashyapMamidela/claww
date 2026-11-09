@@ -48,26 +48,49 @@
       [
         "react-native-android-widget",
         {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/bricolage-grotesque/500Medium/BricolageGrotesque_500Medium.ttf",
+            "./node_modules/@expo-google-fonts/bricolage-grotesque/600SemiBold/BricolageGrotesque_600SemiBold.ttf",
+            "./node_modules/@expo-google-fonts/bricolage-grotesque/700Bold/BricolageGrotesque_700Bold.ttf",
+            "./node_modules/@expo-google-fonts/bricolage-grotesque/800ExtraBold/BricolageGrotesque_800ExtraBold.ttf"
+          ],
           "widgets": [
             {
               "name": "Today",
-              "label": "CLAWW Today",
-              "description": "Your three rings, calories, protein left, steps and today's session",
+              "label": "CLAWW Rings",
+              "description": "Workout, food and recovery rings, steps and your streak",
               "minWidth": "250dp",
               "minHeight": "110dp",
               "targetCellWidth": 4,
               "targetCellHeight": 2,
+              "maxResizeWidth": "600dp",
+              "maxResizeHeight": "400dp",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "Nutrition",
+              "label": "CLAWW Food",
+              "description": "Calories left, protein, carbs and fat, and your next meal",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "600dp",
+              "maxResizeHeight": "400dp",
               "resizeMode": "horizontal|vertical",
               "updatePeriodMillis": 1800000
             },
             {
               "name": "Quick",
-              "label": "CLAWW Water and food",
-              "description": "Today's water with a one-tap glass, and a shortcut to log food",
-              "minWidth": "250dp",
+              "label": "CLAWW Water",
+              "description": "Today's water, and a glass logged in one tap",
+              "minWidth": "110dp",
               "minHeight": "110dp",
-              "targetCellWidth": 4,
+              "targetCellWidth": 2,
               "targetCellHeight": 2,
+              "maxResizeWidth": "600dp",
+              "maxResizeHeight": "400dp",
               "resizeMode": "horizontal|vertical",
               "updatePeriodMillis": 1800000
             }

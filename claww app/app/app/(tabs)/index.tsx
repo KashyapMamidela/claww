@@ -40,6 +40,7 @@ import { Display } from '../../components/ui/Typography';
 import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { syncWidget } from '../../lib/widgetSync';
+import { dayKey } from '../../lib/widgetSnapshot';
 import { DEFAULT_STEPS_GOAL } from '../../lib/activityMath';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
@@ -482,23 +483,6 @@ function HomePopulated() {
     hour: now.getHours(),
   });
   const stepsGoal = targetProfile?.personalization_profile?.stepsGoal ?? DEFAULT_STEPS_GOAL;
-  useEffect(() => {
-    syncWidget({
-      userId,
-      kcal: consumedKcal,
-      kcalTarget: targetKcal,
-      proteinLeft,
-      session: sessionPlanned && today ? (today.focus || today.day) : null,
-      sessionDone: workoutToday.completed,
-      streak,
-      workoutPct,
-      nutritionPct,
-      recoveryPct: recoveryRingPct(recovery?.score) ?? 0,
-      dailyPct: dailyGoalPct,
-      steps: steps.steps,
-      stepsGoal,
-    });
-  }, [userId, consumedKcal, targetKcal, proteinLeft, sessionPlanned, today, workoutToday.completed, streak, workoutPct, nutritionPct, recovery?.score, dailyGoalPct, steps.steps, stepsGoal]);
   const sessionMinutes = today ? Math.round((today.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0) * 130) / 60 + 5) : 0;
 
   // The Today line: the same slot states as the Nutrition tab, so the two always agree.
@@ -516,6 +500,37 @@ function HomePopulated() {
   const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: today?.focus ?? '' });
   const usualMin = usualMinutesOf(usualTime);
   const sessionTimeLabel = usualMin !== null ? timeLabel(new Date(2000, 0, 1, Math.floor(usualMin / 60), usualMin % 60)) : undefined;
+  useEffect(() => {
+    // Premium F2: the home-screen widgets read this snapshot (lib/widgetSync.ts).
+    const targets = targetProfile?.personalization_profile?.nutritionDefaults ?? null;
+    const sum = (k: 'carbs_g' | 'fats_g') => meals.reduce((s, m) => s + (Number((m as unknown as Record<string, unknown>)[k]) || 0), 0);
+    const next = slotViews(plan, meals, new Date().getHours()).find((v) => v.state === 'up_next' || v.state === 'later') ?? null;
+    syncWidget({
+      userId,
+      day: dayKey(new Date()),
+      kcal: consumedKcal,
+      kcalTarget: targetKcal,
+      protein: consumedProtein,
+      proteinTarget: proteinTarget ?? targets?.protein_g ?? null,
+      carbs: sum('carbs_g'),
+      carbsTarget: targets?.carbs_g ?? null,
+      fat: sum('fats_g'),
+      fatTarget: targets?.fats_g ?? null,
+      mealsLogged: meals.filter((m) => (m as { plan_status?: string }).plan_status !== 'skipped').length,
+      nextMeal: next ? { slot: next.slot.charAt(0).toUpperCase() + next.slot.slice(1), name: next.planned ? mealTitle(next.planned) : null } : null,
+      session: sessionPlanned && today ? (today.focus || today.day) : null,
+      sessionDone: workoutToday.completed,
+      sessionTime: sessionTimeLabel ?? null,
+      streak,
+      workoutPct,
+      nutritionPct,
+      recoveryPct: recoveryRingPct(recovery?.score) ?? 0,
+      recoveryScore: recovery?.score ?? null,
+      dailyPct: dailyGoalPct,
+      steps: steps.steps,
+      stepsGoal,
+    });
+  }, [userId, meals, plan, consumedKcal, consumedProtein, targetKcal, proteinTarget, targetProfile, sessionPlanned, today, workoutToday.completed, sessionTimeLabel, streak, workoutPct, nutritionPct, recovery?.score, dailyGoalPct, steps.steps, stepsGoal]);
   const penLineText = penLine({ sleepHours, sessionPlanned, sessionDone: workoutToday.completed, hour: now.getHours() });
   const typeOf = (slot: MealSlot) => (slot.charAt(0).toUpperCase() + slot.slice(1)) as MealType;
   const replanAfter = async (row: Awaited<ReturnType<typeof saveMeal>>) => {
