@@ -31,6 +31,7 @@ export async function writeSnapshot(s: WidgetSnapshot): Promise<void> {
 export function widgetFor(name: string, snapshot: WidgetSnapshot, info: Pick<WidgetInfo, 'width' | 'height'>) {
   const now = new Date();
   const s = forToday(snapshot, now);
+  if (__DEV__) console.log('[widget]', name, 'size', info.width, 'x', info.height);
   const width = info.width || 330;
   const height = info.height || 180;
   if (name === 'Quick') return <WaterWidget snapshot={s} width={width} height={height} />;

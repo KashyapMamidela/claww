@@ -122,8 +122,10 @@ describe('rings svg', () => {
     // a dimmed track in every ring's own colour, plus a bar where there is progress
     expect((svg.match(/stroke="#3B82F6"/g) ?? []).length).toBe(2);
     expect((svg.match(/stroke="#22C55E"/g) ?? []).length).toBe(1);
+    // bars are explicit arcs starting at 12 o'clock, not dashed circles (the phone's renderer starts those elsewhere)
+    expect(svg).toContain('<path d="M 50.00 4.50 A');
+    expect(svg).not.toContain('stroke-dasharray');
     expect(svg).toContain('stroke="#2DD4BF"');
-    expect(svg).toContain('rotate(-90 50 50)');
   });
   it('clamps bad numbers', () => {
     expect(() => ringsSvg([{ pct: NaN, color: '#fff' }, { pct: 400, color: '#000' }])).not.toThrow();

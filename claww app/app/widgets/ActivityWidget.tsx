@@ -44,21 +44,23 @@ export function ActivityWidget({ snapshot, width, height, now = new Date() }: { 
         </Rings>
         <Spacer w={16} />
         <FlexWidget style={{ flex: 1, height: 'match_parent', flexDirection: 'column', justifyContent: 'space-between' }}>
-          {v.rows.map((r) => (
-            <FlexWidget key={r.key} style={{ flexDirection: 'column' }}>
-              <T text={r.label} size={11} font={F.sb} color={LABEL[r.key]} />
-              <T text={r.value} size={15} font={F.b} />
-            </FlexWidget>
-          ))}
+          <FlexWidget style={{ width: 'match_parent', flex: 1, flexDirection: 'column', justifyContent: 'space-around' }}>
+            {v.rows.map((r) => (
+              <FlexWidget key={r.key} style={{ flexDirection: 'column' }}>
+                <T text={r.label} size={11} font={F.sb} color={LABEL[r.key]} />
+                <T text={r.value} size={15} font={F.b} />
+              </FlexWidget>
+            ))}
+          </FlexWidget>
           <FlexWidget style={{ flexDirection: 'row', alignItems: 'center' }}>
             {stale ? (
               <T text={stale} size={11} font={F.m} color={W.faint} />
             ) : (
-              <>
+              <FlexWidget style={{ flexDirection: 'row', alignItems: 'center' }}>
                 <Icon name="flame" color="#FB923C" size={14} />
                 <Spacer w={4} />
                 <T text={`${v.streak} day streak`} size={12} font={F.sb} color={W.streak} />
-              </>
+              </FlexWidget>
             )}
             <Grow />
           </FlexWidget>

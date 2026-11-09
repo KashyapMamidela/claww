@@ -1,5 +1,22 @@
 // Premium F2: drawings for the home-screen widgets as SVG strings (a widget cannot run Skia or react-native-svg).
 
+
+const rad = (deg: number) => (deg * Math.PI) / 180;
+
+/**
+ * An SVG arc path: start angle in degrees (0 = 3 o'clock, 90 = 6 o'clock, 270 = 12 o'clock), clockwise, sweeping
+ * `sweep` degrees. Paths are used instead of dashed circles because the widget's SVG renderer does not start a dashed
+ * circle where browsers do, which drew the rings from the wrong place on the phone.
+ */
+export function arcPath(cx: number, cy: number, r: number, startDeg: number, sweepDeg: number): string {
+  const end = startDeg + sweepDeg;
+  const x1 = cx + r * Math.cos(rad(startDeg));
+  const y1 = cy + r * Math.sin(rad(startDeg));
+  const x2 = cx + r * Math.cos(rad(end));
+  const y2 = cy + r * Math.sin(rad(end));
+  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${sweepDeg > 180 ? 1 : 0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+}
+
 export interface RingSpec {
   /** 0..100 */
   pct: number;
@@ -18,12 +35,11 @@ export function ringsSvg(rings: RingSpec[], stroke = 9, gap = 4, trackOpacity = 
     const c = 2 * Math.PI * r;
     const pct = Math.max(0, Math.min(100, Number.isFinite(ring.pct) ? ring.pct : 0));
     parts.push(`<circle cx="50" cy="50" r="${r.toFixed(2)}" fill="none" stroke="${ring.color}" stroke-opacity="${trackOpacity}" stroke-width="${stroke}"/>`);
-    if (pct > 0) {
-      // A sliver under 2 % still shows as a round dot, so progress that has started is visible.
-      const dash = Math.max((c * pct) / 100, 0.01);
-      parts.push(
-        `<circle cx="50" cy="50" r="${r.toFixed(2)}" fill="none" stroke="${ring.color}" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${dash.toFixed(2)} ${(c + 1).toFixed(2)}" transform="rotate(-90 50 50)"/>`
-      );
+    if (pct >= 99.9) {
+      parts.push(`<circle cx="50" cy="50" r="${r.toFixed(2)}" fill="none" stroke="${ring.color}" stroke-width="${stroke}"/>`);
+    } else if (pct > 0) {
+      // A sliver still shows as a round dot, so progress that has started is visible.
+      parts.push(`<path d="${arcPath(50, 50, r, -90, Math.max((360 * pct) / 100, 0.5))}" fill="none" stroke="${ring.color}" stroke-width="${stroke}" stroke-linecap="round"/>`);
     }
   });
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">${parts.join('')}</svg>`;
@@ -60,7 +76,7 @@ export function glassSvg(width: number, height: number, tint: string, tint2: str
   const h = Math.max(10, Math.round(height));
   const r = Math.min(radius, w / 2, h / 2);
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" preserveAspectRatio="none">` +
     '<defs>' +
     `<radialGradient id="a" cx="0.12" cy="0" r="0.95"><stop offset="0" stop-color="${tint}" stop-opacity="0.34"/><stop offset="1" stop-color="${tint}" stop-opacity="0"/></radialGradient>` +
     `<radialGradient id="b" cx="1" cy="1" r="0.85"><stop offset="0" stop-color="${tint2}" stop-opacity="0.2"/><stop offset="1" stop-color="${tint2}" stop-opacity="0"/></radialGradient>` +
@@ -83,21 +99,19 @@ export function glassSvg(width: number, height: number, tint: string, tint2: str
 export function stepsGaugeSvg(pct: number, from = '#FBBF24', to = '#F97316'): string {
   const p = Math.max(0, Math.min(1, Number.isFinite(pct) ? pct : 0));
   const r = 40;
-  const c = 2 * Math.PI * r;
-  const arc = c * 0.75;
-  const done = arc * p;
-  // The arc starts at 135 degrees (bottom left) and runs clockwise to 45 degrees (bottom right).
-  const angle = ((135 + 270 * p) * Math.PI) / 180;
+  // The arc starts at 135 degrees (bottom left) and runs clockwise 270 degrees to 45 degrees (bottom right).
+  const angle = rad(135 + 270 * p);
   const kx = 50 + r * Math.cos(angle);
   const ky = 50 + r * Math.sin(angle);
-  const base = `cx="50" cy="50" r="${r}" fill="none" transform="rotate(135 50 50)" stroke-linecap="round"`;
+  const track = arcPath(50, 50, r, 135, 270);
+  const fill = arcPath(50, 50, r, 135, Math.max(270 * p, 0.5));
   return (
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">' +
     `<defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="${from}"/><stop offset="1" stop-color="${to}"/></linearGradient></defs>` +
-    `<circle ${base} stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="9" stroke-dasharray="${arc.toFixed(2)} ${c.toFixed(2)}"/>` +
+    `<path d="${track}" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="9" stroke-linecap="round"/>` +
     (p > 0
-      ? `<circle ${base} stroke="${to}" stroke-opacity="0.22" stroke-width="17" stroke-dasharray="${Math.max(done, 0.01).toFixed(2)} ${c.toFixed(2)}"/>` +
-        `<circle ${base} stroke="url(#g)" stroke-width="9" stroke-dasharray="${Math.max(done, 0.01).toFixed(2)} ${c.toFixed(2)}"/>` +
+      ? `<path d="${fill}" fill="none" stroke="${to}" stroke-opacity="0.22" stroke-width="17" stroke-linecap="round"/>` +
+        `<path d="${fill}" fill="none" stroke="url(#g)" stroke-width="9" stroke-linecap="round"/>` +
         `<circle cx="${kx.toFixed(2)}" cy="${ky.toFixed(2)}" r="6.5" fill="#FFFFFF"/><circle cx="${kx.toFixed(2)}" cy="${ky.toFixed(2)}" r="3" fill="${to}"/>`
       : '') +
     '</svg>'
