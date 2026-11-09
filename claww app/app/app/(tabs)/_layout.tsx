@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getMarks } from '../../lib/penData';
 import { View } from 'react-native';
-import { Tabs, usePathname, useRouter } from 'expo-router';
+import { Tabs, useGlobalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/ui/AppHeader';
 import { AmbientLight } from '../../components/ui/AmbientLight';
@@ -13,6 +13,7 @@ import { dayLabel } from '../../lib/format';
 import { setCurrentTab } from '../../lib/tabBarVisibility';
 import { TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { useRenderCount } from '../../lib/perf';
+import { useQuickLog } from '../../components/QuickLog';
 
 export default function TabsLayout() {
   useRenderCount('TabsLayout');
@@ -24,6 +25,18 @@ export default function TabsLayout() {
   const routeName = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
   const { userName, userId } = useAppState();
   useEffect(() => { setCurrentTab(routeName); }, [routeName]);
+  // Premium F2: the widgets open the Quick log sheet (?quicklog=1) or the activity sheet (?quicklog=activity) through a link.
+  const { quicklog } = useGlobalSearchParams<{ quicklog?: string }>();
+  const { open: openQuickLog, openActivity } = useQuickLog();
+  useEffect(() => {
+    if (!quicklog) return;
+    const t = setTimeout(() => {
+      if (quicklog === 'activity') openActivity();
+      else openQuickLog();
+      router.setParams({ quicklog: undefined });
+    }, 400);
+    return () => clearTimeout(t);
+  }, [quicklog, openQuickLog, openActivity, router]);
   // Premium H8: an orange dot on the pen when a mark is waiting for a Keep or Use my old plan.
   const [penDot, setPenDot] = useState(false);
   useEffect(() => {

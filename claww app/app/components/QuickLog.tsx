@@ -18,8 +18,10 @@ import { success } from '../lib/haptics';
 
 interface QuickLogCtx {
   open: () => void;
+  /** Opens the activity sheet directly (the Start activity button on the Steps widget). */
+  openActivity: () => void;
 }
-const Ctx = createContext<QuickLogCtx>({ open: () => {} });
+const Ctx = createContext<QuickLogCtx>({ open: () => {}, openActivity: () => {} });
 export const useQuickLog = () => useContext(Ctx);
 
 function Action({ icon, color, title, sub, onPress }: { icon: string; color: string; title: string; sub: string; onPress: () => void }) {
@@ -48,7 +50,8 @@ export function QuickLogProvider({ children }: { children: React.ReactNode }) {
   const [sleepOpen, setSleepOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const open = useCallback(() => setVisible(true), []);
-  const value = useMemo(() => ({ open }), [open]);
+  const openActivity = useCallback(() => setActivityOpen(true), []);
+  const value = useMemo(() => ({ open, openActivity }), [open, openActivity]);
   const close = () => setVisible(false);
 
   const addWater = async () => {
