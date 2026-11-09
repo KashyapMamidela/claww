@@ -901,3 +901,30 @@ DROP POLICY IF EXISTS "pen_marks_own" ON pen_marks;
 CREATE POLICY "pen_marks_own" ON pen_marks
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- Premium F7: progress photos. Private bucket, one folder per user; the table holds the path and the date.
+-- ============================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('progress-photos', 'progress-photos', false)
+ON CONFLICT (id) DO NOTHING;
+
+DROP POLICY IF EXISTS "progress_photos_own" ON storage.objects;
+CREATE POLICY "progress_photos_own" ON storage.objects
+  FOR ALL TO authenticated
+  USING (bucket_id = 'progress-photos' AND auth.uid()::text = (storage.foldername(name))[1])
+  WITH CHECK (bucket_id = 'progress-photos' AND auth.uid()::text = (storage.foldername(name))[1]);
+
+CREATE TABLE IF NOT EXISTS progress_photos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  path TEXT NOT NULL,
+  taken_on DATE NOT NULL DEFAULT CURRENT_DATE,
+  weight_kg REAL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS progress_photos_user_idx ON progress_photos(user_id, taken_on DESC);
+ALTER TABLE progress_photos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "progress_photos_owner" ON progress_photos;
+CREATE POLICY "progress_photos_owner" ON progress_photos
+  FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);

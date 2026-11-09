@@ -302,7 +302,15 @@ export default function NutritionTab() {
           )}
 
           {!targetsLoaded ? (
-            <Skeleton height={200} borderRadius={20} />
+            <View style={{ gap: 12 }}>
+              <Skeleton height={190} borderRadius={20} />
+              <Skeleton height={56} borderRadius={20} />
+              <View style={{ flexDirection: 'row', gap: 10 }}>
+                <Skeleton height={48} borderRadius={20} style={{ flex: 1 }} />
+                <Skeleton height={48} borderRadius={20} style={{ flex: 1 }} />
+              </View>
+              <Skeleton height={120} borderRadius={20} />
+            </View>
           ) : (
             <Rise i={0}>
             <Surface padding={18}>

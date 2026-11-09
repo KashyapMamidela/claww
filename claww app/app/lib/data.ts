@@ -1702,6 +1702,7 @@ export interface UserDataExport {
   mealPlanDays: unknown[];
   scanCorrections: unknown[];
   penMarks: unknown[];
+  progressPhotos: unknown[];
 }
 
 /** Assembles a single JSON export of everything the given user owns, across every user_id-scoped table in database/schema.sql. */
@@ -1729,6 +1730,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     mealPlanDays,
     scanCorrections,
     penMarks,
+    progressPhotos,
   ] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', userId).maybeSingle(),
     supabase.from('user_stats').select('*').eq('user_id', userId).maybeSingle(),
@@ -1752,6 +1754,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     supabase.from('meal_plan_days').select('*').eq('user_id', userId),
     supabase.from('scan_corrections').select('*').eq('user_id', userId),
     supabase.from('pen_marks').select('*').eq('user_id', userId),
+    supabase.from('progress_photos').select('*').eq('user_id', userId),
   ]);
 
   return {
@@ -1778,6 +1781,7 @@ export async function exportUserData(userId: string): Promise<UserDataExport> {
     mealPlanDays: mealPlanDays.data ?? [],
     scanCorrections: scanCorrections.data ?? [],
     penMarks: penMarks.data ?? [],
+    progressPhotos: progressPhotos.data ?? [],
   };
 }
 

@@ -17,6 +17,7 @@ import { ProgressBar } from '../components/ui/ProgressBar';
 import { SectionLabel } from '../components/ui/SectionLabel';
 import { Skeleton } from '../components/ui/Skeleton';
 import { Surface } from '../components/ui/Surface';
+import { Rise } from '../components/ui/Rise';
 
 // NG PHASE 8 (screen 18): the food diary. A strip of the last seven days with a dot per meal, the day's
 // micronutrients against targets for the user's age and sex (sodium over its limit is amber), and every entry with its
@@ -130,6 +131,7 @@ export default function DiaryScreen() {
         {week === null ? (
           <Skeleton height={190} borderRadius={20} />
         ) : (
+<Rise i={0}>
           <Surface padding={16}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
               <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Micronutrients</Text>
@@ -162,6 +164,7 @@ export default function DiaryScreen() {
               </Text>
             ) : null}
           </Surface>
+</Rise>
         )}
 
         {week !== null && rated.length === 0 ? (
