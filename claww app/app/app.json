@@ -46,6 +46,24 @@
       "expo-secure-store",
       "expo-dev-client",
       [
+        "react-native-android-widget",
+        {
+          "widgets": [
+            {
+              "name": "Today",
+              "label": "CLAWW Today",
+              "description": "Calories, protein left, today's session and your streak",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      [
         "expo-font",
         {
           "ios": {
