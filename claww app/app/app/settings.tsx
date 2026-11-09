@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { BackTile } from '../components/ui/BackTile';
 import { Surface } from '../components/ui/Surface';
+import { Rise } from '../components/ui/Rise';
 import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -97,6 +98,7 @@ export default function SettingsScreen() {
           <View><Badge color={P}>SETTINGS</Badge></View>
         </View>
 
+<Rise i={0}>
         <Surface radius={20} padding={16}>
           <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700], marginBottom: 4 }}>Today's generation usage</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400], marginBottom: 14 }}>
@@ -123,8 +125,10 @@ export default function SettingsScreen() {
             </View>
           ))}
         </Surface>
+</Rise>
 
         {notificationsSupported ? (
+<Rise i={1}>
           <Surface radius={20} padding={16}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
               <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(59,130,246,0.14)', alignItems: 'center', justifyContent: 'center' }}>
@@ -147,8 +151,10 @@ export default function SettingsScreen() {
               </Text>
             ) : null}
           </Surface>
+</Rise>
         ) : null}
 
+<Rise i={2}>
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(34,197,94,0.14)', alignItems: 'center', justifyContent: 'center' }}>
@@ -170,6 +176,7 @@ export default function SettingsScreen() {
             />
           </View>
         </Surface>
+</Rise>
 
         {notificationsSupported && SHOW_DEV_TOOLS ? (
           <View style={{ backgroundColor: '#151517', borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, gap: 10 }}>
@@ -201,6 +208,7 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ) : null}
 
+<Rise i={3}>
         <Surface radius={20} padding={16}>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -213,6 +221,7 @@ export default function SettingsScreen() {
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontFamily: BG[500] }}>Sign out</Text>
           </TouchableOpacity>
         </Surface>
+</Rise>
       </View>
     </ScrollView>
   );

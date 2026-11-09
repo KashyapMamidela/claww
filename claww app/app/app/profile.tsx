@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Medallion } from '../components/ui/Medallion';
 import { BackTile } from '../components/ui/BackTile';
 import { Surface } from '../components/ui/Surface';
+import { Rise } from '../components/ui/Rise';
 import { Platform, ScrollView, Share, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -48,6 +49,8 @@ const GOAL_LABELS: Record<string, string> = {
 interface MenuRow {
   icon: string;
   label: string;
+  /** Shown small on the right, before the chevron. */
+  value?: string;
   onPress: () => void;
 }
 
@@ -139,9 +142,9 @@ export default function ProfileScreen() {
   ];
 
   const menuItems: MenuRow[] = [
-    { icon: 'settings', label: 'Settings', onPress: () => router.push('/settings') },
+    { icon: 'settings', label: 'Settings', value: profile?.notifications_enabled ? 'Reminders on' : 'Reminders off', onPress: () => router.push('/settings') },
     { icon: 'pencil', label: 'Your week, marked up', onPress: () => router.push('/week-review') },
-    { icon: 'utensils', label: 'Food preferences', onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
+    { icon: 'utensils', label: 'Food preferences', value: (profile?.personalization_profile as any)?.foodProfile ? 'Set' : undefined, onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
     { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
     { icon: 'star', label: 'Rate CLAWW', onPress: openStoreListing },
@@ -255,6 +258,7 @@ export default function ProfileScreen() {
           </View>
         </Surface>
 
+        <Rise i={2}>
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
             <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[600] }}>Body stats</Text>
@@ -278,7 +282,9 @@ export default function ProfileScreen() {
             ))}
           </View>
         </Surface>
+        </Rise>
 
+        <Rise i={3}>
         <Surface radius={20} padding={0}>
           {menuItems.map((item, i) => (
             <TouchableOpacity
@@ -299,6 +305,7 @@ export default function ProfileScreen() {
                 <Icon name={item.icon} size={16} color="#A1A1AA" />
               </View>
               <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[600] }}>{item.label}</Text>
+              {item.value ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[500] }}>{item.value}</Text> : null}
               <Icon name="chevron-right" size={15} color="#71717A" />
             </TouchableOpacity>
           ))}
@@ -381,6 +388,7 @@ export default function ProfileScreen() {
             <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontFamily: BG[600] }}>Delete account</Text>
           </TouchableOpacity>
         </Surface>
+        </Rise>
 
         {exportError ? <ErrorCard message={exportError} onRetry={handleExportData} retrying={exporting} /> : null}
       </View>

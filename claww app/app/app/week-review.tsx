@@ -22,6 +22,7 @@ import { Icon } from '../components/ui/Icon';
 import { Segmented } from '../components/ui/Segmented';
 import { Skeleton } from '../components/ui/Skeleton';
 import { Surface } from '../components/ui/Surface';
+import { Rise } from '../components/ui/Rise';
 import { Display } from '../components/ui/Typography';
 
 // NG PHASE 11.5 (screen 03): "Your week, marked up". The week in one line with kept / undone counts, the workout and
@@ -174,17 +175,20 @@ export default function WeekReviewScreen() {
         ) : null}
 
         {marks.length === 0 && pen.loaded ? (
+<Rise i={0}>
           <Surface padding={18}>
             <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Nothing marked this week</Text>
             <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, marginTop: 4, fontFamily: BG[400] }}>
               Your plan ran as written. Marks appear only when your own logs show a reason to change something.
             </Text>
           </Surface>
+</Rise>
         ) : null}
 
         {sections.map(({ label, list, color }) =>
           list.length === 0 ? null : (
-            <Surface key={label} padding={16}>
+<Rise key={label} i={1}>
+            <Surface padding={16}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: color }} />
@@ -196,6 +200,7 @@ export default function WeekReviewScreen() {
                 <Row key={m.id} m={m} planDays={planDays} onDecide={pen.decide} />
               ))}
             </Surface>
+</Rise>
           )
         )}
 
