@@ -1,3 +1,4 @@
+import { mealTitle } from '../../../lib/mealPlanMeal';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -213,7 +214,7 @@ export default function MealSetupSummary() {
             sample.meals.map((m, i) => (
               <View key={m.meal} style={{ paddingVertical: 12, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border, marginTop: i === 0 ? 8 : 0 }}>
                 <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{m.meal.charAt(0).toUpperCase() + m.meal.slice(1)}</Text>
-                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{m.name}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{mealTitle(m)}</Text>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
                   {m.kcal} kcal · P {Math.round(m.protein)} g · {itemsText(m)}
                 </Text>

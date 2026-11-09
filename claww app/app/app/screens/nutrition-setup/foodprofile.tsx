@@ -8,6 +8,7 @@ import { Button } from '../../../components/ui/Button';
 import { Chip } from '../../../components/ui/Chip';
 import { useAppState } from '../../../lib/appState';
 import { getProfile, saveFoodProfile } from '../../../lib/data';
+import { resetMealPlans } from '../../../lib/mealPlanData';
 import { AVOID_MAX_LENGTH, CUISINE_OPTIONS, normalizeFoodProfile, type Cuisine } from '../../../lib/foodProfile';
 
 const G = COLORS.green;
@@ -43,6 +44,8 @@ export default function NutritionSetupFoodProfile() {
     if (!userId || saving) return;
     setSaving(true);
     await saveFoodProfile(userId, normalizeFoodProfile({ cuisines, avoid }));
+    // The meal plan follows what you avoid, so plans made before this change are thrown away and built again.
+    await resetMealPlans(userId);
     setSaving(false);
     router.back(); // reached from the Nutrition tab card or Profile; the meal setup no longer passes through here (NG PHASE 6)
   };

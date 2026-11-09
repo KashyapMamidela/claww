@@ -2,6 +2,7 @@
 // templates bundled in the app and cached in meal_plan_days when that table exists; with no table it is simply
 // rebuilt (deterministically) each time.
 
+import { effectiveAvailability, effectiveDiet } from './dietAvoid';
 import { supabase } from './supabase';
 import { getProfile } from './data';
 import { getUserResources } from './userResources';
@@ -40,12 +41,15 @@ export async function loadPlanInputs(userId: string): Promise<Inputs | null> {
   const [resources, profile] = await Promise.all([getUserResources(userId), getProfile(userId)]);
   const targets = profile?.personalization_profile?.nutritionDefaults;
   if (!resources || !targets) return null;
+  // What the user says they avoid narrows the saved diet (a vegetarian who once ticked Eggetarian gets no egg fixes).
+  const avoid = words(profile?.personalization_profile?.foodProfile?.avoid);
+  const diet = effectiveDiet(resources.diet, avoid);
   const r: Resources = {
     sources: resources.sources,
     cookWith: resources.cookWith,
-    diet: resources.diet,
-    availability: resources.availability as Resources['availability'],
-    avoid: words(profile?.personalization_profile?.foodProfile?.avoid),
+    diet,
+    availability: effectiveAvailability(resources.availability as Record<string, string>, avoid, diet) as Resources['availability'],
+    avoid,
     style: resources.planStyle,
   };
   return { input: { target: { kcal: targets.calories, protein: targets.protein_g }, resources: r, seed: userId, templates: MEAL_TEMPLATES, addOns: ADD_ONS } };
