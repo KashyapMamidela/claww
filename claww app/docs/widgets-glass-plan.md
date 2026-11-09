@@ -1,6 +1,6 @@
 # Widgets: liquid glass pass (plan for Sonnet 5.5)
 
-Branch `premium/12-widgets-pro`. The user approved the preview in chat on 2026-11-09 (rings, food, steps, water 2×2 and 4×2 on glass).
+Branch `premium/12-widgets-pro`. The user approved the preview in chat on 2026-11-09 (rings, food, steps, water 2×2 and 4×2 on glass), then asked for darker glass and no pink glow on Food: `glassSvg` was darkened to match (base 0.78, colour pools 0.34 / 0.2, sheen 0.12, rim 0.42).
 Build nothing until the code below is done; then one EAS development build, install over USB, add all four widgets, check on the phone.
 
 ## Already done (committed on this branch)
@@ -17,7 +17,7 @@ Build nothing until the code below is done; then one EAS development build, inst
 - In `widgets/parts.tsx` replace `Card` with `GlassCard({ width, height, tint, tint2, click, data, row, center, children })`:
   root `OverlapWidget` (`width/height: 'match_parent'`, the click action on it) holding
   `SvgWidget svg={glassSvg(width, height, tint, tint2)}` sized `width × height`, then a `FlexWidget` (`match_parent`, `padding: 16`) with the children. No `backgroundColor` on the root (the SVG draws the rounded pane, so the wallpaper shows through the corners).
-- Tints: Rings `#3B82F6` / `#2DD4BF`; Food `#22C55E` / `#F472B6`; Steps `#F59E0B` / `#FB7185`; Water `#38BDF8` / `#6366F1`.
+- Tints: Rings `#3B82F6` / `#2DD4BF`; Food `#22C55E` / `#22C55E` (no pink); Steps `#F59E0B` / `#FB7185`; Water `#38BDF8` / `#6366F1`.
 - Text on glass: primary `#FFFFFF`; secondary `rgba(255, 255, 255, 0.62)`. Labels in lighter tints: Workout `#60A5FA`, Food `#4ADE80`, Recovery `#5EEAD4`, Protein `#F9A8D4`, Carbs `#FCD34D`, Fat `#7DD3FC`. Bar tracks `rgba(255, 255, 255, 0.14)`. Secondary buttons `rgba(255, 255, 255, 0.14)`.
 - `SignedOut` uses the glass card too.
 

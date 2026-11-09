@@ -62,12 +62,12 @@ export function glassSvg(width: number, height: number, tint: string, tint2: str
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">` +
     '<defs>' +
-    `<radialGradient id="a" cx="0.12" cy="0" r="0.95"><stop offset="0" stop-color="${tint}" stop-opacity="0.55"/><stop offset="1" stop-color="${tint}" stop-opacity="0"/></radialGradient>` +
-    `<radialGradient id="b" cx="1" cy="1" r="0.85"><stop offset="0" stop-color="${tint2}" stop-opacity="0.38"/><stop offset="1" stop-color="${tint2}" stop-opacity="0"/></radialGradient>` +
-    '<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.18"/><stop offset="0.42" stop-color="#FFFFFF" stop-opacity="0.03"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>' +
-    '<linearGradient id="e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.08"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0.22"/></linearGradient>' +
+    `<radialGradient id="a" cx="0.12" cy="0" r="0.95"><stop offset="0" stop-color="${tint}" stop-opacity="0.34"/><stop offset="1" stop-color="${tint}" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="b" cx="1" cy="1" r="0.85"><stop offset="0" stop-color="${tint2}" stop-opacity="0.2"/><stop offset="1" stop-color="${tint2}" stop-opacity="0"/></radialGradient>` +
+    '<linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.12"/><stop offset="0.42" stop-color="#FFFFFF" stop-opacity="0.02"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>' +
+    '<linearGradient id="e" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.42"/><stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.06"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0.16"/></linearGradient>' +
     '</defs>' +
-    `<rect width="${w}" height="${h}" rx="${r}" fill="#0D0E13" fill-opacity="0.58"/>` +
+    `<rect width="${w}" height="${h}" rx="${r}" fill="#08090C" fill-opacity="0.78"/>` +
     `<rect width="${w}" height="${h}" rx="${r}" fill="url(#a)"/>` +
     `<rect width="${w}" height="${h}" rx="${r}" fill="url(#b)"/>` +
     `<rect width="${w}" height="${h}" rx="${r}" fill="url(#s)"/>` +
