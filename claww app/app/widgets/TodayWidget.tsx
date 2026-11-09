@@ -17,7 +17,7 @@ export function TodayWidget({ snapshot }: { snapshot: WidgetSnapshot }) {
     { pct: snapshot.workoutPct, color: BLUE },
     { pct: snapshot.nutritionPct, color: GREEN },
     { pct: snapshot.recoveryPct, color: TEAL },
-  ]);
+  ], 7, 3);
   return (
     <FlexWidget
       clickAction="OPEN_APP"
@@ -26,8 +26,7 @@ export function TodayWidget({ snapshot }: { snapshot: WidgetSnapshot }) {
       <OverlapWidget style={{ width: 96, height: 96 }}>
         <SvgWidget svg={svg} style={{ width: 96, height: 96 }} />
         <FlexWidget style={{ width: 'match_parent', height: 'match_parent', justifyContent: 'center', alignItems: 'center' }}>
-          <TextWidget text={l.daily} style={{ fontSize: 20, fontWeight: '800', color: '#FFFFFF' }} />
-          <TextWidget text="of today" style={{ fontSize: 9, fontWeight: '600', color: '#9A9AA3' }} />
+          <TextWidget text={l.daily} style={{ fontSize: 15, fontWeight: '800', color: '#FFFFFF' }} />
         </FlexWidget>
       </OverlapWidget>
 
