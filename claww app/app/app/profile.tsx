@@ -144,6 +144,7 @@ export default function ProfileScreen() {
   const menuItems: MenuRow[] = [
     { icon: 'settings', label: 'Settings', value: profile?.notifications_enabled ? 'Reminders on' : 'Reminders off', onPress: () => router.push('/settings') },
     { icon: 'pencil', label: 'Your week, marked up', onPress: () => router.push('/week-review') },
+    { icon: 'camera', label: 'Progress photos', onPress: () => router.push('/progress-photos') },
     { icon: 'utensils', label: 'Food preferences', value: (profile?.personalization_profile as any)?.foodProfile ? 'Set' : undefined, onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
     { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
     { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
