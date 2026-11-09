@@ -1,7 +1,7 @@
 import React from 'react';
 import { FlexWidget, OverlapWidget, SvgWidget, TextWidget } from 'react-native-android-widget';
-import { iconSvg, ringsSvg, type RingSpec } from '../lib/widgetSvg';
-import { F, W, card } from './theme';
+import { glassSvg, iconSvg, ringsSvg, type RingSpec } from '../lib/widgetSvg';
+import { F, W } from './theme';
 
 // Small building blocks shared by the widgets.
 
@@ -17,7 +17,7 @@ export function Bar({ width, pct, color, track, height = 5 }: { width: number; p
   const w = Math.max(0, Math.round(width));
   const fill = Math.round(w * Math.max(0, Math.min(1, pct)));
   return (
-    <FlexWidget style={{ width: w, height, borderRadius: height / 2, backgroundColor: track ?? W.well, flexDirection: 'row' }}>
+    <FlexWidget style={{ width: w, height, borderRadius: height / 2, backgroundColor: track ?? W.track, flexDirection: 'row' }}>
       {fill > 0 ? <FlexWidget style={{ width: Math.max(height, fill), height, borderRadius: height / 2, backgroundColor: color }} /> : null}
     </FlexWidget>
   );
@@ -38,15 +38,47 @@ export function T({ text, size, font = F.sb, color = W.text, lines = 1 }: { text
   return <TextWidget text={text} maxLines={lines} truncate="END" style={{ fontSize: size, fontFamily: font, color: color as Hex }} />;
 }
 
-export function Card({ children, click = 'OPEN_APP', data, row = false, center = false }: { children: React.ReactNode; click?: string; data?: Record<string, unknown>; row?: boolean; center?: boolean }) {
+/**
+ * The liquid glass card: a smoked, partly see-through pane drawn as an SVG (glassSvg) with the content laid over it.
+ * The SVG draws the rounded corners, so the root has no background of its own and the wallpaper shows through.
+ */
+export function GlassCard({
+  width,
+  height,
+  tint,
+  tint2,
+  children,
+  click = 'OPEN_APP',
+  data,
+  row = false,
+  center = false,
+}: {
+  width: number;
+  height: number;
+  tint: string;
+  tint2: string;
+  children: React.ReactNode;
+  click?: string;
+  data?: Record<string, unknown>;
+  row?: boolean;
+  center?: boolean;
+}) {
   return (
-    <FlexWidget
-      clickAction={click}
-      clickActionData={data}
-      style={{ ...card, flexDirection: row ? 'row' : 'column', justifyContent: center ? 'center' : 'flex-start', alignItems: center ? 'center' : 'flex-start' }}
-    >
-      {children}
-    </FlexWidget>
+    <OverlapWidget clickAction={click} clickActionData={data} style={{ width: 'match_parent', height: 'match_parent' }}>
+      <SvgWidget svg={glassSvg(width, height, tint, tint2, W.radius)} style={{ width: 'match_parent', height: 'match_parent' }} />
+      <FlexWidget
+        style={{
+          width: 'match_parent',
+          height: 'match_parent',
+          padding: W.pad,
+          flexDirection: row ? 'row' : 'column',
+          justifyContent: center ? 'center' : 'flex-start',
+          alignItems: center ? 'center' : 'flex-start',
+        }}
+      >
+        {children}
+      </FlexWidget>
+    </OverlapWidget>
   );
 }
 
@@ -67,26 +99,52 @@ export function RoundButton({ icon, bg, color, size = 34, click, data, label }: 
   );
 }
 
-/** A pill button with a label. */
-export function Pill({ text, bg, color, click, data, label, height = 36, width }: { text: string; bg: Color; color: Hex; click: string; data?: Record<string, unknown>; label: string; height?: number; width?: number | 'match_parent' }) {
+/** A pill button with a label (and an optional icon before it). */
+export function Pill({
+  text,
+  bg,
+  color,
+  click,
+  data,
+  label,
+  height = 36,
+  width,
+  icon,
+  iconColor,
+  size = 14,
+}: {
+  text: string;
+  bg: Color;
+  color: Hex;
+  click: string;
+  data?: Record<string, unknown>;
+  label: string;
+  height?: number;
+  width?: number | 'match_parent';
+  icon?: string;
+  iconColor?: string;
+  size?: number;
+}) {
   return (
     <FlexWidget
       clickAction={click}
       clickActionData={data}
       accessibilityLabel={label}
-      style={{ width: width ?? 'match_parent', height, borderRadius: height / 2, backgroundColor: bg, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 12 }}
+      style={{ width: width ?? 'match_parent', height, borderRadius: height / 2, backgroundColor: bg, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 12 }}
     >
-      <TextWidget text={text} style={{ fontSize: 14, fontFamily: F.b, color }} />
+      {icon ? <Icon name={icon} color={iconColor ?? color} size={size} strokeWidth={2.6} /> : null}
+      {icon ? <Spacer w={5} /> : null}
+      <TextWidget text={text} style={{ fontSize: size, fontFamily: F.b, color }} />
     </FlexWidget>
   );
 }
 
-export function SignedOut() {
+export function SignedOut({ width, height }: { width: number; height: number }) {
   return (
-    <Card center>
+    <GlassCard width={width} height={height} tint="#3B82F6" tint2="#2DD4BF" center>
       <T text="CLAWW" size={13} font={F.xb} color={W.muted} />
       <Spacer h={6} />
       <T text="Open the app to sign in" size={14} font={F.sb} />
-    </Card>
+    </GlassCard>
   );
 }

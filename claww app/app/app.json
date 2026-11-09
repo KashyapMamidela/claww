@@ -82,6 +82,19 @@
               "updatePeriodMillis": 1800000
             },
             {
+              "name": "Steps",
+              "label": "CLAWW Steps",
+              "description": "Today's steps against your goal, and a quick start for an activity",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "maxResizeWidth": "600dp",
+              "maxResizeHeight": "400dp",
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
               "name": "Quick",
               "label": "CLAWW Water",
               "description": "Today's water, and a glass logged in one tap",

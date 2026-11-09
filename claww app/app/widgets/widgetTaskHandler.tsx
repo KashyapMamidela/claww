@@ -5,10 +5,11 @@ import { EMPTY_SNAPSHOT, WIDGET_KEY, dayKey, forToday, type WidgetSnapshot } fro
 import { ActivityWidget } from './ActivityWidget';
 import { NutritionWidget } from './NutritionWidget';
 import { WaterWidget } from './WaterWidget';
+import { StepsWidget } from './StepsWidget';
 
 // Provider names are fixed once a widget is on someone's home screen: "Today" is the activity widget and "Quick" the
-// water widget (their first names), "Nutrition" is new.
-export const WIDGET_NAMES = ['Today', 'Nutrition', 'Quick'] as const;
+// water widget (their first names); "Nutrition" and "Steps" are newer.
+export const WIDGET_NAMES = ['Today', 'Nutrition', 'Steps', 'Quick'] as const;
 
 export async function readSnapshot(): Promise<WidgetSnapshot> {
   try {
@@ -33,6 +34,7 @@ export function widgetFor(name: string, snapshot: WidgetSnapshot, info: Pick<Wid
   const width = info.width || 330;
   const height = info.height || 180;
   if (name === 'Quick') return <WaterWidget snapshot={s} width={width} height={height} />;
+  if (name === 'Steps') return <StepsWidget snapshot={s} width={width} height={height} />;
   if (name === 'Nutrition') return <NutritionWidget snapshot={s} width={width} height={height} />;
   return <ActivityWidget snapshot={s} width={width} height={height} now={now} />;
 }
