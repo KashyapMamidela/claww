@@ -40,6 +40,7 @@ import { Display } from '../../components/ui/Typography';
 import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { syncWidget } from '../../lib/widgetSync';
+import { DEFAULT_STEPS_GOAL } from '../../lib/activityMath';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
 import { TodayLine } from '../../components/home/TodayLine';
@@ -480,9 +481,24 @@ function HomePopulated() {
     proteinLeftG: proteinLeft,
     hour: now.getHours(),
   });
+  const stepsGoal = targetProfile?.personalization_profile?.stepsGoal ?? DEFAULT_STEPS_GOAL;
   useEffect(() => {
-    syncWidget({ kcal: consumedKcal, kcalTarget: targetKcal, proteinLeft, session: sessionPlanned && today ? (today.focus || today.day) : null, sessionDone: workoutToday.completed, streak });
-  }, [consumedKcal, targetKcal, proteinLeft, sessionPlanned, today, workoutToday.completed, streak]);
+    syncWidget({
+      userId,
+      kcal: consumedKcal,
+      kcalTarget: targetKcal,
+      proteinLeft,
+      session: sessionPlanned && today ? (today.focus || today.day) : null,
+      sessionDone: workoutToday.completed,
+      streak,
+      workoutPct,
+      nutritionPct,
+      recoveryPct: recoveryRingPct(recovery?.score) ?? 0,
+      dailyPct: dailyGoalPct,
+      steps: steps.steps,
+      stepsGoal,
+    });
+  }, [userId, consumedKcal, targetKcal, proteinLeft, sessionPlanned, today, workoutToday.completed, streak, workoutPct, nutritionPct, recovery?.score, dailyGoalPct, steps.steps, stepsGoal]);
   const sessionMinutes = today ? Math.round((today.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0) * 130) / 60 + 5) : 0;
 
   // The Today line: the same slot states as the Nutrition tab, so the two always agree.

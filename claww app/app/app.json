@@ -52,7 +52,18 @@
             {
               "name": "Today",
               "label": "CLAWW Today",
-              "description": "Calories, protein left, today's session and your streak",
+              "description": "Your three rings, calories, protein left, steps and today's session",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "Quick",
+              "label": "CLAWW Water and food",
+              "description": "Today's water with a one-tap glass, and a shortcut to log food",
               "minWidth": "250dp",
               "minHeight": "110dp",
               "targetCellWidth": 4,
