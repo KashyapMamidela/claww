@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import { syncWidget } from '../lib/widgetSync';
+import React, { useCallback, useEffect, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -47,6 +48,9 @@ export function WaterRow({ userId }: { userId: string | null }) {
   );
 
   const total = entries.reduce((s, e) => s + e.ml, 0);
+  useEffect(() => {
+    if (userId) syncWidget({ userId, waterMl: total, waterGoalMl: TARGET_ML });
+  }, [userId, total]);
   const filled = Math.min(SEGMENTS, Math.floor(total / GLASS_ML));
 
   const add = async (ml: number) => {
