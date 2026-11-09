@@ -251,3 +251,24 @@ export function sameSnapshot(a: WidgetSnapshot, b: WidgetSnapshot): boolean {
   };
   return strip(a) === strip(b);
 }
+
+export interface StepsView {
+  steps: string;
+  goal: string;
+  pct: number;
+  left: string;
+  km: string;
+}
+
+/** Steps on their own. Distance is an estimate at 0.75 m a step (an average stride), said as "about". */
+export function stepsView(s: WidgetSnapshot): StepsView {
+  const left = s.stepsGoal - s.steps;
+  const km = (s.steps * 0.00075).toFixed(1);
+  return {
+    steps: n(s.steps),
+    goal: n(s.stepsGoal),
+    pct: s.stepsGoal > 0 ? clamp01(s.steps / s.stepsGoal) : 0,
+    left: left <= 0 ? 'Goal reached' : `${n(left)} to go`,
+    km: `about ${km} km`,
+  };
+}

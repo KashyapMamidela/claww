@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { EMPTY_SNAPSHOT, activityView, dayKey, forToday, nutritionView, sameSnapshot, sizeClass, staleLabel, waterView, type WidgetSnapshot } from './widgetSnapshot';
-import { ringsSvg } from './widgetSvg';
+import { EMPTY_SNAPSHOT, stepsView, activityView, dayKey, forToday, nutritionView, sameSnapshot, sizeClass, staleLabel, waterView, type WidgetSnapshot } from './widgetSnapshot';
+import { glassSvg, ringHole, ringsSvg, stepsGaugeSvg } from './widgetSvg';
 
 const NOW = new Date(2026, 10, 9, 13, 47);
 const day: WidgetSnapshot = {
@@ -127,5 +127,33 @@ describe('rings svg', () => {
   });
   it('clamps bad numbers', () => {
     expect(() => ringsSvg([{ pct: NaN, color: '#fff' }, { pct: 400, color: '#000' }])).not.toThrow();
+  });
+});
+
+describe('steps view', () => {
+  it('reads steps, what is left and an estimated distance', () => {
+    const v = stepsView(day);
+    expect(v.steps).toBe('1,851');
+    expect(v.goal).toBe('10,000');
+    expect(v.left).toBe('8,149 to go');
+    expect(v.km).toBe('about 1.4 km');
+    expect(stepsView({ ...day, steps: 12000 }).left).toBe('Goal reached');
+    expect(stepsView({ ...day, steps: 12000 }).pct).toBe(1);
+  });
+});
+
+describe('glass and gauge drawings', () => {
+  it('sizes the glass to the widget and keeps the rim inside', () => {
+    const svg = glassSvg(334, 190, '#3B82F6', '#2DD4BF');
+    expect(svg).toContain('viewBox="0 0 334 190"');
+    expect(svg).toContain('width="332.5"');
+  });
+  it('draws the knob only once steps have started', () => {
+    expect(stepsGaugeSvg(0)).not.toContain('fill="#FFFFFF"');
+    expect(stepsGaugeSvg(0.5)).toContain('fill="#FFFFFF"');
+  });
+  it('leaves room for the number inside the rings', () => {
+    expect(ringHole(120, 3, 8, 2.5)).toBeCloseTo(50.4, 1);
+    expect(ringHole(120, 3, 20, 10)).toBe(0);
   });
 });
