@@ -74,14 +74,16 @@ function toScanFood(r: FoodRow): ScanFood {
 
 // The order the scanner tries models in. Each failure (error, rate limit, timeout, an answer that does not validate)
 // moves straight to the next. The three Google models share one key; Groq is last. VISION_MODELS (comma separated model
-// ids) overrides the Google part without a deploy.
+// ids) overrides the Google part without a deploy: "model" or "model:milliseconds", comma separated, e.g.
+// gemini-3.8-flash:7000,gemini-3.5-flash-lite:8000
 // If the model being tried has not answered after this long, the next one starts too and the first valid answer wins.
-const HEDGE_MS = 4000;
+// Equal to the first model's time limit: it gets its 7 s, then the quick model takes over.
+const HEDGE_MS = 7000;
 
 const GOOGLE_MODELS: { model: string; timeoutMs: number }[] = [
-  { model: 'gemini-3.8-flash', timeoutMs: 14000 },
+  { model: 'gemini-3.8-flash', timeoutMs: 7000 },
+  { model: 'gemini-3.5-flash-lite', timeoutMs: 8000 },
   { model: 'gemma-4-31b-it', timeoutMs: 12000 },
-  { model: 'gemini-3.5-flash-lite', timeoutMs: 10000 },
 ];
 
 function buildProviders(): VisionProvider[] {
@@ -89,8 +91,15 @@ function buildProviders(): VisionProvider[] {
   const url = Deno.env.get('VISION_BACKUP_URL');
   const key = Deno.env.get('VISION_BACKUP_KEY');
   if (url && key) {
-    const override = (Deno.env.get('VISION_MODELS') ?? '').split(',').map((m) => m.trim()).filter(Boolean);
-    const list = override.length > 0 ? override.map((model) => ({ model, timeoutMs: 12000 })) : GOOGLE_MODELS;
+    const override = (Deno.env.get('VISION_MODELS') ?? '')
+      .split(',')
+      .map((e) => e.trim())
+      .filter(Boolean)
+      .map((e) => {
+        const [model, ms] = e.split(':');
+        return { model: model.trim(), timeoutMs: Number(ms) > 0 ? Number(ms) : 12000 };
+      });
+    const list = override.length > 0 ? override : GOOGLE_MODELS;
     for (const m of list) {
       providers.push(openAiCompatibleProvider({ name: `google:${m.model}`, url, key, model: m.model, timeoutMs: m.timeoutMs, reasoningEffort: 'low' }));
     }

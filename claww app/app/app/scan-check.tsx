@@ -21,6 +21,8 @@ import { builtMealName, isEstimateFood } from '../lib/mealCheckLogic';
 import { recordFoodUse } from '../lib/foodDb';
 import { requestFood } from '../lib/foodRequests';
 import { useToast } from '../components/ui/Toast';
+import { Skeleton } from '../components/ui/Skeleton';
+import { SHOW_DEV_TOOLS } from '../lib/devTools';
 import { rateMeal } from '../lib/nutritionLogic';
 import { nextMealFor } from '../lib/homeMoment';
 import { RatingPill } from '../components/nutrition/MealCard';
@@ -44,6 +46,28 @@ function fmtQty(q: number) {
 
 function toScanFood(f: Food): ScanFood {
   return f;
+}
+
+const READING_STEPS = ['Looking at your plate', 'Spotting each food', 'Matching them to the food list', 'Working out the amounts'];
+
+/** One line that changes every 2.5 s with a bar that fills, so a slow read still shows that something is happening. */
+function ReadingSteps() {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setN((x) => Math.min(READING_STEPS.length - 1, x + 1)), 2500);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <View style={{ gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <ActivityIndicator color={G} />
+        <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }} accessibilityLiveRegion="polite">{READING_STEPS[n]}…</Text>
+      </View>
+      <View style={{ height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+        <View style={{ height: '100%', width: `${((n + 1) / READING_STEPS.length) * 100}%`, backgroundColor: G, borderRadius: 2 }} />
+      </View>
+    </View>
+  );
 }
 
 export default function ScanCheckScreen() {
@@ -290,10 +314,23 @@ export default function ScanCheckScreen() {
     return (
       <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
         {header}
-        <View style={{ padding: 40, alignItems: 'center', gap: 14 }}>
-          <ActivityIndicator color={G} />
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Reading the plate…</Text>
-        </View>
+        <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
+          {session.photoUri ? <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: 170, borderRadius: 20 }} resizeMode="cover" accessibilityLabel="Your photo" /> : null}
+          <ReadingSteps />
+          {/* The rows take the shape of the real ones, so the screen does not jump when the plate is read. */}
+          <Surface padding={0} radius={22}>
+            {[0, 1, 2, 3].map((n) => (
+              <View key={n} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 14, borderTopWidth: n === 0 ? 0 : StyleSheet.hairlineWidth, borderTopColor: COLORS.border }}>
+                <Skeleton width={40} height={40} borderRadius={20} />
+                <View style={{ flex: 1, gap: 8 }}>
+                  <Skeleton width={n % 2 ? '55%' : '70%'} height={14} />
+                  <Skeleton width="35%" height={11} />
+                </View>
+                <Skeleton width={104} height={44} borderRadius={22} />
+              </View>
+            ))}
+          </Surface>
+        </ScrollView>
       </View>
     );
   }
@@ -474,6 +511,7 @@ export default function ScanCheckScreen() {
           <Text style={{ color: COLORS.fg, fontSize: 15, lineHeight: 21, flex: 1, fontFamily: BG[400] }}>{rating.reason}</Text>
         </View>
         {error ? <View style={{ paddingHorizontal: 16 }}><ErrorCard message={error} onRetry={log} retrying={saving} /></View> : null}
+        {SHOW_DEV_TOOLS && source === 'photo' && result ? <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', fontFamily: BG[400] }}>Read by {result.model}</Text> : null}
       </ScrollView>
 
       <View style={{ position: 'absolute', left: 16, right: 16, bottom: insets.bottom + 12 }}>

@@ -159,16 +159,22 @@ export default function ScanScreen() {
             <Corner pos="tr" />
             <Corner pos="bl" />
             <Corner pos="br" />
-            {dish ? (
-              <View style={{ position: 'absolute', bottom: -18, alignSelf: 'center', minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: G, justifyContent: 'center' }}>
-                <Text style={{ color: '#052e16', fontSize: 15, fontFamily: BG[800] }}>Looks like {dish.toLowerCase()}</Text>
-              </View>
-            ) : reading ? (
-              <View style={{ position: 'absolute', bottom: -18, alignSelf: 'center', minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.6)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <ActivityIndicator color="#fff" size="small" />
-                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[400] }}>Reading the plate…</Text>
-              </View>
-            ) : null}
+          </View>
+        ) : null}
+
+        {/* The tag sits at the bottom of the photo, above the panel: below the frame it was covered by the panel. */}
+        {photo && dish ? (
+          <View pointerEvents="none" style={{ position: 'absolute', bottom: 40, left: 16, right: 16, alignItems: 'center' }}>
+            <View style={{ minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: G, justifyContent: 'center' }}>
+              <Text style={{ color: '#052e16', fontSize: 15, fontFamily: BG[800] }} numberOfLines={1}>Looks like {dish.toLowerCase()}</Text>
+            </View>
+          </View>
+        ) : photo && reading ? (
+          <View pointerEvents="none" style={{ position: 'absolute', bottom: 40, left: 16, right: 16, alignItems: 'center' }}>
+            <View style={{ minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.65)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ActivityIndicator color="#fff" size="small" />
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[400] }}>Reading the plate…</Text>
+            </View>
           </View>
         ) : null}
 
@@ -206,7 +212,9 @@ export default function ScanScreen() {
 
             <View>
               <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{last ? 'Or answer two quick questions' : 'Two quick questions'}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: BG[400] }}>Photos cannot see oil or portion. This makes the numbers honest.</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: BG[400] }}>
+                Photos cannot see oil or portion. {reading ? 'Your plate is being read while you answer.' : 'This makes the numbers honest.'}
+              </Text>
             </View>
 
             <SectionLabel color={G}>WHERE IS IT FROM?</SectionLabel>
@@ -216,8 +224,8 @@ export default function ScanScreen() {
             <SectionLabel color={G}>PORTION</SectionLabel>
             <Segmented options={PORTIONS} value={context.portion} onChange={(portion) => setContext((c) => ({ ...c, portion }))} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="Portion" />
 
-            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth onPress={next} disabled={reading} icon={<Icon name="chevron-right" size={16} color="#fff" />}>
-              {reading ? 'Reading the plate…' : 'Check the items'}
+            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth onPress={next} icon={<Icon name="chevron-right" size={16} color="#fff" />}>
+              Check the items
             </Button>
             <Pressable onPress={retake} accessibilityRole="button" style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[600] }}>Retake the photo</Text>
