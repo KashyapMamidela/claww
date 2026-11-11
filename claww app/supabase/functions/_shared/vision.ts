@@ -86,30 +86,44 @@ export async function callVisionProviders<T>(
   throw new AllVisionProvidersFailed(attempts);
 }
 
-/** An OpenAI-compatible chat-completions provider (the backup: configurable by three secrets, no code change). */
+/** Some models wrap JSON in a code fence ("```json ... ```"); this returns the JSON text inside. */
+export function stripJsonFence(text: string): string {
+  const t = text.trim();
+  const m = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return m ? m[1] : t;
+}
+
+/**
+ * An OpenAI-compatible chat-completions provider (the backup: configurable by three secrets, no code change).
+ * Providers differ on `response_format: json_object`: if one answers 400 to it, the call is repeated once without it
+ * (the prompt already asks for JSON only) and a code fence around the answer is removed.
+ */
 export function openAiCompatibleProvider(cfg: { name: string; url: string; key: string; model: string }, fetchImpl: typeof fetch = fetch): VisionProvider {
   return {
     name: cfg.name,
     call: async (system, user, image, signal) => {
-      const res = await fetchImpl(cfg.url, {
-        method: 'POST',
-        signal,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.key}` },
-        body: JSON.stringify({
-          model: cfg.model,
-          temperature: 0.2,
-          response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: [{ type: 'text', text: user }, { type: 'image_url', image_url: { url: image } }] },
-          ],
-        }),
-      });
+      const send = (withJsonMode: boolean) =>
+        fetchImpl(cfg.url, {
+          method: 'POST',
+          signal,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.key}` },
+          body: JSON.stringify({
+            model: cfg.model,
+            temperature: 0.2,
+            ...(withJsonMode ? { response_format: { type: 'json_object' } } : {}),
+            messages: [
+              { role: 'system', content: system },
+              { role: 'user', content: [{ type: 'text', text: user }, { type: 'image_url', image_url: { url: image } }] },
+            ],
+          }),
+        });
+      let res = await send(true);
+      if (res.status === 400) res = await send(false);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
       const content = json.choices?.[0]?.message?.content;
       if (!content) throw new Error('empty answer');
-      return content;
+      return stripJsonFence(content);
     },
   };
 }

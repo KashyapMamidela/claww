@@ -5,7 +5,7 @@ import {
   applyContext, candidateChips, DEFAULT_CONTEXT, gramsFor, matchFood, MATCH_THRESHOLD, OIL_FOOD, parseModelOutput, resolveItems, roundQty, routeScan,
   setQuantity, totalsOf, type ModelOutput, type ScanFood,
 } from './scanMath.ts';
-import { AllVisionProvidersFailed, callVisionProviders, openAiCompatibleProvider, type VisionProvider } from './vision.ts';
+import { AllVisionProvidersFailed, callVisionProviders, openAiCompatibleProvider, stripJsonFence, type VisionProvider } from './vision.ts';
 
 // The real food database (113 ingredients, 86 dishes) as ScanFood rows.
 function loadScanFoods(): ScanFood[] {
@@ -208,5 +208,25 @@ describe('vision providers: order, timeout and validation', () => {
     expect(await p.call('sys', 'user', 'data:image/jpeg;base64,AAA', new AbortController().signal)).toBe('{"x":1}');
     expect(seen!.auth).toBe('Bearer k');
     expect(seen!.body.model).toBe('m');
+  });
+
+  it('repeats once without JSON mode when the provider rejects it, and removes a code fence', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const fakeFetch = (async (_url: string, init: { body: string }) => {
+      const body = JSON.parse(init.body);
+      bodies.push(body);
+      if (body.response_format) return { ok: false, status: 400, json: async () => ({}) };
+      return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '```json\n{"x":2}\n```' } }] }) };
+    }) as unknown as typeof fetch;
+    const p = openAiCompatibleProvider({ name: 'backup:test', url: 'https://example.test', key: 'k', model: 'm' }, fakeFetch);
+    expect(await p.call('s', 'u', 'data:image/jpeg;base64,AAA', new AbortController().signal)).toBe('{"x":2}');
+    expect(bodies.length).toBe(2);
+    expect(bodies[0].response_format).toBeDefined();
+    expect(bodies[1].response_format).toBeUndefined();
+  });
+
+  it('stripJsonFence leaves plain JSON alone', () => {
+    expect(stripJsonFence('{"a":1}')).toBe('{"a":1}');
+    expect(stripJsonFence('```\n{"a":1}\n```')).toBe('{"a":1}');
   });
 });
