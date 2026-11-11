@@ -131,7 +131,7 @@ export function WorkoutCalendar() {
         {weekDays.map((d, i) => (
           <Animated.View
             key={toDateKey(d)}
-            entering={FadeInDown.delay(i * 40).springify().damping(16)}
+            entering={FadeInDown.delay(i * 40).duration(220)}
             style={{ alignItems: 'center', gap: 4 }}
           >
             <Text style={{ color: COLORS.textFaint, fontSize: 11, fontFamily: BG[700] }}>{DAY_LABELS[d.getDay()]}</Text>

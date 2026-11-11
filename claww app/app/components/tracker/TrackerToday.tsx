@@ -116,7 +116,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         setWeights(logs);
         setActivities(acts);
         setSetsLast72h(sets.length);
-        setProteinPct(inputs.proteinPct);
+        // getRecoveryInputs returns a share (0.67); this card shows a percentage (67 %).
+        setProteinPct(inputs.proteinPct === null ? null : inputs.proteinPct * 100);
         setSessionFocus(workout ? workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus ?? null : null);
         setSyncedAt(new Date());
       })();

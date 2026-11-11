@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { syncPenMarks } from './penData';
 import { useWriteQueueFlusher } from './writeQueueRuntime';
+import { useDayKey } from './dayKey';
 import { supabase } from './supabase';
 import { refreshReminders } from './reminderSync';
 import { loadPlanStreak } from './streakData';
@@ -97,6 +98,29 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [xp, setXp] = useState(0);
   const [streakStats, setStreakStats] = useState<PlanStreakStats | null>(null);
   const streak = streakStats?.current ?? 0;
+
+  // A new day (midnight, or the app reopened on a later date) reloads everything that is "today's":
+  // without this an app left open overnight showed yesterday's meals as done on the new day.
+  const dayKey = useDayKey();
+  const firstDay = React.useRef(dayKey);
+  useEffect(() => {
+    if (!userId || dayKey === firstDay.current) return;
+    firstDay.current = dayKey;
+    let cancelled = false;
+    Promise.all([getTodaysMealLogs(userId), getLastNightSleep(userId), getRecoveryScore(userId), loadPlanStreak(userId).catch(() => null)]).then(
+      ([todaysMeals, sleep, rec, loadedStreak]) => {
+        if (cancelled) return;
+        setMeals(todaysMeals);
+        setTodaySleep(sleep);
+        setSleepLogged(!!sleep);
+        setRecovery(rec);
+        if (loadedStreak) setStreakStats(loadedStreak.stats);
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [dayKey, userId]);
 
   useEffect(() => {
     let cancelled = false;

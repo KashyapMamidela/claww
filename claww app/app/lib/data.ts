@@ -1418,7 +1418,9 @@ export async function logWorkoutDayEvent(
   workoutId: string,
   dayLabel: string,
   dayFocus: string,
-  status: WorkoutDayStatus
+  status: WorkoutDayStatus,
+  /** When the session started. A session that runs past midnight belongs to the day it began, not the day it ended. */
+  at?: Date
 ): Promise<boolean> {
   const { error } = await supabase.from('workout_day_events').insert({
     user_id: userId,
@@ -1426,6 +1428,7 @@ export async function logWorkoutDayEvent(
     day_label: dayLabel,
     day_focus: dayFocus,
     status,
+    ...(at ? { created_at: at.toISOString(), event_date: at.toISOString().slice(0, 10) } : {}),
   });
   if (error) {
     console.warn('[Claww] Failed to log workout day event:', error.message);

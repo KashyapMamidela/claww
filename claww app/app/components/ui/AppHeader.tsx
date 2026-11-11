@@ -34,11 +34,12 @@ export function AppHeader({ accent, title, collapsing, penDot, initial, onPenPre
     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}>
       {/* Glass, the bar version: the same smoked tint and light blur as the tab bar, a hairline instead of a border. */}
       <BlurView
-        intensity={22}
+        intensity={50}
         tint="dark"
         experimentalBlurMethod="dimezisBlurView"
         blurReductionFactor={3}
-        style={{ paddingTop: insets.top, backgroundColor: 'rgba(8,8,10,0.80)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.10)' }}
+        // Real glass: a light tint so content scrolling underneath frosts instead of disappearing.
+        style={{ paddingTop: insets.top, backgroundColor: 'rgba(8,8,10,0.45)', borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: 'rgba(255,255,255,0.10)' }}
       >
         <View style={{ height: HEADER_CONTENT_HEIGHT, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, flex: 1 }}>

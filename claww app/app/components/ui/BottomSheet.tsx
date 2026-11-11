@@ -9,6 +9,9 @@ import { COLORS } from '../../lib/theme';
 
 const SCREEN_H = Dimensions.get('window').height;
 const SHEET_SPRING = { duration: 300, dampingRatio: 0.8 } as const;
+// Opening has no finger momentum behind it, so it settles without overshoot. The 0.8 bounce stays for a sheet
+// thrown back after a drag, where the finger's velocity earns it.
+const SHEET_OPEN = { duration: 320, dampingRatio: 1 } as const;
 const DISMISS_DISTANCE = 120;
 const DISMISS_VELOCITY = 900;
 
@@ -44,7 +47,7 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
   }, []);
 
   useEffect(() => {
-    if (visible) y.set(reduced ? 0 : withSpring(0, SHEET_SPRING));
+    if (visible) y.set(reduced ? 0 : withSpring(0, SHEET_OPEN));
   }, [visible, reduced, y]);
 
   const close = () => {

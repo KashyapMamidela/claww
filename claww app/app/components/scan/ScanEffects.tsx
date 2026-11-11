@@ -1,7 +1,13 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { Easing, FadeIn, ZoomIn, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, Keyframe, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
+
+// A tag lands on the photo: fades in from 85 % size with a firm ease-out, no bounce (scale never starts at 0).
+const TAG_IN = new Keyframe({
+  0: { opacity: 0, transform: [{ scale: 0.85 }] },
+  100: { opacity: 1, transform: [{ scale: 1 }], easing: Easing.bezier(0.23, 1, 0.32, 1) },
+}).duration(220);
 import { BG, COLORS } from '../../lib/theme';
 
 // The scan's motion. While the plate is read, a soft green band sweeps down the photo and the corners breathe; when the
@@ -46,12 +52,12 @@ export function ItemTags({ names, lead, max = 7 }: { names: string[]; lead?: str
         </Animated.View>
       ) : null}
       {shown.map((n, i) => (
-        <Animated.View key={`${n}-${i}`} entering={ZoomIn.delay(120 + i * 90).springify().damping(16)} style={{ minHeight: 30, paddingHorizontal: 11, borderRadius: 15, backgroundColor: 'rgba(0,0,0,0.62)', borderWidth: 1, borderColor: 'rgba(134,239,172,0.55)', justifyContent: 'center' }}>
+        <Animated.View key={`${n}-${i}`} entering={TAG_IN.delay(120 + i * 90)} style={{ minHeight: 30, paddingHorizontal: 11, borderRadius: 15, backgroundColor: 'rgba(0,0,0,0.62)', borderWidth: 1, borderColor: 'rgba(134,239,172,0.55)', justifyContent: 'center' }}>
           <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }} numberOfLines={1}>{n}</Text>
         </Animated.View>
       ))}
       {rest > 0 ? (
-        <Animated.View entering={ZoomIn.delay(120 + shown.length * 90)} style={{ minHeight: 30, paddingHorizontal: 11, borderRadius: 15, backgroundColor: 'rgba(0,0,0,0.62)', justifyContent: 'center' }}>
+        <Animated.View entering={TAG_IN.delay(120 + shown.length * 90)} style={{ minHeight: 30, paddingHorizontal: 11, borderRadius: 15, backgroundColor: 'rgba(0,0,0,0.62)', justifyContent: 'center' }}>
           <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>+{rest}</Text>
         </Animated.View>
       ) : null}

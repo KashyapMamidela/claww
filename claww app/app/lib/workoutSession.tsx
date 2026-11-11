@@ -307,8 +307,10 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
 
   const finish = useCallback(
     (finalPlan: ExerciseState[]) => {
+      // The session belongs to the day it started: one finished after midnight must not mark that day missed.
+      const startedAt = clock ? new Date(clock.startedAt) : new Date();
       if (userId && workout && today) {
-        logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed').then(() => {
+        logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed', startedAt).then(() => {
           refreshReminders(userId).catch(() => {}); // drops today's workout reminder
           refreshStreak(); // a finished session moves the plan streak
         });
@@ -320,7 +322,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         (workout?.plan.days[dayIndex]?.exercises ?? []).forEach((ex, i) => {
           rowsByName[ex.name] = finalPlan[i]?.rows ?? [];
         });
-        const date = localDateKey(new Date());
+        const date = localDateKey(startedAt);
         const outcomes = sessionOutcomes(prescribedRef.current, rowsByName, date);
         saveSessionOutcomes(userId, sessionIdRef.current, outcomes).catch(() => {});
         lastRunRef.current = { sessionId: sessionIdRef.current, prescribed: prescribedRef.current, rowsByName, date };
