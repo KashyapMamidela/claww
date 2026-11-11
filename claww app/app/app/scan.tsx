@@ -9,7 +9,7 @@ import { useAppState } from '../lib/appState';
 import { DEFAULT_CONTEXT, type ScanContext } from '../lib/engine';
 import { habitContext, lastTimeFor } from '../lib/scanHabit';
 import { getPastScans, scanPlate, setScanSession, type ScanOutcome } from '../lib/scanner';
-import { shrinkPhoto } from '../lib/photo';
+import { pickPictureSize, shrinkPhoto } from '../lib/photo';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { PressScale } from '../components/ui/PressScale';
@@ -51,6 +51,7 @@ export default function ScanScreen() {
   const [past, setPast] = useState<Awaited<ReturnType<typeof getPastScans>>>([]);
   const [busy, setBusy] = useState(false);
   const [photoH, setPhotoH] = useState(300);
+  const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
   const pending = useRef<Promise<ScanOutcome> | null>(null);
 
   useEffect(() => {
@@ -120,7 +121,19 @@ export default function ScanScreen() {
         {photo ? (
           <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" accessibilityLabel="Your photo" />
         ) : permission.granted ? (
-          <CameraView ref={camera} style={{ flex: 1 }} facing="back" />
+          <CameraView
+            ref={camera}
+            style={{ flex: 1 }}
+            facing="back"
+            pictureSize={pictureSize}
+            onCameraReady={() => {
+              // Ask the camera for a plate-sized picture (about 1,280 px) instead of the full 12 MP: a much smaller upload.
+              camera.current
+                ?.getAvailablePictureSizesAsync()
+                .then((sizes) => setPictureSize(pickPictureSize(sizes)))
+                .catch(() => {});
+            }}
+          />
         ) : (
           <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 14 }}>
             <Icon name="camera" size={34} color={COLORS.textMuted} />

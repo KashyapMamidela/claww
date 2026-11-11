@@ -36,3 +36,20 @@ export async function shrinkPhoto(photo: PlatePhoto, width?: number, height?: nu
     return photo;
   }
 }
+
+/**
+ * Android camera picture sizes come as "WIDTHxHEIGHT" strings. Pick the biggest one whose long edge is at most `edge`
+ * (the smallest one when none is that small), so the camera itself takes a plate-sized picture and no resize is needed.
+ */
+export function pickPictureSize(sizes: string[], edge = 1280): string | undefined {
+  const parsed = sizes
+    .map((s) => {
+      const m = /^(\d+)x(\d+)$/.exec(s.trim());
+      return m ? { s, long: Math.max(Number(m[1]), Number(m[2])), area: Number(m[1]) * Number(m[2]) } : null;
+    })
+    .filter((x): x is { s: string; long: number; area: number } => !!x && x.long > 0);
+  if (parsed.length === 0) return undefined;
+  const fits = parsed.filter((x) => x.long <= edge);
+  if (fits.length > 0) return fits.sort((a, b) => b.area - a.area)[0].s;
+  return parsed.sort((a, b) => a.area - b.area)[0].s;
+}
