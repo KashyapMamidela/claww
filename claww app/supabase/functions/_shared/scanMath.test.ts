@@ -109,6 +109,14 @@ describe('matching what the model heard to foods', () => {
     expect(wholeAvocado.grams).toBe(136);
   });
 
+  it('no oil adds no oil line at all, any other level adds one', () => {
+    const base = resolveItems([{ name: 'avocado', quantity: 1, unit: 'g', grams: 60 }], FOODS);
+    const none = applyContext(base, { ...DEFAULT_CONTEXT, oil: 'none' }, oil);
+    expect(none.some((i) => i.hidden)).toBe(false);
+    const light = applyContext(base, { ...DEFAULT_CONTEXT, oil: 'light' }, oil);
+    expect(light.filter((i) => i.hidden).length).toBe(1);
+  });
+
   it('something that is not in the database does not match', () => {
     expect(matchFood('quinoa tabbouleh', FOODS)).toBeNull();
     expect(matchFood('', FOODS)).toBeNull();

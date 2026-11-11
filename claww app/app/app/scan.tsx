@@ -10,6 +10,8 @@ import { DEFAULT_CONTEXT, type ScanContext } from '../lib/engine';
 import { habitContext, lastTimeFor } from '../lib/scanHabit';
 import { getPastScans, scanPlate, setScanSession, type ScanOutcome } from '../lib/scanner';
 import { pickPictureSize, shrinkPhoto } from '../lib/photo';
+import { needsOil, rowsFor } from '../lib/scanQuestions';
+import { useScanQuestionPrefs } from '../lib/scanQuestionPrefs';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { PressScale } from '../components/ui/PressScale';
@@ -52,6 +54,9 @@ export default function ScanScreen() {
   const [busy, setBusy] = useState(false);
   const [photoH, setPhotoH] = useState(300);
   const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
+  const [prefs] = useScanQuestionPrefs();
+  const [expanded, setExpanded] = useState(false);
+  const [oilAuto, setOilAuto] = useState(false);
   const pending = useRef<Promise<ScanOutcome> | null>(null);
 
   useEffect(() => {
@@ -96,6 +101,8 @@ export default function ScanScreen() {
   };
 
   const retake = () => {
+    setExpanded(false);
+    setOilAuto(false);
     setPhoto(null);
     setOutcome(null);
     pending.current = null;
@@ -105,6 +112,14 @@ export default function ScanScreen() {
   const dish = ok && ok.route === 'ok' ? ok.dish : null;
   const last = dish ? lastTimeFor(dish, past) : null;
   const reading = !!photo && !outcome;
+  const oilNeeded = ok ? needsOil(ok.items) : true;
+  // A plate with no cooked food (a salad, fruit, a drink) gets "no oil" without a question.
+  useEffect(() => {
+    if (ok && !needsOil(ok.items)) {
+      setContext((c) => ({ ...c, oil: 'none' }));
+      setOilAuto(true);
+    }
+  }, [ok]);
   const tagNames = ok ? ok.items.filter((i) => !i.hidden).map((i) => (i.food ? i.food.name : i.heard)) : [];
 
   const next = () => {
@@ -201,6 +216,9 @@ export default function ScanScreen() {
               found={tagNames.length || null}
               last={last ? last.context : null}
               onUseLast={last ? () => setContext(last.context) : undefined}
+              rows={rowsFor(prefs, oilNeeded, expanded)}
+              onShowAll={() => setExpanded(true)}
+              oilAuto={oilAuto && !expanded}
             />
             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth onPress={next} icon={<Icon name="check" size={18} color="#fff" />}>
               Check my plate

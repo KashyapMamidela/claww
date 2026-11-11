@@ -13,6 +13,7 @@ import { getGenerationUsageToday, getProfile, saveReminderSettings, saveScanTrai
 import { GENERATION_CAPS } from '../lib/generationCaps';
 import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
+import { useScanQuestionPrefs } from '../lib/scanQuestionPrefs';
 import { getPerfReport, PERF_ENABLED, resetPerfReport, type PerfReport } from '../lib/perf';
 import { refreshReminders } from '../lib/reminderSync';
 import { DEFAULT_REMINDER_SETTINGS, normalizeReminderSettings, type ReminderSettings } from '../lib/reminderPlan';
@@ -35,6 +36,7 @@ export default function SettingsScreen() {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [notificationsBusy, setNotificationsBusy] = useState(false);
   const [scanTraining, setScanTrainingOn] = useState(false);
+  const [questionPrefs, setQuestionPrefs] = useScanQuestionPrefs();
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [testStatus, setTestStatus] = useState<string | null>(null);
   const [reminderSettings, setReminderSettings] = useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
@@ -175,6 +177,30 @@ export default function SettingsScreen() {
               }}
             />
           </View>
+        </Surface>
+</Rise>
+
+<Rise i={2}>
+        <Surface radius={20} padding={16}>
+          <View style={{ gap: 4 }}>
+            <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>Scan questions</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>
+              Choose what to be asked after you scan a plate. Anything switched off uses your usual answer, and you can still change it for a scan.
+            </Text>
+          </View>
+          {([
+            ['place', 'Where it is from', 'Home, mess, restaurant or street'],
+            ['oil', 'How oily', 'Only asked when the plate has cooked food'],
+            ['portion', 'How much', 'Small, regular, large or shared'],
+          ] as const).map(([key, title, hint]) => (
+            <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>{title}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, fontFamily: BG[400] }}>{hint}</Text>
+              </View>
+              <Switch value={questionPrefs[key]} accessibilityLabel={`Ask ${title}`} onValueChange={(on) => setQuestionPrefs({ ...questionPrefs, [key]: on })} />
+            </View>
+          ))}
         </Surface>
 </Rise>
 

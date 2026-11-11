@@ -29,7 +29,7 @@ export interface ScanFood {
 }
 
 export type Place = 'home' | 'mess' | 'restaurant' | 'street';
-export type Oil = 'light' | 'normal' | 'heavy';
+export type Oil = 'none' | 'light' | 'normal' | 'heavy';
 export type Portion = 'small' | 'regular' | 'large' | 'shared';
 
 export interface ScanContext {
@@ -42,7 +42,7 @@ export const DEFAULT_CONTEXT: ScanContext = { place: 'home', oil: 'normal', port
 
 export const PORTION_FACTOR: Record<Portion, number> = { small: 0.75, regular: 1, large: 1.35, shared: 0.5 };
 /** Teaspoons of oil added for a whole plate, before the portion factor. */
-export const OIL_TSP: Record<Oil, number> = { light: 1, normal: 2, heavy: 3 };
+export const OIL_TSP: Record<Oil, number> = { none: 0, light: 1, normal: 2, heavy: 3 };
 export const OIL_FOOD = 'Oil, sunflower';
 
 // ─── What the model returns ───────────────────────────────────────────────────────────────────────────────────
@@ -371,7 +371,8 @@ export function setQuantity(item: ScanItem, qty: number): ScanItem {
 export function applyContext(base: ScanItem[], ctx: ScanContext, oilFood: ScanFood | null): ScanItem[] {
   const factor = PORTION_FACTOR[ctx.portion];
   const scaled = base.map((i) => (factor === 1 || !i.food ? i : setQuantity(i, roundQty(i.qty * factor, i.unit))));
-  if (!oilFood) return scaled;
+  // "No oil" (a salad, fruit, a drink, boiled food) adds no oil line at all.
+  if (!oilFood || ctx.oil === 'none') return scaled;
   const tsp = Math.max(1, Math.round(OIL_TSP[ctx.oil] * factor));
   return [...scaled, { key: 'oil', heard: 'oil', food: oilFood, qty: tsp, unit: 'tsp', grams: Math.round(tsp * 5), hidden: true }];
 }
