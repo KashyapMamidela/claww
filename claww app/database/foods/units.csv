@@ -383,3 +383,6 @@ Zucchini,g,1,true
 Zucchini,piece,196,false
 Celery,g,1,true
 Celery,piece,40,false
+Pickle,g,1,true
+Pickle,tsp,5,false
+Pickle,tbsp,15,false

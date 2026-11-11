@@ -112,6 +112,8 @@ function singular(word: string): string {
 
 const stem = (text: string) => normalise(text).split(' ').map(singular).join(' ');
 
+const RAW_FORM = /\b(raw|dry|dried|uncooked|flour)\b/i;
+
 /** How well a model name matches a food, 0 to 100. Exact name or alias beats all words, which beats some words. */
 export function matchScore(name: string, food: Pick<ScanFood, 'name' | 'aliases' | 'kind'>): number {
   const q = stem(name);
@@ -126,6 +128,9 @@ export function matchScore(name: string, food: Pick<ScanFood, 'name' | 'aliases'
     else if (words.every((w) => c.split(' ').includes(w))) best = Math.max(best, 70);
     else if (words.some((w) => w.length > 3 && c.split(' ').includes(w))) best = Math.max(best, 45 * (words.filter((w) => c.split(' ').includes(w)).length / words.length));
   }
+  // A plate holds cooked food. "rice" must not become the raw-rice ingredient (365 kcal per 100 g, three times cooked rice)
+  // while a cooked row exists: raw, dry and flour forms lose 25 points unless the model itself said raw, dry or flour.
+  if (best > 0 && RAW_FORM.test(food.name) && !RAW_FORM.test(name)) best -= 25;
   return best + (food.kind === 'dish' ? 0.5 : 0);
 }
 

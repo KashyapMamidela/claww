@@ -62,6 +62,10 @@ describe('matching what the model heard to foods', () => {
     ['chopped cabbage', 'Cabbage'],
     ['cherry tomatoes', 'Tomato'],
     ['cherry tomato', 'Tomato'],
+    ['rice', 'Rice, cooked'],
+    ['white rice', 'Rice, cooked'],
+    ['raw rice', 'Rice, white, raw'],
+    ['pickle', 'Pickle'],
   ];
   for (const [heard, expected] of cases) {
     it(`"${heard}" is ${expected}`, () => {

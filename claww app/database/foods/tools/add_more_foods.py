@@ -44,6 +44,7 @@ ING = [
     ('Hummus', 'hummus|chickpea dip', 'vegan', True, 166, 7.9, 14.29, 9.6, 6, 2.44, 38, 0, 0, 379, 0.34, USDA, 'Hummus, commercial', [('g', 1, True), ('tbsp', 15, False)]),
     ('Zucchini', 'courgette|zucchini|summer squash', 'vegan', True, 17, 1.21, 3.11, 0.32, 1, 0.37, 16, 17.9, 0, 8, 2.5, USDA, 'Squash, summer, zucchini, includes skin, raw', [('g', 1, True), ('piece', 196, False)]),
     ('Celery', 'celery|celery stalk', 'vegan', True, 14, 0.69, 2.97, 0.17, 1.6, 0.2, 40, 3.1, 0, 80, 1.34, USDA, 'Celery, raw', [('g', 1, True), ('piece', 40, False)]),
+    ('Pickle', 'pickle|achar|pickles|mango pickle|lime pickle|avakaya|lemon pickle', 'vegan', False, 160, 1.5, 12, 12, 2, 2, 40, 5, 0, 2400, 3, LABEL, 'Typical Indian oil pickle, high in salt and oil; brands vary a lot', [('g', 1, True), ('tsp', 5, False), ('tbsp', 15, False)]),
 ]
 
 # Dishes: name, aliases, cuisine, unit, pieces, target grams (water tops it up to this weight), items

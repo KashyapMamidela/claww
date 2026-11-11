@@ -155,6 +155,7 @@ INSERT INTO foods (name, aliases, kind, cuisine, diet, jain_ok, kcal_100g, prote
   ('Hummus', ARRAY['hummus', 'chickpea dip']::text[], 'ingredient', NULL, 'vegan', true, 166, 7.9, 14.29, 9.6, 6, 2.44, 38, 0, 0, 379, 0.34, NULL, 'USDA FoodData Central SR Legacy', 'Hummus, commercial | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
   ('Zucchini', ARRAY['courgette', 'zucchini', 'summer squash']::text[], 'ingredient', NULL, 'vegan', true, 17, 1.21, 3.11, 0.32, 1, 0.37, 16, 17.9, 0, 8, 2.5, NULL, 'USDA FoodData Central SR Legacy', 'Squash, summer, zucchini, includes skin, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
   ('Celery', ARRAY['celery', 'celery stalk']::text[], 'ingredient', NULL, 'vegan', true, 14, 0.69, 2.97, 0.17, 1.6, 0.2, 40, 3.1, 0, 80, 1.34, NULL, 'USDA FoodData Central SR Legacy', 'Celery, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Pickle', ARRAY['pickle', 'achar', 'pickles', 'mango pickle', 'lime pickle', 'avakaya', 'lemon pickle']::text[], 'ingredient', NULL, 'vegan', false, 160, 1.5, 12, 12, 2, 2, 40, 5, 0, 2400, 3, NULL, 'Typical published values (not USDA)', 'Typical Indian oil pickle, high in salt and oil; brands vary a lot | added 2026-11-11; needs the nutritionist to confirm'),
   ('Roti', ARRAY['chapati', 'phulka', 'fulka']::text[], 'dish', 'North Indian', 'vegan', true, 272, 10.57, 57.58, 2, 8.56, 2.88, 27.2, 0, 0, 1.6, 0.33, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Roti with ghee', ARRAY['ghee roti', 'ghee chapati']::text[], 'dish', 'North Indian', 'veg', true, 339.11, 9.42, 51.18, 12.83, 7.61, 2.56, 24.62, 0, 0, 1.64, 0.29, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Paratha, plain', ARRAY['plain paratha', 'paratha']::text[], 'dish', 'North Indian', 'vegan', true, 318.63, 9.44, 51.41, 10.36, 7.64, 2.57, 24.29, 0, 0, 1.43, 0.29, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
@@ -163,7 +164,7 @@ INSERT INTO foods (name, aliases, kind, cuisine, diet, jain_ok, kcal_100g, prote
   ('Naan', ARRAY['butter naan', 'plain naan']::text[], 'dish', 'North Indian', 'veg', true, 277.11, 6.7, 49.37, 5.4, 1.65, 2.85, 22.9, 0.06, 0.04, 437, 2.9, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Jowar roti', ARRAY['jolada rotti', 'bhakri']::text[], 'dish', 'Mess', 'vegan', true, 255.89, 8.26, 56.07, 2.69, 5.21, 2.61, 10.11, 0, 0, 1.56, 1.97, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Bajra roti', ARRAY['bajra rotla', 'sajje roti']::text[], 'dish', 'North Indian', 'vegan', true, 294, 8.57, 56.66, 3.28, 6.61, 2.34, 6.22, 0, 0, 3.89, NULL, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
-  ('Rice, cooked', ARRAY['steamed rice', 'plain rice', 'annam', 'chawal']::text[], 'dish', 'South Indian', 'vegan', true, 121.67, 2.38, 26.65, 0.22, 0.43, 1.44, 9.33, 0, 0, 1.67, 0.04, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
+  ('Rice, cooked', ARRAY['rice', 'white rice', 'boiled rice', 'cooked rice', 'steamed rice', 'plain rice', 'annam', 'chawal', 'sadam']::text[], 'dish', 'South Indian', 'vegan', true, 121.67, 2.38, 26.65, 0.22, 0.43, 1.44, 9.33, 0, 0, 1.67, 0.04, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Curd rice', ARRAY['thayir sadam', 'perugu annam', 'dahi chawal']::text[], 'dish', 'South Indian', 'veg', true, 122.39, 3.08, 19.73, 3.28, 0.36, 1.03, 54.89, 0.23, 0.14, 234.39, 1.88, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Jeera rice', ARRAY['cumin rice']::text[], 'dish', 'North Indian', 'veg', true, 150.03, 2.62, 27.24, 3.17, 0.57, 2.32, 22.01, 0.1, 0, 262.35, 0.07, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Lemon rice', ARRAY['chitranna', 'nimmakaya pulihora']::text[], 'dish', 'South Indian', 'vegan', true, 187.27, 3.98, 28.38, 6.45, 1.06, 1.93, 17.13, 2.63, 0, 261.26, 0.52, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
@@ -717,7 +718,10 @@ SELECT f.id, v.unit, v.grams, v.is_default FROM (VALUES
   ('Zucchini', 'g', 1, true),
   ('Zucchini', 'piece', 196, false),
   ('Celery', 'g', 1, true),
-  ('Celery', 'piece', 40, false)
+  ('Celery', 'piece', 40, false),
+  ('Pickle', 'g', 1, true),
+  ('Pickle', 'tsp', 5, false),
+  ('Pickle', 'tbsp', 15, false)
 ) AS v(food, unit, grams, is_default)
 JOIN foods f ON f.name = v.food
 ON CONFLICT (food_id, unit) DO UPDATE SET grams = EXCLUDED.grams, is_default = EXCLUDED.is_default;
