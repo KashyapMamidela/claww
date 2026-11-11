@@ -30,6 +30,8 @@ export interface FoodSearchSheetProps {
   recent: string[];
   /** True when the meal being logged replaces a planned one (logged as swapped), false for an extra. */
   planned?: boolean;
+  /** The scanner's "Pick a food" for an item it could not match opens with that item's name already typed. */
+  initialQuery?: string;
   /** When given, picking a food hands it back (with quantity and unit) instead of logging a meal: the scanner's "add something we missed". */
   onPickFood?: (food: Food, qty: number, unit: string) => void;
   onClose: () => void;
@@ -47,7 +49,7 @@ export function tidyName(raw: string): string {
   return t;
 }
 
-export function FoodSearchSheet({ visible, mealType, recent, planned = false, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
+export function FoodSearchSheet({ visible, mealType, recent, planned = false, initialQuery, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
   const router = useRouter();
   const { saveMeal, userId } = useAppState();
   // Polish step 6: saved plates come first, one tap to log.
@@ -61,6 +63,10 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
   const [unit, setUnit] = useState('g');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (visible && initialQuery) setQuery(initialQuery);
+  }, [visible, initialQuery]);
 
   useEffect(() => {
     if (!visible) return;

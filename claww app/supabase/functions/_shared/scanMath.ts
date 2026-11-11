@@ -123,11 +123,68 @@ export function matchScore(name: string, food: Pick<ScanFood, 'name' | 'aliases'
 
 export const MATCH_THRESHOLD = 40;
 
-export function matchFood(name: string, foods: ScanFood[]): { food: ScanFood; score: number } | null {
+/** Words that describe how a food looks or is cut, not what it is: "shredded purple cabbage" is cabbage. */
+const DESCRIPTORS = new Set([
+  'red', 'yellow', 'green', 'orange', 'purple', 'white', 'black', 'fresh', 'raw', 'ripe', 'small', 'large', 'big', 'baby',
+  'shredded', 'chopped', 'sliced', 'diced', 'cubed', 'grated', 'crushed', 'mashed', 'whole', 'halved', 'julienned', 'mixed',
+  'steamed', 'boiled', 'grilled', 'roasted', 'fried', 'sauteed', 'cooked', 'toasted', 'garnish', 'topping', 'some', 'a', 'of', 'with',
+]);
+
+/** What the model says when it means a food the database holds under another name. */
+const NAME_SYNONYMS: Record<string, string> = {
+  'purple cabbage': 'red cabbage',
+  'red cabbage': 'red cabbage',
+  'mixed greens': 'salad greens',
+  'leafy greens': 'salad greens',
+  'mixed salad': 'salad greens',
+  'salad leaves': 'salad greens',
+  'lettuce leaves': 'lettuce',
+  'bell pepper': 'capsicum',
+  'bell peppers': 'capsicum',
+  'sweet pepper': 'capsicum',
+  'garbanzo beans': 'chickpeas',
+  'garbanzo': 'chickpeas',
+  'sesame': 'sesame seeds',
+};
+
+/** The model's name with the looks-and-cuts words dropped, or null when nothing would change. */
+export function coreName(name: string): string | null {
+  const words = normalise(name).split(' ').filter(Boolean);
+  const kept = words.filter((w) => !DESCRIPTORS.has(w));
+  if (kept.length === 0 || kept.length === words.length) return null;
+  return kept.join(' ');
+}
+
+function bestMatch(name: string, foods: ScanFood[]): { food: ScanFood; score: number } | null {
   let best: { food: ScanFood; score: number } | null = null;
   for (const f of foods) {
     const score = matchScore(name, f);
     if (score >= MATCH_THRESHOLD && (!best || score > best.score)) best = { food: f, score };
+  }
+  return best;
+}
+
+/**
+ * Matches the model's name to a food. The name is tried as given first (so "red bell pepper" finds a red capsicum row
+ * when there is one); then with its synonym ("purple cabbage" is red cabbage), then without the words that only say how
+ * it looks or is cut ("shredded purple cabbage" is cabbage).
+ */
+export function matchFood(name: string, foods: ScanFood[]): { food: ScanFood; score: number } | null {
+  const tries: string[] = [name];
+  const norm = normalise(name);
+  for (const [from, to] of Object.entries(NAME_SYNONYMS)) if (norm.includes(from)) tries.push(norm.replace(from, to));
+  const core = coreName(name);
+  if (core) {
+    tries.push(core);
+    const coreNorm = normalise(core);
+    for (const [from, to] of Object.entries(NAME_SYNONYMS)) if (coreNorm.includes(from)) tries.push(coreNorm.replace(from, to));
+  }
+  let best: { food: ScanFood; score: number } | null = null;
+  for (let i = 0; i < tries.length; i++) {
+    const m = bestMatch(tries[i], foods);
+    // A later, looser try only wins when the earlier ones found nothing: the exact name always gets first say.
+    if (m && !best) best = m;
+    if (best && best.score >= 70) break;
   }
   return best;
 }

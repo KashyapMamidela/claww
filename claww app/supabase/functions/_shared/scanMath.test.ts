@@ -50,6 +50,16 @@ describe('matching what the model heard to foods', () => {
     ['chai', 'Chai with sugar'],
     ['curd', 'Curd, plain'],
     ['dal', 'Dal tadka'],
+    // From the first live scan of a salad bowl: these all came back "not in the database".
+    ['red bell pepper', 'Capsicum, red'],
+    ['yellow bell pepper', 'Capsicum, yellow'],
+    ['shredded purple cabbage', 'Cabbage, red'],
+    ['mixed greens', 'Lettuce and salad greens'],
+    ['avocado', 'Avocado'],
+    ['chickpeas', 'Chickpeas, boiled'],
+    ['sliced avocado', 'Avocado'],
+    ['green bell pepper', 'Capsicum, green'],
+    ['chopped cabbage', 'Cabbage'],
   ];
   for (const [heard, expected] of cases) {
     it(`"${heard}" is ${expected}`, () => {

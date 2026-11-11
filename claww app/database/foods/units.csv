@@ -261,3 +261,17 @@ Masala buttermilk,glass,250,true
 Banana shake,glass,305,true
 Whey protein shake with water,glass,280,true
 Whey protein shake with milk,glass,280,true
+"Avocado",g,1,true
+"Avocado",piece,136,false
+"Avocado",slice,20,false
+"Lettuce and salad greens",g,1,true
+"Lettuce and salad greens",handful,30,false
+"Capsicum, red",g,1,true
+"Capsicum, red",piece,120,false
+"Capsicum, yellow",g,1,true
+"Capsicum, yellow",piece,120,false
+"Cabbage, red",g,1,true
+"Cabbage, red",handful,30,false
+"Chickpeas, boiled",g,1,true
+"Chickpeas, boiled",katori,150,false
+"Chickpeas, boiled",handful,30,false

@@ -26,6 +26,8 @@ Rules:
 - dish: the plate in a few words ("Chicken fried rice", "Idli sambar", "Dal rice thali").
 - items: every separate food you can see. Use plain common names ("fried rice", "chicken pieces", "egg", "sambar", "roti", "curd"). Do NOT list cooking oil.
 - quantity and unit: a HOUSEHOLD guess. Units: katori (a small bowl, 150 ml), roti, idli, dosa, piece, egg, tsp, tbsp, glass, cup, plate, handful, slice, g. Rice or curry in a bowl is katori; bread and idli are counted; use g only if nothing else fits.
+- Small scattered things (chickpeas, peas, nuts, seeds, sprouts, chopped vegetables, salad leaves) are a handful or tsp, never a count of pieces. Pieces are for whole items you can count (an egg, a whole fruit, a cutlet).
+- Name each ingredient on its own with its plain name ("red bell pepper", "avocado", "chickpeas"), not the whole salad as one item.
 - confidence: 0 to 1, how sure you are of the dish and items. Be honest: a blurry or unusual plate is below 0.5.
 - candidates: up to 4 other dishes it could be.
 If isFood is false or isAppropriate is false, return empty items, confidence 0 and dish "".`;

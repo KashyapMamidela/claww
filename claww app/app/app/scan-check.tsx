@@ -455,7 +455,7 @@ export default function ScanCheckScreen() {
         </Button>
       </View>
 
-      <FoodSearchSheet visible={searchOpen} mealType={mealType} recent={[]} onPickFood={onPicked} onClose={() => { setSearchOpen(false); setPickFor(null); }} onLogged={() => setSearchOpen(false)} />
+      <FoodSearchSheet visible={searchOpen} mealType={mealType} recent={[]} initialQuery={pickFor && pickFor !== 'add' ? items.find((i) => i.key === pickFor)?.heard : undefined} onPickFood={onPicked} onClose={() => { setSearchOpen(false); setPickFor(null); }} onLogged={() => setSearchOpen(false)} />
     </View>
   );
 }
