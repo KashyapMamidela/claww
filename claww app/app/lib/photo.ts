@@ -21,6 +21,11 @@ export function targetSize(width: number, height: number, edge = PLATE_EDGE_PX):
 
 export async function shrinkPhoto(photo: PlatePhoto, width?: number, height?: number): Promise<PlatePhoto> {
   try {
+    // Look for the native module first: loading the JS package when the build lacks it raises an error screen in dev builds
+    // even though the failure is caught. Builds made before expo-image-manipulator was added simply skip the resize.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { requireOptionalNativeModule } = require('expo-modules-core') as typeof import('expo-modules-core');
+    if (!requireOptionalNativeModule('ExpoImageManipulator')) return photo;
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const M = require('expo-image-manipulator') as typeof import('expo-image-manipulator');
     const size = width && height ? targetSize(width, height) : { width: PLATE_EDGE_PX, height: undefined };
