@@ -386,3 +386,75 @@ Celery,piece,40,false
 Pickle,g,1,true
 Pickle,tsp,5,false
 Pickle,tbsp,15,false
+Makhana,g,1,true
+Makhana,handful,15,false
+Sabudana,g,1,true
+"Dalia, broken wheat",g,1,true
+Chia seeds,g,1,true
+Chia seeds,tsp,4,false
+Chia seeds,tbsp,12,false
+Cheese slice,g,1,true
+Cheese slice,slice,20,false
+Mayonnaise,g,1,true
+Mayonnaise,tbsp,14,false
+"Chocolate, dark",g,1,true
+"Chocolate, dark",piece,10,false
+"Ice cream, vanilla",g,1,true
+"Ice cream, vanilla",scoop,66,false
+French fries,g,1,true
+French fries,portion,117,false
+Cornflakes,g,1,true
+Cornflakes,bowl,30,false
+Sambar rice,plate,300.0,true
+Rasam rice,plate,300.0,true
+Lemon sevai,plate,220.0,true
+Egg dosa,dosa,160.0,true
+Set dosa,set,50.0,true
+Neer dosa,dosa,60.0,true
+Kothu parotta,plate,300.0,true
+Tomato pappu,katori,170.0,true
+Mirchi bajji,piece,40.0,true
+Onion pakoda,plate,100.0,true
+Aloo tikki,piece,62.2,true
+Pani puri,piece,25.0,true
+Bhel puri,plate,150.0,true
+Kachori,piece,70.0,true
+Dal fry,katori,170.0,true
+Shahi paneer,katori,180.0,true
+Malai kofta,plate,220.0,true
+Baingan masala,katori,167.2,true
+Chicken korma,plate,240.0,true
+Keema pav,plate,300.0,true
+Seekh kebab,piece,50.0,true
+Fish tikka,plate,179.2,true
+Paneer biryani,plate,380.0,true
+Chole bhature plate,plate,360.0,true
+Rasgulla,piece,50.0,true
+Kulfi,piece,90.2,true
+Khakhra,piece,12.5,true
+Sabudana khichdi,plate,200.0,true
+Roasted makhana,bowl,30.3,true
+Dalia porridge,bowl,280.0,true
+Masala oats,bowl,260.0,true
+Egg sandwich,sandwich,150.0,true
+Cheese sandwich,sandwich,130.0,true
+Chicken sandwich,sandwich,190.0,true
+Veg burger,burger,201.0,true
+Chicken burger,burger,230.0,true
+French fries portion,portion,117.0,true
+Pizza slice,slice,110.0,true
+Veg momos,piece,25.0,true
+Chicken momos,piece,26.7,true
+Chilli chicken,plate,220.0,true
+Chilli paneer,plate,200.0,true
+Sweet corn soup,bowl,250.0,true
+Filter coffee,cup,150.0,true
+Cold coffee,glass,250.0,true
+Green tea,cup,200.0,true
+Black coffee,cup,200.0,true
+Fruit salad,bowl,250.0,true
+Chicken salad,plate,280.0,true
+Tuna sandwich,sandwich,170.0,true
+Chia pudding,bowl,230.0,true
+Cornflakes with milk,bowl,230.0,true
+Peanut chikki,piece,20.0,true
