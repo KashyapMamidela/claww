@@ -6,6 +6,8 @@ export interface VisionProvider {
   /** Shown in logs: "groq:qwen/qwen3.8-27b", "backup:gemini-2.0-flash". */
   name: string;
   call: (system: string, user: string, imageDataUri: string, signal: AbortSignal) => Promise<string>;
+  /** How long this provider may take before the next one is tried; the default applies when absent. */
+  timeoutMs?: number;
 }
 
 export interface VisionAttempt {
@@ -31,6 +33,8 @@ export class AllVisionProvidersFailed extends Error {
 }
 
 export const PROVIDER_TIMEOUT_MS = 8000;
+/** No new provider is started once this much time has passed, so a run of slow failures cannot keep the user waiting. */
+export const TOTAL_DEADLINE_MS = 28000;
 
 /** Runs `p` for at most `ms`, aborting its signal on the way out. */
 async function withTimeout(p: VisionProvider, system: string, user: string, image: string, ms: number): Promise<string> {
@@ -60,13 +64,16 @@ export async function callVisionProviders<T>(
   user: string,
   imageDataUri: string,
   parse: (text: string) => T | null,
-  timeoutMs = PROVIDER_TIMEOUT_MS
+  timeoutMs = PROVIDER_TIMEOUT_MS,
+  deadlineMs = TOTAL_DEADLINE_MS
 ): Promise<VisionResult<T>> {
   const attempts: VisionAttempt[] = [];
+  const begun = Date.now();
   for (const p of providers) {
+    if (attempts.length > 0 && Date.now() - begun >= deadlineMs) break;
     const started = Date.now();
     try {
-      const text = await withTimeout(p, system, user, imageDataUri, timeoutMs);
+      const text = await withTimeout(p, system, user, imageDataUri, p.timeoutMs ?? timeoutMs);
       let value: T | null = null;
       try {
         value = parse(text);
@@ -95,14 +102,18 @@ export function stripJsonFence(text: string): string {
 
 /**
  * An OpenAI-compatible chat-completions provider (the backup: configurable by three secrets, no code change).
- * Providers differ on `response_format: json_object`: if one answers 400 to it, the call is repeated once without it
- * (the prompt already asks for JSON only) and a code fence around the answer is removed.
+ * Providers differ on `response_format: json_object` and on `reasoning_effort`: if one answers 400 the call is repeated
+ * once without both (the prompt already asks for JSON only) and a code fence around the answer is removed.
  */
-export function openAiCompatibleProvider(cfg: { name: string; url: string; key: string; model: string }, fetchImpl: typeof fetch = fetch): VisionProvider {
+export function openAiCompatibleProvider(
+  cfg: { name: string; url: string; key: string; model: string; timeoutMs?: number; reasoningEffort?: string },
+  fetchImpl: typeof fetch = fetch
+): VisionProvider {
   return {
     name: cfg.name,
+    timeoutMs: cfg.timeoutMs,
     call: async (system, user, image, signal) => {
-      const send = (withJsonMode: boolean) =>
+      const send = (extras: boolean) =>
         fetchImpl(cfg.url, {
           method: 'POST',
           signal,
@@ -110,7 +121,7 @@ export function openAiCompatibleProvider(cfg: { name: string; url: string; key: 
           body: JSON.stringify({
             model: cfg.model,
             temperature: 0.2,
-            ...(withJsonMode ? { response_format: { type: 'json_object' } } : {}),
+            ...(extras ? { response_format: { type: 'json_object' }, ...(cfg.reasoningEffort ? { reasoning_effort: cfg.reasoningEffort } : {}) } : {}),
             messages: [
               { role: 'system', content: system },
               { role: 'user', content: [{ type: 'text', text: user }, { type: 'image_url', image_url: { url: image } }] },

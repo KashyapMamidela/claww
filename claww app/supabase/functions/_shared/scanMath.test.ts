@@ -225,6 +225,38 @@ describe('vision providers: order, timeout and validation', () => {
     expect(bodies[1].response_format).toBeUndefined();
   });
 
+  it('retries without thinking and JSON mode together when the provider rejects them', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const fakeFetch = (async (_url: string, init: { body: string }) => {
+      const body = JSON.parse(init.body);
+      bodies.push(body);
+      if (body.reasoning_effort) return { ok: false, status: 400, json: async () => ({}) };
+      return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '{"x":3}' } }] }) };
+    }) as unknown as typeof fetch;
+    const p = openAiCompatibleProvider({ name: 'g', url: 'https://example.test', key: 'k', model: 'm', reasoningEffort: 'low' }, fakeFetch);
+    expect(await p.call('s', 'u', 'data:image/jpeg;base64,AAA', new AbortController().signal)).toBe('{"x":3}');
+    expect(bodies[0].reasoning_effort).toBe('low');
+    expect(bodies[1].reasoning_effort).toBeUndefined();
+    expect(bodies[1].response_format).toBeUndefined();
+  });
+
+  it('gives each provider its own time limit and moves on at once when one fails', async () => {
+    const order: string[] = [];
+    const slow: VisionProvider = { name: 'slow', timeoutMs: 30, call: () => new Promise(() => {}) };
+    const bad: VisionProvider = { name: 'bad', call: async () => { order.push('bad'); throw new Error('HTTP 429'); } };
+    const good: VisionProvider = { name: 'good', call: async () => { order.push('good'); return '{"ok":true}'; } };
+    const r = await callVisionProviders([slow, bad, good], 's', 'u', 'img', (t) => JSON.parse(t), 5000);
+    expect(r.provider).toBe('good');
+    expect(r.attempts.map((x) => x.provider)).toEqual(['slow', 'bad', 'good']);
+    expect(order).toEqual(['bad', 'good']);
+  });
+
+  it('stops starting new providers once the total deadline has passed', async () => {
+    const a: VisionProvider = { name: 'a', call: async () => { await new Promise((r) => setTimeout(r, 40)); throw new Error('x'); } };
+    const b: VisionProvider = { name: 'b', call: async () => '{"ok":true}' };
+    await expect(callVisionProviders([a, b], 's', 'u', 'img', (t) => JSON.parse(t), 1000, 10)).rejects.toBeInstanceOf(AllVisionProvidersFailed);
+  });
+
   it('stripJsonFence leaves plain JSON alone', () => {
     expect(stripJsonFence('{"a":1}')).toBe('{"a":1}');
     expect(stripJsonFence('```\n{"a":1}\n```')).toBe('{"a":1}');

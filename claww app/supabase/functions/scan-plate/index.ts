@@ -72,18 +72,31 @@ function toScanFood(r: FoodRow): ScanFood {
   };
 }
 
+// The order the scanner tries models in. Each failure (error, rate limit, timeout, an answer that does not validate)
+// moves straight to the next. The three Google models share one key; Groq is last. VISION_MODELS (comma separated model
+// ids) overrides the Google part without a deploy.
+const GOOGLE_MODELS: { model: string; timeoutMs: number }[] = [
+  { model: 'gemini-3.8-flash', timeoutMs: 14000 },
+  { model: 'gemma-4-31b-it', timeoutMs: 12000 },
+  { model: 'gemini-3.5-flash-lite', timeoutMs: 8000 },
+];
+
 function buildProviders(): VisionProvider[] {
-  const providers: VisionProvider[] = [
-    {
-      name: `groq:${GROQ_MODEL_CHAINS.vision[0]}`,
-      // callGroqVisionJSON has its own fetch and chain; the 8 s timeout around it is enforced by callVisionProviders.
-      call: async (system, user, image) => (await callGroqVisionJSON(system, user, image)).content,
-    },
-  ];
+  const providers: VisionProvider[] = [];
   const url = Deno.env.get('VISION_BACKUP_URL');
   const key = Deno.env.get('VISION_BACKUP_KEY');
-  const model = Deno.env.get('VISION_BACKUP_MODEL');
-  if (url && key && model) providers.push(openAiCompatibleProvider({ name: `backup:${model}`, url, key, model }));
+  if (url && key) {
+    const override = (Deno.env.get('VISION_MODELS') ?? '').split(',').map((m) => m.trim()).filter(Boolean);
+    const list = override.length > 0 ? override.map((model) => ({ model, timeoutMs: 12000 })) : GOOGLE_MODELS;
+    for (const m of list) {
+      providers.push(openAiCompatibleProvider({ name: `google:${m.model}`, url, key, model: m.model, timeoutMs: m.timeoutMs, reasoningEffort: 'low' }));
+    }
+  }
+  providers.push({
+    name: `groq:${GROQ_MODEL_CHAINS.vision[0]}`,
+    // callGroqVisionJSON has its own fetch and chain; the time limit around it is enforced by callVisionProviders.
+    call: async (system, user, image) => (await callGroqVisionJSON(system, user, image)).content,
+  });
   return providers;
 }
 
