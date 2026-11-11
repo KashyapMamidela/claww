@@ -67,6 +67,30 @@ Things that can break a bigger model:
 - Review the weekly list of foods users asked for (`food_requests`, see `docs/food-gaps-plan.md`).
 - Nutritionist review of the database values (see `docs/food-review.md`).
 
+## 6b. What the research and our own logs say (2026-11-11)
+
+Our logs (4 scans of one salad plate): Groq Qwen answered in 1.4 to 1.6 s and found the most items (9, portions of about 25 g per vegetable);
+Gemini 3.5 Flash-Lite answered in 3.9 s but found 6 and read lettuce as 400 g; Gemini 3.8 Flash failed 3 of 3 (one 503, two timeouts at
+12 s); Gemma 4 31B timed out once and returned a 500 once. Same photo logged as 342 kcal and 273 kcal depending on which model answered.
+
+Published findings (see the sources in the chat reply):
+- Benchmark of ten VLMs on Nutrition5k (bioRxiv, July 2026): Gemini 3.0 Flash best on calories (CCC 0.767, MAE 80.7 kcal); GPT-5 Mini 0.760
+  but 6.6 % unparseable answers; Gemini 3.1 Flash Lite 0.754 (MAE 82.5) with the best ingredient recognition (Jaccard 0.655) at $0.59 per 1,000
+  images; GPT-4o 0.752 at $2.00; Gemini 2.0 Flash 0.742 at $0.10; Claude Haiku 4.5 weakest on ingredients (0.386). Nutrition5k is mostly Western
+  cafeteria food, not Indian.
+- Prompt: asking for the **actual visible portion**, not a standard serving, lifted calorie CCC from 0.693 to 0.744 and the share within 25 % from
+  30.8 % to 42.0 %. A second self-critique pass did not help. Photos cannot show hidden oil, dressing or seasoning.
+- Independent 2026 review: photo calorie apps tend to underestimate by about a third, mostly from portion size.
+- The authors recommend pairing the model with a nutrient database (what we do) and measuring parse failures as well as accuracy.
+- Speed (Google docs): Gemini 3.x thinking is ON by default. 3.8 Flash defaults to medium and cannot go below low; 3.5 and 3.1 Flash-Lite default
+  to minimal. Lower the thinking level to cut latency. An image costs 258 tokens up to 384 px and 258 per 768 px tile above that, so a phone photo
+  is roughly 1,000 tokens: the model-side cost is modest, and the slow part on mobile data is uploading a full-size photo.
+- Hedging (starting a backup when the first is slow) cuts tail latency at the cost of some duplicate calls; track p50 and p95 per provider.
+
+Conclusions for us: keep the model-names-items, database-gives-numbers design; change the prompt to "visible portion" and ask for grams as well as
+a household unit; shrink the photo before upload; keep thinking minimal; choose the model order from measured scores on weighed plates, not
+reputation; track per-model time and failure rate in the log (already logged).
+
 ## 7. Build order
 
 1. Model list and order in `scan-plate` (several models behind one key), with a per-model time limit and low thinking.
