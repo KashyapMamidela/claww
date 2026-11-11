@@ -85,3 +85,72 @@ Masala buttermilk,chaas|majjiga|spiced buttermilk,South Indian,veg,true,,Compute
 Banana shake,banana milkshake,Continental,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 Whey protein shake with water,protein shake|whey shake,Continental,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
 Whey protein shake with milk,protein shake with milk,Continental,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Rava dosa,rava dosai|sooji dosa,South Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Pesarattu,moong dal dosa|pesarattu dosa,Andhra/Telangana,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Rava idli,sooji idli|semolina idli,South Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Appam,aappam|palappam,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Idiyappam,string hoppers|noolputtu|semiya idiyappam,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Puttu,kerala puttu|rice puttu,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Kerala parotta,parotta|porotta|malabar parotta,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Bisi bele bath,bisibelebath|bisi bele huli anna,South Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Coconut rice,thengai sadam|kobbari annam,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Tomato rice,thakkali sadam|tomato bath,South Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Vangi bath,brinjal rice|vangibath,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Vegetable kurma,veg kurma|veg korma south indian,South Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Avial,aviyal,South Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Kootu,moong dal kootu|poricha kootu,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Chicken chettinad,chettinad chicken|chicken chettinad masala,South Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Prawn masala,prawn curry|eral masala|royyala masala,South Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Mutton biryani,goat biryani|hyderabadi mutton biryani,Andhra/Telangana,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Masala vada,chana dal vada|paruppu vadai,South Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Potato bonda,aloo bonda|batata bonda,South Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Payasam,semiya payasam|paal payasam|kheer south indian,South Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Ragi dosa,ragi dosai|finger millet dosa,South Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Ragi mudde,ragi sangati|ragi ball|finger millet ball,South Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Lemon rice with peanuts,chitrannam|nimmakaya pulihora,Andhra/Telangana,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Pappu annam,dal rice andhra|pappu and rice,Andhra/Telangana,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Butter chicken,murgh makhani|chicken makhani,North Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Chicken tikka,tikka chicken|chicken tikka starter,North Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Tandoori chicken,tandoori murgh|chicken leg tandoori,North Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Chicken 65,chicken sixty five|hyderabadi chicken 65,South Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Paneer butter masala,paneer makhani|butter paneer,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Palak paneer,saag paneer|spinach paneer|paneer palak,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Paneer bhurji,paneer scramble|scrambled paneer,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Matar paneer,peas paneer|mutter paneer,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Kadai paneer,karahi paneer|paneer kadai,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Paneer tikka,tandoori paneer,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Mushroom masala,mushroom curry|kumbh masala,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Bhatura,bhature|chole bhature bread,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Kulcha,amritsari kulcha|plain kulcha,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Missi roti,besan roti|missi,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Gobi paratha,cauliflower paratha,North Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Paneer paratha,stuffed paneer paratha,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Methi paratha,fenugreek paratha,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Tandoori roti,tandoor roti,North Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Butter naan,naan with butter,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Aloo matar,aloo mutter|potato peas curry,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Jeera aloo,cumin potatoes|aloo jeera,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Lauki sabzi,dudhi sabzi|bottle gourd curry|sorakaya curry,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Mutton rogan josh,rogan josh|kashmiri mutton curry,North Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Mutton keema,keema|minced mutton|keema matar,North Indian,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Matar pulao,peas pulao|green peas pulao,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Salted lassi,namkeen lassi|chaas lassi,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Mango lassi,aam lassi,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Nimbu pani,lemonade|lemon water with sugar|shikanji,North Indian,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Gulab jamun,jamun|gulabjamun,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Jalebi,imarti|jilebi,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Kheer,rice kheer|payasam north indian|rice pudding,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Suji halwa,sooji halwa|rava kesari|rava halwa,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Gajar halwa,carrot halwa|gajrela,North Indian,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Besan ladoo,besan laddu|laddu,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Dahi vada,dahi bhalla|thayir vadai|perugu vada,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Dhokla,khaman dhokla|khaman,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Thepla,methi thepla|gujarati thepla,North Indian,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Egg roll,kathi roll egg|egg wrap,North Indian,egg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Bread toast with butter,buttered toast|toast butter,Continental,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Veg sandwich,vegetable sandwich|cheese veg sandwich,Continental,veg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Peanut butter toast,pb toast|peanut butter sandwich,Continental,veg,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Gobi manchurian,cauliflower manchurian|gobi 65 chinese,Chinese/Indo-Chinese,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Chicken hakka noodles,chicken noodles|chicken chowmein,Chinese/Indo-Chinese,nonveg,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Sprouts curry,moong sprouts curry|usal|misal base,North Indian,vegan,false,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review
+Fruit bowl,fruit salad|mixed fruits|seasonal fruit,Anything,vegan,true,,Computed from ingredients,Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review

@@ -19,6 +19,7 @@ import { getScanSession, saveScanCorrection, setScanSession, type ScanResult } f
 import { ensureMealPlans, replanToday } from '../lib/mealPlanData';
 import { builtMealName, isEstimateFood } from '../lib/mealCheckLogic';
 import { recordFoodUse } from '../lib/foodDb';
+import { requestFood } from '../lib/foodRequests';
 import { useToast } from '../components/ui/Toast';
 import { rateMeal } from '../lib/nutritionLogic';
 import { nextMealFor } from '../lib/homeMoment';
@@ -148,7 +149,12 @@ export default function ScanCheckScreen() {
     if (it?.food) rememberUnit(it.food.name, unit).catch(() => {});
   };
 
-  const remove = (key: string) => setItems((prev) => prev.filter((i) => i.key !== key));
+  // Removing something the database did not know tells us it is missing, so it can be checked and added.
+  const remove = (key: string) => {
+    const gone = items.find((i) => i.key === key);
+    if (gone && !gone.food && !gone.hidden) requestFood(userId, gone.heard, source === 'photo' ? 'scan' : 'describe');
+    setItems((prev) => prev.filter((i) => i.key !== key));
+  };
 
   const adopt = (food: Food, qty: number, unit: string): ScanItem => {
     const g = scanGramsFor(toScanFood(food), qty, unit);

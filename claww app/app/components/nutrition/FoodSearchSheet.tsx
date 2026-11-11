@@ -16,6 +16,7 @@ import { rememberUnit, rememberedUnit } from '../../lib/unitMemory';
 import { recordPlateUse, usePlates } from '../../lib/platesData';
 import { Stepper } from '../ui/Stepper';
 import { startCheck } from '../../lib/mealCheck';
+import { requestFood } from '../../lib/foodRequests';
 import { scanGramsFor } from '../../lib/engine';
 
 // NG PHASE 8: "Search" and "Something else". Search the reviewed food database by name (chai, 2 roti, katori dal),
@@ -63,6 +64,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, in
   const [unit, setUnit] = useState('g');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [asked, setAsked] = useState<string | null>(null);
 
   useEffect(() => {
     if (visible && initialQuery) setQuery(initialQuery);
@@ -264,7 +266,16 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, in
                 </PressScale>
               ))}
               {query.trim().length >= 2 && !searching && results.length === 0 ? (
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, paddingVertical: 14, fontFamily: BG[400] }}>Nothing found for "{query.trim()}". Try one word, or describe it instead.</Text>
+                <View style={{ paddingVertical: 14, gap: 10 }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Nothing found for "{query.trim()}". Try one word, or describe it instead.</Text>
+                  {asked === query.trim() ? (
+                    <Text style={{ color: G, fontSize: 15, fontFamily: BG[700] }}>Thanks, we will check it and add it.</Text>
+                  ) : (
+                    <Button variant="secondary" accent={G} size="md" onPress={() => { const q = query.trim(); requestFood(userId, q, 'search'); setAsked(q); }}>
+                      Ask us to add it
+                    </Button>
+                  )}
+                </View>
               ) : null}
               {query.trim().length < 2 && recent.length > 0 ? (
                 <View style={{ gap: 8, paddingTop: 4 }}>

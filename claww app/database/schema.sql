@@ -928,3 +928,25 @@ ALTER TABLE progress_photos ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "progress_photos_owner" ON progress_photos;
 CREATE POLICY "progress_photos_owner" ON progress_photos
   FOR ALL TO authenticated USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+-- ============================================================
+-- Premium: food requests. When search finds nothing or the scanner meets a food the database does not hold, the
+-- name is kept here (one row per user per name) so it can be verified and added. Users see only their own rows; the
+-- review (status, resolved_food_id) is done by the team with the service role. No photo or other detail is stored.
+-- ============================================================
+CREATE TABLE IF NOT EXISTS food_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  name TEXT NOT NULL CHECK (char_length(name) BETWEEN 2 AND 80),
+  source TEXT NOT NULL DEFAULT 'search' CHECK (source IN ('search', 'scan', 'describe')),
+  status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new', 'checking', 'added', 'declined')),
+  resolved_food_id BIGINT REFERENCES foods(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE UNIQUE INDEX IF NOT EXISTS food_requests_user_name_idx ON food_requests (user_id, lower(name));
+CREATE INDEX IF NOT EXISTS food_requests_status_idx ON food_requests (status, created_at);
+ALTER TABLE food_requests ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "food_requests_insert_own" ON food_requests;
+CREATE POLICY "food_requests_insert_own" ON food_requests FOR INSERT TO authenticated WITH CHECK (auth.uid() = user_id AND status = 'new' AND resolved_food_id IS NULL);
+DROP POLICY IF EXISTS "food_requests_select_own" ON food_requests;
+CREATE POLICY "food_requests_select_own" ON food_requests FOR SELECT TO authenticated USING (auth.uid() = user_id);
