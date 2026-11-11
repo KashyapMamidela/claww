@@ -3,7 +3,7 @@
 
 import NetInfo from '@react-native-community/netinfo';
 import { supabase } from './supabase';
-import { extractInvokeErrorMessage } from './data';
+import { extractInvokeErrorMessage, type MealLogRow } from './data';
 import type { ScanContext, ScanFood, ScanItem } from './engine';
 import type { PastScan } from './scanHabit';
 
@@ -72,7 +72,10 @@ export interface ScanSession {
   photoUri: string;
   base64: string;
   mimeType: string;
-  source?: 'photo' | 'text';
+  /** Where the meal came from: a photo, a description, food search, or a logged meal being edited. */
+  source?: 'photo' | 'text' | 'search' | 'edit';
+  /** The logged meal being edited: saving changes it instead of adding a new one. */
+  editing?: MealLogRow;
   mealType: string;
   /** Resolves when the scan finishes, so the check screen can wait for it. */
   pending: Promise<ScanOutcome>;

@@ -17,6 +17,9 @@ import { rememberUnit } from '../lib/unitMemory';
 import { Chip } from '../components/ui/Chip';
 import { getScanSession, saveScanCorrection, setScanSession, type ScanResult } from '../lib/scanner';
 import { ensureMealPlans, replanToday } from '../lib/mealPlanData';
+import { builtMealName, isEstimateFood } from '../lib/mealCheckLogic';
+import { recordFoodUse } from '../lib/foodDb';
+import { useToast } from '../components/ui/Toast';
 import { rateMeal } from '../lib/nutritionLogic';
 import { nextMealFor } from '../lib/homeMoment';
 import { RatingPill } from '../components/nutrition/MealCard';
@@ -45,8 +48,10 @@ function toScanFood(f: Food): ScanFood {
 export default function ScanCheckScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { userId, meals, saveMeal } = useAppState();
-  const session = getScanSession();
+  const { userId, meals, saveMeal, editMeal } = useAppState();
+  const toast = useToast();
+  // Read once: the session is cleared after logging, and this screen must keep rendering the same meal until it closes.
+  const [session] = useState(getScanSession);
   const [result, setResult] = useState<ScanResult | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [items, setItems] = useState<ScanItem[]>([]);
@@ -58,6 +63,7 @@ export default function ScanCheckScreen() {
   const [optIn, setOptIn] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [unitOpen, setUnitOpen] = useState<string | null>(null);
 
   useEffect(() => {
     if (!session) return;
@@ -87,17 +93,29 @@ export default function ScanCheckScreen() {
   }, [userId]);
 
   const totals = useMemo(() => totalsOf(items), [items]);
-  const [mealType, setMealType] = useState<MealType>(((session?.mealType as MealType) || 'Snack') as MealType);
-  const fromText = session?.source === 'text';
+  // Search, and an edited meal that is one database food, are named from the amount ("5 Plain dosa"), so the name
+  // follows the − and +; a scanned or described dish keeps its own name.
+  const mealName = useMemo(() => {
+    const shown = items.filter((i) => !i.hidden);
+    const oneFood = shown.length === 1 && !!shown[0].food && !isEstimateFood(shown[0].food);
+    const src = session?.source ?? 'photo';
+    if (src === 'search' || (src === 'edit' && oneFood)) return builtMealName(items);
+    return dish || (src !== 'photo' ? 'Meal' : 'Scanned plate');
+  }, [items, dish, session]);
+  const [mealType, setMealType] = useState<MealType>(((session?.editing?.meal_type ?? session?.mealType) || 'Snack') as MealType);
+  const source = session?.source ?? 'photo';
+  const fromText = source !== 'photo';
+  const editing = session?.editing ?? null;
   const unmatched = items.filter((i) => !i.food);
-  const eaten = useMemo(() => ({ kcal: meals.reduce((s, m) => s + (m.calories ?? 0), 0), protein: meals.reduce((s, m) => s + (m.protein_g ?? 0), 0) }), [meals]);
+  const others = useMemo(() => meals.filter((m) => m.id !== editing?.id), [meals, editing]);
+  const eaten = useMemo(() => ({ kcal: others.reduce((s, m) => s + (m.calories ?? 0), 0), protein: others.reduce((s, m) => s + (m.protein_g ?? 0), 0) }), [others]);
   const rating = useMemo(
     () =>
       rateMeal(
         { kcal: totals.kcal, protein: totals.protein, fats: totals.fat, sodiumMg: totals.sodiumMg, mealType },
-        { kcalTarget: targets?.calories ?? 2000, proteinTarget: targets?.protein_g ?? 120, kcalBefore: eaten.kcal, proteinBefore: eaten.protein, nextMeal: nextMealFor([...meals.map((m) => m.meal_type ?? ''), mealType], new Date().getHours()) }
+        { kcalTarget: targets?.calories ?? 2000, proteinTarget: targets?.protein_g ?? 120, kcalBefore: eaten.kcal, proteinBefore: eaten.protein, nextMeal: nextMealFor([...others.map((m) => m.meal_type ?? ''), mealType], new Date().getHours()) }
       ),
-    [totals, mealType, targets, eaten, meals]
+    [totals, mealType, targets, eaten, others]
   );
 
   if (!session) {
@@ -120,9 +138,10 @@ export default function ScanCheckScreen() {
         return setQuantity(i, q);
       })
     );
+  // At the smallest amount the minus button becomes a bin: one more tap takes the line off.
+  const atMin = (i: ScanItem) => i.qty <= (i.unit === 'g' ? 25 : scanStepFor(i.unit));
 
   // Polish step 6b: tap the amount to measure it in the unit you know (katori, bowl, spoon, pieces, grams).
-  const [unitOpen, setUnitOpen] = useState<string | null>(null);
   const changeUnit = (key: string, unit: string) => {
     setItems((prev) => prev.map((i) => (i.key === key ? scanSwitchUnit(i, unit) : i)));
     const it = items.find((i) => i.key === key);
@@ -159,27 +178,55 @@ export default function ScanCheckScreen() {
     if (!userId || saving || items.length === 0 || unmatched.length > 0) return;
     setSaving(true);
     setError(null);
+    const realItems = items.filter((i) => i.food && !isEstimateFood(i.food));
+    const hasEstimate = items.some((i) => isEstimateFood(i.food));
+    const name = mealName;
+    const meal = {
+      description: name,
+      calories: totals.kcal,
+      protein_g: totals.protein,
+      carbs_g: totals.carbs,
+      fats_g: totals.fat,
+      // Items and micronutrients only when every line is a database food; an estimate has no breakdown to keep.
+      ...(hasEstimate ? {} : {
+        items: realItems.map((i) => ({ food: i.food!.name, unit: i.unit, qty: i.qty, grams: i.grams })),
+        nutrients: { fibreG: totals.fibreG, ironMg: totals.ironMg, calciumMg: totals.calciumMg, vitcMg: totals.vitcMg, b12Ug: totals.b12Ug, sodiumMg: totals.sodiumMg },
+      }),
+    };
+    if (editing) {
+      const ok = await editMeal(editing.id, mealType, meal);
+      setSaving(false);
+      if (!ok) {
+        setError('Could not save the change. Check your connection and try again.');
+        return;
+      }
+      replanToday(userId, meals.map((m) => (m.id === editing.id ? { ...m, ...meal, meal_type: mealType } as typeof m : m))).catch(() => {});
+      setScanSession(null);
+      toast.show({ message: 'Meal updated' });
+      router.back();
+      return;
+    }
     const photoPath = fromText || !session.base64 ? null : await uploadMealPhoto(userId, session.base64, session.mimeType);
     const plan = await ensureMealPlans(userId).catch(() => null);
     const planned = !!plan?.meals.some((m) => m.meal === mealType.toLowerCase());
     const row = await saveMeal(mealType, {
-      description: dish || (fromText ? 'Meal' : 'Scanned plate'),
+      ...meal,
+      description: name,
       calories: totals.kcal,
       protein_g: totals.protein,
       carbs_g: totals.carbs,
       fats_g: totals.fat,
       photoPath,
       planStatus: planned ? 'swapped' : 'extra',
-      context: session.context,
-      items: items.filter((i) => i.food).map((i) => ({ food: i.food!.name, unit: i.unit, qty: i.qty, grams: i.grams })),
-      nutrients: { fibreG: totals.fibreG, ironMg: totals.ironMg, calciumMg: totals.calciumMg, vitcMg: totals.vitcMg, b12Ug: totals.b12Ug, sodiumMg: totals.sodiumMg },
+      ...(source === 'photo' ? { context: session.context } : {}),
     });
     if (!row) {
       setSaving(false);
       setError('Could not log it. Check your connection and try again.');
       return;
     }
-    if (optIn && result) {
+    realItems.forEach((i) => recordFoodUse(i.food!.id).catch(() => {}));
+    if (optIn && result && source === 'photo') {
       saveScanCorrection(userId, {
         photoPath,
         model: result.model,
@@ -190,7 +237,8 @@ export default function ScanCheckScreen() {
     }
     replanToday(userId, [...meals, row]).catch(() => {});
     setScanSession(null);
-    setSaving(false);
+    // The button stays on "Logging…" while the screen closes: flipping it back mid-transition made Android crash
+    // ("View already has a parent") when the screen below gained the new meal.
     router.dismissTo('/(tabs)/nutrition');
   };
 
@@ -198,8 +246,8 @@ export default function ScanCheckScreen() {
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 12, paddingTop: insets.top + 6, paddingBottom: 8 }}>
       <BackTile onPress={() => router.back()} />
       <View style={{ flex: 1 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>{fromText ? 'Check your meal' : 'Check your plate'}</Text>
-        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{fromText ? 'From your description' : contextText(session.context)}</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>{editing ? 'Edit your meal' : fromText ? 'Check your meal' : 'Check your plate'}</Text>
+        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{editing ? `Logged at ${new Date(editing.logged_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : source === 'search' ? 'From food search' : source === 'text' ? 'From your description' : contextText(session.context)}</Text>
       </View>
     </View>
   );
@@ -284,8 +332,8 @@ export default function ScanCheckScreen() {
                 </View>
               )}
               <View style={{ flex: 1 }}>
-                <Text style={{ color: COLORS.fg, fontSize: 20, lineHeight: 24, fontFamily: BG[800] }} numberOfLines={2}>{dish}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{items.filter((i) => !i.hidden).length} items · tap − or + to fix</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 20, lineHeight: 24, fontFamily: BG[800] }} numberOfLines={2}>{mealName}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{items.filter((i) => !i.hidden).length} {items.filter((i) => !i.hidden).length === 1 ? 'item' : 'items'} · tap − or + to fix</Text>
               </View>
               <RatingPill rating={rating.rating} />
             </View>
@@ -330,20 +378,20 @@ export default function ScanCheckScreen() {
                         </Pressable>
                       ) : (
                         <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
-                          {hidden ? `hidden · from ${session.context.oil} oil` : `${Math.round(itemNutrients(i).kcal)} kcal · ${Math.round(i.grams)} g`}
+                          {hidden ? `hidden · from ${session.context.oil} oil` : isEstimateFood(i.food) ? `${Math.round(itemNutrients(i).kcal)} kcal · estimated` : `${Math.round(itemNutrients(i).kcal)} kcal · ${Math.round(i.grams)} g`}
                         </Text>
                       )}
                     </View>
                     {i.food ? (
                       // One capsule: − amount +. The amount opens the unit choices.
                       <View style={{ flexDirection: 'row', alignItems: 'center', height: 44, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.07)' }}>
-                        <PressScale onPress={() => bump(i.key, -1)} accessibilityRole="button" accessibilityLabel={`Less ${i.food.name}`}>
+                        <PressScale onPress={() => (atMin(i) ? remove(i.key) : bump(i.key, -1))} accessibilityRole="button" accessibilityLabel={atMin(i) ? `Remove ${label}` : `Less ${i.food.name}`}>
                           <View style={{ width: 40, height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                            <Icon name="minus" size={17} color={COLORS.fg} />
+                            <Icon name={atMin(i) ? 'trash-2' : 'minus'} size={17} color={atMin(i) ? COLORS.textMuted : COLORS.fg} />
                           </View>
                         </PressScale>
                         <PressScale
-                          onPress={() => setUnitOpen((k) => (k === i.key ? null : i.key))}
+                          onPress={() => { if (!isEstimateFood(i.food)) setUnitOpen((k) => (k === i.key ? null : i.key)); }}
                           accessibilityRole="button"
                           accessibilityState={{ expanded: unitOpen === i.key }}
                           accessibilityLabel={`${fmtQty(i.qty)} ${i.unit} of ${i.food.name}. Change the unit.`}
@@ -403,7 +451,7 @@ export default function ScanCheckScreen() {
 
       <View style={{ position: 'absolute', left: 16, right: 16, bottom: insets.bottom + 12 }}>
         <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving || items.length === 0 || unmatched.length > 0} onPress={log} icon={<Icon name="check" size={18} color="#fff" />}>
-          {saving ? 'Logging…' : unmatched.length > 0 ? 'Pick a food for each item first' : 'Looks right, log it'}
+          {saving ? (editing ? 'Saving…' : 'Logging…') : unmatched.length > 0 ? 'Pick a food for each item first' : editing ? 'Save changes' : 'Looks right, log it'}
         </Button>
       </View>
 

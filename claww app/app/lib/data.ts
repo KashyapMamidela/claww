@@ -818,6 +818,33 @@ export async function deleteMealLog(userId: string, id: string): Promise<boolean
   return true;
 }
 
+/**
+ * Changes a logged meal (its meal type, name, numbers and, when given, its items and micronutrients). Returns the
+ * changed fields, or null when nothing was changed: no connection, or the meal has not reached the server yet.
+ */
+export async function updateMealLog(userId: string, id: string, mealType: MealType, meal: EstimatedMeal): Promise<Partial<MealLogRow> | null> {
+  const core = {
+    description: meal.description,
+    calories: Math.round(meal.calories),
+    protein_g: Math.round(meal.protein_g),
+    carbs_g: Math.round(meal.carbs_g),
+    fats_g: Math.round(meal.fats_g),
+    meal_type: mealType,
+  };
+  const extras = {
+    ...(meal.items ? { items: meal.items } : {}),
+    ...(meal.nutrients ? { nutrients: meal.nutrients } : {}),
+  };
+  let res = await supabase.from('meal_logs').update({ ...core, ...extras }).eq('id', id).eq('user_id', userId).select('id');
+  // An older database without the items and nutrients columns: change the rest.
+  if (res.error && Object.keys(extras).length > 0) res = await supabase.from('meal_logs').update(core).eq('id', id).eq('user_id', userId).select('id');
+  if (res.error || !res.data || res.data.length === 0) {
+    console.warn('[Claww] Failed to change the meal log:', res.error?.message ?? 'no row matched');
+    return null;
+  }
+  return { ...core, ...extras } as Partial<MealLogRow>;
+}
+
 /** Meals logged in [startIso, endIso), oldest first, with the NG PHASE 8 columns when they exist. */
 export async function getMealLogsBetween(userId: string, startIso: string, endIso: string): Promise<MealLogRow[]> {
   const base = 'id, description, calories, protein_g, carbs_g, fats_g, estimated, meal_type, logged_at, photo_url';

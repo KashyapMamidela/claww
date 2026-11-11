@@ -17,6 +17,7 @@ import {
   getUserXp,
   insertSleepLog,
   saveMeal,
+  updateMealLog,
   type EstimatedMeal,
   type EstimateResult,
   type MealLogRow,
@@ -69,6 +70,8 @@ interface AppState {
   saveMeal: (type: MealType, meal: EstimatedMeal) => Promise<MealLogRow | null>;
   /** NG PHASE 8: takes a just-logged meal back (the Undo after a one-tap usual). */
   removeMeal: (id: string) => Promise<boolean>;
+  /** Changes a logged meal after it was edited on the check screen. False when it could not be saved. */
+  editMeal: (id: string, type: MealType, meal: EstimatedMeal) => Promise<boolean>;
   xp: number;
   bumpXp: (amount: number) => void;
   /** Plan days followed (rest days count, an exam week protects it): the one streak every screen shows. */
@@ -211,6 +214,18 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     [userId]
   );
 
+  const editMeal = useCallback(
+    async (id: string, type: MealType, meal: EstimatedMeal) => {
+      if (!userId) return false;
+      const changed = await updateMealLog(userId, id, type, meal);
+      if (!changed) return false;
+      setMeals((m) => m.map((x) => (x.id === id ? { ...x, ...changed } : x)));
+      refreshReminders(userId).catch(() => {});
+      return true;
+    },
+    [userId]
+  );
+
   const refreshStreak = useCallback(() => {
     if (!userId) return;
     loadPlanStreak(userId)
@@ -238,6 +253,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       estimateMealPhoto,
       saveMeal: saveMealAndUpdateState,
       removeMeal,
+      editMeal,
       xp,
       bumpXp,
       streak,
@@ -258,6 +274,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       estimateMealPhoto,
       saveMealAndUpdateState,
       removeMeal,
+      editMeal,
       xp,
       bumpXp,
       streak,

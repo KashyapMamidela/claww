@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { useAppState, type MealLogRow, type MealType } from '../../lib/appState';
 import { searchFoodDb, recordFoodUse } from '../../lib/foodDb';
-import { defaultUnit, gramsFor, nutrientsFor, unitsFor, type Food } from '../../lib/foodLookup';
+import { defaultUnit, gramsFor, nutrientsFor, parseQuery, unitsFor, type Food } from '../../lib/foodLookup';
 import { BottomSheet } from '../ui/BottomSheet';
 import { Button } from '../ui/Button';
 import { Chip } from '../ui/Chip';
@@ -15,6 +15,8 @@ import { platesFor, type SavedPlate } from '../../lib/plates';
 import { rememberUnit, rememberedUnit } from '../../lib/unitMemory';
 import { recordPlateUse, usePlates } from '../../lib/platesData';
 import { Stepper } from '../ui/Stepper';
+import { startCheck } from '../../lib/mealCheck';
+import { scanGramsFor } from '../../lib/engine';
 
 // NG PHASE 8: "Search" and "Something else". Search the reviewed food database by name (chai, 2 roti, katori dal),
 // pick a quantity in household units, and log it with its micronutrients. Nothing here is estimated by a model.
@@ -96,10 +98,20 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
 
   const choose = (food: Food) => {
     const def = defaultUnit(food);
+    // What was typed comes first: "2 roti" starts at 2 roti, "1 katori dal" at 1 katori, "200g paneer" at 200 g.
+    const typed = parseQuery(query);
+    const typedUnit = typed.unitWord === 'g' || typed.unitWord === 'gram' ? 'g' : unitsFor(food).find((x) => x.unit.toLowerCase() === typed.unitWord)?.unit;
     setPicked(food);
+    setError(null);
+    // "2 paneer" for a food counted in grams is not 2 g: then the usual starting amount is used.
+    if (typed.qty !== null && typed.qty > 0 && (typedUnit || def.unit !== 'g')) {
+      const u = typedUnit ?? def.unit;
+      setUnit(u);
+      setQty(typed.qty);
+      return;
+    }
     setUnit(def.unit);
     setQty(def.unit === 'g' ? 100 : 1);
-    setError(null);
     // Polish step 6b: start in the unit this food was last measured in.
     rememberedUnit(food.name).then((u) => {
       if (u && unitsFor(food).some((x) => x.unit === u)) {
@@ -145,27 +157,12 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
       reset();
       return;
     }
-    setSaving(true);
-    setError(null);
-    const qtyText = unit === 'g' ? `${qty} g` : `${qty} ${unit}`;
-    const row = await saveMeal(mealType, {
-      description: `${qtyText} ${picked.name}`,
-      calories: nutrients.kcal,
-      protein_g: nutrients.proteinG,
-      carbs_g: nutrients.carbsG,
-      fats_g: nutrients.fatG,
-      planStatus: planned ? 'swapped' : 'extra',
-      items: [{ food: picked.name, unit, qty, grams: Math.round(grams) }],
-      nutrients: { fibreG: nutrients.fibreG, ironMg: nutrients.ironMg, calciumMg: nutrients.calciumMg, vitcMg: nutrients.vitcMg, b12Ug: nutrients.b12Ug, sodiumMg: nutrients.sodiumMg },
-    });
-    setSaving(false);
-    if (!row) {
-      setError('Could not log it. Check your connection and try again.');
-      return;
-    }
-    recordFoodUse(picked.id).catch(() => {});
+    // Every way of logging ends on the same check screen: the breakdown, the rating, more foods to add, then log.
+    const g = scanGramsFor(picked, qty, unit);
+    startCheck({ source: 'search', mealType, dish: picked.name, items: [{ key: 's0', heard: picked.name, food: picked, qty, unit: g.unit, grams: Math.round(g.grams) }] });
     reset();
-    onLogged(row);
+    onClose();
+    router.push('/scan-check');
   };
 
   return (
@@ -214,7 +211,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, on
             {!picked.reviewed ? <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: BG[400] }}>Values are from the food database and are still being reviewed.</Text> : null}
             {error ? <ErrorCard message={error} onRetry={log} retrying={saving} /> : null}
             <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving} onPress={log}>
-              {saving ? 'Saving…' : onPickFood ? 'Add to the plate' : `Log ${mealType.toLowerCase()}`}
+              {saving ? 'Saving…' : onPickFood ? 'Add to the plate' : 'Check and log'}
             </Button>
           </>
         ) : (

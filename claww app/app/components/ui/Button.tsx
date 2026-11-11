@@ -84,7 +84,9 @@ export function Button({
           colors={[deep, accent]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={[base, !disabled && ({ boxShadow: `0px 4px 10px ${accent}40` } as ViewStyle), style]}
+          // The shadow is always there (the 50 % opacity of a disabled button dims it too): switching a button to
+          // "Logging…" used to add and remove it, which made Android move the gradient to a new parent and crash.
+          style={[base, ({ boxShadow: `0px 4px 10px ${accent}40` } as ViewStyle), style]}
         >
           {inner('#fff')}
         </LinearGradient>

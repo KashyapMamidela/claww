@@ -7,6 +7,10 @@ import { mealTypeIcon, useSignedMealPhoto } from './MealPhoto';
 import { useAppState } from '../lib/appState';
 import { deletePlate, saveMealAsPlate, usePlates } from '../lib/platesData';
 import { hasPlate } from '../lib/plates';
+import { useRouter } from 'expo-router';
+import { itemsFromMeal, startCheck } from '../lib/mealCheck';
+import { replanToday } from '../lib/mealPlanData';
+import { useToast } from './ui/Toast';
 
 export interface MealDetailModalProps {
   meal: MealLogRow | null;
@@ -23,7 +27,46 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
   useEffect(() => setPhotoFailed(false), [photoUrl]);
   const showPhoto = !!photoUrl && !photoFailed;
   // Polish step 6: keep this meal as a plate; plates come first in Something else and in search.
-  const { userId } = useAppState();
+  const { userId, meals, removeMeal } = useAppState();
+  const router = useRouter();
+  const toast = useToast();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  useEffect(() => {
+    setConfirmDelete(false);
+    setActionError(null);
+  }, [meal?.id]);
+
+  // Edit opens the same check screen as a scan: every item with − and +, more to add, the rating, then Save changes.
+  const edit = async () => {
+    if (!meal || busy) return;
+    setBusy(true);
+    const items = await itemsFromMeal(meal);
+    setBusy(false);
+    startCheck({ source: 'edit', mealType: meal.meal_type ?? 'Snack', dish: meal.description, items, editing: meal });
+    onClose();
+    router.push('/scan-check');
+  };
+
+  // Delete asks once in place, then removes the meal and plans the rest of the day again.
+  const remove = async () => {
+    if (!meal || busy) return;
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      return;
+    }
+    setBusy(true);
+    const ok = await removeMeal(meal.id);
+    setBusy(false);
+    if (!ok) {
+      setActionError('Could not delete it. Check your connection and try again.');
+      return;
+    }
+    if (userId) replanToday(userId, meals.filter((m) => m.id !== meal.id)).catch(() => {});
+    toast.show({ message: 'Meal deleted' });
+    onClose();
+  };
   const { plates } = usePlates(userId);
   const [savingPlate, setSavingPlate] = useState(false);
   const isPlate = !!meal && hasPlate(plates, meal.description);
@@ -126,6 +169,45 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   <Text style={{ color: COLORS.green, fontSize: 15, fontFamily: BG[700] }}>{isPlate ? 'Saved as my plate' : 'Save as my plate'}</Text>
                 </TouchableOpacity>
               ) : null}
+
+              {meal.plan_status !== 'skipped' ? (
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={edit}
+                    disabled={busy}
+                    accessibilityRole="button"
+                    accessibilityLabel="Edit this meal"
+                    style={{ flex: 1, height: 50, borderRadius: 25, backgroundColor: COLORS.green, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
+                  >
+                    <Icon name="pencil" size={16} color="#04140A" />
+                    <Text style={{ color: '#04140A', fontSize: 15, fontFamily: BG[800] }}>Edit</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={remove}
+                    disabled={busy}
+                    accessibilityRole="button"
+                    accessibilityLabel={confirmDelete ? 'Confirm delete this meal' : 'Delete this meal'}
+                    style={{ flex: 1, height: 50, borderRadius: 25, borderWidth: 1, borderColor: 'rgba(248,113,113,0.5)', backgroundColor: confirmDelete ? 'rgba(248,113,113,0.16)' : 'transparent', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 }}
+                  >
+                    <Icon name="trash-2" size={16} color="#F87171" />
+                    <Text style={{ color: '#F87171', fontSize: 15, fontFamily: BG[800] }}>{confirmDelete ? 'Tap again to delete' : 'Delete'}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={remove}
+                  disabled={busy}
+                  accessibilityRole="button"
+                  accessibilityLabel="Remove this skipped answer"
+                  style={{ height: 50, borderRadius: 25, borderWidth: 1, borderColor: COLORS.border, alignItems: 'center', justifyContent: 'center' }}
+                >
+                  <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>{confirmDelete ? 'Tap again to undo the skip' : 'Undo skipped'}</Text>
+                </TouchableOpacity>
+              )}
+              {actionError ? <Text style={{ color: '#F87171', fontSize: 13, fontFamily: BG[400] }}>{actionError}</Text> : null}
 
               <TouchableOpacity
                 activeOpacity={0.8}

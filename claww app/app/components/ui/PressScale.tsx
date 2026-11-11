@@ -37,7 +37,10 @@ export function PressScale({ children, scaleTo = 0.97, style, disabled, onPressI
       }}
       {...rest}
     >
-      <Animated.View style={animatedStyle}>{children}</Animated.View>
+      {/* collapsable={false}: React sees no style here (the scale is set by Reanimated), so Fabric could flatten this view
+          away while Reanimated keeps it, and a re-render (a button turning "Logging…") then moved the child between
+          parents and crashed Android with "View already has a parent". Keeping the view fixes that. */}
+      <Animated.View style={animatedStyle} collapsable={false}>{children}</Animated.View>
     </Pressable>
   );
 }

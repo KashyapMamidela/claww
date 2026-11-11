@@ -3,6 +3,8 @@ import { mealForClock } from '../components/nutrition/MealTypePicker';
 import { scanPlate, setScanSession } from '../lib/scanner';
 import { DEFAULT_CONTEXT, PORTION_FACTOR } from '../lib/engine';
 import { describeToItems } from '../lib/describeMeal';
+import { startCheck } from '../lib/mealCheck';
+import { estimateItem } from '../lib/mealCheckLogic';
 import { BackTile } from '../components/ui/BackTile';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -263,6 +265,13 @@ export default function MealLogScreen() {
     setSaving(false);
     if (!result.ok || !result.meal) {
       setError(result.reason ?? "Couldn't estimate that meal — check your connection and try again.");
+      return;
+    }
+    if (!photo) {
+      const dish = text.trim().replace(/\s+/g, ' ');
+      const name = dish.charAt(0).toUpperCase() + dish.slice(1);
+      startCheck({ source: 'text', mealType: (mealType as string) || mealForClock(new Date().getHours()), dish: name, items: [estimateItem(name, result.meal)] });
+      router.push('/scan-check');
       return;
     }
     setReviewing(result.meal);

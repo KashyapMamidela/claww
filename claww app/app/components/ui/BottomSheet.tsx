@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Glass } from './Glass';
-import { Dimensions, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Dimensions, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -29,6 +29,19 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
   const y = useSharedValue(SCREEN_H);
+
+  // Android: the sheet is lifted by the keyboard's own height and drops back to the very bottom when it closes.
+  // (KeyboardAvoidingView's 'height' mode kept the shrunk height afterwards, leaving a gap under the sheet.)
+  const [keyboard, setKeyboard] = useState(0);
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const show = Keyboard.addListener('keyboardDidShow', (e) => setKeyboard(e.endCoordinates.height));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboard(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (visible) y.set(reduced ? 0 : withSpring(0, SHEET_SPRING));
@@ -62,8 +75,8 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
       <GestureHandlerRootView style={{ flex: 1 }}>
         {/* Polish step 1: the sheet rides above the keyboard so a text field and its first results stay visible. */}
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1, justifyContent: 'flex-end' }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: Platform.OS === 'android' ? keyboard : 0 }}
         >
         <Pressable onPress={close} style={StyleSheet.absoluteFill} accessibilityLabel="Close">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} />
