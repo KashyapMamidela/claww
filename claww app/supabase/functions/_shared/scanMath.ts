@@ -317,6 +317,9 @@ export function switchUnit(item: ScanItem, unit: string): ScanItem {
   return { ...item, unit: hit.unit, qty, grams };
 }
 
+/** How far apart (as a ratio) the household conversion and the model's gram estimate may be before the model's estimate is used. */
+export const GRAMS_DISAGREE = 1.6;
+
 /** The model's items matched to foods, in household units. Oil the model mentions is dropped: oil comes from "how oily?". */
 export function resolveItems(items: ModelItem[], foods: ScanFood[]): ScanItem[] {
   const out: ScanItem[] = [];
@@ -334,6 +337,13 @@ export function resolveItems(items: ModelItem[], foods: ScanFood[]): ScanItem[] 
       return;
     }
     const g = gramsFor(m.food, it.quantity, it.unit);
+    // The household conversion and the model's own gram estimate should roughly agree. When they are far apart ("1 piece"
+    // of avocado is 136 g but only a few slices are on the plate) the model's estimate of what it SEES wins; a countable
+    // food where they agree (2 roti = 80 g, model says 90 g) keeps its household unit.
+    if (it.grams && g.grams > 0 && (g.grams > it.grams * GRAMS_DISAGREE || g.grams < it.grams / GRAMS_DISAGREE)) {
+      out.push({ key: `i${i}`, heard: it.name, food: m.food, qty: it.grams, unit: 'g', grams: it.grams });
+      return;
+    }
     const qty = g.unit === 'g' ? Math.round(g.grams) : it.quantity;
     out.push({ key: `i${i}`, heard: it.name, food: m.food, qty, unit: g.unit, grams: Math.round(g.grams) });
   });

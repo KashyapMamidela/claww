@@ -1,43 +1,27 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, BG, bg } from '../lib/theme';
+import { COLORS, BG } from '../lib/theme';
 import { useAppState } from '../lib/appState';
-import { DEFAULT_CONTEXT, type Oil, type Place, type Portion, type ScanContext } from '../lib/engine';
-import { contextText, habitContext, lastTimeFor } from '../lib/scanHabit';
+import { DEFAULT_CONTEXT, type ScanContext } from '../lib/engine';
+import { habitContext, lastTimeFor } from '../lib/scanHabit';
 import { getPastScans, scanPlate, setScanSession, type ScanOutcome } from '../lib/scanner';
+import { shrinkPhoto } from '../lib/photo';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { PressScale } from '../components/ui/PressScale';
-import { SectionLabel } from '../components/ui/SectionLabel';
-import { Segmented } from '../components/ui/Segmented';
+import { ItemTags, ScanSweep } from '../components/scan/ScanEffects';
+import { ScanQuestions } from '../components/scan/ScanQuestions';
 
-// NG PHASE 9, step 1 (screen 16): the scanner starts with context. A viewfinder, the first read of the plate as a
-// "Looks like ..." tag, and three quick questions pre-filled from habit (or "last time with this dish: Use").
-// "Photos can't see oil or portion", so the answers decide the oil line and the size; the numbers come from the database.
+// NG PHASE 9, step 1 (screen 16): the scanner starts with context. A viewfinder, the plate read in the background
+// while you answer three quick questions (pre-filled from habit), a sweep of light over the photo while it is read and the
+// foods it found as tags on the photo. "Check my plate" never waits: the next screen shows the reading if it is not done.
+// The photo is shrunk first (lib/photo.ts) so the upload is quick on mobile data.
 
 const G = COLORS.green;
-
-const PLACES: { value: Place; label: string }[] = [
-  { value: 'home', label: 'Home' },
-  { value: 'mess', label: 'Mess' },
-  { value: 'restaurant', label: 'Restaurant' },
-  { value: 'street', label: 'Street' },
-];
-const OILS: { value: Oil; label: string }[] = [
-  { value: 'light', label: 'Light' },
-  { value: 'normal', label: 'Normal' },
-  { value: 'heavy', label: 'Heavy' },
-];
-const PORTIONS: { value: Portion; label: string }[] = [
-  { value: 'small', label: 'Small' },
-  { value: 'regular', label: 'Regular' },
-  { value: 'large', label: 'Large' },
-  { value: 'shared', label: 'Shared' },
-];
 
 const mealForHour = (h: number) => (h < 11 ? 'Breakfast' : h < 16 ? 'Lunch' : h < 19 ? 'Snack' : 'Dinner');
 
@@ -66,6 +50,7 @@ export default function ScanScreen() {
   const [context, setContext] = useState<ScanContext>(DEFAULT_CONTEXT);
   const [past, setPast] = useState<Awaited<ReturnType<typeof getPastScans>>>([]);
   const [busy, setBusy] = useState(false);
+  const [photoH, setPhotoH] = useState(300);
   const pending = useRef<Promise<ScanOutcome> | null>(null);
 
   useEffect(() => {
@@ -76,13 +61,19 @@ export default function ScanScreen() {
     });
   }, [userId]);
 
-  const start = (uri: string, base64: string, mimeType: string) => {
+  const start = (uri: string, base64: string, mimeType: string, width?: number, height?: number) => {
     setPhoto({ uri, base64, mimeType });
     setOutcome(null);
-    const p = scanPlate(`data:${mimeType};base64,${base64}`).then((o) => {
-      setOutcome(o);
-      return o;
-    });
+    // Shrink first (about 100 to 200 KB), then send: the upload is the slowest part on mobile data.
+    const p = shrinkPhoto({ uri, base64, mime: mimeType }, width, height)
+      .then((small) => {
+        setPhoto((prev) => (prev ? { ...prev, base64: small.base64, mimeType: small.mime } : prev));
+        return scanPlate(`data:${small.mime};base64,${small.base64}`);
+      })
+      .then((o) => {
+        setOutcome(o);
+        return o;
+      });
     pending.current = p;
   };
 
@@ -90,17 +81,17 @@ export default function ScanScreen() {
     if (!camera.current || busy) return;
     setBusy(true);
     try {
-      const pic = await camera.current.takePictureAsync({ quality: 0.4, base64: true, skipProcessing: false });
-      if (pic?.base64) start(pic.uri, pic.base64, 'image/jpeg');
+      const pic = await camera.current.takePictureAsync({ quality: 0.5, base64: true, skipProcessing: false });
+      if (pic?.base64) start(pic.uri, pic.base64, 'image/jpeg', pic.width, pic.height);
     } finally {
       setBusy(false);
     }
   };
 
   const fromGallery = async () => {
-    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.4, base64: true });
+    const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.5, base64: true });
     const a = res.assets?.[0];
-    if (!res.canceled && a?.base64) start(a.uri, a.base64, a.mimeType ?? 'image/jpeg');
+    if (!res.canceled && a?.base64) start(a.uri, a.base64, a.mimeType ?? 'image/jpeg', a.width, a.height);
   };
 
   const retake = () => {
@@ -109,9 +100,11 @@ export default function ScanScreen() {
     pending.current = null;
   };
 
-  const dish = outcome && outcome.ok && outcome.result.route === 'ok' ? outcome.result.dish : null;
+  const ok = outcome && outcome.ok ? outcome.result : null;
+  const dish = ok && ok.route === 'ok' ? ok.dish : null;
   const last = dish ? lastTimeFor(dish, past) : null;
   const reading = !!photo && !outcome;
+  const tagNames = ok ? ok.items.filter((i) => !i.hidden).map((i) => (i.food ? i.food.name : i.heard)) : [];
 
   const next = () => {
     if (!photo || !pending.current) return;
@@ -123,7 +116,7 @@ export default function ScanScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#0B0907' }}>
-      <View style={{ height: photo ? '38%' : '100%' }}>
+      <View style={{ height: photo ? '44%' : '100%' }} onLayout={(e) => setPhotoH(e.nativeEvent.layout.height)}>
         {photo ? (
           <Image source={{ uri: photo.uri }} style={{ flex: 1 }} resizeMode="cover" accessibilityLabel="Your photo" />
         ) : permission.granted ? (
@@ -140,6 +133,8 @@ export default function ScanScreen() {
             </Pressable>
           </View>
         )}
+
+        {photo ? <ScanSweep active={reading} height={photoH} /> : null}
 
         <View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top + 8, left: 16, right: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Close the scanner" style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' }}>
@@ -162,19 +157,10 @@ export default function ScanScreen() {
           </View>
         ) : null}
 
-        {/* The tag sits at the bottom of the photo, above the panel: below the frame it was covered by the panel. */}
-        {photo && dish ? (
-          <View pointerEvents="none" style={{ position: 'absolute', bottom: 40, left: 16, right: 16, alignItems: 'center' }}>
-            <View style={{ minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: G, justifyContent: 'center' }}>
-              <Text style={{ color: '#052e16', fontSize: 15, fontFamily: BG[800] }} numberOfLines={1}>Looks like {dish.toLowerCase()}</Text>
-            </View>
-          </View>
-        ) : photo && reading ? (
-          <View pointerEvents="none" style={{ position: 'absolute', bottom: 40, left: 16, right: 16, alignItems: 'center' }}>
-            <View style={{ minHeight: 36, paddingHorizontal: 16, borderRadius: 18, backgroundColor: 'rgba(0,0,0,0.65)', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <ActivityIndicator color="#fff" size="small" />
-              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[400] }}>Reading the plate…</Text>
-            </View>
+        {/* The foods it found, as tags on the photo, above the panel. */}
+        {photo && ok ? (
+          <View pointerEvents="none" style={{ position: 'absolute', bottom: 36, left: 12, right: 12 }}>
+            <ItemTags names={tagNames} lead={dish} />
           </View>
         ) : null}
 
@@ -193,39 +179,18 @@ export default function ScanScreen() {
       </View>
 
       {photo ? (
-        <View style={{ flex: 1, backgroundColor: COLORS.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -26, overflow: 'hidden' }}>
-          <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 18, gap: 14 }}>
-            {last ? (
-              <Pressable
-                onPress={() => setContext(last.context)}
-                accessibilityRole="button"
-                accessibilityLabel={`Use last time's answers: ${contextText(last.context)}`}
-                style={{ minHeight: 72, borderRadius: 16, borderWidth: 1, borderColor: COLORS.greenBorderMd, backgroundColor: 'rgba(34,197,94,0.08)', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Last time with this dish</Text>
-                  <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{contextText(last.context)}</Text>
-                </View>
-                <Text style={{ color: G, fontSize: 17, fontFamily: BG[800] }}>Use</Text>
-              </Pressable>
-            ) : null}
-
-            <View>
-              <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{last ? 'Or answer two quick questions' : 'Two quick questions'}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: BG[400] }}>
-                Photos cannot see oil or portion. {reading ? 'Your plate is being read while you answer.' : 'This makes the numbers honest.'}
-              </Text>
-            </View>
-
-            <SectionLabel color={G}>WHERE IS IT FROM?</SectionLabel>
-            <Segmented options={PLACES} value={context.place} onChange={(place) => setContext((c) => ({ ...c, place }))} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="Where it is from" />
-            <SectionLabel color={G}>HOW OILY?</SectionLabel>
-            <Segmented options={OILS} value={context.oil} onChange={(oil) => setContext((c) => ({ ...c, oil }))} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="How oily" />
-            <SectionLabel color={G}>PORTION</SectionLabel>
-            <Segmented options={PORTIONS} value={context.portion} onChange={(portion) => setContext((c) => ({ ...c, portion }))} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="Portion" />
-
-            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth onPress={next} icon={<Icon name="chevron-right" size={16} color="#fff" />}>
-              Check the items
+        <View style={{ flex: 1, backgroundColor: COLORS.card, borderTopLeftRadius: 28, borderTopRightRadius: 28, marginTop: -26, overflow: 'hidden', borderTopWidth: 1, borderColor: 'rgba(255,255,255,0.08)' }}>
+          <ScrollView contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 18, gap: 18 }}>
+            <ScanQuestions
+              context={context}
+              onChange={setContext}
+              reading={reading}
+              found={tagNames.length || null}
+              last={last ? last.context : null}
+              onUseLast={last ? () => setContext(last.context) : undefined}
+            />
+            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth onPress={next} icon={<Icon name="check" size={18} color="#fff" />}>
+              Check my plate
             </Button>
             <Pressable onPress={retake} accessibilityRole="button" style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}>
               <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[600] }}>Retake the photo</Text>

@@ -22,6 +22,7 @@ import { recordFoodUse } from '../lib/foodDb';
 import { requestFood } from '../lib/foodRequests';
 import { useToast } from '../components/ui/Toast';
 import { Skeleton } from '../components/ui/Skeleton';
+import { ItemTags, ScanSweep } from '../components/scan/ScanEffects';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
 import { rateMeal } from '../lib/nutritionLogic';
 import { nextMealFor } from '../lib/homeMoment';
@@ -315,7 +316,12 @@ export default function ScanCheckScreen() {
       <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
         {header}
         <ScrollView contentContainerStyle={{ padding: 16, gap: 14 }}>
-          {session.photoUri ? <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: 170, borderRadius: 20 }} resizeMode="cover" accessibilityLabel="Your photo" /> : null}
+          {session.photoUri ? (
+            <View style={{ width: '100%', height: 190, borderRadius: 20, overflow: 'hidden' }}>
+              <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" accessibilityLabel="Your photo" />
+              <ScanSweep active height={190} />
+            </View>
+          ) : null}
           <ReadingSteps />
           {/* The rows take the shape of the real ones, so the screen does not jump when the plate is read. */}
           <Surface padding={0} radius={22}>
@@ -372,6 +378,15 @@ export default function ScanCheckScreen() {
       {header}
       <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 120, gap: 14 }}>
         <MealTypePicker value={mealType} onChange={setMealType} />
+
+        {source === 'photo' && session.photoUri ? (
+          <View style={{ marginHorizontal: 16, height: 170, borderRadius: 22, overflow: 'hidden' }}>
+            <Image source={{ uri: session.photoUri }} style={{ width: '100%', height: '100%' }} resizeMode="cover" accessibilityLabel="Your photo" />
+            <View style={{ position: 'absolute', left: 8, right: 8, bottom: 8 }}>
+              <ItemTags names={items.filter((i) => !i.hidden).map((i) => (i.food ? i.food.name : i.heard))} lead={null} max={8} />
+            </View>
+          </View>
+        ) : null}
 
         {/* The answer first: what this meal comes to, and what it means for your day. */}
         <View style={{ paddingHorizontal: 16 }}>

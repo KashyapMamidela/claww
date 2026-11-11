@@ -148,6 +148,13 @@ INSERT INTO foods (name, aliases, kind, cuisine, diet, jain_ok, kcal_100g, prote
   ('Coconut water', ARRAY['tender coconut water', 'elaneer', 'nariyal pani']::text[], 'ingredient', NULL, 'vegan', true, 19, 0.72, 3.71, 0.2, 1.1, 0.29, 24, 2.4, 0, 105, 2.61, NULL, 'USDA FoodData Central SR Legacy', 'Nuts, coconut water (liquid from coconuts) | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
   ('Pistachios', ARRAY['pista', 'pistachio']::text[], 'ingredient', NULL, 'vegan', true, 560, 20.16, 27.17, 45.32, 10.6, 3.92, 105, 5.6, 0, 1, 7.66, NULL, 'USDA FoodData Central SR Legacy', 'Nuts, pistachio nuts, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
   ('Sprouted moong', ARRAY['sprouted moong', 'moong sprouts cooked']::text[], 'ingredient', NULL, 'vegan', true, 30, 3.04, 5.94, 0.18, 1.8, 0.69, 13, 13.2, 0, 6, 4.13, NULL, 'USDA FoodData Central SR Legacy', 'Mung beans, mature seeds, sprouted, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Kale', ARRAY['kale', 'leafy kale', 'curly kale']::text[], 'ingredient', NULL, 'vegan', true, 49, 4.28, 8.75, 0.93, 3.6, 1.6, 150, 120, 0, 38, 2.26, NULL, 'USDA FoodData Central SR Legacy', 'Kale, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Arugula', ARRAY['rocket', 'rocket leaves', 'arugula leaves']::text[], 'ingredient', NULL, 'vegan', true, 25, 2.58, 3.65, 0.66, 1.6, 1.46, 160, 15, 0, 27, 2.05, NULL, 'USDA FoodData Central SR Legacy', 'Arugula, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Spring onion', ARRAY['scallion', 'green onion', 'spring onions', 'hara pyaz']::text[], 'ingredient', NULL, 'vegan', true, 32, 1.83, 7.34, 0.19, 2.6, 1.48, 72, 18.8, 0, 16, 2.33, NULL, 'USDA FoodData Central SR Legacy', 'Onions, spring or scallions (includes tops and bulb), raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Olives', ARRAY['olive', 'black olives', 'green olives']::text[], 'ingredient', NULL, 'vegan', true, 115, 0.84, 6.26, 10.68, 3.2, 3.32, 88, 0.9, 0, 735, 0, NULL, 'USDA FoodData Central SR Legacy', 'Olives, ripe, canned (small-extra large) | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Hummus', ARRAY['hummus', 'chickpea dip']::text[], 'ingredient', NULL, 'vegan', true, 166, 7.9, 14.29, 9.6, 6, 2.44, 38, 0, 0, 379, 0.34, NULL, 'USDA FoodData Central SR Legacy', 'Hummus, commercial | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Zucchini', ARRAY['courgette', 'zucchini', 'summer squash']::text[], 'ingredient', NULL, 'vegan', true, 17, 1.21, 3.11, 0.32, 1, 0.37, 16, 17.9, 0, 8, 2.5, NULL, 'USDA FoodData Central SR Legacy', 'Squash, summer, zucchini, includes skin, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
+  ('Celery', ARRAY['celery', 'celery stalk']::text[], 'ingredient', NULL, 'vegan', true, 14, 0.69, 2.97, 0.17, 1.6, 0.2, 40, 3.1, 0, 80, 1.34, NULL, 'USDA FoodData Central SR Legacy', 'Celery, raw | added 2026-11-11; needs the nutritionist to confirm; FDC id to be verified'),
   ('Roti', ARRAY['chapati', 'phulka', 'fulka']::text[], 'dish', 'North Indian', 'vegan', true, 272, 10.57, 57.58, 2, 8.56, 2.88, 27.2, 0, 0, 1.6, 0.33, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Roti with ghee', ARRAY['ghee roti', 'ghee chapati']::text[], 'dish', 'North Indian', 'veg', true, 339.11, 9.42, 51.18, 12.83, 7.61, 2.56, 24.62, 0, 0, 1.64, 0.29, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
   ('Paratha, plain', ARRAY['plain paratha', 'paratha']::text[], 'dish', 'North Indian', 'vegan', true, 318.63, 9.44, 51.41, 10.36, 7.64, 2.57, 24.29, 0, 0, 1.43, 0.29, NULL, 'Computed from ingredients', 'Recipe grams are an authored estimate of a typical home or mess serving; needs nutritionist review'),
@@ -697,7 +704,20 @@ SELECT f.id, v.unit, v.grams, v.is_default FROM (VALUES
   ('Gobi manchurian', 'plate', 220, true),
   ('Chicken hakka noodles', 'plate', 350, true),
   ('Sprouts curry', 'katori', 150, true),
-  ('Fruit bowl', 'katori', 200, true)
+  ('Fruit bowl', 'katori', 200, true),
+  ('Kale', 'g', 1, true),
+  ('Kale', 'handful', 25, false),
+  ('Arugula', 'g', 1, true),
+  ('Arugula', 'handful', 20, false),
+  ('Spring onion', 'g', 1, true),
+  ('Olives', 'g', 1, true),
+  ('Olives', 'piece', 4, false),
+  ('Hummus', 'g', 1, true),
+  ('Hummus', 'tbsp', 15, false),
+  ('Zucchini', 'g', 1, true),
+  ('Zucchini', 'piece', 196, false),
+  ('Celery', 'g', 1, true),
+  ('Celery', 'piece', 40, false)
 ) AS v(food, unit, grams, is_default)
 JOIN foods f ON f.name = v.food
 ON CONFLICT (food_id, unit) DO UPDATE SET grams = EXCLUDED.grams, is_default = EXCLUDED.is_default;

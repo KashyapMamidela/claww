@@ -75,13 +75,11 @@ function toScanFood(r: FoodRow): ScanFood {
   };
 }
 
-// The order the scanner tries models in. Each failure (error, rate limit, timeout, an answer that does not validate)
-// moves straight to the next. The three Google models share one key; Groq is last. VISION_MODELS (comma separated model
-// ids) overrides the Google part without a deploy: "model" or "model:milliseconds", comma separated, e.g.
-// gemini-3.8-flash:7000,gemini-3.5-flash-lite:8000
+// The order the scanner tries models in: Groq first, then Gemini 3.6 Flash. Each failure (error, rate limit, timeout, an
+// answer that does not validate) moves straight to the next. VISION_MODELS (comma separated, "model" or
+// "model:milliseconds") replaces the Google part without a deploy.
 // If the model being tried has not answered after this long, the next one starts too and the first valid answer wins.
-// Equal to the first model's time limit: it gets its 7 s, then the quick model takes over.
-const HEDGE_MS = 7000;
+const HEDGE_MS = 4000;
 
 // Thinking level per Google model: the lowest each one allows (3.8 Flash cannot go below low), to keep answers quick.
 const EFFORT: Record<string, string | undefined> = {
@@ -95,14 +93,21 @@ const EFFORT: Record<string, string | undefined> = {
 // The models the Scanner lab may run on their own. Anything else is refused.
 const LAB_MODELS = ['groq', 'gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemma-4-31b-it'];
 
-const GOOGLE_MODELS: { model: string; timeoutMs: number }[] = [
-  { model: 'gemini-3.8-flash', timeoutMs: 7000 },
-  { model: 'gemini-3.5-flash-lite', timeoutMs: 8000 },
-  { model: 'gemma-4-31b-it', timeoutMs: 12000 },
-];
+// Two models, from the first Scanner lab run: Groq Qwen first (about 1.4 s inside the model, found 8 of 9 foods) and
+// Gemini 3.6 Flash as the backup (about 4 s, 8 of 9, and it found what Groq missed). 3.8 Flash, Gemma and the Flash-Lite
+// models stay in the lab only until they are reliable.
+const GOOGLE_MODELS: { model: string; timeoutMs: number }[] = [{ model: 'gemini-3.6-flash', timeoutMs: 12000 }];
 
 function buildProviders(): VisionProvider[] {
-  const providers: VisionProvider[] = [];
+  // Groq first.
+  const providers: VisionProvider[] = [
+    {
+      name: `groq:${GROQ_MODEL_CHAINS.vision[0]}`,
+      timeoutMs: 10000,
+      // callGroqVisionJSON has its own fetch and chain; the time limit around it is enforced by callVisionProviders.
+      call: async (system, user, image) => (await callGroqVisionJSON(system, user, image)).content,
+    },
+  ];
   const url = Deno.env.get('VISION_BACKUP_URL');
   const key = Deno.env.get('VISION_BACKUP_KEY');
   if (url && key) {
@@ -119,11 +124,6 @@ function buildProviders(): VisionProvider[] {
       providers.push(openAiCompatibleProvider({ name: `google:${m.model}`, url, key, model: m.model, timeoutMs: m.timeoutMs, reasoningEffort: EFFORT[m.model] ?? 'low' }));
     }
   }
-  providers.push({
-    name: `groq:${GROQ_MODEL_CHAINS.vision[0]}`,
-    // callGroqVisionJSON has its own fetch and chain; the time limit around it is enforced by callVisionProviders.
-    call: async (system, user, image) => (await callGroqVisionJSON(system, user, image)).content,
-  });
   return providers;
 }
 

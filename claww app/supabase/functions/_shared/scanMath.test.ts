@@ -96,8 +96,17 @@ describe('matching what the model heard to foods', () => {
     expect(out[0]).toMatchObject({ unit: 'g', grams: 60 });
     // roti has its own household unit: the household conversion stays (2 x 40 g), the model's 90 g is ignored
     expect(out[1].grams).toBe(80);
-    // avocado has a "piece" unit
+    // avocado: the model's 5000 g was impossible and dropped, so the household piece stands
     expect(out[2].grams).toBe(136);
+  });
+
+  it('when the household conversion and the model gram estimate disagree a lot, what the model sees wins', () => {
+    const avocadoSlices = resolveItems([{ name: 'avocado', quantity: 1, unit: 'piece', grams: 40 }], FOODS)[0];
+    expect(avocadoSlices).toMatchObject({ unit: 'g', grams: 40 }); // 136 g vs 40 g
+    const roti = resolveItems([{ name: 'roti', quantity: 2, unit: 'roti', grams: 90 }], FOODS)[0];
+    expect(roti.grams).toBe(80); // 80 g vs 90 g agree: keep the household unit
+    const wholeAvocado = resolveItems([{ name: 'avocado', quantity: 1, unit: 'piece', grams: 150 }], FOODS)[0];
+    expect(wholeAvocado.grams).toBe(136);
   });
 
   it('something that is not in the database does not match', () => {

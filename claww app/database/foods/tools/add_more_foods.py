@@ -37,6 +37,13 @@ ING = [
     ('Coconut water', 'tender coconut water|elaneer|nariyal pani', 'vegan', True, 19, 0.72, 3.71, 0.2, 1.1, 0.29, 24, 2.4, 0, 105, 2.61, USDA, 'Nuts, coconut water (liquid from coconuts)', [('ml', 1, False), ('glass', 250, True)]),
     ('Pistachios', 'pista|pistachio', 'vegan', True, 560, 20.16, 27.17, 45.32, 10.6, 3.92, 105, 5.6, 0, 1, 7.66, USDA, 'Nuts, pistachio nuts, raw', [('g', 1, True), ('handful', 28, False)]),
     ('Sprouted moong', 'sprouted moong|moong sprouts cooked', 'vegan', True, 30, 3.04, 5.94, 0.18, 1.8, 0.69, 13, 13.2, 0, 6, 4.13, USDA, 'Mung beans, mature seeds, sprouted, raw', [('g', 1, True)]),
+    ('Kale', 'kale|leafy kale|curly kale', 'vegan', True, 49, 4.28, 8.75, 0.93, 3.6, 1.6, 150, 120, 0, 38, 2.26, USDA, 'Kale, raw', [('g', 1, True), ('handful', 25, False)]),
+    ('Arugula', 'rocket|rocket leaves|arugula leaves', 'vegan', True, 25, 2.58, 3.65, 0.66, 1.6, 1.46, 160, 15, 0, 27, 2.05, USDA, 'Arugula, raw', [('g', 1, True), ('handful', 20, False)]),
+    ('Spring onion', 'scallion|green onion|spring onions|hara pyaz', 'vegan', True, 32, 1.83, 7.34, 0.19, 2.6, 1.48, 72, 18.8, 0, 16, 2.33, USDA, 'Onions, spring or scallions (includes tops and bulb), raw', [('g', 1, True)]),
+    ('Olives', 'olive|black olives|green olives', 'vegan', True, 115, 0.84, 6.26, 10.68, 3.2, 3.32, 88, 0.9, 0, 735, 0, USDA, 'Olives, ripe, canned (small-extra large)', [('g', 1, True), ('piece', 4, False)]),
+    ('Hummus', 'hummus|chickpea dip', 'vegan', True, 166, 7.9, 14.29, 9.6, 6, 2.44, 38, 0, 0, 379, 0.34, USDA, 'Hummus, commercial', [('g', 1, True), ('tbsp', 15, False)]),
+    ('Zucchini', 'courgette|zucchini|summer squash', 'vegan', True, 17, 1.21, 3.11, 0.32, 1, 0.37, 16, 17.9, 0, 8, 2.5, USDA, 'Squash, summer, zucchini, includes skin, raw', [('g', 1, True), ('piece', 196, False)]),
+    ('Celery', 'celery|celery stalk', 'vegan', True, 14, 0.69, 2.97, 0.17, 1.6, 0.2, 40, 3.1, 0, 80, 1.34, USDA, 'Celery, raw', [('g', 1, True), ('piece', 40, False)]),
 ]
 
 # Dishes: name, aliases, cuisine, unit, pieces, target grams (water tops it up to this weight), items
