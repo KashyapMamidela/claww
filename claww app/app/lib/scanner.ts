@@ -36,6 +36,28 @@ export async function scanPlate(imageDataUri: string): Promise<ScanOutcome> {
   return { ok: true, result: data as ScanResult };
 }
 
+export type LabResult =
+  | { ok: true; dish: string; items: ScanItem[]; ms: number | null; total: number }
+  | { ok: false; reason: string; ms: number | null; total: number };
+
+/** Scanner lab (dev builds): runs one named model on the photo and times the whole round trip. */
+export async function scanPlateLab(imageDataUri: string, model: string): Promise<LabResult> {
+  const started = Date.now();
+  try {
+    const { data, error } = await supabase.functions.invoke('scan-plate', { body: { image: imageDataUri, only: model } });
+    const total = Date.now() - started;
+    if (error) {
+      const message = await extractInvokeErrorMessage(error);
+      return { ok: false, reason: message ?? error.message, ms: null, total };
+    }
+    if (data?.lab && data.ok === false) return { ok: false, reason: String(data.error ?? 'failed'), ms: null, total };
+    if (!data || !Array.isArray(data.items)) return { ok: false, reason: data?.reason ?? 'No answer', ms: null, total };
+    return { ok: true, dish: String(data.dish ?? ''), items: data.items as ScanItem[], ms: typeof data.ms === 'number' ? data.ms : null, total };
+  } catch (e) {
+    return { ok: false, reason: (e as Error).message, ms: null, total: Date.now() - started };
+  }
+}
+
 /** The user's earlier scans (with their answers) for "last time" and habit. Empty until meal_logs.context exists. */
 export async function getPastScans(userId: string): Promise<PastScan[]> {
   const { data, error } = await supabase

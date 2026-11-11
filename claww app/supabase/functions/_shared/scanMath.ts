@@ -53,6 +53,8 @@ export interface ModelItem {
   quantity: number;
   /** katori, piece, tsp, glass, plate, roti, idli, egg ... or "g". */
   unit: string;
+  /** The model's own estimate of what is visible, in grams. Used only where the food has no household unit to convert with. */
+  grams?: number;
 }
 
 export interface ModelOutput {
@@ -81,7 +83,13 @@ export function parseModelOutput(raw: unknown): ModelOutput | null {
     if (typeof o?.name !== 'string' || !o.name.trim()) continue;
     const quantity = Number(o.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 50) continue;
-    items.push({ name: o.name.trim().slice(0, 60), quantity, unit: typeof o.unit === 'string' && o.unit.trim() ? o.unit.trim().toLowerCase().slice(0, 20) : 'piece' });
+    const g = Number(o.grams);
+    items.push({
+      name: o.name.trim().slice(0, 60),
+      quantity,
+      unit: typeof o.unit === 'string' && o.unit.trim() ? o.unit.trim().toLowerCase().slice(0, 20) : 'piece',
+      ...(Number.isFinite(g) && g > 0 && g <= 2000 ? { grams: Math.round(g) } : {}),
+    });
   }
   const candidates = Array.isArray(r.candidates) ? r.candidates.filter((c): c is string => typeof c === 'string' && c.trim().length > 0).map((c) => c.trim().slice(0, 60)).slice(0, 4) : [];
   if (r.isFood && r.isAppropriate && items.length === 0) return null;
@@ -317,6 +325,12 @@ export function resolveItems(items: ModelItem[], foods: ScanFood[]): ScanItem[] 
     const m = matchFood(it.name, foods);
     if (!m) {
       out.push({ key: `i${i}`, heard: it.name, food: null, qty: it.quantity, unit: it.unit, grams: 0 });
+      return;
+    }
+    // A food measured in grams only has no household unit to read "1 handful" with: take the model's own gram estimate.
+    const u = (UNIT_SYNONYMS[it.unit] ?? it.unit).toLowerCase();
+    if (it.grams && u !== 'g' && defaultUnit(m.food).grams === 1 && !m.food.units.some((x) => x.unit.toLowerCase() === u)) {
+      out.push({ key: `i${i}`, heard: it.name, food: m.food, qty: it.grams, unit: 'g', grams: it.grams });
       return;
     }
     const g = gramsFor(m.food, it.quantity, it.unit);

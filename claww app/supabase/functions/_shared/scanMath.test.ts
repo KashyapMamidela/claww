@@ -83,6 +83,23 @@ describe('matching what the model heard to foods', () => {
     expect(gramsFor(rice, 1, 'katori').grams).toBeGreaterThan(100);
   });
 
+  it('keeps the model gram estimate and uses it only where the food has no household unit for what was named', () => {
+    const parsed = parseModelOutput({ isFood: true, isAppropriate: true, dish: 'Salad', confidence: 0.9, candidates: [], items: [
+      { name: 'mixed greens', quantity: 2, unit: 'cup', grams: 60 },
+      { name: 'roti', quantity: 2, unit: 'roti', grams: 90 },
+      { name: 'avocado', quantity: 1, unit: 'piece', grams: 5000 },
+    ] });
+    expect(parsed!.items[0].grams).toBe(60);
+    expect(parsed!.items[2].grams).toBeUndefined(); // an impossible weight is dropped
+    const out = resolveItems(parsed!.items, FOODS);
+    // greens have no "cup" unit and are measured in grams: the model's 60 g is used, not "2 cups = 2 g" or 400 g
+    expect(out[0]).toMatchObject({ unit: 'g', grams: 60 });
+    // roti has its own household unit: the household conversion stays (2 x 40 g), the model's 90 g is ignored
+    expect(out[1].grams).toBe(80);
+    // avocado has a "piece" unit
+    expect(out[2].grams).toBe(136);
+  });
+
   it('something that is not in the database does not match', () => {
     expect(matchFood('quinoa tabbouleh', FOODS)).toBeNull();
     expect(matchFood('', FOODS)).toBeNull();

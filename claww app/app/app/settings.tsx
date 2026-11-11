@@ -208,6 +208,17 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ) : null}
 
+        {SHOW_DEV_TOOLS ? (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => router.push('/dev/scanner-lab')}
+            accessibilityRole="button"
+            style={{ minHeight: 44, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', backgroundColor: '#151517', alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}
+          >
+            <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Scanner lab</Text>
+          </TouchableOpacity>
+        ) : null}
+
 <Rise i={3}>
         <Surface radius={20} padding={16}>
           <TouchableOpacity
