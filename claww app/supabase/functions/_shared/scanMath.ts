@@ -128,6 +128,7 @@ const DESCRIPTORS = new Set([
   'red', 'yellow', 'green', 'orange', 'purple', 'white', 'black', 'fresh', 'raw', 'ripe', 'small', 'large', 'big', 'baby',
   'shredded', 'chopped', 'sliced', 'diced', 'cubed', 'grated', 'crushed', 'mashed', 'whole', 'halved', 'julienned', 'mixed',
   'steamed', 'boiled', 'grilled', 'roasted', 'fried', 'sauteed', 'cooked', 'toasted', 'garnish', 'topping', 'some', 'a', 'of', 'with',
+  'cherry', 'grape', 'roma', 'baby', 'mini', 'heirloom',
 ]);
 
 /** What the model says when it means a food the database holds under another name. */
@@ -145,6 +146,9 @@ const NAME_SYNONYMS: Record<string, string> = {
   'garbanzo beans': 'chickpeas',
   'garbanzo': 'chickpeas',
   'sesame': 'sesame seeds',
+  'cherry tomato': 'tomato',
+  'cherry tomatoes': 'tomato',
+  'grape tomato': 'tomato',
 };
 
 /** The model's name with the looks-and-cuts words dropped, or null when nothing would change. */
@@ -196,13 +200,22 @@ export function defaultUnit(food: ScanFood): ScanUnit {
   return food.units.find((u) => u.isDefault) ?? food.units[0] ?? { unit: 'g', grams: 100, isDefault: true };
 }
 
+/**
+ * Typical grams for a household unit, used only when a food is measured in grams alone: "1 handful of avocado" must not
+ * become 1 gram. Rough on purpose; the user corrects it with - and + on the check screen.
+ */
+export const HOUSEHOLD_GRAMS: Record<string, number> = { handful: 30, piece: 50, slice: 25, tsp: 5, tbsp: 15, katori: 150, cup: 200, glass: 250, plate: 250 };
+
 /** Grams for a household quantity of a food; a unit the food does not have falls back to its default unit. */
 export function gramsFor(food: ScanFood, quantity: number, unit: string): { grams: number; unit: string } {
   const u = (UNIT_SYNONYMS[unit] ?? unit).toLowerCase();
   if (u === 'g') return { grams: quantity, unit: 'g' };
-  const hit = food.units.find((x) => x.unit.toLowerCase() === u) ?? (u === 'piece' ? defaultUnit(food) : undefined);
+  const hit = food.units.find((x) => x.unit.toLowerCase() === u);
   if (hit) return { grams: quantity * hit.grams, unit: hit.unit };
   const d = defaultUnit(food);
+  // The food only has grams: use a typical weight for the unit the model named instead of reading "1" as 1 gram.
+  if (d.grams === 1 && HOUSEHOLD_GRAMS[u]) return { grams: quantity * HOUSEHOLD_GRAMS[u], unit: 'g' };
+  if (u === 'piece') return { grams: quantity * d.grams, unit: d.unit };
   return { grams: quantity * d.grams, unit: d.unit };
 }
 

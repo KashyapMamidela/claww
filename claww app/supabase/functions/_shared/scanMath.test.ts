@@ -60,6 +60,8 @@ describe('matching what the model heard to foods', () => {
     ['sliced avocado', 'Avocado'],
     ['green bell pepper', 'Capsicum, green'],
     ['chopped cabbage', 'Cabbage'],
+    ['cherry tomatoes', 'Tomato'],
+    ['cherry tomato', 'Tomato'],
   ];
   for (const [heard, expected] of cases) {
     it(`"${heard}" is ${expected}`, () => {
@@ -69,6 +71,18 @@ describe('matching what the model heard to foods', () => {
       expect(m!.score).toBeGreaterThanOrEqual(MATCH_THRESHOLD);
     });
   }
+  it('a unit a gram-only food lacks uses a typical weight, not 1 gram per unit', () => {
+    const avocado = FOODS.find((f) => f.name === 'Avocado')!;
+    const greens = FOODS.find((f) => f.name === 'Lettuce and salad greens')!;
+    const rice = FOODS.find((f) => f.name === 'Rice, cooked')!;
+    expect(gramsFor(greens, 1, 'handful').grams).toBe(30);
+    expect(gramsFor(avocado, 1, 'piece').grams).toBe(136);
+    const peppers = FOODS.find((f) => f.name === 'Capsicum, red')!;
+    expect(gramsFor(peppers, 2, 'tbsp').grams).toBe(30);
+    // A food that has its own household unit keeps using it.
+    expect(gramsFor(rice, 1, 'katori').grams).toBeGreaterThan(100);
+  });
+
   it('something that is not in the database does not match', () => {
     expect(matchFood('quinoa tabbouleh', FOODS)).toBeNull();
     expect(matchFood('', FOODS)).toBeNull();
@@ -255,6 +269,23 @@ describe('vision providers: order, timeout and validation', () => {
     const a: VisionProvider = { name: 'a', call: async () => { await new Promise((r) => setTimeout(r, 40)); throw new Error('x'); } };
     const b: VisionProvider = { name: 'b', call: async () => '{"ok":true}' };
     await expect(callVisionProviders([a, b], 's', 'u', 'img', (t) => JSON.parse(t), 1000, 10)).rejects.toBeInstanceOf(AllVisionProvidersFailed);
+  });
+
+  it('hedged: a slow first provider does not hold the answer up, the next one starts after the hedge delay', async () => {
+    const slow: VisionProvider = { name: 'slow', call: () => new Promise((r) => setTimeout(() => r('{"from":"slow"}'), 500)) };
+    const fast: VisionProvider = { name: 'fast', call: async () => '{"from":"fast"}' };
+    const started = Date.now();
+    const r = await callVisionProviders([slow, fast], 's', 'u', 'img', (x) => JSON.parse(x), 2000, 28000, 30);
+    expect(r.provider).toBe('fast');
+    expect(Date.now() - started).toBeLessThan(300);
+  });
+
+  it('hedged: a failure starts the next provider at once, and all failing reports every attempt', async () => {
+    const bad = (name: string): VisionProvider => ({ name, call: async () => { throw new Error('HTTP 503'); } });
+    await expect(callVisionProviders([bad('a'), bad('b'), bad('c')], 's', 'u', 'img', (x) => JSON.parse(x), 2000, 28000, 1000)).rejects.toBeInstanceOf(AllVisionProvidersFailed);
+    const ok: VisionProvider = { name: 'ok', call: async () => '{"x":1}' };
+    const r = await callVisionProviders([bad('a'), ok], 's', 'u', 'img', (x) => JSON.parse(x), 2000, 28000, 5000);
+    expect(r.provider).toBe('ok');
   });
 
   it('stripJsonFence leaves plain JSON alone', () => {

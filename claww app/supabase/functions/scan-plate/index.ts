@@ -5,7 +5,7 @@ import { logGenerationFailure } from '../_shared/generationFailures.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { enforceGenerationCap, GenerationCapExceededError } from '../_shared/usageCap.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
-import { AllVisionProvidersFailed, callVisionProviders, openAiCompatibleProvider, type VisionProvider } from '../_shared/vision.ts';
+import { AllVisionProvidersFailed, callVisionProviders, openAiCompatibleProvider, PROVIDER_TIMEOUT_MS, TOTAL_DEADLINE_MS, type VisionProvider } from '../_shared/vision.ts';
 import { candidateChips, OIL_FOOD, parseModelOutput, resolveItems, routeScan, type ScanFood } from '../_shared/scanMath.ts';
 
 // NG PHASE 9: the scanner. The model only names the items on the plate, guesses a household quantity for each and says
@@ -75,10 +75,13 @@ function toScanFood(r: FoodRow): ScanFood {
 // The order the scanner tries models in. Each failure (error, rate limit, timeout, an answer that does not validate)
 // moves straight to the next. The three Google models share one key; Groq is last. VISION_MODELS (comma separated model
 // ids) overrides the Google part without a deploy.
+// If the model being tried has not answered after this long, the next one starts too and the first valid answer wins.
+const HEDGE_MS = 4000;
+
 const GOOGLE_MODELS: { model: string; timeoutMs: number }[] = [
   { model: 'gemini-3.8-flash', timeoutMs: 14000 },
   { model: 'gemma-4-31b-it', timeoutMs: 12000 },
-  { model: 'gemini-3.5-flash-lite', timeoutMs: 8000 },
+  { model: 'gemini-3.5-flash-lite', timeoutMs: 10000 },
 ];
 
 function buildProviders(): VisionProvider[] {
@@ -128,7 +131,10 @@ Deno.serve(async (req: Request) => {
       SYSTEM_PROMPT,
       'List what is on this plate.',
       body.image,
-      (text) => parseModelOutput(JSON.parse(text))
+      (text) => parseModelOutput(JSON.parse(text)),
+      PROVIDER_TIMEOUT_MS,
+      TOTAL_DEADLINE_MS,
+      HEDGE_MS
     );
     const out = result.value;
     console.log(`[scan-plate] answered by ${result.provider} in ${result.attempts.map((a) => `${a.provider}:${a.ok ? 'ok' : a.error}:${a.ms}ms`).join(', ')}`);

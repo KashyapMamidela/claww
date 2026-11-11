@@ -8,7 +8,7 @@ import { COLORS, FONT, FONT_HAND, BG, bg } from '../lib/theme';
 import { useAppState, type MealType } from '../lib/appState';
 import { getProfile, uploadMealPhoto } from '../lib/data';
 import {
-  applyContext, itemNutrients, scanStepFor, scanSwitchUnit, scanUnitChoices, setQuantity, totalsOf, scanGramsFor, type ScanFood, type ScanItem,
+  applyContext, coreName, itemNutrients, scanStepFor, scanSwitchUnit, scanUnitChoices, setQuantity, totalsOf, scanGramsFor, type ScanFood, type ScanItem,
 } from '../lib/engine';
 import { searchFoodDb } from '../lib/foodDb';
 import { defaultUnit, type Food } from '../lib/foodLookup';
@@ -65,6 +65,8 @@ export default function ScanCheckScreen() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [unitOpen, setUnitOpen] = useState<string | null>(null);
+  // For an item the database did not know: the closest foods, so one tap fixes it instead of a full search.
+  const [near, setNear] = useState<Record<string, Food[]>>({});
 
   useEffect(() => {
     if (!session) return;
@@ -92,6 +94,14 @@ export default function ScanCheckScreen() {
       setOptIn(!!p?.personalization_profile?.scanTraining);
     });
   }, [userId]);
+
+  useEffect(() => {
+    items
+      .filter((i) => !i.food && !i.hidden && near[i.key] === undefined)
+      .forEach((i) => {
+        searchFoodDb(coreName(i.heard) ?? i.heard, 3).then((r) => setNear((prev) => ({ ...prev, [i.key]: r })));
+      });
+  }, [items, near]);
 
   const totals = useMemo(() => totalsOf(items), [items]);
   // Search, and an edited meal that is one database food, are named from the amount ("5 Plain dosa"), so the name
@@ -379,9 +389,20 @@ export default function ScanCheckScreen() {
                     <View style={{ flex: 1, minWidth: 0 }}>
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }} numberOfLines={1}>{label}</Text>
                       {!i.food ? (
-                        <Pressable onPress={() => { setPickFor(i.key); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 32, justifyContent: 'center' }}>
-                          <Text style={{ color: AMBER, fontSize: 13, fontFamily: BG[700] }}>Not in the database. Pick a food</Text>
-                        </Pressable>
+                        <View style={{ gap: 6, paddingVertical: 2 }}>
+                          <Pressable onPress={() => { setPickFor(i.key); setSearchOpen(true); }} accessibilityRole="button" style={{ minHeight: 32, justifyContent: 'center' }}>
+                            <Text style={{ color: AMBER, fontSize: 13, fontFamily: BG[700] }}>Not in the database. Pick the closest food</Text>
+                          </Pressable>
+                          {(near[i.key] ?? []).length > 0 ? (
+                            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                              {(near[i.key] ?? []).map((f) => (
+                                <Chip key={f.id} accent={G} accentDeep={COLORS.greenDeep} onPress={() => setItems((prev) => prev.map((x) => (x.key === i.key ? { ...adopt(f, x.qty, x.unit), key: x.key, heard: x.heard } : x)))}>
+                                  {f.name}
+                                </Chip>
+                              ))}
+                            </View>
+                          ) : null}
+                        </View>
                       ) : (
                         <Text style={{ color: hidden ? AMBER : COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
                           {hidden ? `hidden · from ${session.context.oil} oil` : isEstimateFood(i.food) ? `${Math.round(itemNutrients(i).kcal)} kcal · estimated` : `${Math.round(itemNutrients(i).kcal)} kcal · ${Math.round(i.grams)} g`}

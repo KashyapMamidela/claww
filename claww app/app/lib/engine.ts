@@ -20,5 +20,5 @@ export { planDay, swapOptions, DIET_ALLOWED, replanRemaining, scaleTemplate, che
 export type { DayPlan, PlannedMeal, PlanInput, Resources, HistoryDay, Shortfall, Diet as PlanDiet } from '../../supabase/functions/_shared/mealPlanner';
 export { MEAL_TEMPLATES, ADD_ONS } from '../../supabase/functions/_shared/mealTemplates';
 export type { MealTemplate, AddOn } from '../../supabase/functions/_shared/mealTypes';
-export { applyContext, candidateChips, DEFAULT_CONTEXT, gramsFor as scanGramsFor, itemNutrients, matchFood, resolveItems, roundQty, routeScan, setQuantity, stepFor as scanStepFor, switchUnit as scanSwitchUnit, unitChoices as scanUnitChoices, totalsOf, CONFIDENCE_MIN, OIL_FOOD, PORTION_FACTOR, OIL_TSP } from '../../supabase/functions/_shared/scanMath';
+export { applyContext, candidateChips, coreName, DEFAULT_CONTEXT, gramsFor as scanGramsFor, itemNutrients, matchFood, resolveItems, roundQty, routeScan, setQuantity, stepFor as scanStepFor, switchUnit as scanSwitchUnit, unitChoices as scanUnitChoices, totalsOf, CONFIDENCE_MIN, OIL_FOOD, PORTION_FACTOR, OIL_TSP } from '../../supabase/functions/_shared/scanMath';
 export type { ScanContext, ScanFood, ScanItem, Oil, Place, Portion, Nutrients as ScanNutrients } from '../../supabase/functions/_shared/scanMath';
