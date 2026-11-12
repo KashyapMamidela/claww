@@ -184,6 +184,14 @@ export default function ScanScreen() {
             <Corner pos="br" />
           </View>
         ) : null}
+        {!photo && permission.granted ? (
+          // One line of guidance under the frame: a whole plate, from above, reads best.
+          <View pointerEvents="none" style={{ position: 'absolute', top: '62%', left: 0, right: 0, alignItems: 'center' }}>
+            <View style={{ paddingHorizontal: 14, paddingVertical: 7, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.45)' }}>
+              <Text style={{ color: '#fff', fontSize: 14, fontFamily: BG[600] }}>Fit the whole plate in the frame</Text>
+            </View>
+          </View>
+        ) : null}
 
         {/* The foods it found, as tags on the photo, above the panel. */}
         {photo && ok ? (

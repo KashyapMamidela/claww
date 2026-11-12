@@ -512,6 +512,12 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                 Change the numbers
               </Button>
             ) : null}
+            {/* Skipping was only possible by swiping left, which nobody finds. Swipe right or the list brings it back. */}
+            {!state.skipped && currentRow ? (
+              <Button variant="ghost" size="lg" fullWidth icon={<Icon name="skip-forward" size={15} color={COLORS.textMuted} />} onPress={() => { setMoreOpen(false); onSwipeLeft(); }}>
+                Skip this exercise
+              </Button>
+            ) : null}
           </View>
         </BottomSheet>
         <SwapSheet
