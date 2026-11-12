@@ -145,11 +145,11 @@ export default function ProfileScreen() {
 
   const menuItems: MenuRow[] = [
     { icon: 'settings', label: 'Settings', value: profile?.notifications_enabled ? 'Reminders on' : 'Reminders off', onPress: () => router.push('/settings') },
-    { icon: 'pencil', label: 'Your week, marked up', onPress: () => router.push('/week-review') },
+    { icon: 'pencil', label: 'Week review', onPress: () => router.push('/week-review') },
     { icon: 'camera', label: 'Progress photos', onPress: () => router.push('/progress-photos') },
     { icon: 'utensils', label: 'Food preferences', value: (profile?.personalization_profile as any)?.foodProfile ? 'Set' : undefined, onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
-    { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
-    { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
+    { icon: 'shield', label: 'Privacy and data', onPress: () => setPrivacyModalVisible(true) },
+    { icon: 'help-circle', label: 'Help and support', onPress: () => openSupportEmail('CLAWW support request') },
     { icon: 'star', label: 'Rate CLAWW', onPress: openStoreListing },
     { icon: 'info', label: 'About', onPress: () => router.push('/about') },
   ];
@@ -350,7 +350,7 @@ export default function ProfileScreen() {
               <Icon name="download" size={16} color="#A1A1AA" />
             </View>
             <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[600] }}>
-              {exporting ? 'Preparing export…' : 'Download My Data'}
+              {exporting ? 'Preparing export…' : 'Download my data'}
             </Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>

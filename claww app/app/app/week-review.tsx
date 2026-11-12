@@ -150,7 +150,7 @@ export default function WeekReviewScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <BackTile onPress={() => router.back()} />
           <View style={{ flex: 1 }}>
-            <Display>Your week, marked up</Display>
+            <Display>Week review</Display>
             <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{dateLine(now, blockWeek, BLOCK_WEEKS)}</Text>
           </View>
         </View>

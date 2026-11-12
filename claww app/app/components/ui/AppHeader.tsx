@@ -53,7 +53,7 @@ export function AppHeader({ accent, title, subtitle, collapsing, penDot, initial
             {subtitle ? <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: -1, fontFamily: BG[600] }} numberOfLines={1}>{subtitle}</Text> : null}
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <PressScale onPress={onPenPress} accessibilityRole="button" accessibilityLabel="Your week, marked up" hitSlop={4}>
+            <PressScale onPress={onPenPress} accessibilityRole="button" accessibilityLabel="Week review" hitSlop={4}>
               <Surface radius={12} padding={0} grain={0.06} shadow={false} style={{ width: 40, height: 40 }}>
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                   <Icon name="pencil" size={17} color="#D4D4D8" />
