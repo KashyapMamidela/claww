@@ -1673,9 +1673,12 @@ export interface Achievement {
   label: string;
   color: string;
   earned: boolean;
+  /** What it takes, shown under a badge that isn't earned yet. */
+  need: string;
 }
 
-export async function getAchievements(userId: string): Promise<Achievement[]> {
+/** `planStreak` is the one streak the app shows (plan days followed); without it the old activity streak is used. */
+export async function getAchievements(userId: string, planStreak?: number): Promise<Achievement[]> {
   const [sleepCountRes, mealCountRes, workoutCountRes, lateSleepRes, streak, xp] = await Promise.all([
     supabase.from('sleep_logs').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     supabase.from('meal_logs').select('*', { count: 'exact', head: true }).eq('user_id', userId),
@@ -1694,14 +1697,21 @@ export async function getAchievements(userId: string): Promise<Achievement[]> {
     return hour >= 23 || hour < 4;
   });
 
+  const days = planStreak ?? streak;
+  // Tiers, so there is always a next badge to aim for.
   return [
-    { id: 'first_steps', icon: 'footprints', label: 'First Steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0 },
-    { id: 'week_warrior', icon: 'flame', label: 'Week Warrior', color: '#FF4500', earned: streak >= 7 },
-    { id: 'planner', icon: 'dumbbell', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1 },
-    { id: 'nourished', icon: 'salad', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10 },
-    { id: 'night_owl', icon: 'moon', label: 'Night Owl', color: '#6366F1', earned: hasNightOwlSleep },
-    { id: 'consistent', icon: 'zap', label: 'Consistent', color: '#A855F7', earned: sleepCount >= 5 },
-    { id: 'legend', icon: 'trophy', label: 'CLAWW Legend', color: '#EC4899', earned: xp >= 500 },
+    { id: 'first_steps', icon: 'footprints', label: 'First steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0, need: 'Log anything' },
+    { id: 'planner', icon: 'dumbbell', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1, need: 'Build a plan' },
+    { id: 'week_warrior', icon: 'flame', label: 'Week warrior', color: '#FF4500', earned: days >= 7, need: '7-day streak' },
+    { id: 'month_strong', icon: 'flame', label: 'Month strong', color: '#FF4500', earned: days >= 30, need: '30-day streak' },
+    { id: 'nourished', icon: 'salad', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10, need: 'Log 10 meals' },
+    { id: 'well_fed', icon: 'salad', label: 'Well fed', color: '#22C55E', earned: mealCount >= 100, need: 'Log 100 meals' },
+    { id: 'consistent', icon: 'moon', label: 'Rested', color: '#6366F1', earned: sleepCount >= 5, need: 'Log 5 nights' },
+    { id: 'sleep_month', icon: 'moon', label: 'Sleep habit', color: '#6366F1', earned: sleepCount >= 30, need: 'Log 30 nights' },
+    { id: 'night_owl', icon: 'moon', label: 'Night owl', color: '#6366F1', earned: hasNightOwlSleep, need: 'Bed after 11 pm' },
+    { id: 'legend', icon: 'trophy', label: 'CLAWW legend', color: '#EC4899', earned: xp >= 500, need: '500 XP' },
+    { id: 'legend_2', icon: 'trophy', label: 'CLAWW legend II', color: '#EC4899', earned: xp >= 2500, need: '2,500 XP' },
+    { id: 'legend_3', icon: 'zap', label: 'CLAWW legend III', color: '#A855F7', earned: xp >= 10000, need: '10,000 XP' },
   ];
 }
 

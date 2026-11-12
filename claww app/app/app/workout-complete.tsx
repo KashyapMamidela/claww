@@ -271,7 +271,7 @@ export default function WorkoutCompleteScreen() {
               <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>Exam week</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Protects your streak for 7 days if you miss sessions.</Text>
             </View>
-            <Switch value={examOn} onValueChange={toggleExam} accessibilityLabel="Exam week" trackColor={{ true: AREA_COLORS.streak, false: '#3F3F46' }} />
+            <Switch value={examOn} onValueChange={toggleExam} accessibilityLabel="Exam week" trackColor={{ true: AREA_COLORS.streak, false: '#3F3F46' }} thumbColor="#FFFFFF" />
           </View>
         </View>
 

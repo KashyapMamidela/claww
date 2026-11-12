@@ -52,6 +52,7 @@ export default function ScanScreen() {
   const [context, setContext] = useState<ScanContext>(DEFAULT_CONTEXT);
   const [past, setPast] = useState<Awaited<ReturnType<typeof getPastScans>>>([]);
   const [busy, setBusy] = useState(false);
+  const [torch, setTorch] = useState(false);
   const [photoH, setPhotoH] = useState(300);
   const [pictureSize, setPictureSize] = useState<string | undefined>(undefined);
   const [prefs] = useScanQuestionPrefs();
@@ -140,6 +141,7 @@ export default function ScanScreen() {
             ref={camera}
             style={{ flex: 1 }}
             facing="back"
+            enableTorch={torch}
             pictureSize={pictureSize}
             onCameraReady={() => {
               // Ask the camera for a plate-sized picture (about 1,280 px) instead of the full 12 MP: a much smaller upload.
@@ -173,7 +175,13 @@ export default function ScanScreen() {
               {mealType} · {now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
             </Text>
           </View>
-          <View style={{ width: 48 }} />
+          {!photo && permission.granted ? (
+            <Pressable onPress={() => setTorch((t) => !t)} accessibilityRole="switch" accessibilityState={{ checked: torch }} accessibilityLabel="Torch" style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: torch ? '#fff' : 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="zap" size={20} color={torch ? '#000' : '#fff'} />
+            </Pressable>
+          ) : (
+            <View style={{ width: 48 }} />
+          )}
         </View>
 
         {permission.granted || photo ? (

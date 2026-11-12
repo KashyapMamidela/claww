@@ -187,3 +187,6 @@ export const SURFACES = {
   heroBlue: ['#0F172A', '#1E3A5F', '#1D4ED8'] as const,
   heroGreen: ['#052E16', '#14532D', '#166534'] as const,
 } as const;
+
+/** Every switch in the app: the app's blue when on, a neutral grey when off, white thumb (not the system mint). */
+export const SWITCH_TRACK = { false: '#3F3F46', true: '#3B82F6' };

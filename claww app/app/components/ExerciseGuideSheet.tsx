@@ -193,11 +193,6 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
               )
             ) : null}
 
-            <PressScale onPress={onClose}>
-              <View style={{ height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Done</Text>
-              </View>
-            </PressScale>
           </ScrollView>
         </Pressable>
       </Pressable>

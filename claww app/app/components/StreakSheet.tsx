@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { weekStartKey } from '../lib/planStreak';
+import { freezeCandidate } from '../lib/planStreak';
 import { getProfile, saveFrozenDates } from '../lib/data';
 import { useAppState } from '../lib/appState';
 import { Button } from './ui/Button';
@@ -38,14 +38,8 @@ export function StreakSheet({ visible, onClose, stats }: StreakSheetProps) {
     getProfile(userId).then((p) => setFrozen(p?.personalization_profile?.frozenDates ?? []));
   }, [visible, userId]);
 
-  // Premium F6: one freeze a week covers a missed planned day from the last 7. It neither counts nor breaks the streak.
-  const candidate = (() => {
-    if (!stats) return null;
-    const usedWeeks = new Set(frozen.map(weekStartKey));
-    const today = stats.grid[stats.grid.length - 1]?.key;
-    const recent = stats.grid.filter((d) => d.status === 'missed' && d.key !== today).slice(-7).reverse();
-    return recent.find((d) => !usedWeeks.has(weekStartKey(d.key))) ?? null;
-  })();
+  // Premium F6: one freeze a week covers a missed planned day from the last 7, offered only when it saves a streak.
+  const candidate = stats ? freezeCandidate(stats.grid, frozen) : null;
   const freeze = async () => {
     if (!candidate || !userId || saving) return;
     setSaving(true);

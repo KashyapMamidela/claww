@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuickLog } from '../../components/QuickLog';
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { mealTitle } from '../../lib/mealPlanMeal';
@@ -160,12 +159,14 @@ export default function NutritionTab() {
   }, [search, router]);
 
   const slots = useMemo(() => slotViews(plan, meals, hour), [plan, meals, hour]);
+  // Once every meal has an answer, the header says so instead of repeating the plan.
+  const loggedCount = slots.filter((v) => v.logged && v.state !== 'skipped').length;
+  const allLogged = slots.length > 0 && loggedCount > 0 && slots.every((v) => !!v.logged);
   const upSlot = slots.find((v) => v.state === 'up_next') ?? null;
   const missedSlots = slots.filter((v) => v.state === 'missed');
   // Everything eaten that is not the one meal a slot shows: snacks, and a second lunch.
   const claimed = new Set(slots.map((v) => v.logged?.id).filter(Boolean) as string[]);
   const extras = meals.filter((m) => !claimed.has(m.id) && m.plan_status !== 'skipped');
-  const { open: openQuickLog } = useQuickLog();
   const [showMissed, setShowMissed] = useState(false);
 
   const ateAsPlanned = async (m: PlannedMeal) => {
@@ -349,7 +350,7 @@ export default function NutritionTab() {
             </Rise>
           )}
 
-          {/* Premium N1: Scan a meal is the one big green button; Search and Diary sit under it, tinted. */}
+          {/* Premium N1: Scan a meal is the one big green button; Search and Barcode sit under it, tinted. The diary is the card at the bottom. */}
           <Rise i={1}>
           <View style={{ gap: 10 }}>
             <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} onPress={() => openAdd(addType)} icon={<Icon name="camera" size={19} color="#fff" />}>
@@ -362,8 +363,8 @@ export default function NutritionTab() {
                 </Button>
               </View>
               <View style={{ flex: 1 }}>
-                <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => router.push('/diary')} icon={<Icon name="utensils" size={16} color={G} />}>
-                  Diary
+                <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => router.push('/barcode')} icon={<Icon name="scan-line" size={16} color={G} />}>
+                  Barcode
                 </Button>
               </View>
             </View>
@@ -393,9 +394,9 @@ export default function NutritionTab() {
 
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <SectionHeader>{plan ? "Today's plan" : "Today's meals"}</SectionHeader>
+              <SectionHeader>{allLogged ? 'Today' : plan ? "Today's plan" : "Today's meals"}</SectionHeader>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 1, marginLeft: 12 }}>
-                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{allLogged ? `${loggedCount} meals logged` : plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
                 {missedSlots.length > 0 ? (
                   <PressScale onPress={() => setShowMissed((x) => !x)} accessibilityRole="button" accessibilityState={{ expanded: showMissed }} accessibilityLabel={showMissed ? 'Hide meals you have not logged' : 'Show meals you have not logged'} hitSlop={4}>
                     <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
@@ -595,7 +596,7 @@ export default function NutritionTab() {
                 onPress={() => setSelectedMeal(m as MealLogRow)}
               />
             ))}
-            <Button variant="secondary" size="md" fullWidth accent={G} onPress={openQuickLog} icon={<Icon name="plus" size={16} color={G} />}>
+            <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => { setSearchFor('Snack'); setSearchOpen(true); }} icon={<Icon name="plus" size={16} color={G} />}>
               Add a snack
             </Button>
           </View>

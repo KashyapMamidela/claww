@@ -17,7 +17,6 @@ import {
   getCompletedWorkoutDays,
   getLevelInfo,
   getProfile,
-  getTierName,
   getTotalVolume,
   type Achievement,
   type Profile,
@@ -107,7 +106,7 @@ export default function ProfileScreen() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getProfile(userId), getCompletedWorkoutDays(userId), getTotalVolume(userId), getAchievements(userId)]).then(
+      Promise.all([getProfile(userId), getCompletedWorkoutDays(userId), getTotalVolume(userId), getAchievements(userId, streak)]).then(
         ([p, wc, v, a]) => {
           if (cancelled) return;
           setProfile(p);
@@ -120,11 +119,10 @@ export default function ProfileScreen() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, streak])
   );
 
   const { level, xpIntoLevel, xpForNextLevel } = getLevelInfo(xp);
-  const tier = getTierName(level);
   const earnedCount = achievements.filter((a) => a.earned).length;
   const rawName = profile?.name || userName || 'Member';
   // Names saved from an email come in lowercase ("kashyap"); show them the way a person writes their name.
@@ -186,28 +184,22 @@ export default function ProfileScreen() {
 
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <LinearGradient
-              colors={['#FF4500', P]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Text style={{ fontSize: 22, fontVariant: ['tabular-nums'], color: '#fff', fontFamily: BG[800] }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 24, color: '#fff', fontFamily: BG[700] }}>
                 {displayName.charAt(0).toUpperCase()}
               </Text>
-            </LinearGradient>
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 17, letterSpacing: -0.3, fontFamily: BG[800] }}>{displayName}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>{profile?.email ?? ''} · {tier}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>{profile?.email ?? ''}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
                 <Badge color={P}>LVL {level}</Badge>
-                <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
               </View>
             </View>
           </View>
           <View style={{ marginTop: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>XP Progress — Level {level}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>XP to level {level + 1}</Text>
               <Text style={{ color: P, fontSize: 11, fontFamily: BG[600] }}>
                 {xpIntoLevel} / {xpForNextLevel}
               </Text>
@@ -256,6 +248,7 @@ export default function ProfileScreen() {
               <View key={b.label} style={{ width: '22.5%', alignItems: 'center', gap: 6 }}>
                 <Medallion icon={b.icon} color={b.color} earned={b.earned} />
                 <Text style={{ color: b.earned ? COLORS.fgGray : COLORS.textFaint, fontSize: 13, textAlign: 'center', lineHeight: 16, fontFamily: BG[400] }}>{b.label}</Text>
+                {b.earned ? null : <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', lineHeight: 14, fontFamily: BG[400] }}>{b.need}</Text>}
               </View>
             ))}
           </View>

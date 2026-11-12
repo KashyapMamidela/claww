@@ -487,7 +487,8 @@ export default function WorkoutsTab() {
                 gap: 10,
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>What should change?</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>What should change?</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>This replaces your current plan. Your logged sessions stay.</Text>
               {regenError ? (
                 <ErrorCard message={regenError} onRetry={lastReason ? () => handleRegenerate(lastReason) : undefined} retrying={regenerating} />
               ) : null}
@@ -741,14 +742,15 @@ export default function WorkoutsTab() {
       <BottomSheet visible={menuOpen} onClose={() => setMenuOpen(false)} maxHeightFraction={0.5}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 8 }}>
           <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], marginBottom: 6 }}>Your plan</Text>
-          <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="repeat" size={16} color={A} />} onPress={() => { setMenuOpen(false); setRegenError(null); setShowRegenCard(true); }}>
-            Regenerate the plan
-          </Button>
           <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="calendar" size={16} color={A} />} onPress={() => { setMenuOpen(false); router.push('/workout-setup'); }}>
             Change days or goal
           </Button>
           <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="plus" size={16} color={A} />} onPress={() => { setMenuOpen(false); setPickerOpen(true); }}>
             Add an exercise
+          </Button>
+          {/* Regenerating replaces the plan, so it is the quietest option and asks what to change first. */}
+          <Button variant="ghost" size="lg" fullWidth icon={<Icon name="repeat" size={16} color="#A1A1AA" />} onPress={() => { setMenuOpen(false); setRegenError(null); setShowRegenCard(true); }}>
+            Rebuild the plan
           </Button>
         </View>
       </BottomSheet>

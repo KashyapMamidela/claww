@@ -6,9 +6,8 @@ import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, BG, bg } from '../lib/theme';
+import { COLORS, FONT, BG, bg, SWITCH_TRACK } from '../lib/theme';
 import { useAppState } from '../lib/appState';
-import { signOut } from '../lib/auth';
 import { getGenerationUsageToday, getProfile, saveReminderSettings, saveScanTraining, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
 import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
@@ -28,6 +27,8 @@ const P = '#A1A1AA';
 // notification toggle, and sign-out. Units (metric/imperial) still need a
 // display-layer conversion audited across every screen that renders
 // kg/cm — deliberately left out rather than shipped as a decorative stub.
+// Sign out lives once, on Profile.
+
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -143,7 +144,7 @@ export default function SettingsScreen() {
                 <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[600] }}>Reminders</Text>
                 <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>Workout, meal, sleep and water nudges</Text>
               </View>
-              <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
+              <Switch trackColor={SWITCH_TRACK} thumbColor="#FFFFFF" value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
             {notificationsOn ? (
               <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 4 }}>
@@ -172,6 +173,8 @@ export default function SettingsScreen() {
               </Text>
             </View>
             <Switch
+              trackColor={SWITCH_TRACK}
+              thumbColor="#FFFFFF"
               value={scanTraining}
               accessibilityLabel="Help improve the scanner"
               onValueChange={(on) => {
@@ -201,7 +204,7 @@ export default function SettingsScreen() {
                 <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>{title}</Text>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, fontFamily: BG[400] }}>{hint}</Text>
               </View>
-              <Switch value={questionPrefs[key]} accessibilityLabel={`Ask ${title}`} onValueChange={(on) => setQuestionPrefs({ ...questionPrefs, [key]: on })} />
+              <Switch trackColor={SWITCH_TRACK} thumbColor="#FFFFFF" value={questionPrefs[key]} accessibilityLabel={`Ask ${title}`} onValueChange={(on) => setQuestionPrefs({ ...questionPrefs, [key]: on })} />
             </View>
           ))}
         </Surface>
@@ -248,20 +251,6 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ) : null}
 
-<Rise i={3}>
-        <Surface radius={20} padding={16}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={signOut}
-            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 13, gap: 12 }}
-          >
-            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="log-out" size={16} color="#EF4444" />
-            </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontFamily: BG[500] }}>Sign out</Text>
-          </TouchableOpacity>
-        </Surface>
-</Rise>
       </View>
     </ScrollView>
   );

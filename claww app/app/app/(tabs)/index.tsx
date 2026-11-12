@@ -514,10 +514,8 @@ function HomePopulated() {
     loggedLine: v.logged ? `${Math.round(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
     loggedAtMinutes: v.logged ? new Date(v.logged.logged_at).getHours() * 60 + new Date(v.logged.logged_at).getMinutes() : null,
   }));
-  const sessionItem = sessionPlanned && today
-    ? { name: today.focus, minutes: sessionMinutes, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), markLine: marks[0] ? `${marks[0].name} ${marks[0].newText}` : null }
-    : null;
-  const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: sessionItem, sleepTargetHours: SLEEP_TARGET_HOURS });
+  // The session card above already shows today's session, so the timeline lists only the rest of the day.
+  const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: null, sleepTargetHours: SLEEP_TARGET_HOURS });
   const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: sessionName(today?.focus) });
   const usualMin = usualMinutesOf(usualTime);
   const sessionTimeLabel = usualMin !== null ? timeLabel(new Date(2000, 0, 1, Math.floor(usualMin / 60), usualMin % 60)) : undefined;
@@ -619,7 +617,6 @@ function HomePopulated() {
       <Surface padding={17} decoration={<TiltLight />}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Daily progress</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{dailyGoalPct}% of today</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
           <ProgressRing

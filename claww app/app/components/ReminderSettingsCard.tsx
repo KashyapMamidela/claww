@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Pressable, Switch, Text, View } from 'react-native';
-import { COLORS, FONT, BG, bg } from '../lib/theme';
+import { COLORS, FONT, BG, bg, SWITCH_TRACK } from '../lib/theme';
 import { REMINDER_KINDS, type ReminderKind, type ReminderSetting, type ReminderSettings } from '../lib/reminderPlan';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
@@ -71,6 +71,8 @@ export function ReminderSettingsCard({ settings, disabled, onChange }: ReminderS
               </View>
             </PressScale>
             <Switch
+              trackColor={SWITCH_TRACK}
+              thumbColor="#FFFFFF"
               value={s.enabled}
               disabled={disabled}
               onValueChange={(enabled) => onChange({ ...settings, [kind]: { ...s, enabled } })}

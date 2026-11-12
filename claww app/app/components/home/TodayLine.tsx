@@ -77,7 +77,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
     <Surface padding={16}>
       <View accessibilityRole="list">
         {items.map((it, idx) => {
-          const color = it.kind === 'meal' ? AREA_COLORS.burned : it.kind === 'session' ? B : AREA_COLORS.sleep;
+          const color = it.kind === 'meal' ? G : it.kind === 'session' ? B : AREA_COLORS.sleep;
           const last = idx === items.length - 1;
           const open = it.state === 'current' || it.state === 'missed';
           const dim = it.state === 'done' || (it.state === 'upcoming' && it.kind !== 'sleep');
