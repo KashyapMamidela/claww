@@ -35,7 +35,7 @@ const NOTES: Record<string, string> = {
   'Reps up': 'more reps next time',
   'Reps down': 'fewer reps next time',
   'Try harder': 'try a harder version',
-  Hold: 'same again, own it',
+  Hold: 'same plan next time',
 };
 
 function kg(n: number): string {
@@ -65,7 +65,8 @@ export function nextTimeMark(d: NextTimeInput, done: DoneSet[]): NextTimeMark | 
   } else {
     return null;
   }
-  if (oldValue === newValue) oldValue = null;
   const label = commandPill(d.commands).label;
+  // A hold keeps the plan as written: striking this session's numbers would read as a change.
+  if (oldValue === newValue || label === 'Hold') oldValue = null;
   return { item: d.exerciseName, oldValue, newValue, note: NOTES[label] ?? 'next time', reason: d.reason };
 }

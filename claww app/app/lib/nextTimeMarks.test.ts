@@ -11,7 +11,11 @@ describe('nextTimeMark', () => {
   it('hold with the same numbers shows no struck value', () => {
     const m = nextTimeMark({ ...base, commands: [], weightKg: 60 }, [{ reps: 8, weight: 60 }]);
     expect(m?.oldValue).toBeNull();
-    expect(m?.note).toBe('same again, own it');
+    expect(m?.note).toBe('same plan next time');
+  });
+  it('a hold after a short session shows only the plan numbers', () => {
+    const m = nextTimeMark({ ...base, commands: [], weightKg: 0, sets: 4, reps: 8 }, [{ reps: 14, weight: 0 }, { reps: 8, weight: 0 }]);
+    expect(m).toMatchObject({ oldValue: null, newValue: '4 × 8' });
   });
   it('sets change shows sets × reps', () => {
     const m = nextTimeMark({ ...base, commands: ['INCREASE_SETS'], weightKg: 60, sets: 4 }, [{ reps: 8, weight: 60 }, { reps: 8, weight: 60 }, { reps: 8, weight: 60 }]);
