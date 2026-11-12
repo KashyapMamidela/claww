@@ -6,7 +6,9 @@ import { AREA_COLORS, COLORS, FONT, BG, bg } from '../lib/theme';
 import { getDaySessionLogs, type PlanDay, type WorkoutDayEvent } from '../lib/data';
 import { summarizeSession, type LoggedSetRow } from '../lib/workoutDayState';
 import { getNextTimeDecisions, type NextTimeDecision } from '../lib/adaptiveData';
-import { commandPill } from '../lib/sessionPrescription';
+import { nextTimeMark } from '../lib/nextTimeMarks';
+import { PenMark } from './ui/PenMark';
+import { SectionHeader } from './ui/SectionHeader';
 import { Icon } from './ui/Icon';
 import { Button } from './ui/Button';
 import { Skeleton } from './ui/Skeleton';
@@ -63,6 +65,12 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
 
   const summary = rows ? summarizeSession(rows) : null;
   const plannedSets = day.exercises.reduce((s, ex) => s + ex.sets, 0);
+  const marks = summary
+    ? decisions.flatMap((d) => {
+        const m = nextTimeMark(d, summary.exercises.find((ex) => ex.name === d.exerciseName)?.sets ?? []);
+        return m ? [m] : [];
+      })
+    : [];
 
   return (
     <Surface radius={20} padding={16} borderColor={COLORS.greenBorder}>
@@ -119,16 +127,12 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
             </View>
           )}
 
-          {decisions.length > 0 ? (
-            <View style={{ gap: 8, padding: 12, borderRadius: 12, backgroundColor: 'rgba(168,85,247,0.08)' }}>
-              <Text style={{ color: AREA_COLORS.engine, fontSize: 11, letterSpacing: 0.7, fontFamily: BG[800] }}>WHAT CHANGED FOR NEXT TIME</Text>
-              {decisions.map((d) => (
-                <View key={d.exerciseName} style={{ gap: 2 }}>
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
-                    <Text numberOfLines={1} style={{ flex: 1, color: '#fff', fontSize: 13, fontFamily: BG[700] }}>{d.exerciseName}</Text>
-                    <Text style={{ color: AREA_COLORS.engine, fontSize: 11, fontFamily: BG[800] }}>{commandPill(d.commands).label.toUpperCase()}</Text>
-                  </View>
-                  <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 16, fontFamily: BG[400] }}>{d.reason}</Text>
+          {marks.length > 0 ? (
+            <View style={{ gap: 14, paddingTop: 4 }}>
+              <SectionHeader>Next time</SectionHeader>
+              {marks.map((m, i) => (
+                <View key={m.item} style={i > 0 ? { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 12 } : undefined}>
+                  <PenMark area="workout" item={m.item} oldValue={m.oldValue} newValue={m.newValue} note={m.note} reason={m.reason} showLabel={false} actions={false} />
                 </View>
               ))}
             </View>

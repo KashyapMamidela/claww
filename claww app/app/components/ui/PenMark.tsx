@@ -34,6 +34,10 @@ export interface PenMarkProps {
   useOldLabel?: string;
   onKeep?: () => void;
   onUseOld?: () => void;
+  /** Hide the area label row (a list that already has its own heading). */
+  showLabel?: boolean;
+  /** Hide Keep / Use my old plan: a record of what was decided, not a choice. */
+  actions?: boolean;
 }
 
 /** A gently wavy underline, the same shape every time, scaled to the value's width. */
@@ -109,7 +113,7 @@ function SmallButton({ label, onPress, primary }: { label: string; onPress?: () 
   );
 }
 
-export function PenMark({ area, item, oldValue, newValue, note, reason, context, compact = false, useOldLabel = 'Use my old plan', onKeep, onUseOld }: PenMarkProps) {
+export function PenMark({ area, item, oldValue, newValue, note, reason, context, compact = false, useOldLabel = 'Use my old plan', onKeep, onUseOld, showLabel = true, actions = true }: PenMarkProps) {
   const [open, setOpen] = useState(false);
   const areaColor = area === 'workout' ? AREA_COLORS.workouts : AREA_COLORS.nutrition;
   const areaLabel = `${area === 'workout' ? 'WORKOUT' : 'NUTRITION'}${context ? ` · ${context.toUpperCase()}` : ''}`;
@@ -129,7 +133,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
           </View>
         ) : (
           <View style={{ gap: 4 }}>
-            <Text style={{ color: areaColor, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>{areaLabel}</Text>
+            {showLabel ? <Text style={{ color: areaColor, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>{areaLabel}</Text> : null}
             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
               <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700], flexShrink: 1 }} numberOfLines={2}>
                 {item}
@@ -148,7 +152,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
       {open ? (
         <Well padding={12} style={{ marginTop: 10, gap: 10 }}>
           <Text style={{ color: COLORS.fgGray, fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>{reason}</Text>
-          <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
+          {actions ? <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
             <SmallButton
               label="Keep the mark"
               primary
@@ -164,7 +168,7 @@ export function PenMark({ area, item, oldValue, newValue, note, reason, context,
                 onUseOld?.();
               }}
             />
-          </View>
+          </View> : null}
         </Well>
       ) : null}
     </View>
