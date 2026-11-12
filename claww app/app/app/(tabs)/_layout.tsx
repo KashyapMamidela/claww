@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getMarks } from '../../lib/penData';
-import { Easing, View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
-import type { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { View } from 'react-native';
+import { TabScene } from '../../components/ui/TabScene';
 import { Tabs, useGlobalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/ui/AppHeader';
@@ -17,26 +16,7 @@ import { TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { useRenderCount } from '../../lib/perf';
 import { useQuickLog } from '../../components/QuickLog';
 
-// Switching tabs: the new page slides in a short way from the side you moved toward while the old one slides out
-// and fades. Short (28 px, 220 ms, strong ease-out) because tabs are switched dozens of times a day; Reduce motion
-// gets a plain cross-fade.
-const TAB_SHIFT: Pick<BottomTabNavigationOptions, 'animation' | 'transitionSpec' | 'sceneStyleInterpolator'> = {
-  animation: 'shift',
-  transitionSpec: { animation: 'timing', config: { duration: 220, easing: Easing.bezier(0.23, 1, 0.32, 1) } },
-  sceneStyleInterpolator: ({ current }) => ({
-    sceneStyle: {
-      opacity: current.progress.interpolate({ inputRange: [-1, -0.5, 0, 0.5, 1], outputRange: [0, 0, 1, 0, 0] }),
-      transform: [{ translateX: current.progress.interpolate({ inputRange: [-1, 0, 1], outputRange: [-28, 0, 28] }) }],
-    },
-  }),
-};
-const TAB_FADE: Pick<BottomTabNavigationOptions, 'animation' | 'transitionSpec'> = {
-  animation: 'fade',
-  transitionSpec: { animation: 'timing', config: { duration: 150, easing: Easing.out(Easing.quad) } },
-};
-
 export default function TabsLayout() {
-  const reducedMotion = useReducedMotion();
   useRenderCount('TabsLayout');
   const pathname = usePathname();
   const router = useRouter();
@@ -92,7 +72,8 @@ export default function TabsLayout() {
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
-        screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' }, freezeOnBlur: true, ...(reducedMotion ? TAB_FADE : TAB_SHIFT) }}
+        screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' }, freezeOnBlur: true }}
+        screenLayout={({ children, route }) => <TabScene name={route.name}>{children}</TabScene>}
       >
         <Tabs.Screen name="index" />
         <Tabs.Screen name="workouts" />
