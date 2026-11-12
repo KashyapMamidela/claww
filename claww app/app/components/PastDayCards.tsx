@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { sessionName } from '../lib/format';
 import { Surface } from './ui/Surface';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { AREA_COLORS, COLORS, FONT, BG, bg } from '../lib/theme';
@@ -139,7 +140,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
         </>
       )}
 
-      <SessionDetailModal visible={detailOpen} title={`${day.day} · ${day.focus}`} rows={rows ?? []} onClose={() => setDetailOpen(false)} />
+      <SessionDetailModal visible={detailOpen} title={`${day.day} · ${sessionName(day.focus)}`} rows={rows ?? []} onClose={() => setDetailOpen(false)} />
     </View>
     </Surface>
   );
@@ -165,7 +166,7 @@ export function SkippedDayCard({ day, event, onDoToday, onKeepToday }: SkippedDa
         </View>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
-        {day.focus} · {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}
+        {sessionName(day.focus)} · {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}
       </Text>
       <View style={{ gap: 8 }}>
         <Button variant="primary" accent={COLORS.blue} accentDeep={COLORS.blueDeep} fullWidth onPress={onDoToday} icon={<Icon name="play" size={14} color="#fff" />}>
@@ -203,7 +204,7 @@ export function MissedDayCard({ day, date, onDoToday, onKeepToday }: MissedDayCa
         </View>
       </View>
       <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
-        {day.focus} · {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}. Nothing was logged for this day.
+        {sessionName(day.focus)} · {day.exercises.length} exercise{day.exercises.length === 1 ? '' : 's'}. Nothing was logged for this day.
       </Text>
       {/* Premium B4: "Do it today" lives on the session card above, so this card only offers the other choice. */}
       <Button variant="ghost" fullWidth onPress={onKeepToday}>

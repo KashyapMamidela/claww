@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { sessionName } from '../../lib/format';
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { getLastWeights } from '../../lib/adaptiveData';
@@ -592,7 +593,7 @@ export default function WorkoutsTab() {
           )}
 
           <Rise i={1}>
-          <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
+          <Hero variant="blue" accessibilityLabel={`${day.day}: ${sessionName(day.focus)}`}>
             {/* Premium W3: the muscles this session works, lit on a small body map in the corner. */}
             {heroMuscles.length > 0 ? (
               <View pointerEvents="none" style={{ position: 'absolute', right: 14, top: 14, opacity: 0.9 }}>
@@ -602,7 +603,7 @@ export default function WorkoutsTab() {
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>
               {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
-            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: BG[800] }}>{day.focus}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: BG[800] }}>{sessionName(day.focus)}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>

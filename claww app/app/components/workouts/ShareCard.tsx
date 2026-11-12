@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { sessionName } from '../../lib/format';
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONT, FONT_HAND, SURFACES, BG, bg } from '../../lib/theme';
@@ -41,7 +42,7 @@ export const ShareCard = forwardRef<View, { data: ShareCardData }>(function Shar
         </View>
 
         <View style={{ gap: 28 }}>
-          <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 44, letterSpacing: 3, fontFamily: BG[800] }}>{`${data.focus.toUpperCase()} · COMPLETE`}</Text>
+          <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: 44, letterSpacing: 3, fontFamily: BG[800] }}>{`${sessionName(data.focus).toUpperCase()} · COMPLETE`}</Text>
           <Text style={{ color: '#fff', fontSize: 150, fontVariant: ['tabular-nums'], letterSpacing: -4, lineHeight: 156, fontFamily: BG[800] }}>{`${data.title},\n${data.name || 'you'}.`}</Text>
         </View>
 

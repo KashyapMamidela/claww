@@ -10,7 +10,7 @@ import { SessionCard } from '../../components/home/SessionCard';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { beginSession } from '../../lib/sessionStart';
 import { dayMinutes } from '../../lib/planStory';
-import { timeLabel } from '../../lib/format';
+import { timeLabel, sessionName } from '../../lib/format';
 import { logActivity } from '../../lib/data';
 import { penLine } from '../../lib/penLine';
 import { useToast } from '../../components/ui/Toast';
@@ -480,7 +480,7 @@ function HomePopulated() {
       setStartingSession(false);
     }
   }, [startingSession, sessionStatus, latestWorkout, userId, todayIndex, startSession, router]);
-  const workoutRowText = workoutRow(workoutToday, today?.focus || today?.day || 'Today\'s session', usualTime);
+  const workoutRowText = workoutRow(workoutToday, sessionName(today?.focus) || today?.day || 'Today\'s session', usualTime);
   const dayOfLabel = `DAY ${todayIndex + 1} OF ${planDays.length}`;
   const planCardLabel = today
     ? /^day \d+$/i.test(today.day.trim())
@@ -518,7 +518,7 @@ function HomePopulated() {
     ? { name: today.focus, minutes: sessionMinutes, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), markLine: marks[0] ? `${marks[0].name} ${marks[0].newText}` : null }
     : null;
   const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: sessionItem, sleepTargetHours: SLEEP_TARGET_HOURS });
-  const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: today?.focus ?? '' });
+  const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: sessionName(today?.focus) });
   const usualMin = usualMinutesOf(usualTime);
   const sessionTimeLabel = usualMin !== null ? timeLabel(new Date(2000, 0, 1, Math.floor(usualMin / 60), usualMin % 60)) : undefined;
   useEffect(() => {
@@ -716,7 +716,7 @@ function HomePopulated() {
       <Animated.View entering={riseIn(1)}>
       <SessionCard
         state={workoutToday.completed ? 'done' : sessionPlanned ? 'training' : 'rest'}
-        name={today?.focus ?? ''}
+        name={sessionName(today?.focus)}
         timeLabel={sessionTimeLabel}
         exercises={today?.exercises.length}
         minutes={today ? dayMinutes(today) : undefined}

@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { sessionName } from '../../lib/format';
 import { adaptiveSummary } from '../../lib/adaptiveSummary';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -157,7 +158,7 @@ export function AdaptiveCard() {
             </>
           ) : null}
 
-          <Text style={{ color: COLORS.fg, fontSize: 17, marginTop: 4, fontFamily: BG[800] }}>{`Today's prescription · ${day.focus}`}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, marginTop: 4, fontFamily: BG[800] }}>{`Today's prescription · ${sessionName(day.focus)}`}</Text>
           {planned.prescribed.map((p) => {
             const pill = commandPill(p.prescription.commands);
             const reason = reasonLine(p);

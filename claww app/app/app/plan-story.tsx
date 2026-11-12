@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { sessionName } from '../lib/format';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -95,7 +96,7 @@ export default function PlanStory() {
         ) : i === 1 ? (
           first ? (
             <Surface padding={16}>
-              <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>{first.focus}</Text>
+              <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>{sessionName(first.focus)}</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 2, marginBottom: 10, fontFamily: BG[400] }}>{first.day} · about {dayMinutes(first)} min</Text>
               {first.exercises.map((e, n) => (
                 <View key={`${e.name}-${n}`} style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 10, borderTopWidth: n === 0 ? 0 : 1, borderTopColor: 'rgba(255,255,255,0.06)' }}>
