@@ -169,7 +169,7 @@ export default function SettingsScreen() {
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>Help improve the scanner</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, lineHeight: 17, fontFamily: BG[400] }}>
-                When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals. Off by default. Turn it off any time.
+                When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals.
               </Text>
             </View>
             <Switch

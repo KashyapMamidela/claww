@@ -23,6 +23,15 @@ export interface DayExerciseInput {
   reps: number;
 }
 
+/** The sets planned for a day: the prescription's sets where the engine manages the exercise, else the plan's. */
+export function plannedSetsOf(exercises: { name: string; sets: number }[], prescribed: PrescribedExercise[] | null): number {
+  const byName = new Map((prescribed ?? []).map((p) => [p.name, p]));
+  return exercises.reduce((n, ex) => {
+    const p = byName.get(ex.name);
+    return n + (p && p.managed ? p.prescription.sets : Number(ex.sets) || 0);
+  }, 0);
+}
+
 export interface PrescribedExercise {
   name: string;
   exerciseId?: string;

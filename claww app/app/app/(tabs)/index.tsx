@@ -19,6 +19,7 @@ import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { greetingName } from '../../lib/greeting';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { plannedSetsOf } from '../../lib/sessionPrescription';
 import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -403,6 +404,9 @@ function HomePopulated() {
   // of only refreshing whenever this screen happens to regain focus.
   // A session finished just before Home was shown may not have been saved yet: reload once it is.
   const [savedKey, setSavedKey] = useState(0);
+  // The local day the session states describe. When the day has changed (midnight with the app open) the old
+  // "Done · 2 of 14 sets" must not show under the new day's session while the load runs.
+  const sessionDayRef = useRef(cached ? cached.day : '');
   useEffect(() => onSessionSaved(() => setSavedKey((n) => n + 1)), []);
 
   useFocusEffect(
@@ -417,13 +421,12 @@ function HomePopulated() {
           if (re && !cancelled) setPlan(re);
         }
       });
+      if (sessionDayRef.current !== dayKey(new Date())) setSessionKnown(false);
       Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(async ([w, profile]) => {
         let latestToday: WorkoutToday = { planned: false, completed: false, setsDone: 0, setsPlanned: 0 };
         const dayEvents = w ? await getWorkoutDayEvents(userId, w.id) : [];
         if (cancelled) return;
-        setLatestWorkout(w);
         const dayIdx = w ? getSuggestedDayIndex(w.plan, dayEvents) : 0;
-        setSuggestedDayIndex(dayIdx);
         if (w) {
           const names = (w.plan.days[dayIdx]?.exercises ?? []).map((ex) => ex.name);
           const [catalog, sets] = await Promise.all([getCatalog(names), getRecentLoggedSets(userId)]);
@@ -432,17 +435,23 @@ function HomePopulated() {
           const now = new Date();
           const sameDay = (iso: string) => new Date(iso).toDateString() === now.toDateString();
           const day = w.plan.days[dayIdx];
+          // Planned sets come from today's prescription (the engine may add or drop a set), the same number Train's
+          // hero and the session use, so Home, Train and the finish screen agree.
+          const prescription = await loadDayPrescription(userId, w, dayIdx).catch(() => null);
+          if (cancelled) return;
           const wt: WorkoutToday = {
             planned: isSessionPlannedToday(w.plan.days.map((d) => d.day), now),
             completed: dayEvents.some((e) => e.status === 'completed' && sameDay(e.createdAt)),
             setsDone: sets.filter((x) => sameDay(x.completedAt) && names.includes(x.exerciseName)).length,
-            setsPlanned: (day?.exercises ?? []).reduce((n, ex) => n + (Number(ex.sets) || 0), 0),
+            setsPlanned: plannedSetsOf(day?.exercises ?? [], prescription),
           };
+          setLatestWorkout(w);
+          setSuggestedDayIndex(dayIdx);
           setWorkoutToday(wt);
           latestToday = wt;
-          loadDayPrescription(userId, w, dayIdx)
+          Promise.resolve(prescription)
             .then((p) => {
-              if (cancelled) return;
+              if (cancelled || !p) return;
               const local = marksFor(p);
               setMarks(local);
               recordEngineMarks(userId, local, dateKey(new Date()))
@@ -458,9 +467,15 @@ function HomePopulated() {
           const low = lowestMuscle(muscleScores(muscles, sets, { ...history, ...catalog }, new Date()), muscles);
           setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
         }
+        if (!w) {
+          setLatestWorkout(null);
+          setSuggestedDayIndex(0);
+          setWorkoutToday(latestToday);
+        }
         const targets = profile?.personalization_profile?.nutritionDefaults;
         setProteinTarget(targets?.protein_g ?? null);
         setUsualTime(profile?.personalization_profile?.workoutDefaults?.usualTrainingTime ?? null);
+        sessionDayRef.current = dayKey(new Date());
         setSessionKnown(true);
         homeSession = {
           day: dayKey(new Date()),

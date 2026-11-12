@@ -27,6 +27,8 @@ import { ProgressRing } from '../ui/ProgressRing';
 import { Segmented } from '../ui/Segmented';
 import { Surface } from '../ui/Surface';
 import type { ChartKind } from './TrackerBody';
+import { Skeleton } from '../ui/Skeleton';
+import { dayKey } from '../../lib/widgetSnapshot';
 
 // NG PHASE 13 (screen 04): the Tracker's top cards. Steps with Day / Week and the source line, one recovery score
 // with its factors and a Today line, sleep, water and weight, and the activities that are not your plan. Steps and
@@ -73,26 +75,60 @@ function Card({ color, label, right, onPress, children, glow }: { color: string;
 
 const hm = (iso: string | null | undefined) => (iso ? new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : null);
 
+// Today's numbers, kept for the day so returning to the tab shows the last values at once. Until they are known the
+// cards are skeletons: the first frame used to read "Burned not tracked yet" and "Rest day" and then correct itself.
+interface TodayCache {
+  userId: string;
+  day: string;
+  today: StepsResult;
+  loggedKcal: number;
+  weightKg: number | null;
+  goal: number;
+  waterMl: number;
+  weights: WeightLog[];
+  activities: LoggedActivity[];
+  setsLast72h: number;
+  proteinPct: number | null;
+  sessionFocus: string | null;
+}
+let todayCache: TodayCache | null = null;
+
+function TodaySkeleton() {
+  return (
+    <View style={{ gap: 12 }}>
+      <Skeleton height={196} borderRadius={20} />
+      <Skeleton height={150} borderRadius={20} />
+      <Skeleton height={88} borderRadius={20} />
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <Skeleton height={120} borderRadius={20} style={{ flex: 1 }} />
+        <Skeleton height={120} borderRadius={20} style={{ flex: 1 }} />
+      </View>
+    </View>
+  );
+}
+
 export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: TrackerTodayProps) {
   const router = useRouter();
   const { userId, recovery, todaySleep } = useAppState();
+  const cached = todayCache && userId && todayCache.userId === userId && todayCache.day === dayKey(new Date()) ? todayCache : null;
+  const [ready, setReady] = useState(!!cached);
   const [mode, setMode] = useState<'day' | 'week'>('day');
-  const [today, setToday] = useState<StepsResult>({ steps: 0, available: false, caloriesBurned: null });
-  const [weightKg, setWeightKg] = useState<number | null>(null);
-  const [goal, setGoal] = useState(stepsGoal || DEFAULT_STEPS_GOAL);
-  const [waterMl, setWaterMl] = useState(0);
-  const [weights, setWeights] = useState<WeightLog[]>([]);
-  const [activities, setActivities] = useState<LoggedActivity[]>([]);
-  const [setsLast72h, setSetsLast72h] = useState(0);
-  const [proteinPct, setProteinPct] = useState<number | null>(null);
-  const [sessionFocus, setSessionFocus] = useState<string | null>(null);
+  const [today, setToday] = useState<StepsResult>(cached?.today ?? { steps: 0, available: false, caloriesBurned: null });
+  const [weightKg, setWeightKg] = useState<number | null>(cached?.weightKg ?? null);
+  const [goal, setGoal] = useState(cached?.goal ?? (stepsGoal || DEFAULT_STEPS_GOAL));
+  const [waterMl, setWaterMl] = useState(cached?.waterMl ?? 0);
+  const [weights, setWeights] = useState<WeightLog[]>(cached?.weights ?? []);
+  const [activities, setActivities] = useState<LoggedActivity[]>(cached?.activities ?? []);
+  const [setsLast72h, setSetsLast72h] = useState(cached?.setsLast72h ?? 0);
+  const [proteinPct, setProteinPct] = useState<number | null>(cached?.proteinPct ?? null);
+  const [sessionFocus, setSessionFocus] = useState<string | null>(cached?.sessionFocus ?? null);
   const [weightOpen, setWeightOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const [weightText, setWeightText] = useState('');
   const [savingWeight, setSavingWeight] = useState(false);
   const [syncedAt, setSyncedAt] = useState<Date | null>(null);
   // Calories of sessions and activities logged today: the same input Home's Burned tile uses, so the two agree.
-  const [loggedKcal, setLoggedKcal] = useState(0);
+  const [loggedKcal, setLoggedKcal] = useState(cached?.loggedKcal ?? 0);
 
   useFocusEffect(
     useCallback(() => {
@@ -122,8 +158,24 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         setSetsLast72h(sets.length);
         // getRecoveryInputs returns a share (0.67); this card shows a percentage (67 %).
         setProteinPct(inputs.proteinPct === null ? null : inputs.proteinPct * 100);
-        setSessionFocus(workout ? sessionName(workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus) || null : null);
+        const focus = workout ? sessionName(workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus) || null : null;
+        setSessionFocus(focus);
         setSyncedAt(new Date());
+        setReady(true);
+        todayCache = {
+          userId,
+          day: dayKey(new Date()),
+          today: steps,
+          loggedKcal: todayStats.calorieBurn,
+          weightKg: profile?.weight ?? null,
+          goal: profile?.personalization_profile?.stepsGoal ?? DEFAULT_STEPS_GOAL,
+          waterMl: water,
+          weights: logs,
+          activities: acts,
+          setsLast72h: sets.length,
+          proteinPct: inputs.proteinPct === null ? null : inputs.proteinPct * 100,
+          sessionFocus: focus,
+        };
       })();
       return () => {
         cancelled = true;
@@ -174,6 +226,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
     const span = Math.max(0.5, max - min);
     return pts.map((p, i) => `${(i / (pts.length - 1)) * 100},${28 - ((p - min) / span) * 24}`).join(' ');
   }, [trend]);
+
+  if (!ready) return <TodaySkeleton />;
 
   return (
     <View style={{ gap: 12 }}>

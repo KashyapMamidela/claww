@@ -27,6 +27,7 @@ import { Segmented } from '../components/ui/Segmented';
 import { Surface } from '../components/ui/Surface';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { CountUp } from '../components/ui/CountUp';
+import { Skeleton } from '../components/ui/Skeleton';
 import * as haptics from '../lib/haptics';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
 import { ShareCard } from '../components/workouts/ShareCard';
@@ -63,7 +64,7 @@ export default function WorkoutCompleteScreen() {
 
   useEffect(() => {
     track(AnalyticsEvent.WorkoutCompleted);
-    const t = setTimeout(refreshStreak, 1200); // after the completed-day event has been written
+    const t = setTimeout(() => refreshStreak().finally(() => setStreakReady(true)), 1200); // after the completed-day event has been written
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -129,6 +130,7 @@ export default function WorkoutCompleteScreen() {
   const localStreak = planStreak({ today, plannedWeekdays, completedDates, examWeek });
   // The shared streak (the same number Home and the Tracker show) once it has loaded; the local read until then.
   const streak = streakStats ? { days: streakStats.current, since: streakStats.since } : localStreak;
+  const [streakReady, setStreakReady] = useState(false);
   const examOn = examWeekActive(examWeek, today);
   const title = summary ? sessionTitle(summary.setsCompleted, summary.totalSetsPlanned) : 'Session done';
   const setsLine = summary ? (summary.setsCompleted >= summary.totalSetsPlanned ? 'all done' : `of ${summary.totalSetsPlanned}`) : '';
@@ -278,6 +280,7 @@ export default function WorkoutCompleteScreen() {
           <Text style={{ color: COLORS.fg, fontSize: 20, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
         </Surface>
 
+        {!streakReady ? <Skeleton height={132} borderRadius={20} /> : (
         <View style={{ borderRadius: 20, borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4), backgroundColor: tint(AREA_COLORS.streak, 0.08), padding: 16, gap: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
             <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.streak, 0.18), borderWidth: 1, borderColor: tint(AREA_COLORS.streak, 0.4) }}>
@@ -296,6 +299,7 @@ export default function WorkoutCompleteScreen() {
             <Switch value={examOn} onValueChange={toggleExam} accessibilityLabel="Exam week" trackColor={{ true: AREA_COLORS.streak, false: '#3F3F46' }} thumbColor="#FFFFFF" />
           </View>
         </View>
+        )}
 
         {showNotificationPrompt && userId ? <NotificationPromptCard userId={userId} onDismiss={() => setShowNotificationPrompt(false)} /> : null}
 
@@ -332,8 +336,9 @@ export default function WorkoutCompleteScreen() {
         />
       ) : null}
 
-      {/* The share image is laid out at its real 1080 x 1920 pixels, invisible and behind everything, only to be captured. */}
-      <View pointerEvents="none" style={{ position: 'absolute', left: 0, top: 0, opacity: 0.01 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {/* The share image is laid out at its real 1080 x 1920 pixels off the left edge, only to be captured. At 1 % opacity
+          on screen it showed through the cards as faint giant letters. */}
+      <View pointerEvents="none" style={{ position: 'absolute', left: -4000, top: 0 }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <ShareCard ref={cardRef} data={shareData} />
       </View>
     </View>

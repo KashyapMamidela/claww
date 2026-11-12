@@ -80,7 +80,7 @@ interface AppState {
   /** The same streak with its best run and the grid of recent days, for the sheet and the Tracker. */
   streakStats: PlanStreakStats | null;
   /** Re-reads it after something that can change it (a finished session, a new plan, the exam-week switch). */
-  refreshStreak: () => void;
+  refreshStreak: () => Promise<void>;
 }
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -251,8 +251,8 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   );
 
   const refreshStreak = useCallback(() => {
-    if (!userId) return;
-    loadPlanStreak(userId)
+    if (!userId) return Promise.resolve();
+    return loadPlanStreak(userId)
       .then((r) => setStreakStats(r.stats))
       .catch(() => {});
   }, [userId]);

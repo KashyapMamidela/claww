@@ -52,7 +52,7 @@ import { ExerciseGuideSheet } from '../../components/ExerciseGuideSheet';
 import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
 import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
 import { computeRepRange, startingPrescription } from '../../lib/engine';
-import { newStateFor, type PrescribedExercise } from '../../lib/sessionPrescription';
+import { newStateFor, plannedSetsOf, type PrescribedExercise } from '../../lib/sessionPrescription';
 import { Hero } from '../../components/ui/Hero';
 import { WeekStripView } from '../../components/workouts/WeekStripView';
 import { ExerciseRow } from '../../components/workouts/ExerciseRow';
@@ -364,7 +364,7 @@ export default function WorkoutsTab() {
   const markByName = new Map(marks.map((m) => [m.name, m]));
   const prescribedByName = new Map(prescribed.map((p) => [p.name, p]));
   const blueprint = BLUEPRINTS.find((b) => b.id === workout.blueprint_id) ?? null;
-  const totalSets = day.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0);
+  const totalSets = plannedSetsOf(day.exercises, prescribedKey === `${workout.id}:${selectedDay}` ? prescribed : null);
   const dayMinutes = Math.round((totalSets * 130) / 60 + 5);
   const weekLabel = workout.block_week ? `WEEK ${workout.block_week} OF 6` : null;
   const todayName = WEEKDAY_NAMES[(nowDate.getDay() + 6) % 7].toUpperCase();
