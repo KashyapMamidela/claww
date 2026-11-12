@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tint } from '../../lib/theme';
+import { Icon } from './Icon';
 
 // Premium P2: an achievement as a medallion. Earned: a metal rim in the badge's colour, a dark disc, a soft glow and a
 // light sweep across the top. Locked: the same shape as a dark silhouette, so you can see what is still to earn.
@@ -26,7 +27,8 @@ export function Medallion({ icon, color, earned, size = 60 }: { icon: string; co
           {earned ? (
             <LinearGradient colors={[tint(color, 0.3), tint(color, 0)]} start={{ x: 0.2, y: 0 }} end={{ x: 0.6, y: 0.8 }} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} />
           ) : null}
-          <Text style={{ fontSize: size * 0.4, opacity: earned ? 1 : 0.22 }}>{icon}</Text>
+          {/* Line icons in the badge's colour, one family with the rest of the app (they used to be emoji). */}
+          <Icon name={icon} size={Math.round(size * 0.38)} color={earned ? color : 'rgba(255,255,255,0.22)'} />
         </View>
       </LinearGradient>
     </View>

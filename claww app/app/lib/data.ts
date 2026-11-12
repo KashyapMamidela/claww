@@ -1695,13 +1695,13 @@ export async function getAchievements(userId: string): Promise<Achievement[]> {
   });
 
   return [
-    { id: 'first_steps', icon: '🎯', label: 'First Steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0 },
-    { id: 'week_warrior', icon: '🔥', label: 'Week Warrior', color: '#FF4500', earned: streak >= 7 },
-    { id: 'planner', icon: '💪', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1 },
-    { id: 'nourished', icon: '🥗', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10 },
-    { id: 'night_owl', icon: '🌙', label: 'Night Owl', color: '#6366F1', earned: hasNightOwlSleep },
-    { id: 'consistent', icon: '⚡', label: 'Consistent', color: '#A855F7', earned: sleepCount >= 5 },
-    { id: 'legend', icon: '🚀', label: 'CLAWW Legend', color: '#EC4899', earned: xp >= 500 },
+    { id: 'first_steps', icon: 'footprints', label: 'First Steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0 },
+    { id: 'week_warrior', icon: 'flame', label: 'Week Warrior', color: '#FF4500', earned: streak >= 7 },
+    { id: 'planner', icon: 'dumbbell', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1 },
+    { id: 'nourished', icon: 'salad', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10 },
+    { id: 'night_owl', icon: 'moon', label: 'Night Owl', color: '#6366F1', earned: hasNightOwlSleep },
+    { id: 'consistent', icon: 'zap', label: 'Consistent', color: '#A855F7', earned: sleepCount >= 5 },
+    { id: 'legend', icon: 'trophy', label: 'CLAWW Legend', color: '#EC4899', earned: xp >= 500 },
   ];
 }
 
