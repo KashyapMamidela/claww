@@ -6,7 +6,8 @@ import { Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-nativ
 import * as Haptics from 'expo-haptics';
 import { useFocusEffect } from '@react-navigation/native';
 import { AREA_COLORS, COLORS, FONT, tint, BG, bg } from '../lib/theme';
-import { deleteWaterLog, getTodaysWaterLogs, logWater, type WaterLogRow } from '../lib/data';
+import { deleteWaterLog, getTodaysWaterLogs, logWaterEntry, type WaterLogRow } from '../lib/data';
+import { useToast } from './ui/Toast';
 import { refreshReminders } from '../lib/reminderSync';
 import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
@@ -32,6 +33,7 @@ function litres(ml: number): string {
  * undo) and the full bottle with presets.
  */
 export function WaterRow({ userId }: { userId: string | null }) {
+  const toast = useToast();
   const [entries, setEntries] = useState<WaterLogRow[]>([]);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -59,8 +61,22 @@ export function WaterRow({ userId }: { userId: string | null }) {
     Haptics.selectionAsync().catch(() => {});
     const optimistic: WaterLogRow = { id: `pending-${Date.now()}`, ml, logged_at: new Date().toISOString() };
     setEntries((prev) => [optimistic, ...prev]);
-    const ok = await logWater(userId, ml);
-    if (ok) refreshReminders(userId).catch(() => {});
+    const id = await logWaterEntry(userId, ml);
+    if (id) {
+      refreshReminders(userId).catch(() => {});
+      // Say what happened, with a way back: a mis-tap on + used to go unnoticed.
+      toast.show({
+        message: `${ml >= 1000 ? `${ml / 1000} L` : `${ml} ml`} added`,
+        actionLabel: 'Undo',
+        onAction: () => {
+          setEntries((prev) => prev.filter((e) => e.id !== id && e.id !== optimistic.id));
+          deleteWaterLog(id).then(() => {
+            refreshReminders(userId).catch(() => {});
+            reload();
+          });
+        },
+      });
+    }
     reload();
   };
 

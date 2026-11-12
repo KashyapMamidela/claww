@@ -122,22 +122,20 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
                   </View>
                 ) : null}
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>{meal.meal_type ?? 'Meal'}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
-                    {new Date(meal.logged_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    {meal.estimated ? ' · estimated' : ''}
+                  {/* The dish is what you ate, so it's the title; the meal and time sit under it. */}
+                  <Text style={{ color: '#fff', fontSize: 20, lineHeight: 25, fontFamily: BG[800] }}>{meal.description}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 2, fontFamily: BG[400] }}>
+                    {meal.meal_type ?? 'Meal'} · {new Date(meal.logged_at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
                   </Text>
                 </View>
               </View>
 
-              <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>{meal.description}</Text>
-
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {[
                   { label: 'Calories', value: `${Math.round(meal.calories ?? 0)}` },
-                  { label: 'Protein', value: `${Math.round(meal.protein_g ?? 0)}g` },
-                  { label: 'Carbs', value: `${Math.round(meal.carbs_g ?? 0)}g` },
-                  { label: 'Fats', value: `${Math.round(meal.fats_g ?? 0)}g` },
+                  { label: 'Protein', value: `${Math.round(meal.protein_g ?? 0)} g` },
+                  { label: 'Carbs', value: `${Math.round(meal.carbs_g ?? 0)} g` },
+                  { label: 'Fat', value: `${Math.round(meal.fats_g ?? 0)} g` },
                 ].map((s) => (
                   <View
                     key={s.label}

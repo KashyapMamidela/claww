@@ -38,11 +38,13 @@ export function TintTile({ color, watermark: _watermark, children, style, paddin
 
   return (
     <Surface
-      style={[glow(color), style]}
+      // Neutral edge and no coloured under-glow: the area colour lives in the icon and the bar, so a row of tiles
+      // reads as one calm group instead of three glowing outlines.
+      style={style}
       shadow={false}
       padding={padding}
       radius={radius}
-      borderColor={tint(color, 0.35)}
+      borderColor="rgba(255,255,255,0.08)"
       decoration={decoration}
       accessibilityLabel={accessibilityLabel}
     >

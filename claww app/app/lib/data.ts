@@ -1615,11 +1615,16 @@ export async function getTodaysWaterMl(userId: string): Promise<number> {
 }
 
 export async function logWater(userId: string, ml: number): Promise<boolean> {
-  // NG PHASE 14: stored on the phone first, sent from there; true means it is saved or safely waiting.
+  return (await logWaterEntry(userId, ml)) !== null;
+}
+
+/** Same as logWater, but returns the new entry's id (null on failure) so the add can be undone from a toast. */
+export async function logWaterEntry(userId: string, ml: number): Promise<string | null> {
+  // NG PHASE 14: stored on the phone first, sent from there; an id means it is saved or safely waiting.
   const id = newClientId();
   const outcome = await writeOrQueue(id, { op: 'insert', table: 'water_logs', userId, row: { id, user_id: userId, ml, logged_at: new Date().toISOString() } });
   if (outcome === 'failed') console.warn('[Claww] The server refused this water log.');
-  return outcome !== 'failed';
+  return outcome !== 'failed' ? id : null;
 }
 
 export interface WaterLogRow {

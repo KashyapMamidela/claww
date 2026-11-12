@@ -27,7 +27,7 @@ export const useQuickLog = () => useContext(Ctx);
 function Action({ icon, color, title, sub, onPress }: { icon: string; color: string; title: string; sub: string; onPress: () => void }) {
   return (
     <PressScale onPress={onPress} accessibilityRole="button" accessibilityLabel={`${title}. ${sub}`} style={{ flex: 1 }}>
-      <Surface radius={18} padding={14} grain={0.06} borderColor={tint(color, 0.35)} shadow={false} style={{ minHeight: 112 }}>
+      <Surface radius={18} padding={14} grain={0.06} borderColor="rgba(255,255,255,0.08)" shadow={false} style={{ minHeight: 112 }}>
         <View style={{ gap: 10 }}>
           <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(color, 0.16) }}>
             <Icon name={icon} size={22} color={color} />
