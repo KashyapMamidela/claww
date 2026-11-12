@@ -84,7 +84,8 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
         <Pressable onPress={close} style={StyleSheet.absoluteFill} accessibilityLabel="Close">
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} />
         </Pressable>
-        <Animated.View style={[{ maxHeight: SCREEN_H * maxHeightFraction }, sheetStyle]}>
+        {/* Never taller than the space between the status bar and the keyboard: with the keyboard up, a tall sheet used to slide under the clock. */}
+        <Animated.View style={[{ maxHeight: Math.min(SCREEN_H * maxHeightFraction, SCREEN_H - insets.top - 12 - (Platform.OS === 'android' ? keyboard : 0)) }, sheetStyle]}>
         <Glass radius={28} topOnly blur={36} tint="rgba(20,20,24,0.80)" style={{ boxShadow: '0px -18px 40px -16px rgba(0,0,0,0.8)' }}>
         <View style={{ paddingBottom: Math.max(insets.bottom, 16) }}>
           <GestureDetector gesture={pan}>

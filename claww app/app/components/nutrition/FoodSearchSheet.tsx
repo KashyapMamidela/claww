@@ -258,7 +258,8 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, in
                     <View style={{ flex: 1 }}>
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>{f.name}</Text>
                       <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
-                        {f.kind === 'dish' ? 'Dish' : 'Ingredient'} · per {defaultUnit(f).unit === 'g' ? '100 g' : `${defaultUnit(f).unit} (${Math.round(defaultUnit(f).grams)} g)`}
+                        {/* What a usual serving is and what it costs: "1 plate (200 g) · 380 kcal". */}
+                        {defaultUnit(f).unit === 'g' ? '100 g' : `1 ${defaultUnit(f).unit} (${Math.round(defaultUnit(f).grams)} g)`} · {Math.round((f.kcal100g * (defaultUnit(f).unit === 'g' ? 100 : defaultUnit(f).grams)) / 100)} kcal
                       </Text>
                     </View>
                     <Icon name="chevron-right" size={16} color={COLORS.textMuted} />

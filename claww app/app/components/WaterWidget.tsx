@@ -14,8 +14,9 @@ const PRESETS = [250, 500, 1000];
 const WATER = AREA_COLORS.water;
 const WATER_DEEP = COLORS.blueMid;
 
+/** 250 → "250 ml", 1000 → "1 L", 1250 → "1.25 L": one format everywhere, with a space and no trailing zeros. */
 function formatMl(ml: number): string {
-  return ml >= 1000 ? `${(ml / 1000).toFixed(2)}L` : `${ml}ml`;
+  return ml >= 1000 ? `${Number((ml / 1000).toFixed(2))} L` : `${ml} ml`;
 }
 
 interface BottleProps {
