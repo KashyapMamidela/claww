@@ -206,7 +206,7 @@ describe('week strip', () => {
     expect(s.cells[2].planIndex).toBeNull();
   });
   it('a missed day gets a pen note', () => {
-    expect(weekStrip(days, [], now)!.note).toBe('missed Monday, upper is still open');
+    expect(weekStrip(days, [], now)!.note).toBe("Monday's Upper is still open");
     expect(weekStrip(days, [ev('Monday', new Date(2026, 10, 2, 18)), ev('Tuesday', new Date(2026, 10, 3, 18))], now)!.note).toBeNull();
   });
   it('is null for a plan without weekdays; short labels', () => {

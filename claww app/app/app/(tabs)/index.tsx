@@ -43,6 +43,7 @@ import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { syncWidget } from '../../lib/widgetSync';
 import { dayKey } from '../../lib/widgetSnapshot';
+import { RingClosedPulse } from '../../components/home/RingClosedPulse';
 import { DEFAULT_STEPS_GOAL } from '../../lib/activityMath';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
@@ -619,6 +620,8 @@ function HomePopulated() {
           <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Daily progress</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <RingClosedPulse closed={dailyGoalPct >= 100} day={dayKey(new Date())} size={150} color={tint(AREA_COLORS.nutrition, 0.35)} />
           <ProgressRing
             size={164}
             rings={
@@ -639,6 +642,7 @@ function HomePopulated() {
             <CountUp id="home.dailyGoal" value={dailyGoalPct} format={(n) => `${Math.round(n)}%`} textStyle={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} />
             <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: BG[400] }}>Daily goal</Text>
           </ProgressRing>
+          </View>
           <View style={{ flex: 1, gap: 11 }}>
             {(RINGS_V1
               ? [

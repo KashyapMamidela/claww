@@ -544,7 +544,7 @@ export default function MealLogScreen() {
           <Icon name="image" size={22} color={G.bright} />
         </TouchableOpacity>
         <View style={{ flex: 1 }}>
-          {text.trim().length > 0 ? (
+          {text.trim().length >= 2 ? (
             <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth disabled={saving} onPress={handleEstimate}>
               {saving ? 'Checking…' : 'Check my meal'}
             </Button>

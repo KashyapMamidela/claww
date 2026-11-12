@@ -6,6 +6,7 @@ import { useAppState, type MealLogRow, type MealType } from '../../lib/appState'
 import { searchFoodDb, recordFoodUse } from '../../lib/foodDb';
 import { defaultUnit, gramsFor, nutrientsFor, parseQuery, unitsFor, type Food } from '../../lib/foodLookup';
 import { BottomSheet } from '../ui/BottomSheet';
+import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/Button';
 import { Chip } from '../ui/Chip';
 import { ErrorCard } from '../ui/ErrorCard';
@@ -48,6 +49,26 @@ export function tidyName(raw: string): string {
   let t = out.join(' ');
   if (t.length > 26) t = `${t.slice(0, 26).replace(/\s+\S*$/, '')}…`;
   return t;
+}
+
+// A wait under 300 ms shows nothing (no flash); longer, three rows shaped like results, which the real rows replace.
+function SearchSkeleton() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setShow(true), 300);
+    return () => clearTimeout(t);
+  }, []);
+  if (!show) return null;
+  return (
+    <View accessibilityLabel="Searching">
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={{ minHeight: 56, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border, gap: 6, justifyContent: 'center' }}>
+          <Skeleton width={i === 1 ? '45%' : '60%'} height={15} borderRadius={4} />
+          <Skeleton width="38%" height={11} borderRadius={4} />
+        </View>
+      ))}
+    </View>
+  );
 }
 
 export function FoodSearchSheet({ visible, mealType, recent, planned = false, initialQuery, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
@@ -252,6 +273,7 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, in
                   ))}
                 </View>
               ) : null}
+              {searching && results.length === 0 ? <SearchSkeleton /> : null}
               {results.map((f) => (
                 <PressScale key={f.id} onPress={() => choose(f)} accessibilityRole="button" accessibilityLabel={`${f.name}, ${Math.round(f.kcal100g)} kilocalories per 100 grams`}>
                   <View style={{ minHeight: 56, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: COLORS.border, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
