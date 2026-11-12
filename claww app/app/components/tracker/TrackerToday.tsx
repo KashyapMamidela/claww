@@ -44,9 +44,12 @@ export interface TrackerTodayProps {
   onOpen: (kind: ChartKind) => void;
 }
 
+// The area's icon stamped faintly in each card's corner, like the Home tiles.
+const STAMPS: Record<string, string> = { STEPS: 'footprints', SLEEP: 'moon', WATER: 'droplets' };
+
 function Card({ color, label, right, onPress, children, glow }: { color: string; label: string; right?: React.ReactNode; onPress?: () => void; children: React.ReactNode; glow?: boolean }) {
   const body = (
-    <TintTile color={color} padding={16} radius={20}>
+    <TintTile color={color} watermark={STAMPS[label]} watermarkSize={96} padding={16} radius={20}>
     <View style={{ gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

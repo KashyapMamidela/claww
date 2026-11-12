@@ -6,6 +6,7 @@ import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint, BG, bg } from '../../lib/th
 import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
+import { Stamp } from '../ui/Stamp';
 
 // Premium H6: one card under Daily progress that answers "what am I training today". Three states, one accent each:
 // training (blue), rest day (indigo), done (a quieter blue: green belongs to food, and a finished session
@@ -64,6 +65,7 @@ export function SessionCard(p: SessionCardProps) {
             style={StyleSheet.absoluteFill}
           />
           <TiltLight />
+          <Stamp name={p.state === 'rest' ? 'footprints' : 'dumbbell'} color={c.accent} size={96} opacity={p.state === 'done' ? 0.12 : 0.2} right={-14} bottom={-18} />
         </>
       }
     >

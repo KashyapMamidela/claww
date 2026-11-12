@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { SURFACES } from '../../lib/theme';
 import { EASE_OUT, MOTION } from '../../lib/motion';
+import { Stamp } from './Stamp';
 
 // NG PHASE 1 (build plan 5.3): the hero card. The app's blue or green gradient,
 // thin diagonal lines top-left, a top light, a coloured under-glow, and a sheen
@@ -25,9 +26,11 @@ export interface HeroProps {
   /** Turn the one-time sheen off (e.g. a hero inside a list that re-mounts). */
   sheen?: boolean;
   accessibilityLabel?: string;
+  /** Icon name drawn as a faint stamp in the bottom-right corner. */
+  stamp?: string;
 }
 
-export function Hero({ variant = 'blue', children, style, padding = 18, radius = 22, sheen = true, accessibilityLabel }: HeroProps) {
+export function Hero({ variant = 'blue', children, style, padding = 18, radius = 22, sheen = true, accessibilityLabel, stamp }: HeroProps) {
   const v = VARIANTS[variant];
   const reduced = useReducedMotion();
   const [width, setWidth] = useState(0);
@@ -62,6 +65,7 @@ export function Hero({ variant = 'blue', children, style, padding = 18, radius =
             />
           </Animated.View>
         ) : null}
+        {stamp ? <Stamp name={stamp} color="#FFFFFF" size={96} opacity={0.1} right={-14} bottom={-18} /> : null}
         <View style={{ padding }}>{children}</View>
       </View>
     </View>

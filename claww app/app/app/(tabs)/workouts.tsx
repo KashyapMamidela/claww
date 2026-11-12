@@ -623,7 +623,7 @@ export default function WorkoutsTab() {
           )}
 
           <Rise i={1}>
-          <Hero variant="blue" accessibilityLabel={`${day.day}: ${sessionName(day.focus)}`}>
+          <Hero variant="blue" stamp="dumbbell" accessibilityLabel={`${day.day}: ${sessionName(day.focus)}`}>
             {/* Premium W3: the muscles this session works, lit on a small body map in the corner. */}
             {heroMuscles.length > 0 ? (
               <View pointerEvents="none" style={{ position: 'absolute', right: 14, top: 14, opacity: 0.9 }}>
