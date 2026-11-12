@@ -26,6 +26,7 @@ import { FoodSearchSheet } from '../../components/nutrition/FoodSearchSheet';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Surface } from '../../components/ui/Surface';
@@ -372,7 +373,7 @@ export default function NutritionTab() {
           {usuals.length > 0 ? (
             <View style={{ gap: 10 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <SectionLabel color={G}>YOUR USUALS · ONE TAP</SectionLabel>
+                <SectionHeader>Your usuals</SectionHeader>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>from your last 2 weeks</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
@@ -392,7 +393,7 @@ export default function NutritionTab() {
 
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <SectionLabel color={G}>{plan ? "TODAY'S PLAN · 3 MEALS" : "TODAY'S MEALS"}</SectionLabel>
+              <SectionHeader>{plan ? "Today's plan" : "Today's meals"}</SectionHeader>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 1, marginLeft: 12 }}>
                 <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
                 {missedSlots.length > 0 ? (
@@ -574,7 +575,7 @@ export default function NutritionTab() {
               post-workout shake) is a snack, as many as you like. They are listed here and count in your day. */}
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <SectionLabel color={G}>SNACKS AND EXTRAS</SectionLabel>
+              <SectionHeader>Snacks and extras</SectionHeader>
               {extras.length > 0 ? (
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[500] }}>
                   {Math.round(extras.reduce((s, m) => s + (m.calories ?? 0), 0))} kcal

@@ -15,6 +15,7 @@ import { Chip } from '../../../components/ui/Chip';
 import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
 import { SectionLabel } from '../../../components/ui/SectionLabel';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 
 const G = COLORS.green;
 
@@ -121,7 +122,7 @@ export default function MealSetupWhere() {
             })}
           </View>
 
-          <SectionLabel color={G}>WHAT CAN YOU COOK WITH?</SectionLabel>
+          <SectionHeader>What can you cook with?</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {COOK_OPTIONS.map((c) => (
               <Chip key={c.value} active={draft.cookWith.includes(c.value)} accent={G} accentDeep={COLORS.greenDeep} onPress={() => update({ cookWith: toggleCook(draft.cookWith, c.value) })}>
@@ -130,7 +131,7 @@ export default function MealSetupWhere() {
             ))}
           </View>
 
-          <SectionLabel color={G}>YOU EAT</SectionLabel>
+          <SectionHeader>You eat</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {DIET_OPTIONS.map((d) => (
               <Chip key={d.value} active={draft.diet === d.value} accent={G} accentDeep={COLORS.greenDeep} onPress={() => update({ diet: d.value })}>

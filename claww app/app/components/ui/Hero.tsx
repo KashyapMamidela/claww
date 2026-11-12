@@ -49,15 +49,8 @@ export function Hero({ variant = 'blue', children, style, padding = 18, radius =
     <View style={[{ borderRadius: radius }, glow(v.glow), style]} accessibilityLabel={accessibilityLabel} onLayout={onLayout}>
       <View style={{ borderRadius: radius, overflow: 'hidden', borderWidth: 1, borderColor: v.border }}>
         <LinearGradient colors={v.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        <View pointerEvents="none" style={styles.linesBox}>
-          <Image source={LINES} resizeMode="repeat" style={styles.lines} />
-          <LinearGradient
-            colors={['rgba(0,0,0,0)', v.colors[1]]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-        </View>
+        {/* The diagonal-lines texture is gone: its box ended in a visible dark rectangle on the gradient (seen behind
+            Train's plan line). The gradient, top light and sheen carry the hero on their own. */}
         <View pointerEvents="none" style={[styles.topLight, { borderTopLeftRadius: radius, borderTopRightRadius: radius }]} />
         {sheen && !reduced && width > 0 ? (
           <Animated.View pointerEvents="none" style={[styles.sheen, { width: width * 0.35 }, sheenStyle]}>

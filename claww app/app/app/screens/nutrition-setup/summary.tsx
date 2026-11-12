@@ -24,6 +24,7 @@ import { Hero } from '../../../components/ui/Hero';
 import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
 import { SectionLabel } from '../../../components/ui/SectionLabel';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Stepper } from '../../../components/ui/Stepper';
 import { Surface } from '../../../components/ui/Surface';
 
@@ -207,7 +208,7 @@ export default function MealSetupSummary() {
 
         <Surface padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <SectionLabel color={G}>A DAY ON THIS PLAN</SectionLabel>
+            <SectionHeader>A day on this plan</SectionHeader>
             {sample && sample.meals.length > 0 ? <Text style={{ color: COLORS.fg, fontSize: 13, flexShrink: 1, textAlign: 'right', fontFamily: BG[700] }}>{planLine(sample)}</Text> : null}
           </View>
           {sample && sample.meals.length > 0 ? (

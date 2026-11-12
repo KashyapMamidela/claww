@@ -1,4 +1,5 @@
 import { Surface } from '../../components/ui/Surface';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { sessionName } from '../../lib/format';
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
@@ -614,7 +615,7 @@ export default function WorkoutsTab() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
               <Icon name="shield-check" size={16} color="rgba(255,255,255,0.75)" />
               <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, flex: 1, fontFamily: BG[400] }}>
-                {blueprint ? `${blueprint.title.split(',')[0]} blueprint${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
+                {blueprint ? `${blueprint.title.split(',')[0]} plan${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
               </Text>
               <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="See the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>Exercises {'\u203a'}</Text>
@@ -632,7 +633,7 @@ export default function WorkoutsTab() {
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ color: A, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
+              <SectionHeader>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "Today's exercises" : `${day.day}'s exercises`}</SectionHeader>
               {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
             </View>
             <View style={{ gap: 10 }}>
