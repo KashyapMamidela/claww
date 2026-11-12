@@ -93,7 +93,7 @@ export function AdaptiveCard() {
 
   const changed = planned.prescribed.filter((p) => p.managed && commandPill(p.prescription.commands).tone !== 'hold').length;
   const answered = Object.values(checkins).filter((c) => c.soreness !== null || c.readiness !== null).length;
-  const summary = adaptiveSummary({ dayLabels: workout.plan.days.map((d) => d.day), focus: day.focus, dayLabel: day.day, changed, answered, now: new Date() });
+  const summary = adaptiveSummary({ dayLabels: workout.plan.days.map((d) => d.day), focus: sessionName(day.focus), dayLabel: day.day, changed, answered, now: new Date() });
 
   const setCheckin = (muscle: string, patch: Partial<Checkin>) => {
     const next = { ...checkins, [muscle]: { ...(checkins[muscle] ?? { soreness: null, readiness: null }), ...patch } };

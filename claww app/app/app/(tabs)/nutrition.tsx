@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { mealTitle } from '../../lib/mealPlanMeal';
-import { dayLabel } from '../../lib/format';
+import { dayLabel, num } from '../../lib/format';
 import { useToast } from '../../components/ui/Toast';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -406,7 +406,7 @@ export default function NutritionTab() {
                   <PressScale key={u.key} onPress={() => logUsual(u)} accessibilityRole="button" accessibilityLabel={`Log ${u.label}, ${u.kcal} kilocalories`}>
                     <View style={{ minHeight: 44, borderRadius: 22, borderWidth: 1, borderColor: COLORS.borderStrong, backgroundColor: COLORS.card, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>+ {u.label.length > 24 ? `${u.label.slice(0, 24)}…` : u.label}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{u.kcal} kcal</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{num(u.kcal)} kcal</Text>
                     </View>
                   </PressScale>
                 ))}
@@ -437,6 +437,9 @@ export default function NutritionTab() {
                 ) : null}
               </View>
             </View>
+            {!allLogged && plan && !plan.ok && plan.shortfall?.fix ? (
+              <Text style={{ color: COLORS.fg, fontSize: 19, lineHeight: 22, fontFamily: FONT_HAND, marginTop: -6 }}>{plan.shortfall.fix.text}</Text>
+            ) : null}
             {plan?.notes.map((n) => (
               <Text key={n} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{n}</Text>
             ))}
@@ -473,7 +476,7 @@ export default function NutritionTab() {
                     time={timeText(v.logged.logged_at)}
                     planStatus={v.state === 'as_planned' || v.state === 'swapped' || v.state === 'skipped' ? v.state : 'extra'}
                     name={v.logged.description}
-                    macros={v.state === 'skipped' ? 'no meal' : `${Math.round(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
+                    macros={v.state === 'skipped' ? 'no meal' : `${num(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
                     photoPath={(v.logged as MealLogRow).photo_url}
                     rating={r?.rating}
                     onPress={() => setSelectedMeal(v.logged as MealLogRow)}
@@ -496,7 +499,7 @@ export default function NutritionTab() {
                       <>
                         {old ? <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: BG[400] }}>{old}</Text> : null}
                         <Text style={{ color: COLORS.fg, fontSize: 22, textDecorationLine: old ? 'underline' : 'none', fontFamily: BG[800] }}>{mealTitle(m)}</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{num(m.kcal)} kcal · P {Math.round(m.protein)} g</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{itemsText(m)}</Text>
                         <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                         {old ? <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
@@ -558,7 +561,7 @@ export default function NutritionTab() {
                     </View>
                     {m ? (
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>
-                        {mealTitle(m)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        {mealTitle(m)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {num(m.kcal)} kcal · P {Math.round(m.protein)} g</Text>
                       </Text>
                     ) : null}
                     <View style={{ gap: 8 }}>
@@ -589,7 +592,7 @@ export default function NutritionTab() {
                   <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{label} · later</Text>
                   {v.planned ? (
                     <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>
-                      {mealTitle(v.planned)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
+                      {mealTitle(v.planned)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {num(v.planned.kcal)} kcal · P {Math.round(v.planned.protein)} g</Text>
                     </Text>
                   ) : null}
                   <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
@@ -610,7 +613,7 @@ export default function NutritionTab() {
               <SectionHeader>Snacks and extras</SectionHeader>
               {extras.length > 0 ? (
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[500] }}>
-                  {Math.round(extras.reduce((s, m) => s + (m.calories ?? 0), 0))} kcal
+                  {num(extras.reduce((s, m) => s + (m.calories ?? 0), 0))} kcal
                 </Text>
               ) : null}
             </View>
@@ -621,7 +624,7 @@ export default function NutritionTab() {
                 time={timeText(m.logged_at)}
                 planStatus="extra"
                 name={m.description}
-                macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} g`}
+                macros={`${num(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} g`}
                 photoPath={(m as MealLogRow).photo_url}
                 rating={rated.find((x) => x.meal.id === m.id)?.rating}
                 onPress={() => setSelectedMeal(m as MealLogRow)}
@@ -700,7 +703,7 @@ export default function NutritionTab() {
             <PressScale key={o.templateId} onPress={() => chooseSwap(o)} accessibilityRole="button" accessibilityLabel={`${o.name}, ${o.kcal} kilocalories`}>
               <Surface padding={14}>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{o.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{o.kcal} kcal · P {Math.round(o.protein)} g</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{num(o.kcal)} kcal · P {Math.round(o.protein)} g</Text>
               </Surface>
             </PressScale>
           ))}

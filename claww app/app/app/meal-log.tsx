@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { num } from '../lib/format';
 import { mealForClock } from '../components/nutrition/MealTypePicker';
 import { scanPlate, setScanSession } from '../lib/scanner';
 import { DEFAULT_CONTEXT, PORTION_FACTOR } from '../lib/engine';
@@ -508,7 +509,7 @@ export default function MealLogScreen() {
                 <TouchableOpacity key={row.id} activeOpacity={0.85} onPress={() => reuseHistoryMeal(row)} style={{ width: 96 }} accessibilityRole="button" accessibilityLabel={`Log again: ${row.description}`}>
                   <Image source={{ uri: photoHistoryUrls[row.id] }} style={{ width: 96, height: 96, borderRadius: 14, backgroundColor: '#151517' }} resizeMode="cover" />
                   <Text numberOfLines={1} style={{ color: '#fff', fontSize: 12, marginTop: 5, fontFamily: BG[700] }}>{row.description}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: BG[400] }}>{Math.round(row.calories ?? 0)} kcal</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: BG[400] }}>{num(row.calories ?? 0)} kcal</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>

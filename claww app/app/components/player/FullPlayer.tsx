@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { sessionName } from '../../lib/format';
 import { EndWorkoutSheet } from './EndWorkoutSheet';
 import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
@@ -217,7 +218,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             </PressScale>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>
-                {today.focus || today.day}
+                {sessionName(today.focus) || today.day}
               </Text>
               <View style={{ flexDirection: 'row' }}>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
@@ -445,8 +446,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                             label="Weight"
                             value={`${currentRow.weight}`}
                             unit="kg"
-                            onDecrement={() => updateSetRow(exerciseIndex, setIndex, { weight: stepValue(currentRow.weight, -1, kgStep) })}
-                            onIncrement={() => updateSetRow(exerciseIndex, setIndex, { weight: stepValue(currentRow.weight, 1, kgStep) })}
+                            onDecrement={() => updateSetRow(exerciseIndex, setIndex, (row) => ({ weight: stepValue(row.weight, -1, kgStep) }))}
+                            onIncrement={() => updateSetRow(exerciseIndex, setIndex, (row) => ({ weight: stepValue(row.weight, 1, kgStep) }))}
                             decrementDisabled={currentRow.weight <= 0}
                           />
                         </View>
@@ -456,8 +457,8 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                           label="Reps"
                           value={`${currentRow.reps}`}
                           unit="reps"
-                          onDecrement={() => updateSetRow(exerciseIndex, setIndex, { reps: stepValue(currentRow.reps, -1, 1, 1) })}
-                          onIncrement={() => updateSetRow(exerciseIndex, setIndex, { reps: stepValue(currentRow.reps, 1, 1, 1) })}
+                          onDecrement={() => updateSetRow(exerciseIndex, setIndex, (row) => ({ reps: stepValue(row.reps, -1, 1, 1) }))}
+                          onIncrement={() => updateSetRow(exerciseIndex, setIndex, (row) => ({ reps: stepValue(row.reps, 1, 1, 1) }))}
                           decrementDisabled={currentRow.reps <= 1}
                         />
                       </View>

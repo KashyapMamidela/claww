@@ -227,6 +227,15 @@ export default function WorkoutsTab() {
   }, [pickerOpen, userId]);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
 
+  // Bumped each time Train is shown: today's numbers depend on sleep and food logged elsewhere, so they are worked
+  // out again on every visit (the last result shows meanwhile).
+  const [focusCount, setFocusCount] = useState(0);
+  useFocusEffect(
+    useCallback(() => {
+      setFocusCount((n) => n + 1);
+    }, [])
+  );
+
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
@@ -301,7 +310,7 @@ export default function WorkoutsTab() {
     return () => {
       cancelled = true;
     };
-  }, [userId, workout, selectedDay, events.length]);
+  }, [userId, workout, selectedDay, events.length, focusCount]);
 
   if (!loaded) {
     return (

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { num } from '../lib/format';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { BottomSheet } from './ui/BottomSheet';
 import { COLORS, FONT, BG, bg } from '../lib/theme';
@@ -123,7 +124,7 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
 
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {[
-                  { label: 'Calories', value: `${Math.round(meal.calories ?? 0)}` },
+                  { label: 'Calories', value: num(meal.calories) },
                   { label: 'Protein', value: `${Math.round(meal.protein_g ?? 0)} g` },
                   { label: 'Carbs', value: `${Math.round(meal.carbs_g ?? 0)} g` },
                   { label: 'Fat', value: `${Math.round(meal.fats_g ?? 0)} g` },

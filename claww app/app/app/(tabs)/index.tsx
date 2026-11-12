@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { onSessionSaved } from '../../lib/sessionEvents';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { riseIn } from '../../lib/motion';
 import Animated from 'react-native-reanimated';
@@ -10,7 +11,7 @@ import { SessionCard } from '../../components/home/SessionCard';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { beginSession } from '../../lib/sessionStart';
 import { dayMinutes } from '../../lib/planStory';
-import { timeLabel, sessionName } from '../../lib/format';
+import { timeLabel, sessionName, num } from '../../lib/format';
 import { logActivity } from '../../lib/data';
 import { penLine } from '../../lib/penLine';
 import { useToast } from '../../components/ui/Toast';
@@ -400,6 +401,10 @@ function HomePopulated() {
   // xp/streak come from AppState directly — they update live as XP events
   // fire (set completed, meal logged, sleep logged, plan generated) instead
   // of only refreshing whenever this screen happens to regain focus.
+  // A session finished just before Home was shown may not have been saved yet: reload once it is.
+  const [savedKey, setSavedKey] = useState(0);
+  useEffect(() => onSessionSaved(() => setSavedKey((n) => n + 1)), []);
+
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
@@ -470,7 +475,7 @@ function HomePopulated() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, savedKey])
   );
 
   // Nutrition-today, derived from real meal logs against the user's real
@@ -546,7 +551,7 @@ function HomePopulated() {
     slot: v.slot,
     state: v.state,
     plannedName: v.planned ? mealTitle(v.planned) : null,
-    loggedLine: v.logged ? `${Math.round(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
+    loggedLine: v.logged ? `${num(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
     loggedAtMinutes: v.logged ? new Date(v.logged.logged_at).getHours() * 60 + new Date(v.logged.logged_at).getMinutes() : null,
   }));
   // The session card above already shows today's session, so the timeline lists only the rest of the day.
@@ -572,7 +577,7 @@ function HomePopulated() {
       fatTarget: targets?.fats_g ?? null,
       mealsLogged: meals.filter((m) => (m as { plan_status?: string }).plan_status !== 'skipped').length,
       nextMeal: next ? { slot: next.slot.charAt(0).toUpperCase() + next.slot.slice(1), name: next.planned ? mealTitle(next.planned) : null } : null,
-      session: sessionPlanned && today ? (today.focus || today.day) : null,
+      session: sessionPlanned && today ? (sessionName(today.focus) || today.day) : null,
       sessionDone: workoutToday.completed,
       sessionTime: sessionTimeLabel ?? null,
       streak,

@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { num } from '../lib/format';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -197,7 +198,7 @@ export default function DiaryScreen() {
               time={timeText(m.logged_at)}
               planStatus={m.plan_status}
               name={m.description}
-              macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} · C ${Math.round(m.carbs_g ?? 0)} · F ${Math.round(m.fats_g ?? 0)}`}
+              macros={`${num(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} · C ${Math.round(m.carbs_g ?? 0)} · F ${Math.round(m.fats_g ?? 0)}`}
               photoPath={m.photo_url}
               rating={rating}
               reason={repeat ? undefined : reason}

@@ -123,7 +123,7 @@ export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesP
 
         <Tile
           icon={session.value === 'Rest' ? 'moon' : session.value === 'Done' ? 'check' : 'dumbbell'}
-          color={session.value === 'Rest' ? AREA_COLORS.sleep : session.value === 'Done' ? AREA_COLORS.nutrition : AREA_COLORS.workouts}
+          color={session.value === 'Rest' ? AREA_COLORS.sleep : AREA_COLORS.workouts}
           label="TODAY"
           value={session.value}
           onPress={session.onPress}
@@ -131,7 +131,7 @@ export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesP
         >
           <Bar
             pct={session.value === 'Rest' ? 100 : session.value === 'Done' ? 100 : session.pct ?? 0}
-            color={session.value === 'Rest' ? AREA_COLORS.sleep : session.value === 'Done' ? AREA_COLORS.nutrition : AREA_COLORS.workouts}
+            color={session.value === 'Rest' ? AREA_COLORS.sleep : AREA_COLORS.workouts}
           />
         </Tile>
 

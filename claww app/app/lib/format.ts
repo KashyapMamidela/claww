@@ -41,3 +41,8 @@ export function sessionName(focus: string | null | undefined): string {
   if (!focus) return '';
   return focus.replace(/\s*\((\d)\)\s*$/, (_m, n: string) => ` ${String.fromCharCode(64 + Number(n))}`);
 }
+
+/** A whole number with Indian digit grouping: 1542 -> "1,542". */
+export function num(n: number | null | undefined): string {
+  return Math.round(n ?? 0).toLocaleString('en-IN');
+}

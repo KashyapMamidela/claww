@@ -70,6 +70,7 @@ export function planLine(plan: DayPlan): string {
   const kcal = plan.totals.kcal.toLocaleString('en-IN');
   if (plan.ok) return `${kcal} kcal · P ${Math.round(plan.totals.protein)} g`;
   const s = plan.shortfall;
-  if (s && s.proteinGapG > 0) return s.fix ? `${s.proteinGapG} g protein short. ${s.fix.text}` : `${s.proteinGapG} g protein short of the target`;
+  // The fix itself is drawn on the meal it belongs to (the pen mark), so this one-line header only names the gap.
+  if (s && s.proteinGapG > 0) return `${s.proteinGapG} g protein short`;
   return `${kcal} kcal · P ${Math.round(plan.totals.protein)} g`;
 }

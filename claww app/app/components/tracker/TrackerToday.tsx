@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { sessionName } from '../../lib/format';
 import { ActivitySheet } from '../workouts/ActivityCard';
 import { LineChart } from '../charts/LineChart';
 import { TintTile } from '../ui/TintTile';
@@ -118,7 +119,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         setSetsLast72h(sets.length);
         // getRecoveryInputs returns a share (0.67); this card shows a percentage (67 %).
         setProteinPct(inputs.proteinPct === null ? null : inputs.proteinPct * 100);
-        setSessionFocus(workout ? workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus ?? null : null);
+        setSessionFocus(workout ? sessionName(workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus) || null : null);
         setSyncedAt(new Date());
       })();
       return () => {

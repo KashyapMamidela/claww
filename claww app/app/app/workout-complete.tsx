@@ -118,7 +118,10 @@ export default function WorkoutCompleteScreen() {
   }, [userId]);
 
   const volume = summary ? totalVolume(summary.doneSets) : 0;
-  const delta = volumeDelta(volume, volumePrev);
+  // A bodyweight session lifts no kg: its ring counts reps instead of showing a big 0.
+  const repsDone = summary ? summary.doneSets.reduce((n, x) => n + (x.reps || 0), 0) : 0;
+  const byReps = volume === 0 && repsDone > 0;
+  const delta = byReps ? null : volumeDelta(volume, volumePrev);
   const best = summary ? newBest(summary.doneSets, bests) : null;
   const bestNext = best && targets[best.name]?.weightKg ? targets[best.name].weightKg : null;
   const kcal = summary ? sessionKcal(summary.elapsedSeconds * 1000, bodyKg) : 0;
@@ -152,7 +155,7 @@ export default function WorkoutCompleteScreen() {
     focus: summary?.focus || 'Workout',
     minutes,
     setsText: summary ? `${summary.setsCompleted} sets` : '0 sets',
-    volumeText: `${volume.toLocaleString('en-IN')} kg`,
+    volumeText: byReps ? `${repsDone} reps` : `${volume.toLocaleString('en-IN')} kg`,
     kcal,
     bestLine: best ? `${best.name}: ${newBestText(best)}` : null,
     streakText: streak.days > 1 ? `${streak.days}-day streak` : null,
@@ -167,7 +170,7 @@ export default function WorkoutCompleteScreen() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: shareFileName(now), UTI: 'public.png' });
       } else {
-        await Share.share({ message: `${title}: ${summary?.setsCompleted ?? 0} sets, ${volume} kg, ${minutes} min. Trained with CLAWW.` });
+        await Share.share({ message: `${title}: ${summary?.setsCompleted ?? 0} sets, ${byReps ? `${repsDone} reps` : `${volume} kg`}, ${minutes} min. Trained with CLAWW.` });
       }
     } catch {
       // The user closing the share sheet is not an error; a failed capture just leaves the card as it was.
@@ -234,8 +237,8 @@ export default function WorkoutCompleteScreen() {
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 18 }}>
             <ProgressRing size={140} rings={[{ r: 62, strokeWidth: 10, color: '#FFFFFF', pct: setsPct, track: 'rgba(255,255,255,0.16)' }]} trackColor="rgba(255,255,255,0.16)">
-              <CountUp id={volumeId} value={volume} format={(n) => Math.round(n).toLocaleString('en-IN')} textStyle={{ color: '#fff', fontSize: 26, letterSpacing: -0.6, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} />
-              <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: BG[400] }}>kg lifted</Text>
+              <CountUp id={volumeId} value={byReps ? repsDone : volume} format={(n) => Math.round(n).toLocaleString('en-IN')} textStyle={{ color: '#fff', fontSize: 26, letterSpacing: -0.6, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} />
+              <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: BG[400] }}>{byReps ? 'reps done' : 'kg lifted'}</Text>
               {delta ? <Text style={{ color: '#fff', fontSize: 13, marginTop: 2, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{delta.text} vs last</Text> : null}
             </ProgressRing>
             <View style={{ flex: 1, gap: 12 }}>
