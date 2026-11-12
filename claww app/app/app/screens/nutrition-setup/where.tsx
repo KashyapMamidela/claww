@@ -16,6 +16,8 @@ import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
 import { SectionLabel } from '../../../components/ui/SectionLabel';
 import { SectionHeader } from '../../../components/ui/SectionHeader';
+import { Segmented } from '../../../components/ui/Segmented';
+import { FOOD_GOALS } from '../../../lib/mealPlanReset';
 
 const G = COLORS.green;
 
@@ -30,7 +32,8 @@ export default function MealSetupWhere() {
   const known = hasBasics(basics, ['heightCm', 'weightKg', 'age']);
 
   const [draft, setDraft] = useState<MealSetupDraft>(getDraft());
-  const [editing, setEditing] = useState(false);
+  // Starting over opens your height, weight and age for a check, since the new targets are worked out from them.
+  const [editing, setEditing] = useState(getDraft().fresh === true);
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [age, setAge] = useState('');
@@ -63,10 +66,23 @@ export default function MealSetupWhere() {
       <MealSetupHeader step={1} sub="what you can get" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }} keyboardShouldPersistTaps="handled">
-          <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>Where does your food come from?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
-            Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
-          </Text>
+          {draft.fresh ? (
+            <View style={{ gap: 10 }}>
+              <Text style={{ color: COLORS.fg, fontSize: 28, letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>Start your meal plan over</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
+                New targets from your weight and goal today, and new meals from what you can get now. Meals you've logged stay.
+              </Text>
+              <SectionHeader>Your goal for food</SectionHeader>
+              <Segmented options={FOOD_GOALS} value={draft.foodGoal ?? 'maintain'} onChange={(g) => update({ foodGoal: g })} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="Your goal for food" />
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Check your numbers below: your targets are worked out from them.</Text>
+            </View>
+          ) : null}
+          <Text style={{ color: COLORS.fg, fontSize: draft.fresh ? 22 : 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: draft.fresh ? 28 : 32, marginTop: draft.fresh ? 8 : 0, fontFamily: BG[800] }}>Where does your food come from?</Text>
+          {draft.fresh ? null : (
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
+              Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
+            </Text>
+          )}
 
           {known && !editing ? (
             <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg', 'age'])} accent={G} onEdit={() => setEditing(true)} />

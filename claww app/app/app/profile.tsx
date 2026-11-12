@@ -145,6 +145,7 @@ export default function ProfileScreen() {
     { icon: 'settings', label: 'Settings', value: profile?.notifications_enabled ? 'Reminders on' : 'Reminders off', onPress: () => router.push('/settings') },
     { icon: 'pencil', label: 'Week review', onPress: () => router.push('/week-review') },
     { icon: 'camera', label: 'Progress photos', onPress: () => router.push('/progress-photos') },
+    { icon: 'salad', label: 'Meal plan', onPress: () => router.push({ pathname: '/(tabs)/nutrition', params: { planMenu: '1' } }) },
     { icon: 'utensils', label: 'Food preferences', value: (profile?.personalization_profile as any)?.foodProfile ? 'Set' : undefined, onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
     { icon: 'shield', label: 'Privacy and data', onPress: () => setPrivacyModalVisible(true) },
     { icon: 'help-circle', label: 'Help and support', onPress: () => openSupportEmail('CLAWW support request') },

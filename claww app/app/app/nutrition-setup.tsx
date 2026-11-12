@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { foodGoalFrom } from '../lib/mealPlanReset';
 import { COLORS } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getProfile } from '../lib/data';
@@ -17,6 +18,8 @@ import { emptyDraft, resetDraft } from '../lib/mealSetupDraft';
 export default function NutritionSetupEntry() {
   const router = useRouter();
   const { userId } = useAppState();
+  // fresh=1 is "Start my meal plan over": a blank page, a goal question and new targets at the end.
+  const { fresh } = useLocalSearchParams<{ fresh?: string }>();
 
   useEffect(() => {
     if (!userId) return;
@@ -24,7 +27,15 @@ export default function NutritionSetupEntry() {
 
     Promise.all([getUserResources(userId), getProfile(userId)]).then(([resources, profile]) => {
       if (cancelled) return;
-      if (resources) {
+      if (fresh === '1') {
+        const pp = profile?.personalization_profile;
+        resetDraft({
+          ...emptyDraft(),
+          diet: dietFromRestrictions(pp?.dietaryRestrictions ?? []),
+          fresh: true,
+          foodGoal: foodGoalFrom(profile?.goal, (pp as { nutritionGoal?: string } | undefined)?.nutritionGoal),
+        });
+      } else if (resources) {
         resetDraft({
           ...emptyDraft(),
           sources: resources.sources,
@@ -43,7 +54,7 @@ export default function NutritionSetupEntry() {
     return () => {
       cancelled = true;
     };
-  }, [userId]);
+  }, [userId, fresh]);
 
   return <View style={{ flex: 1, backgroundColor: COLORS.bg }} />;
 }

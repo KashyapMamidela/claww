@@ -89,6 +89,8 @@ export interface PersonalizationProfile {
   frozenDates?: string[];
   /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
   foodProfile?: FoodProfile;
+  /** The goal picked for food when the meal plan was last started over (lose, maintain, gain). */
+  nutritionGoal?: 'lose' | 'maintain' | 'gain';
 }
 
 export interface Profile {
@@ -324,11 +326,14 @@ export async function saveNutritionTargets(
   userId: string,
   targets: NutritionDefaults,
   dietaryRestrictions?: DietaryRestriction[],
-  basics?: ProfileBasicsInput
+  basics?: ProfileBasicsInput,
+  /** Extra settings saved with the targets, such as the goal picked for food when starting the meal plan over. */
+  extra?: Partial<PersonalizationProfile>
 ): Promise<boolean> {
   const profile = await getProfile(userId);
   const nextPersonalization: PersonalizationProfile = {
     ...(profile?.personalization_profile ?? {}),
+    ...(extra ?? {}),
     nutritionDefaults: targets,
     dietaryRestrictions: dietaryRestrictions ?? profile?.personalization_profile?.dietaryRestrictions,
   };

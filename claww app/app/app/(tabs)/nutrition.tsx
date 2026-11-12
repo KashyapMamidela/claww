@@ -33,7 +33,7 @@ import { Display, LargeTitle } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PressScale } from '../../components/ui/PressScale';
 import { BottomSheet } from '../../components/ui/BottomSheet';
-import { ensureMealPlans, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
+import { ensureMealPlans, onMealPlansReset, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
 import { planLine, slotLabel, slotViews, type MealSlot } from '../../lib/mealPlanView';
 import { SKIPPED } from '../../lib/catchUp';
 import { itemsText, plannedToMeal } from '../../lib/mealPlanMeal';
@@ -57,7 +57,7 @@ export default function NutritionTab() {
   const penMarks = usePenMarks(7);
   const router = useRouter();
   // Polish step 5: "Something else" on a meal reminder opens the + sheet for that meal.
-  const { search } = useLocalSearchParams<{ search?: string }>();
+  const { search, planMenu: planMenuParam } = useLocalSearchParams<{ search?: string; planMenu?: string }>();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
   const hideBar = useHideBarOnScroll('nutrition');
@@ -77,6 +77,22 @@ export default function NutritionTab() {
   const [swapMeal, setSwapMeal] = useState<PlannedMeal | null>(null);
   const [swapList, setSwapList] = useState<PlannedMeal[]>([]);
   const [logging, setLogging] = useState(false);
+  // The meal plan sheet (the ⋯ on Today's plan): change your answers, or start the plan over from scratch.
+  const [planMenu, setPlanMenu] = useState(false);
+  const [confirmStartOver, setConfirmStartOver] = useState(false);
+  // A plan rebuilt after this tab is back in view (the setup saves after closing) reloads it right away.
+  const [reloadKey, setReloadKey] = useState(0);
+  useEffect(() => onMealPlansReset(() => setReloadKey((k) => k + 1)), []);
+  // Profile's "Meal plan" row opens this tab with the sheet up.
+  useEffect(() => {
+    if (planMenuParam !== '1') return;
+    setPlanMenu(true);
+    router.setParams({ planMenu: undefined });
+  }, [planMenuParam, router]);
+  const closePlanMenu = () => {
+    setPlanMenu(false);
+    setConfirmStartOver(false);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -106,7 +122,7 @@ export default function NutritionTab() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, reloadKey])
   );
 
   useEffect(() => () => {
@@ -397,6 +413,13 @@ export default function NutritionTab() {
               <SectionHeader>{allLogged ? 'Today' : plan ? "Today's plan" : "Today's meals"}</SectionHeader>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 1, marginLeft: 12 }}>
                 <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{allLogged ? `${loggedCount} meals logged` : plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+                {targets ? (
+                  <PressScale onPress={() => setPlanMenu(true)} accessibilityRole="button" accessibilityLabel="Meal plan options" hitSlop={4}>
+                    <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name="more-horizontal" size={20} color={COLORS.textMuted} />
+                    </View>
+                  </PressScale>
+                ) : null}
                 {missedSlots.length > 0 ? (
                   <PressScale onPress={() => setShowMissed((x) => !x)} accessibilityRole="button" accessibilityState={{ expanded: showMissed }} accessibilityLabel={showMissed ? 'Hide meals you have not logged' : 'Show meals you have not logged'} hitSlop={4}>
                     <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
@@ -619,6 +642,46 @@ export default function NutritionTab() {
 
       <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
       <FoodSearchSheet visible={searchOpen} mealType={searchFor ?? addType} recent={recent} planned={!!upSlot?.planned} onClose={() => { setSearchOpen(false); setSearchFor(null); }} onLogged={afterOtherLog} />
+
+      <BottomSheet visible={planMenu} onClose={closePlanMenu}>
+        <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 10 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>Your meal plan</Text>
+          {targets ? (
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], marginBottom: 4, fontFamily: BG[400] }}>
+              {targets.calories.toLocaleString('en-IN')} kcal · {targets.protein_g} g protein a day
+            </Text>
+          ) : null}
+          {confirmStartOver ? (
+            <View style={{ gap: 10 }}>
+              <Surface padding={16}>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Start your meal plan over?</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: BG[400] }}>
+                  You'll answer the setup again from a blank page and pick a goal. Your calorie and protein targets are worked out again from your weight today, and today's and tomorrow's meals are planned again. Meals you've logged stay.
+                </Text>
+              </Surface>
+              <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} icon={<Icon name="refresh-cw" size={16} color="#fff" />} onPress={() => { closePlanMenu(); router.push({ pathname: '/nutrition-setup', params: { fresh: '1' } }); }}>
+                Start over
+              </Button>
+              <Button variant="ghost" size="lg" fullWidth onPress={() => setConfirmStartOver(false)}>
+                Keep my plan
+              </Button>
+            </View>
+          ) : (
+            <>
+              <Button variant="secondary" size="lg" fullWidth accent={G} icon={<Icon name="pencil" size={16} color={G} />} onPress={() => { closePlanMenu(); router.push('/nutrition-setup'); }}>
+                Change what you can get
+              </Button>
+              <Button variant="secondary" size="lg" fullWidth accent={G} icon={<Icon name="utensils" size={16} color={G} />} onPress={() => { closePlanMenu(); router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }); }}>
+                Cuisines and foods to avoid
+              </Button>
+              {/* Starting over replaces the targets, so it's the quiet last option and asks first. */}
+              <Button variant="ghost" size="lg" fullWidth icon={<Icon name="refresh-cw" size={16} color="#A1A1AA" />} onPress={() => setConfirmStartOver(true)}>
+                Start my meal plan over
+              </Button>
+            </>
+          )}
+        </View>
+      </BottomSheet>
 
       <BottomSheet visible={swapMeal !== null} onClose={() => setSwapMeal(null)}>
         <View style={{ padding: 20, gap: 12 }}>

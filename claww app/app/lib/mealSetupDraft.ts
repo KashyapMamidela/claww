@@ -1,6 +1,7 @@
 // NG PHASE 6: the answers of the three-step meal setup, kept in memory between the steps so Back and Change
 // never lose anything. Nothing is saved until the last step. Pure module state; tests reset it.
 
+import type { FoodGoal } from './mealPlanReset';
 import { defaultAvailability, defaultBudget, mergeEdits, type AvailabilityMap, type Cook, type Diet, type FoodKey, type Source } from './resourceDefaults';
 
 export interface MealSetupDraft {
@@ -14,6 +15,10 @@ export interface MealSetupDraft {
   planStyle: 'same' | 'varied';
   /** Height, weight and age typed in step 1 when the profile did not have them. */
   basics?: { height: number; weight: number; age: number };
+  /** "Start my meal plan over": a blank setup that also works out new targets from today's numbers. */
+  fresh?: boolean;
+  /** The goal for food, asked only when starting over. */
+  foodGoal?: FoodGoal;
 }
 
 export const emptyDraft = (): MealSetupDraft => ({ sources: [], cookWith: [], diet: null, edits: {}, budget: null, planStyle: 'same' });
