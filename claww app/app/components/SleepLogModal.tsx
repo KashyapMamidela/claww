@@ -176,8 +176,8 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             </View>
           )}
 
-          <Button variant="primary" size="lg" fullWidth accent={SLEEP} accentDeep="#4F46E5" disabled={!ready || saving} onPress={step === 'bedtime' ? () => setStep('wake') : handleSave}>
-            {step === 'bedtime' ? 'Next' : saving ? 'Saving…' : 'Log sleep'}
+          <Button variant="primary" size="lg" fullWidth accent={SLEEP} accentDeep="#4F46E5" saving={saving} disabled={!ready} onPress={step === 'bedtime' ? () => setStep('wake') : handleSave}>
+            {step === 'bedtime' ? 'Next' : 'Log sleep'}
           </Button>
         </View>
     </BottomSheet>

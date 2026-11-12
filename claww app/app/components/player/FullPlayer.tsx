@@ -5,7 +5,7 @@ import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, Keyframe, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { AREA_COLORS, COLORS, FONT, FONT_HAND, SURFACES, BG, bg } from '../../lib/theme';
 import { useWorkoutSession } from '../../lib/workoutSession';
@@ -75,6 +75,13 @@ export interface FullPlayerProps {
 function restText(sec: number): string {
   return sec >= 60 ? `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}` : `${sec} s`;
 }
+
+// Set done: the next set's numbers rise 8 pt into place as they fade in (180 ms, strong ease-out), so logging a set
+// visibly moves you on. The tick and the light haptic come from the Done path.
+const SET_IN = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: 8 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }], easing: Easing.bezier(0.23, 1, 0.32, 1) },
+}).duration(180);
 
 export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   useRenderCount('FullPlayer');
@@ -294,7 +301,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
 
                     {/* Premium X5: the current set is the screen: its number is huge, everything else is a slim row. */}
                     {currentRow ? (
-                      <View style={{ alignItems: 'center', gap: 6, paddingVertical: 8 }}>
+                      <Animated.View key={`${exerciseIndex}-${setIndex}`} entering={reduced ? undefined : SET_IN} style={{ alignItems: 'center', gap: 6, paddingVertical: 8 }}>
                         <Text style={{ color: COLORS.textMuted, fontSize: 12, letterSpacing: 0.96, fontFamily: BG[800] }}>
                           SET {setIndex + 1} OF {state.rows.length}
                           {rowHint(currentRow, true, repMax) ? ` \u00b7 ${rowHint(currentRow, true, repMax)!.toUpperCase()}` : ''}
@@ -313,7 +320,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                             {currentRow.weight > 0 ? '' : <Text style={{ color: COLORS.textMuted, fontSize: 24, fontWeight: '700' }}> reps</Text>}
                           </Text>
                         </Pressable>
-                      </View>
+                      </Animated.View>
                     ) : null}
 
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 }} accessibilityLabel={`${state.rows.filter((r) => r.done).length} of ${state.rows.length} sets done`}>

@@ -93,8 +93,8 @@ export function ActivityCard({ userId, onLogged }: { userId: string | null; onLo
             incrementDisabled={minutes >= ACTIVITY_MINUTES_MAX}
           />
           {error ? <ErrorCard message={error} onRetry={save} retrying={saving} /> : null}
-          <Button variant="primary" accent={C} size="lg" fullWidth disabled={!name || saving} onPress={save}>
-            {saving ? 'Saving…' : 'Log activity'}
+          <Button variant="primary" accent={C} size="lg" fullWidth saving={saving} disabled={!name} onPress={save}>
+            Log activity
           </Button>
         </View>
       </BottomSheet>
@@ -174,8 +174,8 @@ export function ActivitySheet({ visible, userId, onClose, onLogged }: { visible:
           incrementDisabled={minutes >= ACTIVITY_MINUTES_MAX}
         />
         {error ? <ErrorCard message={error} onRetry={save} retrying={saving} /> : null}
-        <Button variant="primary" accent={C} size="lg" fullWidth disabled={!name || saving} onPress={save}>
-          {saving ? 'Saving…' : 'Log activity'}
+        <Button variant="primary" accent={C} size="lg" fullWidth saving={saving} disabled={!name} onPress={save}>
+          Log activity
         </Button>
       </View>
     </BottomSheet>

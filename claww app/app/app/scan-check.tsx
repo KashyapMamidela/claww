@@ -310,7 +310,7 @@ export default function ScanCheckScreen() {
     }
     replanToday(userId, [...meals, row]).catch(() => {});
     setScanSession(null);
-    // The button stays on "Logging…" while the screen closes: flipping it back mid-transition made Android crash
+    // The button stays on its tick while the screen closes: flipping it back mid-transition made Android crash
     // ("View already has a parent") when the screen below gained the new meal.
     router.dismissTo('/(tabs)/nutrition');
   };
@@ -562,8 +562,8 @@ export default function ScanCheckScreen() {
       </ScrollView>
 
       <View style={{ position: 'absolute', left: 16, right: 16, bottom: insets.bottom + 12 }}>
-        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving || items.length === 0 || unmatched.length > 0} onPress={log} icon={<Icon name="check" size={18} color="#fff" />}>
-          {saving ? (editing ? 'Saving…' : 'Logging…') : unmatched.length > 0 ? 'Pick a food for each item first' : editing ? 'Save changes' : 'Looks right, log it'}
+        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth saving={saving} disabled={items.length === 0 || unmatched.length > 0} onPress={log} icon={<Icon name="check" size={18} color="#fff" />}>
+          {unmatched.length > 0 ? 'Pick a food for each item first' : editing ? 'Save changes' : 'Looks right, log it'}
         </Button>
       </View>
 

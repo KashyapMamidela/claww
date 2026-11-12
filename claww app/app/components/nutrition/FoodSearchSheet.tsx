@@ -218,8 +218,8 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, in
             </Text>
             {!picked.reviewed ? <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: BG[400] }}>Values are from the food database and are still being reviewed.</Text> : null}
             {error ? <ErrorCard message={error} onRetry={log} retrying={saving} /> : null}
-            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={saving} onPress={log}>
-              {saving ? 'Saving…' : onPickFood ? 'Add to the plate' : 'Check and log'}
+            <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth saving={saving} onPress={log}>
+              {onPickFood ? 'Add to the plate' : 'Check and log'}
             </Button>
           </>
         ) : (

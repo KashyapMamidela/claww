@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Text, View } from 'react-native';
 import { COLORS, FONT, SURFACES, BG, bg } from '../../lib/theme';
 import { Icon } from './Icon';
@@ -20,9 +20,35 @@ export interface StepperProps {
   label: string;
 }
 
+// Hold a button to keep stepping: after 350 ms it repeats every 90 ms, so 20 kg is one hold instead of eight taps.
 function StepButton({ icon, onPress, disabled, a11y }: { icon: string; onPress: () => void; disabled?: boolean; a11y: string }) {
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const latest = useRef(onPress);
+  latest.current = onPress;
+  const stop = () => {
+    if (timer.current) clearInterval(timer.current);
+    timer.current = null;
+  };
+  useEffect(() => stop, []);
+  useEffect(() => {
+    if (disabled) stop();
+  }, [disabled]);
   return (
-    <PressScale onPress={onPress} disabled={disabled} scaleTo={0.92} accessibilityRole="button" accessibilityLabel={a11y} accessibilityState={{ disabled: !!disabled }}>
+    <PressScale
+      onPress={onPress}
+      onLongPress={() => {
+        stop();
+        latest.current();
+        timer.current = setInterval(() => latest.current(), 90);
+      }}
+      delayLongPress={350}
+      onPressOut={stop}
+      disabled={disabled}
+      scaleTo={0.92}
+      accessibilityRole="button"
+      accessibilityLabel={a11y}
+      accessibilityState={{ disabled: !!disabled }}
+    >
       <View
         style={{
           width: 44,

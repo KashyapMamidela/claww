@@ -137,8 +137,8 @@ export default function BarcodeScreen() {
                 </Text>
               );
             })()}
-            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} disabled={saving} onPress={log}>
-              {saving ? 'Saving…' : `Log as ${mealType.toLowerCase()}`}
+            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} saving={saving} onPress={log}>
+              {`Log as ${mealType.toLowerCase()}`}
             </Button>
           </View>
         ) : null}

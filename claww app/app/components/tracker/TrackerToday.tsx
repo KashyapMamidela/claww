@@ -360,8 +360,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
             style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: weightText ? COLORS.borderStrong : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 22, paddingHorizontal: 16, fontFamily: BG[800] }}
           />
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Weigh yourself at the same time each week for a clean trend.</Text>
-          <Button variant="primary" size="lg" fullWidth disabled={parseWeight(weightText) === null || savingWeight} onPress={saveWeight}>
-            {savingWeight ? 'Saving…' : 'Save weight'}
+          <Button variant="primary" size="lg" fullWidth saving={savingWeight} disabled={parseWeight(weightText) === null} onPress={saveWeight}>
+            Save weight
           </Button>
         </View>
       </BottomSheet>

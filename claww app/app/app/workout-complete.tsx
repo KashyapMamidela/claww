@@ -20,10 +20,14 @@ import { weekdayIndex } from '../lib/trainingWeek';
 import { notificationsSupported } from '../lib/notifications';
 import { requestAppReview } from '../lib/rating';
 import { Button } from '../components/ui/Button';
+import { sessionName } from '../lib/format';
 import { Hero } from '../components/ui/Hero';
 import { Icon } from '../components/ui/Icon';
 import { Segmented } from '../components/ui/Segmented';
 import { Surface } from '../components/ui/Surface';
+import { ProgressRing } from '../components/ui/ProgressRing';
+import { CountUp } from '../components/ui/CountUp';
+import * as haptics from '../lib/haptics';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
 import { ShareCard } from '../components/workouts/ShareCard';
 import { track, AnalyticsEvent } from '../lib/analytics';
@@ -184,10 +188,21 @@ export default function WorkoutCompleteScreen() {
     }
   }, [best]);
 
-  const tile = (value: string, label: string) => (
-    <View style={{ flex: 1, minHeight: 88, borderRadius: 16, borderWidth: 1, borderColor: 'rgba(255,255,255,0.20)', backgroundColor: 'rgba(255,255,255,0.10)', padding: 14, justifyContent: 'center' }}>
-      <Text style={{ color: '#fff', fontSize: 22, letterSpacing: -0.5, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>
-      <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
+  // The app's one big moment: the sets ring closes once (700 ms) while the volume counts up in its middle, then a
+  // single haptic lands with it. A new best has its own moment (PrMoment), so it doesn't buzz twice.
+  const volumeId = useRef(`complete.volume.${Date.now()}`).current;
+  const setsPct = summary && summary.totalSetsPlanned > 0 ? Math.min(100, (summary.setsCompleted / summary.totalSetsPlanned) * 100) : summary ? 100 : 0;
+  const buzzed = useRef(false);
+  useEffect(() => {
+    if (!summary || buzzed.current || best) return;
+    buzzed.current = true;
+    const t = setTimeout(() => (setsPct >= 100 ? haptics.success() : haptics.setDone()), 700);
+    return () => clearTimeout(t);
+  }, [summary, best, setsPct]);
+  const stat = (value: string, label: string) => (
+    <View>
+      <Text style={{ color: '#fff', fontSize: 20, letterSpacing: -0.4, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>
+      <Text style={{ color: 'rgba(255,255,255,0.72)', fontSize: 13, fontFamily: BG[400] }}>{label}</Text>
     </View>
   );
 
@@ -207,7 +222,7 @@ export default function WorkoutCompleteScreen() {
         <Hero variant="blue" accessibilityLabel={`${title}. ${minutes} minutes, ${summary?.setsCompleted ?? 0} sets`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, letterSpacing: 0.9, flex: 1, fontFamily: BG[700] }}>
-              {`${(summary?.focus || 'Workout').toUpperCase()} · COMPLETE`}
+              {`${(summary?.focus ? sessionName(summary.focus) : 'Workout').toUpperCase()} · COMPLETE`}
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.55)', backgroundColor: 'rgba(245,158,11,0.16)', paddingHorizontal: 10, paddingVertical: 5 }}>
               <Icon name="sparkles" size={13} color={COLORS.amber} />
@@ -217,13 +232,17 @@ export default function WorkoutCompleteScreen() {
           <Text style={{ color: '#fff', fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: BG[800] }}>
             {title},{'\n'}{userName ? userName.charAt(0).toUpperCase() + userName.slice(1) : 'you'}.
           </Text>
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
-            {tile(`${minutes} min`, 'time')}
-            {tile(`${summary?.setsCompleted ?? 0} ${summary?.setsCompleted === 1 ? 'set' : 'sets'}`, setsLine)}
-          </View>
-          <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
-            {tile(`${volume.toLocaleString('en-IN')} kg`, delta ? `volume · ${delta.text}` : 'volume')}
-            {tile(String(kcal), 'kcal burned (estimate)')}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 20, marginTop: 18 }}>
+            <ProgressRing size={140} rings={[{ r: 62, strokeWidth: 10, color: '#FFFFFF', pct: setsPct, track: 'rgba(255,255,255,0.16)' }]} trackColor="rgba(255,255,255,0.16)">
+              <CountUp id={volumeId} value={volume} format={(n) => Math.round(n).toLocaleString('en-IN')} textStyle={{ color: '#fff', fontSize: 26, letterSpacing: -0.6, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} />
+              <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, fontFamily: BG[400] }}>kg lifted</Text>
+              {delta ? <Text style={{ color: '#fff', fontSize: 13, marginTop: 2, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{delta.text} vs last</Text> : null}
+            </ProgressRing>
+            <View style={{ flex: 1, gap: 12 }}>
+              {stat(`${summary?.setsCompleted ?? 0} ${summary?.setsCompleted === 1 ? 'set' : 'sets'}`, setsLine)}
+              {stat(`${minutes} min`, 'time')}
+              {stat(`${kcal} kcal`, 'burned, estimated')}
+            </View>
           </View>
         </Hero>
 
@@ -241,7 +260,7 @@ export default function WorkoutCompleteScreen() {
             {bestNext ? (
               <View style={{ borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: FONT_HAND }}>
-                  next {(summary?.focus || 'session').toLowerCase()}: {Math.round(bestNext * 100) / 100} kg
+                  next {summary?.focus ? sessionName(summary.focus) : 'session'}: {Math.round(bestNext * 100) / 100} kg
                 </Text>
                 <Icon name="arrow-up-right" size={16} color={COLORS.fg} />
               </View>
@@ -277,10 +296,15 @@ export default function WorkoutCompleteScreen() {
 
         {showNotificationPrompt && userId ? <NotificationPromptCard userId={userId} onDismiss={() => setShowNotificationPrompt(false)} /> : null}
 
-        <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
+        <View style={{ height: 84 }} />
+      </ScrollView>
+
+      {/* Share and Done stay pinned at the bottom, so the way out is always in reach. */}
+      <View style={{ position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 16, paddingTop: 12, paddingBottom: Math.max(insets.bottom, 12), backgroundColor: 'rgba(5,5,5,0.94)', borderTopWidth: 1, borderTopColor: COLORS.border }}>
+        <View style={{ flexDirection: 'row', gap: 12 }}>
           <View style={{ flex: 0.9 }}>
-            <Button variant="secondary" size="lg" fullWidth onPress={share} disabled={sharing} icon={<Icon name="share-2" size={16} color={A} />}>
-              {sharing ? 'Preparing…' : 'Share card'}
+            <Button variant="secondary" size="lg" fullWidth onPress={share} saving={sharing} icon={<Icon name="share-2" size={16} color={A} />}>
+              Share card
             </Button>
           </View>
           <View style={{ flex: 1.1 }}>
@@ -289,8 +313,7 @@ export default function WorkoutCompleteScreen() {
             </Button>
           </View>
         </View>
-        <View style={{ height: Math.max(insets.bottom, 8) }} />
-      </ScrollView>
+      </View>
 
       {best ? (
         <PrMoment

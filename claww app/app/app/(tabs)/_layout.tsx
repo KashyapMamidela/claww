@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getMarks } from '../../lib/penData';
 import { View } from 'react-native';
 import { TabScene } from '../../components/ui/TabScene';
@@ -16,6 +16,8 @@ import { TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { useRenderCount } from '../../lib/perf';
 import { useQuickLog } from '../../components/QuickLog';
 
+const TAB_NAMES = ['index', 'workouts', 'nutrition', 'tracker'];
+
 export default function TabsLayout() {
   useRenderCount('TabsLayout');
   const pathname = usePathname();
@@ -23,7 +25,12 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const { status, endSession } = useWorkoutSession();
 
-  const routeName = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
+  const pathTab = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
+  // While a screen opens over the tabs (session complete, profile), the path isn't a tab: keep the last tab, so the
+  // header behind it never loses its title for a moment.
+  const lastTab = useRef('index');
+  if (TAB_NAMES.includes(pathTab)) lastTab.current = pathTab;
+  const routeName = lastTab.current;
   const { userName, userId } = useAppState();
   useEffect(() => { setCurrentTab(routeName); }, [routeName]);
   // Premium F2: the widgets open the Quick log sheet (?quicklog=1) or the activity sheet (?quicklog=activity) through a link.

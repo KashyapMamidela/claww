@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Image, Modal, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { BottomSheet } from './ui/BottomSheet';
 import { COLORS, FONT, BG, bg } from '../lib/theme';
 import type { MealLogRow } from '../lib/data';
 import { Icon } from './ui/Icon';
@@ -83,29 +84,19 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
   };
 
   return (
-    <Modal visible={!!meal} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.65)', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <View
-          style={{
-            width: '100%',
-            maxWidth: 380,
-            backgroundColor: COLORS.card,
-            borderWidth: 1,
-            borderColor: COLORS.border,
-            borderRadius: 18,
-            overflow: 'hidden',
-          }}
-        >
+    // A bottom sheet like the rest of the app: drag or tap outside to close, so there's no separate Close button.
+    <BottomSheet visible={!!meal} onClose={onClose}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 12, gap: 14 }} showsVerticalScrollIndicator={false}>
           {meal && showPhoto ? (
             <Image
               source={{ uri: photoUrl }}
               onError={() => setPhotoFailed(true)}
-              style={{ width: '100%', aspectRatio: 4 / 3, backgroundColor: COLORS.greenGlow }}
+              style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 20, backgroundColor: COLORS.greenGlow }}
               resizeMode="cover"
             />
           ) : null}
           {meal && (
-            <View style={{ padding: 20, gap: 14 }}>
+            <View style={{ gap: 14 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 {!showPhoto ? (
                   <View
@@ -207,24 +198,9 @@ export function MealDetailModal({ meal, onClose }: MealDetailModalProps) {
               )}
               {actionError ? <Text style={{ color: '#F87171', fontSize: 13, fontFamily: BG[400] }}>{actionError}</Text> : null}
 
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={onClose}
-                style={{
-                  height: 48,
-                  borderRadius: 14,
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginTop: 4,
-                }}
-              >
-                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Close</Text>
-              </TouchableOpacity>
             </View>
           )}
-        </View>
-      </View>
-    </Modal>
+      </ScrollView>
+    </BottomSheet>
   );
 }

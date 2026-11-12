@@ -177,8 +177,10 @@ export default function DiaryScreen() {
           </View>
         ) : null}
 
-        {rated.map(({ meal: m, rating, reason }) => {
+        {rated.map(({ meal: m, rating, reason }, idx) => {
           const expanded = open === m.id;
+          // The same kind line on every meal reads like a template: say it once, on the first meal it applies to.
+          const repeat = !!reason && rated.slice(0, idx).some((x) => x.reason === reason);
           const n = m.nutrients;
           const chips: [string, number | null | undefined, string][] = [
             ['Iron', n?.ironMg, 'mg'],
@@ -198,7 +200,7 @@ export default function DiaryScreen() {
               macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} · C ${Math.round(m.carbs_g ?? 0)} · F ${Math.round(m.fats_g ?? 0)}`}
               photoPath={m.photo_url}
               rating={rating}
-              reason={reason}
+              reason={repeat ? undefined : reason}
               onPress={() => setOpen(expanded ? null : m.id)}
             >
               {expanded ? (

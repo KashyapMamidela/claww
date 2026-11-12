@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Text, View, ViewStyle, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONT, BG, bg } from '../../lib/theme';
 import { MOTION } from '../../lib/motion';
 import { PressScale } from './PressScale';
+import { Icon } from './Icon';
 
 // One spec for every button in the app: three heights on a 4-point step, radius that grows with the height, and the
 // small size gets extra tap area so it still meets the 44 pt target.
@@ -28,7 +30,15 @@ export interface ButtonProps {
   fullWidth?: boolean;
   onPress?: () => void;
   style?: ViewStyle;
+  /**
+   * The save is on its way. Instead of the label changing to "Saving…", the label fades out and a tick fades in
+   * (200 ms), assuming success; presses are ignored meanwhile. The caller sets it back to false on failure, which
+   * brings the label back, and shows the error.
+   */
+  saving?: boolean;
 }
+
+const EASE = Easing.bezier(0.23, 1, 0.32, 1);
 
 export function Button({
   children,
@@ -41,7 +51,16 @@ export function Button({
   fullWidth = false,
   onPress,
   style,
+  saving = false,
 }: ButtonProps) {
+  const t = useSharedValue(saving ? 1 : 0);
+  useEffect(() => {
+    t.set(withTiming(saving ? 1 : 0, { duration: 200, easing: EASE }));
+  }, [saving, t]);
+  // Both layers are always mounted (only opacity changes), so the tree never changes under the gradient.
+  const labelStyle = useAnimatedStyle(() => ({ opacity: 1 - t.get(), transform: [{ scale: 1 - 0.08 * t.get() }] }));
+  const tickStyle = useAnimatedStyle(() => ({ opacity: t.get(), transform: [{ scale: 0.8 + 0.2 * t.get() }] }));
+  const press = saving ? undefined : onPress;
   const s = SIZES[size];
   // The default blue gets its deeper shade everywhere, so every primary button has the same gradient.
   const deep = accentDeep || (accent.toLowerCase() === COLORS.blue.toLowerCase() ? COLORS.blueDeep : accent);
@@ -53,9 +72,14 @@ export function Button({
   );
 
   const inner = (color: string) => (
-    <View style={[styles.inner, { gap: s.gap }]}>
-      {icon}
-      {label(color)}
+    <View>
+      <Animated.View style={[styles.inner, { gap: s.gap }, labelStyle]}>
+        {icon}
+        {label(color)}
+      </Animated.View>
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.inner, tickStyle]}>
+        <Icon name="check" size={s.fontSize + 3} color={color} strokeWidth={3} />
+      </Animated.View>
     </View>
   );
 
@@ -73,11 +97,11 @@ export function Button({
     return (
       <PressScale
         disabled={disabled}
-        onPress={onPress}
+        onPress={press}
         scaleTo={MOTION.pressScale}
         style={fullWidth ? { alignSelf: 'stretch' } : undefined}
         accessibilityRole="button"
-        accessibilityState={{ disabled }}
+        accessibilityState={{ disabled, busy: saving }}
         hitSlop={size === 'lg' ? undefined : size === 'md' ? 2 : 6}
       >
         <LinearGradient
@@ -107,11 +131,11 @@ export function Button({
   return (
     <PressScale
       disabled={disabled}
-      onPress={onPress}
+      onPress={press}
       scaleTo={MOTION.pressScale}
       style={[base, variantStyle, fullWidth && { alignSelf: 'stretch' }, style]}
       accessibilityRole="button"
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled, busy: saving }}
       hitSlop={size === 'lg' ? undefined : size === 'md' ? 2 : 6}
     >
       {inner(textColor)}

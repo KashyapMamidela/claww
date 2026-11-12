@@ -439,8 +439,8 @@ export default function MealLogScreen() {
           ) : null}
 
           <View style={{ marginTop: 24, gap: 10 }}>
-            <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth disabled={saving} onPress={handleConfirmLog}>
-              {saving ? 'Logging…' : 'Looks good, log it'}
+            <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth saving={saving} onPress={handleConfirmLog}>
+              Looks good, log it
             </Button>
             <Button variant="ghost" size="md" fullWidth onPress={handleEditEstimate} disabled={saving}>
               Edit meal instead

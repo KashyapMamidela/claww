@@ -272,8 +272,8 @@ export default function WorkoutSetup() {
 
           {error ? <ErrorCard message={error} onRetry={submit} retrying={saving} /> : null}
 
-          <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={saving || !basicsOk || !userId} onPress={submit}>
-            {saving ? 'Saving…' : 'Use this plan'}
+          <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth saving={saving} disabled={!basicsOk || !userId} onPress={submit}>
+            Use this plan
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>
