@@ -52,6 +52,8 @@ const timeText = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '
 /** Premium N3: each macro keeps its own colour everywhere: protein pink, carbs amber, fat sky blue. */
 const MACRO = { protein: '#F472B6', carbs: '#F59E0B', fat: '#38BDF8' } as const;
 
+let foodCache: { userId: string; day: string; targets: NutritionDefaults | null; plan: StoredPlan | null } | null = null;
+
 export default function NutritionTab() {
   const { userId, meals, saveMeal, removeMeal } = useAppState();
   const penMarks = usePenMarks(7);
@@ -62,8 +64,11 @@ export default function NutritionTab() {
   const tabPad28 = useTabBottomPad(28);
   const hideBar = useHideBarOnScroll('nutrition');
   const pull = usePullToRefresh('#22C55E');
-  const [targets, setTargets] = useState<NutritionDefaults | null>(null);
-  const [targetsLoaded, setTargetsLoaded] = useState(false);
+  // Kept for the day so coming back to Food shows the last targets and plan at once instead of skeletons.
+  const cachedFood = foodCache && foodCache.userId === userId && foodCache.day === new Date().toDateString() ? foodCache : null;
+  const [targets, setTargets] = useState<NutritionDefaults | null>(cachedFood?.targets ?? null);
+  const [targetsLoaded, setTargetsLoaded] = useState(!!cachedFood);
+  const [planLoaded, setPlanLoaded] = useState(!!cachedFood);
   const [askFoodProfile, setAskFoodProfile] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealLogRow | null>(null);
   const [usuals, setUsuals] = useState<Usual[]>([]);
@@ -71,7 +76,7 @@ export default function NutritionTab() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchFor, setSearchFor] = useState<MealType | null>(null); // a missed meal being answered with Something else
   const toast = useToast();
-  const [plan, setPlan] = useState<StoredPlan | null>(null);
+  const [plan, setPlan] = useState<StoredPlan | null>(cachedFood?.plan ?? null);
   const mealsRef = useRef(meals);
   mealsRef.current = meals;
   const [swapMeal, setSwapMeal] = useState<PlannedMeal | null>(null);
@@ -102,12 +107,15 @@ export default function NutritionTab() {
         if (cancelled) return;
         const t = profile?.personalization_profile?.nutritionDefaults ?? null;
         setTargets(t);
+        if (userId) foodCache = { userId, day: new Date().toDateString(), targets: t, plan: foodCache?.userId === userId ? foodCache.plan : null };
         setAskFoodProfile(shouldAskFoodProfile(!!t, normalizeFoodProfile(profile?.personalization_profile?.foodProfile)));
         setTargetsLoaded(true);
       });
       ensureMealPlans(userId).then(async (p) => {
         if (cancelled) return;
         setPlan(p);
+        setPlanLoaded(true);
+        foodCache = { userId, day: new Date().toDateString(), targets: foodCache?.userId === userId ? foodCache.targets : null, plan: p };
         // Something other than the plan was eaten (a photo log, a usual): plan the rest of the day again.
         if (p && mealsRef.current.some((m) => m.plan_status !== 'as_planned')) {
           const re = await replanToday(userId, mealsRef.current);
@@ -412,7 +420,7 @@ export default function NutritionTab() {
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <SectionHeader>{allLogged ? 'Today' : plan ? "Today's plan" : "Today's meals"}</SectionHeader>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 1, marginLeft: 12 }}>
-                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{allLogged ? `${loggedCount} meals logged` : plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{allLogged ? `${loggedCount} meals logged` : plan ? planLine(plan) : planLoaded ? 'set up your meals for a plan' : ''}</Text>
                 {targets ? (
                   <PressScale onPress={() => setPlanMenu(true)} accessibilityRole="button" accessibilityLabel="Meal plan options" hitSlop={4}>
                     <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
@@ -588,7 +596,7 @@ export default function NutritionTab() {
                 </View>
               );
             })}
-            {!plan && targetsLoaded ? (
+            {!plan && targetsLoaded && planLoaded ? (
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
                 Finish "Set up your meals" and your three meals a day are planned from what you can get.
               </Text>

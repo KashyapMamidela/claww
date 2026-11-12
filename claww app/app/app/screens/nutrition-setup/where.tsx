@@ -61,6 +61,35 @@ export default function MealSetupWhere() {
     router.push('/screens/nutrition-setup/foods');
   };
 
+  const basicsBlock = (
+    known && !editing ? (
+            <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg', 'age'])} accent={G} onEdit={() => setEditing(true)} />
+          ) : showInputs ? (
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {[
+                ['Height', 'cm', height, setHeight],
+                ['Weight', 'kg', weight, setWeight],
+                ['Age', 'years', age, setAge],
+              ].map(([label, unit, value, set]) => (
+                <View key={label as string} style={{ flex: 1, minWidth: 0, gap: 6 }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[500] }}>
+                    {label as string} <Text style={{ color: COLORS.textFaint }}>· {unit as string}</Text>
+                  </Text>
+                  <TextInput
+                    value={value as string}
+                    onChangeText={set as (v: string) => void}
+                    placeholder={label as string}
+                    placeholderTextColor={COLORS.textFaint}
+                    keyboardType="numeric"
+                    accessibilityLabel={`${label as string} in ${unit as string}`}
+                    style={{ height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, paddingHorizontal: 12, fontFamily: BG[700] }}
+                  />
+                </View>
+              ))}
+            </View>
+          ) : null
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={1} sub="what you can get" />
@@ -74,38 +103,23 @@ export default function MealSetupWhere() {
               </Text>
               <SectionHeader>Your goal for food</SectionHeader>
               <Segmented options={FOOD_GOALS} value={draft.foodGoal ?? 'maintain'} onChange={(g) => update({ foodGoal: g })} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="Your goal for food" />
-              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Check your numbers below: your targets are worked out from them.</Text>
             </View>
           ) : null}
+          {draft.fresh && showInputs ? (
+            <View style={{ gap: 4, marginTop: 6 }}>
+              <SectionHeader>Your numbers</SectionHeader>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Your targets are worked out from these.</Text>
+            </View>
+          ) : null}
+          {draft.fresh ? basicsBlock : null}
           <Text style={{ color: COLORS.fg, fontSize: draft.fresh ? 22 : 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: draft.fresh ? 28 : 32, marginTop: draft.fresh ? 8 : 0, fontFamily: BG[800] }}>Where does your food come from?</Text>
           {draft.fresh ? null : (
             <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
               Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
             </Text>
           )}
+          {draft.fresh ? null : basicsBlock}
 
-          {known && !editing ? (
-            <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg', 'age'])} accent={G} onEdit={() => setEditing(true)} />
-          ) : showInputs ? (
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              {[
-                ['Height (cm)', height, setHeight],
-                ['Weight (kg)', weight, setWeight],
-                ['Age', age, setAge],
-              ].map(([ph, value, set]) => (
-                <TextInput
-                  key={ph as string}
-                  value={value as string}
-                  onChangeText={set as (v: string) => void}
-                  placeholder={ph as string}
-                  placeholderTextColor={COLORS.textFaint}
-                  keyboardType="numeric"
-                  accessibilityLabel={ph as string}
-                  style={{ flex: 1, minWidth: 0, height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, paddingHorizontal: 12, fontFamily: BG[700] }}
-                />
-              ))}
-            </View>
-          ) : null}
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {SOURCES.map((s) => {

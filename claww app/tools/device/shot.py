@@ -14,6 +14,17 @@ def sh(*a):
     subprocess.run([ADB, 'shell', *a], capture_output=True)
 
 
+def guard():
+    # Never touch the phone unless CLAWW is in front and no call is ringing or active.
+    w = subprocess.run([ADB, 'shell', 'dumpsys', 'window'], capture_output=True, text=True).stdout
+    focus = next((l for l in w.splitlines() if 'mCurrentFocus' in l), '')
+    t = subprocess.run([ADB, 'shell', 'dumpsys', 'telephony.registry'], capture_output=True, text=True).stdout
+    calling = any(l.strip().startswith('mCallState=') and l.strip() != 'mCallState=0' for l in t.splitlines())
+    if 'com.claww.app' not in focus or calling:
+        print('ABORT: CLAWW not in front or a call is on:', focus.strip(), 'calling' if calling else '')
+        sys.exit(2)
+
+
 def snap(name):
     raw = subprocess.run([ADB, 'exec-out', 'screencap', '-p'], capture_output=True).stdout
     im = Image.open(io.BytesIO(raw)).convert('RGB')
@@ -25,6 +36,8 @@ def snap(name):
 
 name = sys.argv[1]
 for c in sys.argv[2:]:
+    if c.startswith(('t:', 's:')) or c == 'b':
+        guard()
     if c.startswith('t:'):
         x, y = c[2:].split(','); sh('input', 'tap', x, y); time.sleep(1.2)
     elif c.startswith('s:'):

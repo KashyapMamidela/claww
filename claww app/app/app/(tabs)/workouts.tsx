@@ -145,6 +145,9 @@ function WorkoutsEmptyState() {
 
 const MUSCLE_SET = new Set<string>(MUSCLES);
 
+// Today's numbers per plan day, kept while the app runs so returning to Train shows them at once.
+const prescriptionCache = new Map<string, PrescribedExercise[]>();
+
 export default function WorkoutsTab() {
   useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
@@ -195,6 +198,9 @@ export default function WorkoutsTab() {
   const [menuOpen, setMenuOpen] = useState(false);
   // NG PHASE 12: what the engine would prescribe for the selected day, for the marks and weights in the list.
   const [prescribed, setPrescribed] = useState<PrescribedExercise[]>([]);
+  // Which plan day `prescribed` belongs to. Until it matches the selected day the rows show placeholders, so the
+  // plan's raw numbers never flash before today's (e.g. 4 x 8 turning into 3 x 6-10).
+  const [prescribedKey, setPrescribedKey] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const exercisesY = useRef(0);
 
@@ -272,12 +278,25 @@ export default function WorkoutsTab() {
   useEffect(() => {
     if (!userId || !workout) return;
     let cancelled = false;
+    const key = `${workout.id}:${selectedDay}`;
+    const hit = prescriptionCache.get(key);
+    if (hit) {
+      setPrescribed(hit);
+      setPrescribedKey(key);
+    }
     loadDayPrescription(userId, workout, selectedDay)
       .then((p) => {
-        if (!cancelled) setPrescribed(p);
+        prescriptionCache.set(key, p);
+        if (!cancelled) {
+          setPrescribed(p);
+          setPrescribedKey(key);
+        }
       })
       .catch(() => {
-        if (!cancelled) setPrescribed([]);
+        if (!cancelled) {
+          setPrescribed([]);
+          setPrescribedKey(key);
+        }
       });
     return () => {
       cancelled = true;
@@ -653,7 +672,7 @@ export default function WorkoutsTab() {
                     index={i + 1}
                     name={ex.name}
                     sub={sub}
-                    setsText={`${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
+                    setsText={prescribedKey !== `${workout.id}:${selectedDay}` ? null : `${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
                     weightText={weight !== null && weight > 0 ? `${Math.round(weight * 100) / 100} kg` : null}
                     muscle={entry?.primaryMuscle && MUSCLE_SET.has(entry.primaryMuscle) ? (entry.primaryMuscle as Muscle) : null}
                     lastText={(lastKg[catalogKey(ex.name)] ?? 0) > 0 ? `last: ${Math.round(lastKg[catalogKey(ex.name)] * 100) / 100} kg` : null}
