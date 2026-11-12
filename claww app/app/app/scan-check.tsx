@@ -23,6 +23,7 @@ import { requestFood } from '../lib/foodRequests';
 import { useToast } from '../components/ui/Toast';
 import { Skeleton } from '../components/ui/Skeleton';
 import { ItemTags, ScanSweep } from '../components/scan/ScanEffects';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
 import { rateMeal } from '../lib/nutritionLogic';
 import { nextMealFor } from '../lib/homeMoment';
@@ -49,24 +50,55 @@ function toScanFood(f: Food): ScanFood {
   return f;
 }
 
-const READING_STEPS = ['Looking at your plate', 'Spotting each food', 'Matching them to the food list', 'Working out the amounts'];
-
-/** One line that changes every 2.5 s with a bar that fills, so a slow read still shows that something is happening. */
+/**
+ * What the reader is doing, as a short checklist. Only what has really happened is ticked: the photo is sent the moment
+ * this shows, and the reader is still working until the result arrives (this screen is replaced then). After 4 s the
+ * line says it is taking a closer look, so a slow read never looks frozen.
+ */
 function ReadingSteps() {
-  const [n, setN] = useState(0);
+  const [slow, setSlow] = useState(false);
   useEffect(() => {
-    const t = setInterval(() => setN((x) => Math.min(READING_STEPS.length - 1, x + 1)), 2500);
-    return () => clearInterval(t);
+    const t = setTimeout(() => setSlow(true), 4000);
+    return () => clearTimeout(t);
   }, []);
+  const rows: { label: string; state: 'done' | 'now' | 'next' }[] = [
+    { label: 'Photo sent', state: 'done' },
+    { label: slow ? 'Taking a closer look' : 'Finding each food', state: 'now' },
+    { label: 'Matching Indian dishes', state: 'next' },
+    { label: 'Counting katori and roti', state: 'next' },
+  ];
   return (
-    <View style={{ gap: 10 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-        <ActivityIndicator color={G} />
-        <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }} accessibilityLiveRegion="polite">{READING_STEPS[n]}…</Text>
-      </View>
-      <View style={{ height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
-        <View style={{ height: '100%', width: `${((n + 1) / READING_STEPS.length) * 100}%`, backgroundColor: G, borderRadius: 2 }} />
-      </View>
+    <View style={{ gap: 10 }} accessibilityLiveRegion="polite" accessibilityLabel={`Reading your plate. ${rows[1].label}`}>
+      {rows.map((r) => (
+        <View key={r.label} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 24 }}>
+          {r.state === 'done' ? (
+            <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: G, alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="check" size={13} color="#04210F" strokeWidth={3} />
+            </View>
+          ) : r.state === 'now' ? (
+            <PulseDot />
+          ) : (
+            <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.18)' }} />
+          )}
+          <Text style={{ color: r.state === 'next' ? COLORS.textMuted : COLORS.fg, fontSize: 16, fontFamily: BG[r.state === 'now' ? 800 : 600] }}>{r.label}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** The step in progress: a green ring that breathes. Still with Reduce motion on. */
+function PulseDot() {
+  const reduced = useReducedMotion();
+  const v = useSharedValue(0);
+  useEffect(() => {
+    if (!reduced) v.set(withRepeat(withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }), -1, true));
+  }, [reduced, v]);
+  const ring = useAnimatedStyle(() => ({ transform: [{ scale: 1 + v.get() * 0.25 }], opacity: 0.45 + (1 - v.get()) * 0.4 }));
+  return (
+    <View style={{ width: 20, height: 20, alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.View style={[{ position: 'absolute', width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: G }, ring]} />
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: G }} />
     </View>
   );
 }
