@@ -34,7 +34,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "android.permission.health.READ_STEPS",
-        "android.permission.health.READ_ACTIVE_CALORIES_BURNED"
+        "android.permission.health.READ_ACTIVE_CALORIES_BURNED",
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -211,9 +212,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "4b42d004-63a9-487e-bc2d-00ffc1354f09"
+        "projectId": "234090fb-5810-4b43-b0c9-236ff9cebddc"
       }
     },
-    "owner": "kashyapmamidela"
+    "owner": "kashyap_007"
   }
 }
