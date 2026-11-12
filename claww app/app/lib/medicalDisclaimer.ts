@@ -3,7 +3,7 @@
 // acknowledgement gate) and permanently reachable after that from Profile
 // (components/MedicalDisclaimerModal.tsx). Keeping one string means the two
 // surfaces can't drift out of sync with each other.
-export const MEDICAL_DISCLAIMER_TITLE = 'Before you start';
+export const MEDICAL_DISCLAIMER_TITLE = 'Medical disclaimer';
 
 export const MEDICAL_DISCLAIMER_BODY =
   "CLAWW isn't medical advice. Workout plans, nutrition estimates, and recovery scores are " +

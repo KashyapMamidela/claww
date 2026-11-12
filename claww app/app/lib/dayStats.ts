@@ -29,7 +29,9 @@ export function stepsKcal(steps: number, weightKg: number | null): number {
  * plus the calories of sessions and activities logged in CLAWW. Nothing at all gives null, not zero.
  */
 export function burnedKcal(i: BurnedInput): Burned {
-  if (i.healthConnectKcal !== null) return { kcal: Math.round(i.healthConnectKcal), source: 'health-connect' };
+  // Health Connect often reports 0 active kcal when no watch wrote any (a phone alone records steps, not energy).
+  // 0 next to thousands of steps reads as broken, so a 0 from it falls back to the estimate below.
+  if (i.healthConnectKcal !== null && i.healthConnectKcal > 0) return { kcal: Math.round(i.healthConnectKcal), source: 'health-connect' };
   if (i.steps === null && i.loggedKcal <= 0) return { kcal: null, source: 'none' };
   return { kcal: (i.steps !== null ? stepsKcal(i.steps, i.weightKg) : 0) + Math.round(i.loggedKcal), source: 'estimate' };
 }
@@ -41,7 +43,7 @@ export function stepsProgress(steps: number | null, goal: number): number {
 
 /** The line under the Steps card: where the number comes from, said once. */
 export function stepsSourceLine(source: 'health-connect' | 'phone' | null): string {
-  if (source === 'health-connect') return 'Watch while you wear it, phone otherwise. Never counted twice.';
+  if (source === 'health-connect') return 'From your watch when you wear it, your phone otherwise';
   if (source === 'phone') return "Counted by your phone's motion sensor.";
   return 'Connect Health Connect to count steps.';
 }

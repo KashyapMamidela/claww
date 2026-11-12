@@ -71,6 +71,11 @@ export interface FullPlayerProps {
   reason?: string | null;
 }
 
+/** 150 → "2:30", 45 → "45 s". */
+function restText(sec: number): string {
+  return sec >= 60 ? `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}` : `${sec} s`;
+}
+
 export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   useRenderCount('FullPlayer');
   const insets = useSafeAreaInsets();
@@ -157,7 +162,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
   const timedTarget = timed ? targetMinutes(modality, exercise.sets, exercise.reps) : 0;
   const metaLine = timed
     ? [muscle, `${timedTarget} min`, modality === 'cardio' ? 'cardio' : modality].filter(Boolean).join(' · ')
-    : [muscle, `${state.rows.length} sets of ${plannedReps}`, `rest ${restSecondsForExercise(exercise.name)} s`].filter(Boolean).join(' · ');
+    : [muscle ? muscle.charAt(0).toUpperCase() + muscle.slice(1) : null, `${state.rows.length} × ${plannedReps}`, `${restText(restSecondsForExercise(exercise.name))} rest`].filter(Boolean).join(' · ');
   const barbell = isBarbellLift(exercise.name);
   const barKg = profile?.bar_weight_kg && profile.bar_weight_kg > 0 ? profile.bar_weight_kg : 20;
   const markShown = !!rx && targetDiffers(rx.planWeightKg, rx.todayWeightKg);
@@ -395,7 +400,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
                           </Text>
                           {upNextRow ? (
                             <Text style={{ color: COLORS.fgGray, fontSize: 13, fontFamily: BG[400] }}>
-                              {upNextRow.weight > 0 ? `${upNextRow.weight} × ${upNextRow.reps}` : `${upNext.sets} × ${upNextRow.reps}`}
+                              {upNextRow.weight > 0 ? `${upNextRow.weight} kg × ${upNextRow.reps}` : `${upNext.sets} × ${repsText(upNext.reps, prescriptionFor(upNext.name)?.repMin ?? null, prescriptionFor(upNext.name)?.repMax ?? null)}`}
                             </Text>
                           ) : null}
                         </View>

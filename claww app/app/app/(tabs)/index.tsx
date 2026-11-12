@@ -647,9 +647,9 @@ function HomePopulated() {
                   {
                     label: 'Eaten',
                     value: Math.round(consumedKcal).toLocaleString('en-IN'),
-                    sub: targetKcal === null ? 'no target set' : `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
+                    sub: targetKcal === null ? 'no target set' : consumedKcal > targetKcal ? `· ${Math.round(consumedKcal - targetKcal).toLocaleString('en-IN')} over` : `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
                     pct: nutritionPct,
-                    color: AREA_COLORS.nutrition,
+                    color: targetKcal !== null && consumedKcal > targetKcal ? COLORS.amber : AREA_COLORS.nutrition,
                     note: nutritionNote(meals.map((m) => m.meal_type ?? '').filter(Boolean)) as string | null,
                   },
                   {

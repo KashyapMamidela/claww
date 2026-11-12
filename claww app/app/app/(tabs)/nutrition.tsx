@@ -315,9 +315,10 @@ export default function NutritionTab() {
             <Rise i={0}>
             <Surface padding={18}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
-                <ProgressRing size={size} rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G, pct: consumed === 0 ? 0 : pct }]} trackColor="rgba(255,255,255,0.055)">
+                <ProgressRing size={size} rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: goals.kcal > 0 && consumed > goals.kcal ? COLORS.amber : G, pct: consumed === 0 ? 0 : pct }]} trackColor="rgba(255,255,255,0.055)">
                   <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{consumed.toLocaleString('en-IN')}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>of {goals.kcal.toLocaleString('en-IN')} kcal</Text>
+                  {/* Over the target is stated plainly in amber, never red and never as a full green ring that reads as success. */}
+                  <Text style={{ color: goals.kcal > 0 && consumed > goals.kcal ? COLORS.amber : COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{goals.kcal > 0 && consumed > goals.kcal ? `${(consumed - goals.kcal).toLocaleString('en-IN')} over` : `of ${goals.kcal.toLocaleString('en-IN')} kcal`}</Text>
                 </ProgressRing>
                 <View style={{ flex: 1, gap: 12 }}>
                   {[
@@ -333,10 +334,10 @@ export default function NutritionTab() {
                         </View>
                         <Text style={{ fontFamily: BG[400], fontVariant: ['tabular-nums'] }}>
                           <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800' }}>{m.cur}</Text>
-                          <Text style={{ color: COLORS.textMuted, fontSize: 13 }}> / {m.goal} g</Text>
+                          <Text style={{ color: m.goal > 0 && m.cur > m.goal ? COLORS.amber : COLORS.textMuted, fontSize: 13 }}>{m.goal > 0 && m.cur > m.goal ? ` · ${m.cur - m.goal} g over` : ` / ${m.goal} g`}</Text>
                         </Text>
                       </View>
-                      <ProgressBar pct={m.goal > 0 ? (m.cur / m.goal) * 100 : 0} color={m.color} height={6} />
+                      <ProgressBar pct={m.goal > 0 ? (m.cur / m.goal) * 100 : 0} color={m.goal > 0 && m.cur > m.goal ? COLORS.amber : m.color} height={6} />
                     </View>
                   ))}
                 </View>

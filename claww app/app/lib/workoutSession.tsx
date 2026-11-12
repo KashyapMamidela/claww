@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { isBarbellLift } from './plateMath';
 import { getExerciseForms, getLastTimeSets, getProfile, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
@@ -256,6 +257,12 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         const e = dayExercises.findIndex((x) => x.name === p.name);
         if (e === -1 || !p.managed || p.prescription.weightKg === null) return;
         initial[e] = { ...initial[e], rows: initial[e].rows.map((r, s) => { touched.current.add(`${e}:${s}`); return { ...r, weight: p.prescription.weightKg as number, prescribedWeight: p.prescription.weightKg as number }; }) };
+      });
+      // A barbell lift with no weight yet starts at the empty bar (20 kg), never at 0 kg: 0 can't be loaded and the
+      // user had to tap + eight times to reach the bar. Last time's weight, if any, still replaces it once it loads.
+      dayExercises.forEach((ex, e) => {
+        if (!isBarbellLift(ex.name)) return;
+        initial[e] = { ...initial[e], rows: initial[e].rows.map((r) => (r.weight > 0 ? r : { ...r, weight: 20, prescribedWeight: 20 })) };
       });
       setPlan(initial);
       setLastTime({});

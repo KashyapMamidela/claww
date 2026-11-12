@@ -211,15 +211,15 @@ export default function WorkoutCompleteScreen() {
             </Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(245,158,11,0.55)', backgroundColor: 'rgba(245,158,11,0.16)', paddingHorizontal: 10, paddingVertical: 5 }}>
               <Icon name="sparkles" size={13} color={COLORS.amber} />
-              <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[800] }}>+{summary?.xpEarned ?? 0} CLAWW</Text>
+              <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[800] }}>+{summary?.xpEarned ?? 0} XP</Text>
             </View>
           </View>
           <Text style={{ color: '#fff', fontSize: 34, fontVariant: ['tabular-nums'], letterSpacing: -0.8, lineHeight: 38, marginTop: 14, fontFamily: BG[800] }}>
-            {title},{'\n'}{userName || 'you'}.
+            {title},{'\n'}{userName ? userName.charAt(0).toUpperCase() + userName.slice(1) : 'you'}.
           </Text>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
             {tile(`${minutes} min`, 'time')}
-            {tile(String(summary?.setsCompleted ?? 0) + ' sets', setsLine)}
+            {tile(`${summary?.setsCompleted ?? 0} ${summary?.setsCompleted === 1 ? 'set' : 'sets'}`, setsLine)}
           </View>
           <View style={{ flexDirection: 'row', gap: 10, marginTop: 10 }}>
             {tile(`${volume.toLocaleString('en-IN')} kg`, delta ? `volume · ${delta.text}` : 'volume')}
