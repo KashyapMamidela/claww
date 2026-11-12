@@ -126,12 +126,14 @@ export default function ProfileScreen() {
   const { level, xpIntoLevel, xpForNextLevel } = getLevelInfo(xp);
   const tier = getTierName(level);
   const earnedCount = achievements.filter((a) => a.earned).length;
-  const displayName = profile?.name || userName || 'Member';
+  const rawName = profile?.name || userName || 'Member';
+  // Names saved from an email come in lowercase ("kashyap"); show them the way a person writes their name.
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const goalLabel = profile?.goal ? GOAL_LABELS[profile.goal] ?? profile.goal : '—';
 
   const stats = [
     { label: 'Workouts', value: String(workoutCount), icon: 'flame', color: '#FF4500' },
-    { label: 'Total Vol', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), icon: 'zap', color: '#A855F7' },
+    { label: 'kg lifted', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), icon: 'zap', color: '#A855F7' },
     { label: 'XP', value: xp.toLocaleString(), icon: 'trophy', color: P },
     { label: 'Streak', value: `${streak}d`, icon: 'star', color: '#00D68F' },
   ];
@@ -179,7 +181,7 @@ export default function ProfileScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <View><Badge color={P}>MY PROFILE</Badge></View>
+          <Text style={{ color: "#fff", fontSize: 28, fontFamily: BG[800] }}>Profile</Text>
         </View>
 
         <Surface radius={20} padding={16}>
@@ -365,10 +367,11 @@ export default function ProfileScreen() {
               borderTopColor: 'rgba(255,255,255,0.08)',
             }}
           >
-            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="log-out" size={16} color="#EF4444" />
+            {/* Signing out isn't destructive (you can sign back in), so it isn't red: red is kept for Delete account. */}
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="log-out" size={16} color={COLORS.fg} />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontFamily: BG[600] }}>Sign out</Text>
+            <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[600] }}>Sign out</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}

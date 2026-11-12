@@ -7,6 +7,8 @@ import { WriteOn } from '../../components/ui/WriteOn';
 import { TiltLight } from '../../components/ui/TiltLight';
 import { mealTitle } from '../../lib/mealPlanMeal';
 import { SessionCard } from '../../components/home/SessionCard';
+import { useWorkoutSession } from '../../lib/workoutSession';
+import { beginSession } from '../../lib/sessionStart';
 import { dayMinutes } from '../../lib/planStory';
 import { timeLabel } from '../../lib/format';
 import { logActivity } from '../../lib/data';
@@ -460,6 +462,24 @@ function HomePopulated() {
   const planDays = latestWorkout?.plan.days ?? [];
   const today = planDays[suggestedDayIndex] ?? planDays[0];
   const todayIndex = planDays[suggestedDayIndex] ? suggestedDayIndex : 0;
+  // Start means start: the player opens over Home in one tap, with the same engine prescription Train uses.
+  // If the plan isn't loaded yet it falls back to opening Train on today's day.
+  const { startSession, status: sessionStatus } = useWorkoutSession();
+  const [startingSession, setStartingSession] = useState(false);
+  const startNow = useCallback(async () => {
+    if (startingSession || sessionStatus !== 'idle') return;
+    if (!latestWorkout) {
+      router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } });
+      return;
+    }
+    setStartingSession(true);
+    try {
+      const start = userId ? await beginSession(userId, latestWorkout, todayIndex).catch(() => null) : null;
+      startSession(start ? start.workout : latestWorkout, todayIndex, start ? { sessionId: start.sessionId, prescribed: start.prescribed } : undefined);
+    } finally {
+      setStartingSession(false);
+    }
+  }, [startingSession, sessionStatus, latestWorkout, userId, todayIndex, startSession, router]);
   const workoutRowText = workoutRow(workoutToday, today?.focus || today?.day || 'Today\'s session', usualTime);
   const dayOfLabel = `DAY ${todayIndex + 1} OF ${planDays.length}`;
   const planCardLabel = today
@@ -703,7 +723,7 @@ function HomePopulated() {
         setsDone={workoutToday.setsDone}
         progression={marks[0] ? { name: marks[0].name, oldText: marks[0].oldText, newText: marks[0].newText } : null}
         note={marks[0]?.note ?? null}
-        onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onStart={startNow}
         onOpen={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
         onLogWalk={async () => {
           if (!userId) return;
@@ -721,7 +741,7 @@ function HomePopulated() {
         onAteAsPlanned={ateAsPlanned}
         onSomethingElse={somethingElse}
         onSkipped={skipMeal}
-        onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onStart={startNow}
         onPlan={() => router.push('/(tabs)/workouts')}
       />
 

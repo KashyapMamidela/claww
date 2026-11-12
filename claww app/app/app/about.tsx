@@ -30,7 +30,7 @@ export default function AboutScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <Badge color="#A1A1AA">ABOUT</Badge>
+          <Text style={{ color: "#fff", fontSize: 28, fontFamily: BG[800] }}>About</Text>
         </View>
 
         <View style={{ alignItems: 'center', paddingVertical: 24, gap: 10 }}>

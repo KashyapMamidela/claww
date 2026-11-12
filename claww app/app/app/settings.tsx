@@ -97,9 +97,11 @@ export default function SettingsScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <View><Badge color={P}>SETTINGS</Badge></View>
+          <Text style={{ color: '#fff', fontSize: 28, fontFamily: BG[800] }}>Settings</Text>
         </View>
 
+        {/* Generation caps are internal plumbing: shown only in dev and preview builds. */}
+        {SHOW_DEV_TOOLS ? (
 <Rise i={0}>
         <Surface radius={20} padding={16}>
           <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700], marginBottom: 4 }}>Today's generation usage</Text>
@@ -128,6 +130,7 @@ export default function SettingsScreen() {
           ))}
         </Surface>
 </Rise>
+        ) : null}
 
         {notificationsSupported ? (
 <Rise i={1}>

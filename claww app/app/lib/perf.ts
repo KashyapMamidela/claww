@@ -56,12 +56,15 @@ export function useSetLatency(key: string): void {
   }, [key]);
 }
 
+// On Hermes performance.now() isn't zero at JS start (it showed 2,579,274,331 ms), so time from this module's load.
+const JS_START = performance.now();
+
 /** Records, once per app run, how long after JS start a screen first painted (Home's cold start). */
 export function useFirstPaint(screen: 'home'): void {
   useEffect(() => {
     if (!PERF_ENABLED || homeFirstPaintMs !== null || screen !== 'home') return;
     // performance.now() counts from the JS runtime start, close to (but after) a cold app start.
-    homeFirstPaintMs = performance.now();
+    homeFirstPaintMs = performance.now() - JS_START;
     if (isDev) console.log(`[perf] Home first paint: ${homeFirstPaintMs.toFixed(0)} ms after JS start`);
   }, [screen]);
 }
