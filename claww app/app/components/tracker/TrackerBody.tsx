@@ -99,7 +99,12 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
         {top && top.last !== null ? (
           <>
             <Headline sub={top.delta !== null ? `${top.delta >= 0 ? '+' : ''}${top.delta} kg over 8 weeks` : undefined}>{`${top.name} ${top.last} kg`}</Headline>
-            <LineChart series={v.strength.map((s, i) => ({ values: s.values, color: lineTints[i] ?? BLUE }))} labels={[v.weeks8[0].label, v.weeks8[7].label]} connectGaps />
+            {/* A trend needs two points. With one, a lone dot in an empty grid looks broken, so say what's next instead. */}
+            {v.strength.some((s) => s.values.filter((x) => x !== null).length >= 2) ? (
+              <LineChart series={v.strength.map((s, i) => ({ values: s.values, color: lineTints[i] ?? BLUE }))} labels={[v.weeks8[0].label, v.weeks8[7].label]} connectGaps />
+            ) : (
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>Log this lift again next week and your trend line starts here.</Text>
+            )}
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
               {v.strength.map((s, i) => (
                 <View key={s.name} style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
@@ -141,14 +146,21 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
       </TrackerCard>
 
       <TrackerCard label="WEEKLY SETS PER MUSCLE" color={BLUE} right={`target ${WEEKLY_SETS_TARGET}`} onPress={() => onOpen('sets')}>
-        <BarChart
-          values={MAJOR_MUSCLES.map((m) => v.thisWeekSets[m] ?? 0)}
-          color={BLUE}
-          height={96}
-          goal={WEEKLY_SETS_TARGET}
-          allActive
-          labels={MAJOR_MUSCLES.map((m) => cap(m).slice(0, 3))}
-        />
+        {/* One row per muscle with its full name: the old bar chart had to cut names to "Che", "Bac", "Sho". */}
+        <View style={{ gap: 8 }}>
+          {MAJOR_MUSCLES.map((m) => {
+            const n = v.thisWeekSets[m] ?? 0;
+            return (
+              <View key={m} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }} accessibilityLabel={`${cap(m)}: ${n} of ${WEEKLY_SETS_TARGET} sets this week`}>
+                <Text style={{ width: 92, color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{cap(m)}</Text>
+                <View style={{ flex: 1, height: 6, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <View style={{ width: `${Math.min(100, (n / WEEKLY_SETS_TARGET) * 100)}%`, height: '100%', borderRadius: 3, backgroundColor: BLUE }} />
+                </View>
+                <Text style={{ width: 28, textAlign: 'right', color: n > 0 ? COLORS.fg : COLORS.textFaint, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{Math.round(n)}</Text>
+              </View>
+            );
+          })}
+        </View>
       </TrackerCard>
 
       <TrackerCard label="CONSISTENCY · 12 WEEKS" color={BLUE} right={`${v.grid.sessions} sessions`} onPress={() => onOpen('consistency')}>
@@ -180,7 +192,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
           <>
             <BarChart values={v.protein.map((p) => p ?? 0)} color={AREA_COLORS.nutrition} height={80} goal={data.proteinTargetG} labels={v.days7.map((b) => b.label)} />
             <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[400] }}>
-              {v.hits !== null ? `Protein target hit ${v.hits} of 7 days · ` : ''}avg {averageCalories(v.nutrition)?.toLocaleString()} kcal
+              {v.hits !== null ? `Protein target hit on ${v.hits} of ${v.nutrition.filter((d) => d.logged).length} logged days · ` : ''}avg {averageCalories(v.nutrition)?.toLocaleString()} kcal
             </Text>
           </>
         ) : (
@@ -188,7 +200,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
         )}
       </TrackerCard>
 
-      <TrackerCard label="CLAWW INSIGHT" color={AREA_COLORS.engine} accentStripe>
+      <TrackerCard label="INSIGHT" color={AREA_COLORS.engine}>
         <Text style={{ color: '#fff', fontSize: 15, lineHeight: 20, fontFamily: BG[600] }}>{v.insight.text}</Text>
       </TrackerCard>
     </View>

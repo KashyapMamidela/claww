@@ -512,6 +512,7 @@ function HomePopulated() {
     state: v.state,
     plannedName: v.planned ? mealTitle(v.planned) : null,
     loggedLine: v.logged ? `${Math.round(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
+    loggedAtMinutes: v.logged ? new Date(v.logged.logged_at).getHours() * 60 + new Date(v.logged.logged_at).getMinutes() : null,
   }));
   const sessionItem = sessionPlanned && today
     ? { name: today.focus, minutes: sessionMinutes, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), markLine: marks[0] ? `${marks[0].name} ${marks[0].newText}` : null }
