@@ -49,7 +49,7 @@ export default function TabsLayout() {
   const now = new Date();
   const headerTitle =
     routeName === 'index'
-      ? dayLabel(now)
+      ? 'Today'
       : ({ workouts: 'Train', nutrition: 'Food', tracker: 'Progress', more: 'More' } as Record<string, string>)[routeName] ?? '';
 
   // Session hits 'completed' the instant the last set is finished (or the
@@ -84,6 +84,7 @@ export default function TabsLayout() {
       <AppHeader
         accent={headerAccent}
         title={headerTitle}
+        subtitle={routeName === 'index' ? dayLabel(now) : undefined}
         penDot={penDot}
         initial={(userName || 'M').charAt(0).toUpperCase()}
         onPenPress={() => router.push('/week-review')}
