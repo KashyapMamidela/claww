@@ -21,7 +21,7 @@ export interface StepperProps {
 }
 
 // Hold a button to keep stepping: after 350 ms it repeats every 90 ms, so 20 kg is one hold instead of eight taps.
-function StepButton({ icon, onPress, disabled, a11y }: { icon: string; onPress: () => void; disabled?: boolean; a11y: string }) {
+export function StepButton({ icon, onPress, disabled, a11y, size = 44, radius = 13, tone, wide = false }: { icon: string; onPress: () => void; disabled?: boolean; a11y: string; size?: number; radius?: number; tone?: string; wide?: boolean }) {
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const latest = useRef(onPress);
   latest.current = onPress;
@@ -45,24 +45,25 @@ function StepButton({ icon, onPress, disabled, a11y }: { icon: string; onPress: 
       onPressOut={stop}
       disabled={disabled}
       scaleTo={0.92}
+      style={wide ? { alignSelf: 'stretch' } : undefined}
       accessibilityRole="button"
       accessibilityLabel={a11y}
       accessibilityState={{ disabled: !!disabled }}
     >
       <View
         style={{
-          width: 44,
-          height: 44,
-          borderRadius: 13,
+          width: wide ? '100%' : size,
+          height: size,
+          borderRadius: radius,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: SURFACES.cardTop,
+          backgroundColor: tone ? `${tone}33` : SURFACES.cardTop,
           borderWidth: 1,
-          borderColor: COLORS.borderStrong,
+          borderColor: tone ? `${tone}66` : COLORS.borderStrong,
           opacity: disabled ? 0.4 : 1,
         }}
       >
-        <Icon name={icon} size={18} color={COLORS.fg} strokeWidth={2.4} />
+        <Icon name={icon} size={Math.round(size * 0.42)} color={COLORS.fg} strokeWidth={2.4} />
       </View>
     </PressScale>
   );

@@ -15,7 +15,9 @@ import { useScanQuestionPrefs } from '../lib/scanQuestionPrefs';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { PressScale } from '../components/ui/PressScale';
-import { ItemTags, ScanSweep } from '../components/scan/ScanEffects';
+import { ItemTags, ScanFlash, ScanSteps, ScanSweep } from '../components/scan/ScanEffects';
+import { applyContext, totalsOf } from '../lib/engine';
+import { setDone } from '../lib/haptics';
 import { ScanQuestions } from '../components/scan/ScanQuestions';
 
 // NG PHASE 9, step 1 (screen 16): the scanner starts with context. A viewfinder, the plate read in the background
@@ -59,6 +61,9 @@ export default function ScanScreen() {
   const [expanded, setExpanded] = useState(false);
   const [oilAuto, setOilAuto] = useState(false);
   const pending = useRef<Promise<ScanOutcome> | null>(null);
+  // The scan's real progress: 0 shrinking the photo, 1 reading the plate, 2 foods back (the tags land at 3).
+  const [stage, setStage] = useState(0);
+  const [slow, setSlow] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -71,14 +76,21 @@ export default function ScanScreen() {
   const start = (uri: string, base64: string, mimeType: string, width?: number, height?: number) => {
     setPhoto({ uri, base64, mimeType });
     setOutcome(null);
+    setStage(0);
+    setSlow(false);
+    setDone();
     // Shrink first (about 100 to 200 KB), then send: the upload is the slowest part on mobile data.
     const p = shrinkPhoto({ uri, base64, mime: mimeType }, width, height)
       .then((small) => {
         setPhoto((prev) => (prev ? { ...prev, base64: small.base64, mimeType: small.mime } : prev));
+        setStage(1);
         return scanPlate(`data:${small.mime};base64,${small.base64}`);
       })
       .then((o) => {
         setOutcome(o);
+        // The foods are back: "Counting katori" for a beat, then the tags land.
+        setStage(o.ok ? 2 : 3);
+        if (o.ok) setTimeout(() => setStage(3), 700);
         return o;
       });
     pending.current = p;
@@ -113,6 +125,11 @@ export default function ScanScreen() {
   const dish = ok && ok.route === 'ok' ? ok.dish : null;
   const last = dish ? lastTimeFor(dish, past) : null;
   const reading = !!photo && !outcome;
+  useEffect(() => {
+    if (!reading) return;
+    const t = setTimeout(() => setSlow(true), 4000);
+    return () => clearTimeout(t);
+  }, [reading, photo]);
   const oilNeeded = ok ? needsOil(ok.items) : true;
   // A plate with no cooked food (a salad, fruit, a drink) gets "no oil" without a question.
   useEffect(() => {
@@ -122,6 +139,8 @@ export default function ScanScreen() {
     }
   }, [ok]);
   const tagNames = ok ? ok.items.filter((i) => !i.hidden).map((i) => (i.food ? i.food.name : i.heard)) : [];
+  // The plate's calories as it will be checked (portion and oil answers included), counted up as the tags land.
+  const plateKcal = ok ? Math.round(totalsOf(applyContext(ok.items, context, ok.oilFood)).kcal) : null;
 
   const next = () => {
     if (!photo || !pending.current) return;
@@ -165,6 +184,7 @@ export default function ScanScreen() {
         )}
 
         {photo ? <ScanSweep active={reading} height={photoH} /> : null}
+        {photo ? <ScanFlash key={photo.uri} /> : null}
 
         <View pointerEvents="box-none" style={{ position: 'absolute', top: insets.top + 8, left: 16, right: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Close the scanner" style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' }}>
@@ -202,9 +222,14 @@ export default function ScanScreen() {
         ) : null}
 
         {/* The foods it found, as tags on the photo, above the panel. */}
-        {photo && ok ? (
+        {photo && ok && stage >= 3 ? (
           <View pointerEvents="none" style={{ position: 'absolute', bottom: 36, left: 12, right: 12 }}>
-            <ItemTags names={tagNames} lead={dish} />
+            <ItemTags names={tagNames} lead={dish} kcal={plateKcal} />
+          </View>
+        ) : null}
+        {photo && stage < 3 ? (
+          <View pointerEvents="none" style={{ position: 'absolute', bottom: 40, left: 12, right: 12, alignItems: 'center' }}>
+            <ScanSteps stage={stage} slow={slow} />
           </View>
         ) : null}
 
