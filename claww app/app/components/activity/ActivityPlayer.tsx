@@ -144,7 +144,7 @@ export function ActivityPlayer() {
       <View style={{ flex: 1, backgroundColor: '#0B0904' }}>
         <LinearGradient pointerEvents="none" colors={[tint(GOLD, 0.26), tint(GOLD, 0.06), 'rgba(11,9,4,0)']} style={{ position: 'absolute', left: 0, right: 0, top: 0, height: 460 }} />
         <View pointerEvents="none" style={{ position: 'absolute', right: -60, bottom: 90, transform: [{ rotate: '-12deg' }] }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          {name ? <ActivityLogo name={name} size={330} color={tint(GOLD, 0.07)} strokeWidth={1.2} /> : null}
+          {name ? <ActivityLogo name={name} size={330} color={tint(GOLD, 0.045)} strokeWidth={1.2} /> : null}
         </View>
 
         <View style={{ flex: 1, paddingTop: insets.top + 6, paddingHorizontal: 20 }}>

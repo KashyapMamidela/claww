@@ -228,7 +228,7 @@ export default function ScanScreen() {
           </View>
         ) : null}
         {photo && stage < 3 ? (
-          <View pointerEvents="none" style={{ position: 'absolute', bottom: 40, left: 12, right: 12, alignItems: 'center' }}>
+          <View pointerEvents="none" style={{ position: 'absolute', top: '34%', left: 12, right: 12, alignItems: 'center' }}>
             <ScanSteps stage={stage} slow={slow} />
           </View>
         ) : null}

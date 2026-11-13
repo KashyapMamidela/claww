@@ -215,9 +215,11 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
               {v.low && v.low.score !== null ? (
                 <Text style={{ color: COLORS.pen, fontSize: 22, lineHeight: 26, fontFamily: FONT_HAND, fontWeight: '700' }}>{`${cap(v.low.muscle)} is the one to go easy on, ${v.low.score} %`}</Text>
               ) : null}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+              <View style={{ alignItems: 'center' }}>
                 <BodyMap height={150} color={TEAL} muscles={recoveryMuscles.map((m) => ({ muscle: m as Muscle, intensity: (data.recovery[m].score as number) / 100 }))} />
-                <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              </View>
+              <View>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                   {recoveryMuscles.map((m) => {
                     const score = data.recovery[m].score as number;
                     const tone = recoveryTone(score);
@@ -290,7 +292,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
                         <Text style={{ color: GOLD, fontSize: 11, fontFamily: BG[800] }}>New</Text>
                       </View>
                     ) : null}
-                    <Text style={{ color: GOLD, fontSize: 20, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `${r.reps} reps`}</Text>
+                    <Text style={{ color: GOLD, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{r.weight > 0 ? `${r.weight} kg × ${r.reps}` : `${r.reps} reps`}</Text>
                   </View>
                 );
               })}
@@ -316,7 +318,7 @@ export function TrackerBody({ data, steps, stepsGoal, onOpen, now = new Date() }
                 ) : <View />}
                 {v.hits !== null ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, height: 30, borderRadius: 15, backgroundColor: tint(AREA_COLORS.nutrition, 0.16) }}>
-                    <Icon name="check" size={14} color={COLORS.green} strokeWidth={3} />
+                    {v.hits > 0 ? <Icon name="check" size={14} color={COLORS.green} strokeWidth={3} /> : null}
                     <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>{`Protein ${v.hits} of ${loggedDays} days`}</Text>
                   </View>
                 ) : null}

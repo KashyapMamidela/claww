@@ -722,7 +722,7 @@ export default function WorkoutsTab() {
 
 
           {sessionStatus === 'idle' && selectedState.state === 'completed' && selectedState.event && userId ? (
-            <CompletedDayCard userId={userId} day={day} event={selectedState.event} />
+            <CompletedDayCard userId={userId} day={day} event={selectedState.event} plannedSets={totalSets} />
           ) : sessionStatus === 'idle' && selectedState.state === 'skipped' && selectedState.event ? (
             <SkippedDayCard
               day={day}

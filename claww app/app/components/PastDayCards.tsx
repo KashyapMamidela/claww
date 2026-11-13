@@ -29,10 +29,12 @@ export interface CompletedDayCardProps {
   userId: string;
   day: PlanDay;
   event: WorkoutDayEvent;
+  /** The day's planned sets from today's prescription; the plan's own numbers when absent. */
+  plannedSets?: number;
 }
 
 /** Shown instead of Begin Workout when the selected day was completed. */
-export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) {
+export function CompletedDayCard({ userId, day, event, plannedSets: plannedOverride }: CompletedDayCardProps) {
   const [rows, setRows] = useState<LoggedSetRow[] | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [decisions, setDecisions] = useState<NextTimeDecision[]>([]);
@@ -64,7 +66,7 @@ export function CompletedDayCard({ userId, day, event }: CompletedDayCardProps) 
   }, [userId, event.createdAt, day]);
 
   const summary = rows ? summarizeSession(rows) : null;
-  const plannedSets = day.exercises.reduce((s, ex) => s + ex.sets, 0);
+  const plannedSets = plannedOverride ?? day.exercises.reduce((s, ex) => s + ex.sets, 0);
   const marks = summary
     ? decisions.flatMap((d) => {
         const m = nextTimeMark(d, summary.exercises.find((ex) => ex.name === d.exerciseName)?.sets ?? []);
