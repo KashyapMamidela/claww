@@ -33,6 +33,7 @@ import { BottomSheet } from '../ui/BottomSheet';
 import { Stepper } from '../ui/Stepper';
 import { TickButton } from '../ui/TickButton';
 import { SetDial, SetDots } from './SetDial';
+import { SessionIntro } from './SessionIntro';
 import { ElapsedClock, KcalText } from './clocks';
 import { TargetCard } from './TargetCard';
 import { SwapSheet } from './SwapSheet';
@@ -71,6 +72,9 @@ export interface FullPlayerProps {
   onMinimize: () => void;
   /** One-line reason for today's numbers, filled by the adaptive engine in V2 PHASE 7. */
   reason?: string | null;
+  /** Show the start intro over the player; the clock starts when it ends. */
+  intro?: boolean;
+  onIntroDone?: () => void;
 }
 
 /** 150 → "2:30", 45 → "45 s". */
@@ -85,7 +89,7 @@ const SET_IN = new Keyframe({
   100: { opacity: 1, transform: [{ translateY: 0 }], easing: Easing.bezier(0.23, 1, 0.32, 1) },
 }).duration(180);
 
-export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
+export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntroDone }: FullPlayerProps) {
   useRenderCount('FullPlayer');
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
@@ -560,6 +564,7 @@ export function FullPlayer({ visible, onMinimize, reason }: FullPlayerProps) {
             </Pressable>
           </Modal>
         ) : null}
+        {intro ? <SessionIntro title={sessionName(today.focus) || today.day} focus={today.focus} muscles={exercises.map((e) => forms[e.name]?.primaryMuscle)} onDone={() => onIntroDone?.()} /> : null}
       </GestureHandlerRootView>
       <EndWorkoutSheet visible={endOpen} onClose={() => setEndOpen(false)} />
     </Modal>

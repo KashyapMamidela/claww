@@ -45,7 +45,8 @@ export default function WorkoutCompleteScreen() {
   const { userId, userName, streakStats, refreshStreak } = useAppState();
   const { lastSummary: summary, applyFeel } = useWorkoutSession();
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
-  const [feel, setFeel] = useState<Feel>('just_right');
+  // Nothing is preselected: the note under the picker appears when the lifter answers.
+  const [feel, setFeel] = useState<Feel | null>(null);
   const [targets, setTargets] = useState(summary?.nextTargets ?? {});
   const [volumePrev, setVolumePrev] = useState<number | null>(null);
   const [bests, setBests] = useState<ReturnType<typeof bestRecords>>([]);
@@ -295,8 +296,8 @@ export default function WorkoutCompleteScreen() {
         <Surface padding={16}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>How did that feel?</Text>
           <Text style={{ color: COLORS.textMuted, fontSize: 15, marginTop: 2, marginBottom: 12, fontFamily: BG[400] }}>This decides how the next session is marked.</Text>
-          <Segmented options={FEEL_OPTIONS} value={feel} onChange={chooseFeel} accessibilityLabel="How did that feel" />
-          <Text style={{ color: COLORS.fg, fontSize: 20, marginTop: 10, fontFamily: FONT_HAND }}>{feelNote(feel)}</Text>
+          <Segmented options={FEEL_OPTIONS} value={feel as Feel} onChange={chooseFeel} accessibilityLabel="How did that feel" />
+          <Text style={{ color: COLORS.fg, fontSize: 20, marginTop: 10, fontFamily: FONT_HAND }}>{feel ? feelNote(feel) : 'tap how it felt and I will fit the next session'}</Text>
         </Surface>
 
         {!streakReady ? <Skeleton height={132} borderRadius={20} /> : (

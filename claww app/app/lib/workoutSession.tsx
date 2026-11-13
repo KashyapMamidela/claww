@@ -141,6 +141,8 @@ interface WorkoutSessionState {
    */
   logTimedExercise: (exIdx: number, input: { minutes: number; distanceKm: number | null }) => void;
   togglePause: () => void;
+  /** Starts the session clock again from now, while nothing is logged. The start intro calls it at Go, so the timer only runs once you are training. */
+  restartClock: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
   /** `patch` may be a function of the row as it is now, so repeated steps (a held stepper) never read a stale value. */
   updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>> | ((row: SetRowState) => Partial<Pick<SetRowState, 'reps' | 'weight'>>)) => void;
@@ -293,6 +295,11 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     },
     [userId, setPlan]
   );
+
+  const restartClock = useCallback(() => {
+    if (planRef.current.some((ex) => ex.rows.some((r) => r.done))) return;
+    setClock((c) => (c ? startClock(Date.now()) : c));
+  }, []);
 
   const togglePause = useCallback(() => {
     setClock((c) => {
@@ -702,6 +709,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       modalityFor,
       logTimedExercise,
       togglePause,
+      restartClock,
       updateSetRow,
       logSet,
       skipExercise,
@@ -737,6 +745,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       modalityFor,
       logTimedExercise,
       togglePause,
+      restartClock,
       updateSetRow,
       logSet,
       skipExercise,
