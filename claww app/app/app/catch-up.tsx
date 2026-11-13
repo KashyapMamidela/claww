@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { num } from '../lib/format';
 import { mealTitle } from '../lib/mealPlanMeal';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -220,7 +221,7 @@ export default function CatchUpScreen() {
                 newValue={dinner!.name}
                 note={reason ?? 'dinner stays as planned'}
                 reason={reason ? 'Dinner was planned again from what you ate today, so the day still lands near your targets.' : 'What you ate fits the plan, so dinner is unchanged.'}
-                context={`${dinner!.kcal} kcal · P ${Math.round(dinner!.protein)} g`}
+                context={`${num(dinner!.kcal)} kcal · P ${Math.round(dinner!.protein)} g`}
               />
             ) : null}
 

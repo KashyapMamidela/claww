@@ -6,6 +6,8 @@ export interface VisionProvider {
   /** Shown in logs: "groq:qwen/qwen3.8-27b", "backup:gemini-2.0-flash". */
   name: string;
   call: (system: string, user: string, imageDataUri: string, signal: AbortSignal) => Promise<string>;
+  /** How long this provider may take before the next one is tried; the default applies when absent. */
+  timeoutMs?: number;
 }
 
 export interface VisionAttempt {
@@ -31,6 +33,8 @@ export class AllVisionProvidersFailed extends Error {
 }
 
 export const PROVIDER_TIMEOUT_MS = 8000;
+/** No new provider is started once this much time has passed, so a run of slow failures cannot keep the user waiting. */
+export const TOTAL_DEADLINE_MS = 28000;
 
 /** Runs `p` for at most `ms`, aborting its signal on the way out. */
 async function withTimeout(p: VisionProvider, system: string, user: string, image: string, ms: number): Promise<string> {
@@ -60,13 +64,18 @@ export async function callVisionProviders<T>(
   user: string,
   imageDataUri: string,
   parse: (text: string) => T | null,
-  timeoutMs = PROVIDER_TIMEOUT_MS
+  timeoutMs = PROVIDER_TIMEOUT_MS,
+  deadlineMs = TOTAL_DEADLINE_MS,
+  hedgeMs = 0
 ): Promise<VisionResult<T>> {
+  if (hedgeMs > 0) return callHedged(providers, system, user, imageDataUri, parse, timeoutMs, hedgeMs);
   const attempts: VisionAttempt[] = [];
+  const begun = Date.now();
   for (const p of providers) {
+    if (attempts.length > 0 && Date.now() - begun >= deadlineMs) break;
     const started = Date.now();
     try {
-      const text = await withTimeout(p, system, user, imageDataUri, timeoutMs);
+      const text = await withTimeout(p, system, user, imageDataUri, p.timeoutMs ?? timeoutMs);
       let value: T | null = null;
       try {
         value = parse(text);
@@ -86,30 +95,118 @@ export async function callVisionProviders<T>(
   throw new AllVisionProvidersFailed(attempts);
 }
 
-/** An OpenAI-compatible chat-completions provider (the backup: configurable by three secrets, no code change). */
-export function openAiCompatibleProvider(cfg: { name: string; url: string; key: string; model: string }, fetchImpl: typeof fetch = fetch): VisionProvider {
+/**
+ * Hedged: the first provider starts at once; if it has neither answered nor failed after `hedgeMs`, the next one starts
+ * too (and so on), and a provider that fails starts the next at once. The first valid answer wins. A slow preferred
+ * model therefore costs the user at most `hedgeMs` per step instead of its whole time limit.
+ */
+function callHedged<T>(
+  providers: VisionProvider[],
+  system: string,
+  user: string,
+  imageDataUri: string,
+  parse: (text: string) => T | null,
+  timeoutMs: number,
+  hedgeMs: number
+): Promise<VisionResult<T>> {
+  return new Promise((resolve, reject) => {
+    const attempts: VisionAttempt[] = [];
+    let next = 0;
+    let failed = 0;
+    let settled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const schedule = () => {
+      if (timer) clearTimeout(timer);
+      if (!settled && next < providers.length) timer = setTimeout(launch, hedgeMs);
+    };
+
+    const run = async (p: VisionProvider) => {
+      const started = Date.now();
+      try {
+        const text = await withTimeout(p, system, user, imageDataUri, p.timeoutMs ?? timeoutMs);
+        let value: T | null = null;
+        try {
+          value = parse(text);
+        } catch {
+          value = null;
+        }
+        if (value === null) throw new Error('answer failed validation');
+        attempts.push({ provider: p.name, ok: true, ms: Date.now() - started });
+        if (!settled) {
+          settled = true;
+          if (timer) clearTimeout(timer);
+          resolve({ value, provider: p.name, attempts });
+        }
+      } catch (error) {
+        attempts.push({ provider: p.name, ok: false, ms: Date.now() - started, error: (error as Error).message.slice(0, 160) });
+        failed++;
+        if (settled) return;
+        if (next < providers.length) launch();
+        else if (failed === providers.length) {
+          settled = true;
+          reject(new AllVisionProvidersFailed(attempts));
+        }
+      }
+    };
+
+    function launch() {
+      if (settled || next >= providers.length) return;
+      const p = providers[next++];
+      void run(p);
+      schedule();
+    }
+
+    launch();
+  });
+}
+
+/** Some models wrap JSON in a code fence ("```json ... ```"); this returns the JSON text inside. */
+export function stripJsonFence(text: string): string {
+  const t = text.trim();
+  const m = t.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return m ? m[1] : t;
+}
+
+/**
+ * An OpenAI-compatible chat-completions provider (the backup: configurable by three secrets, no code change).
+ * Providers differ on `response_format: json_object` and on `reasoning_effort`: if one answers 400 the call is repeated
+ * once without both (the prompt already asks for JSON only) and a code fence around the answer is removed.
+ */
+export function openAiCompatibleProvider(
+  cfg: { name: string; url: string; key: string; model: string; timeoutMs?: number; reasoningEffort?: string },
+  fetchImpl: typeof fetch = fetch
+): VisionProvider {
   return {
     name: cfg.name,
+    timeoutMs: cfg.timeoutMs,
     call: async (system, user, image, signal) => {
-      const res = await fetchImpl(cfg.url, {
-        method: 'POST',
-        signal,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.key}` },
-        body: JSON.stringify({
-          model: cfg.model,
-          temperature: 0.2,
-          response_format: { type: 'json_object' },
-          messages: [
-            { role: 'system', content: system },
-            { role: 'user', content: [{ type: 'text', text: user }, { type: 'image_url', image_url: { url: image } }] },
-          ],
-        }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const send = (extras: boolean) =>
+        fetchImpl(cfg.url, {
+          method: 'POST',
+          signal,
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${cfg.key}` },
+          body: JSON.stringify({
+            model: cfg.model,
+            temperature: 0.2,
+            ...(extras ? { response_format: { type: 'json_object' }, ...(cfg.reasoningEffort ? { reasoning_effort: cfg.reasoningEffort } : {}) } : {}),
+            messages: [
+              { role: 'system', content: system },
+              { role: 'user', content: [{ type: 'text', text: user }, { type: 'image_url', image_url: { url: image } }] },
+            ],
+          }),
+        });
+      let res = await send(true);
+      if (res.status === 400) res = await send(false);
+      if (!res.ok) {
+        // Keep the start of Google's own message, so the log says why (busy, quota, bad request) and not only the number.
+        const detail = await res.text().then((t) => t.replace(/\s+/g, ' ').slice(0, 140)).catch(() => '');
+        throw new Error(`HTTP ${res.status}${detail ? `: ${detail}` : ''}`);
+      }
       const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
       const content = json.choices?.[0]?.message?.content;
       if (!content) throw new Error('empty answer');
-      return content;
+      return stripJsonFence(content);
     },
   };
 }

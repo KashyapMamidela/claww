@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQuickLog } from '../../components/QuickLog';
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { mealTitle } from '../../lib/mealPlanMeal';
-import { dayLabel } from '../../lib/format';
+import { dayLabel, num } from '../../lib/format';
 import { useToast } from '../../components/ui/Toast';
 import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -26,6 +25,7 @@ import { FoodSearchSheet } from '../../components/nutrition/FoodSearchSheet';
 import { Icon } from '../../components/ui/Icon';
 import { Button } from '../../components/ui/Button';
 import { SectionLabel } from '../../components/ui/SectionLabel';
+import { SectionHeader } from '../../components/ui/SectionHeader';
 import { ProgressBar } from '../../components/ui/ProgressBar';
 import { ProgressRing } from '../../components/ui/ProgressRing';
 import { Surface } from '../../components/ui/Surface';
@@ -33,7 +33,7 @@ import { Display, LargeTitle } from '../../components/ui/Typography';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { PressScale } from '../../components/ui/PressScale';
 import { BottomSheet } from '../../components/ui/BottomSheet';
-import { ensureMealPlans, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
+import { ensureMealPlans, onMealPlansReset, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
 import { planLine, slotLabel, slotViews, type MealSlot } from '../../lib/mealPlanView';
 import { SKIPPED } from '../../lib/catchUp';
 import { itemsText, plannedToMeal } from '../../lib/mealPlanMeal';
@@ -52,18 +52,23 @@ const timeText = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: '
 /** Premium N3: each macro keeps its own colour everywhere: protein pink, carbs amber, fat sky blue. */
 const MACRO = { protein: '#F472B6', carbs: '#F59E0B', fat: '#38BDF8' } as const;
 
+let foodCache: { userId: string; day: string; targets: NutritionDefaults | null; plan: StoredPlan | null } | null = null;
+
 export default function NutritionTab() {
   const { userId, meals, saveMeal, removeMeal } = useAppState();
   const penMarks = usePenMarks(7);
   const router = useRouter();
   // Polish step 5: "Something else" on a meal reminder opens the + sheet for that meal.
-  const { search } = useLocalSearchParams<{ search?: string }>();
+  const { search, planMenu: planMenuParam } = useLocalSearchParams<{ search?: string; planMenu?: string }>();
   const insets = useSafeAreaInsets();
   const tabPad28 = useTabBottomPad(28);
   const hideBar = useHideBarOnScroll('nutrition');
   const pull = usePullToRefresh('#22C55E');
-  const [targets, setTargets] = useState<NutritionDefaults | null>(null);
-  const [targetsLoaded, setTargetsLoaded] = useState(false);
+  // Kept for the day so coming back to Food shows the last targets and plan at once instead of skeletons.
+  const cachedFood = foodCache && foodCache.userId === userId && foodCache.day === new Date().toDateString() ? foodCache : null;
+  const [targets, setTargets] = useState<NutritionDefaults | null>(cachedFood?.targets ?? null);
+  const [targetsLoaded, setTargetsLoaded] = useState(!!cachedFood);
+  const [planLoaded, setPlanLoaded] = useState(!!cachedFood);
   const [askFoodProfile, setAskFoodProfile] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealLogRow | null>(null);
   const [usuals, setUsuals] = useState<Usual[]>([]);
@@ -71,12 +76,28 @@ export default function NutritionTab() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchFor, setSearchFor] = useState<MealType | null>(null); // a missed meal being answered with Something else
   const toast = useToast();
-  const [plan, setPlan] = useState<StoredPlan | null>(null);
+  const [plan, setPlan] = useState<StoredPlan | null>(cachedFood?.plan ?? null);
   const mealsRef = useRef(meals);
   mealsRef.current = meals;
   const [swapMeal, setSwapMeal] = useState<PlannedMeal | null>(null);
   const [swapList, setSwapList] = useState<PlannedMeal[]>([]);
   const [logging, setLogging] = useState(false);
+  // The meal plan sheet (the ⋯ on Today's plan): change your answers, or start the plan over from scratch.
+  const [planMenu, setPlanMenu] = useState(false);
+  const [confirmStartOver, setConfirmStartOver] = useState(false);
+  // A plan rebuilt after this tab is back in view (the setup saves after closing) reloads it right away.
+  const [reloadKey, setReloadKey] = useState(0);
+  useEffect(() => onMealPlansReset(() => setReloadKey((k) => k + 1)), []);
+  // Profile's "Meal plan" row opens this tab with the sheet up.
+  useEffect(() => {
+    if (planMenuParam !== '1') return;
+    setPlanMenu(true);
+    router.setParams({ planMenu: undefined });
+  }, [planMenuParam, router]);
+  const closePlanMenu = () => {
+    setPlanMenu(false);
+    setConfirmStartOver(false);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -86,12 +107,15 @@ export default function NutritionTab() {
         if (cancelled) return;
         const t = profile?.personalization_profile?.nutritionDefaults ?? null;
         setTargets(t);
+        if (userId) foodCache = { userId, day: new Date().toDateString(), targets: t, plan: foodCache?.userId === userId ? foodCache.plan : null };
         setAskFoodProfile(shouldAskFoodProfile(!!t, normalizeFoodProfile(profile?.personalization_profile?.foodProfile)));
         setTargetsLoaded(true);
       });
       ensureMealPlans(userId).then(async (p) => {
         if (cancelled) return;
         setPlan(p);
+        setPlanLoaded(true);
+        foodCache = { userId, day: new Date().toDateString(), targets: foodCache?.userId === userId ? foodCache.targets : null, plan: p };
         // Something other than the plan was eaten (a photo log, a usual): plan the rest of the day again.
         if (p && mealsRef.current.some((m) => m.plan_status !== 'as_planned')) {
           const re = await replanToday(userId, mealsRef.current);
@@ -106,7 +130,7 @@ export default function NutritionTab() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, reloadKey])
   );
 
   useEffect(() => () => {
@@ -159,12 +183,14 @@ export default function NutritionTab() {
   }, [search, router]);
 
   const slots = useMemo(() => slotViews(plan, meals, hour), [plan, meals, hour]);
+  // Once every meal has an answer, the header says so instead of repeating the plan.
+  const loggedCount = slots.filter((v) => v.logged && v.state !== 'skipped').length;
+  const allLogged = slots.length > 0 && loggedCount > 0 && slots.every((v) => !!v.logged);
   const upSlot = slots.find((v) => v.state === 'up_next') ?? null;
   const missedSlots = slots.filter((v) => v.state === 'missed');
   // Everything eaten that is not the one meal a slot shows: snacks, and a second lunch.
   const claimed = new Set(slots.map((v) => v.logged?.id).filter(Boolean) as string[]);
   const extras = meals.filter((m) => !claimed.has(m.id) && m.plan_status !== 'skipped');
-  const { open: openQuickLog } = useQuickLog();
   const [showMissed, setShowMissed] = useState(false);
 
   const ateAsPlanned = async (m: PlannedMeal) => {
@@ -315,9 +341,10 @@ export default function NutritionTab() {
             <Rise i={0}>
             <Surface padding={18}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
-                <ProgressRing size={size} rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: G, pct: consumed === 0 ? 0 : pct }]} trackColor="rgba(255,255,255,0.055)">
+                <ProgressRing size={size} rings={[{ r: (size - sw) / 2, strokeWidth: sw, color: goals.kcal > 0 && consumed > goals.kcal ? COLORS.amber : G, pct: consumed === 0 ? 0 : pct }]} trackColor="rgba(255,255,255,0.055)">
                   <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{consumed.toLocaleString('en-IN')}</Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>of {goals.kcal.toLocaleString('en-IN')} kcal</Text>
+                  {/* Over the target is stated plainly in amber, never red and never as a full green ring that reads as success. */}
+                  <Text style={{ color: goals.kcal > 0 && consumed > goals.kcal ? COLORS.amber : COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{goals.kcal > 0 && consumed > goals.kcal ? `${(consumed - goals.kcal).toLocaleString('en-IN')} over` : `of ${goals.kcal.toLocaleString('en-IN')} kcal`}</Text>
                 </ProgressRing>
                 <View style={{ flex: 1, gap: 12 }}>
                   {[
@@ -333,10 +360,10 @@ export default function NutritionTab() {
                         </View>
                         <Text style={{ fontFamily: BG[400], fontVariant: ['tabular-nums'] }}>
                           <Text style={{ color: '#fff', fontSize: 15, fontWeight: '800' }}>{m.cur}</Text>
-                          <Text style={{ color: COLORS.textMuted, fontSize: 13 }}> / {m.goal} g</Text>
+                          <Text style={{ color: m.goal > 0 && m.cur > m.goal ? COLORS.amber : COLORS.textMuted, fontSize: 13 }}>{m.goal > 0 && m.cur > m.goal ? ` · ${m.cur - m.goal} g over` : ` / ${m.goal} g`}</Text>
                         </Text>
                       </View>
-                      <ProgressBar pct={m.goal > 0 ? (m.cur / m.goal) * 100 : 0} color={m.color} height={6} />
+                      <ProgressBar pct={m.goal > 0 ? (m.cur / m.goal) * 100 : 0} color={m.goal > 0 && m.cur > m.goal ? COLORS.amber : m.color} height={6} />
                     </View>
                   ))}
                 </View>
@@ -347,7 +374,7 @@ export default function NutritionTab() {
             </Rise>
           )}
 
-          {/* Premium N1: Scan a meal is the one big green button; Search and Diary sit under it, tinted. */}
+          {/* Premium N1: Scan a meal is the one big green button; Search and Barcode sit under it, tinted. The diary is the card at the bottom. */}
           <Rise i={1}>
           <View style={{ gap: 10 }}>
             <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} onPress={() => openAdd(addType)} icon={<Icon name="camera" size={19} color="#fff" />}>
@@ -360,8 +387,8 @@ export default function NutritionTab() {
                 </Button>
               </View>
               <View style={{ flex: 1 }}>
-                <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => router.push('/diary')} icon={<Icon name="utensils" size={16} color={G} />}>
-                  Diary
+                <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => router.push('/barcode')} icon={<Icon name="scan-line" size={16} color={G} />}>
+                  Barcode
                 </Button>
               </View>
             </View>
@@ -371,7 +398,7 @@ export default function NutritionTab() {
           {usuals.length > 0 ? (
             <View style={{ gap: 10 }}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <SectionLabel color={G}>YOUR USUALS · ONE TAP</SectionLabel>
+                <SectionHeader>Your usuals</SectionHeader>
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>from your last 2 weeks</Text>
               </View>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
@@ -379,7 +406,7 @@ export default function NutritionTab() {
                   <PressScale key={u.key} onPress={() => logUsual(u)} accessibilityRole="button" accessibilityLabel={`Log ${u.label}, ${u.kcal} kilocalories`}>
                     <View style={{ minHeight: 44, borderRadius: 22, borderWidth: 1, borderColor: COLORS.borderStrong, backgroundColor: COLORS.card, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[700] }}>+ {u.label.length > 24 ? `${u.label.slice(0, 24)}…` : u.label}</Text>
-                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{u.kcal} kcal</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{num(u.kcal)} kcal</Text>
                     </View>
                   </PressScale>
                 ))}
@@ -391,9 +418,16 @@ export default function NutritionTab() {
 
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <SectionLabel color={G}>{plan ? "TODAY'S PLAN · 3 MEALS" : "TODAY'S MEALS"}</SectionLabel>
+              <SectionHeader>{allLogged ? 'Today' : plan ? "Today's plan" : "Today's meals"}</SectionHeader>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 2, flexShrink: 1, marginLeft: 12 }}>
-                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{plan ? planLine(plan) : 'set up your meals for a plan'}</Text>
+                <Text numberOfLines={1} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400], flexShrink: 1 }}>{allLogged ? `${loggedCount} meals logged` : plan ? planLine(plan) : planLoaded ? 'set up your meals for a plan' : ''}</Text>
+                {targets ? (
+                  <PressScale onPress={() => setPlanMenu(true)} accessibilityRole="button" accessibilityLabel="Meal plan options" hitSlop={4}>
+                    <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
+                      <Icon name="more-horizontal" size={20} color={COLORS.textMuted} />
+                    </View>
+                  </PressScale>
+                ) : null}
                 {missedSlots.length > 0 ? (
                   <PressScale onPress={() => setShowMissed((x) => !x)} accessibilityRole="button" accessibilityState={{ expanded: showMissed }} accessibilityLabel={showMissed ? 'Hide meals you have not logged' : 'Show meals you have not logged'} hitSlop={4}>
                     <View style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}>
@@ -403,6 +437,9 @@ export default function NutritionTab() {
                 ) : null}
               </View>
             </View>
+            {!allLogged && plan && !plan.ok && plan.shortfall?.fix ? (
+              <Text style={{ color: COLORS.fg, fontSize: 19, lineHeight: 22, fontFamily: FONT_HAND, marginTop: -6 }}>{plan.shortfall.fix.text}</Text>
+            ) : null}
             {plan?.notes.map((n) => (
               <Text key={n} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{n}</Text>
             ))}
@@ -439,7 +476,7 @@ export default function NutritionTab() {
                     time={timeText(v.logged.logged_at)}
                     planStatus={v.state === 'as_planned' || v.state === 'swapped' || v.state === 'skipped' ? v.state : 'extra'}
                     name={v.logged.description}
-                    macros={v.state === 'skipped' ? 'no meal' : `${Math.round(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
+                    macros={v.state === 'skipped' ? 'no meal' : `${num(v.logged.calories ?? 0)} kcal · P ${Math.round(v.logged.protein_g ?? 0)} g${old && v.state === 'swapped' ? ` · was ${old}` : ''}`}
                     photoPath={(v.logged as MealLogRow).photo_url}
                     rating={r?.rating}
                     onPress={() => setSelectedMeal(v.logged as MealLogRow)}
@@ -462,7 +499,7 @@ export default function NutritionTab() {
                       <>
                         {old ? <Text style={{ color: COLORS.textMuted, fontSize: 15, textDecorationLine: 'line-through', fontFamily: BG[400] }}>{old}</Text> : null}
                         <Text style={{ color: COLORS.fg, fontSize: 22, textDecorationLine: old ? 'underline' : 'none', fontFamily: BG[800] }}>{mealTitle(m)}</Text>
-                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{num(m.kcal)} kcal · P {Math.round(m.protein)} g</Text>
                         <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{itemsText(m)}</Text>
                         <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                         {old ? <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: FONT_HAND }}>changed to fit the rest of your day</Text> : null}
@@ -524,7 +561,7 @@ export default function NutritionTab() {
                     </View>
                     {m ? (
                       <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>
-                        {mealTitle(m)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {m.kcal} kcal · P {Math.round(m.protein)} g</Text>
+                        {mealTitle(m)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {num(m.kcal)} kcal · P {Math.round(m.protein)} g</Text>
                       </Text>
                     ) : null}
                     <View style={{ gap: 8 }}>
@@ -555,14 +592,14 @@ export default function NutritionTab() {
                   <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{label} · later</Text>
                   {v.planned ? (
                     <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[700] }}>
-                      {mealTitle(v.planned)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {v.planned.kcal} kcal · P {Math.round(v.planned.protein)} g</Text>
+                      {mealTitle(v.planned)} <Text style={{ color: COLORS.textMuted, fontWeight: '400', fontSize: 15 }}>· {num(v.planned.kcal)} kcal · P {Math.round(v.planned.protein)} g</Text>
                     </Text>
                   ) : null}
                   <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                 </View>
               );
             })}
-            {!plan && targetsLoaded ? (
+            {!plan && targetsLoaded && planLoaded ? (
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
                 Finish "Set up your meals" and your three meals a day are planned from what you can get.
               </Text>
@@ -573,10 +610,10 @@ export default function NutritionTab() {
               post-workout shake) is a snack, as many as you like. They are listed here and count in your day. */}
           <View style={{ gap: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <SectionLabel color={G}>SNACKS AND EXTRAS</SectionLabel>
+              <SectionHeader>Snacks and extras</SectionHeader>
               {extras.length > 0 ? (
                 <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[500] }}>
-                  {Math.round(extras.reduce((s, m) => s + (m.calories ?? 0), 0))} kcal
+                  {num(extras.reduce((s, m) => s + (m.calories ?? 0), 0))} kcal
                 </Text>
               ) : null}
             </View>
@@ -587,13 +624,13 @@ export default function NutritionTab() {
                 time={timeText(m.logged_at)}
                 planStatus="extra"
                 name={m.description}
-                macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} g`}
+                macros={`${num(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} g`}
                 photoPath={(m as MealLogRow).photo_url}
                 rating={rated.find((x) => x.meal.id === m.id)?.rating}
                 onPress={() => setSelectedMeal(m as MealLogRow)}
               />
             ))}
-            <Button variant="secondary" size="md" fullWidth accent={G} onPress={openQuickLog} icon={<Icon name="plus" size={16} color={G} />}>
+            <Button variant="secondary" size="md" fullWidth accent={G} onPress={() => { setSearchFor('Snack'); setSearchOpen(true); }} icon={<Icon name="plus" size={16} color={G} />}>
               Add a snack
             </Button>
           </View>
@@ -617,6 +654,46 @@ export default function NutritionTab() {
       <MealDetailModal meal={selectedMeal} onClose={() => setSelectedMeal(null)} />
       <FoodSearchSheet visible={searchOpen} mealType={searchFor ?? addType} recent={recent} planned={!!upSlot?.planned} onClose={() => { setSearchOpen(false); setSearchFor(null); }} onLogged={afterOtherLog} />
 
+      <BottomSheet visible={planMenu} onClose={closePlanMenu}>
+        <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 10 }}>
+          <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800] }}>Your meal plan</Text>
+          {targets ? (
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], marginBottom: 4, fontFamily: BG[400] }}>
+              {targets.calories.toLocaleString('en-IN')} kcal · {targets.protein_g} g protein a day
+            </Text>
+          ) : null}
+          {confirmStartOver ? (
+            <View style={{ gap: 10 }}>
+              <Surface padding={16}>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Start your meal plan over?</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, marginTop: 4, fontFamily: BG[400] }}>
+                  You'll answer the setup again from a blank page and pick a goal. Your calorie and protein targets are worked out again from your weight today, and today's and tomorrow's meals are planned again. Meals you've logged stay.
+                </Text>
+              </Surface>
+              <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} icon={<Icon name="refresh-cw" size={16} color="#fff" />} onPress={() => { closePlanMenu(); router.push({ pathname: '/nutrition-setup', params: { fresh: '1' } }); }}>
+                Start over
+              </Button>
+              <Button variant="ghost" size="lg" fullWidth onPress={() => setConfirmStartOver(false)}>
+                Keep my plan
+              </Button>
+            </View>
+          ) : (
+            <>
+              <Button variant="secondary" size="lg" fullWidth accent={G} icon={<Icon name="pencil" size={16} color={G} />} onPress={() => { closePlanMenu(); router.push('/nutrition-setup'); }}>
+                Change what you can get
+              </Button>
+              <Button variant="secondary" size="lg" fullWidth accent={G} icon={<Icon name="utensils" size={16} color={G} />} onPress={() => { closePlanMenu(); router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }); }}>
+                Cuisines and foods to avoid
+              </Button>
+              {/* Starting over replaces the targets, so it's the quiet last option and asks first. */}
+              <Button variant="ghost" size="lg" fullWidth icon={<Icon name="refresh-cw" size={16} color="#A1A1AA" />} onPress={() => setConfirmStartOver(true)}>
+                Start my meal plan over
+              </Button>
+            </>
+          )}
+        </View>
+      </BottomSheet>
+
       <BottomSheet visible={swapMeal !== null} onClose={() => setSwapMeal(null)}>
         <View style={{ padding: 20, gap: 12 }}>
           <Text style={{ color: COLORS.fg, fontSize: 20, fontFamily: BG[800] }}>Swap {swapMeal?.meal}</Text>
@@ -626,7 +703,7 @@ export default function NutritionTab() {
             <PressScale key={o.templateId} onPress={() => chooseSwap(o)} accessibilityRole="button" accessibilityLabel={`${o.name}, ${o.kcal} kilocalories`}>
               <Surface padding={14}>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{o.name}</Text>
-                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{o.kcal} kcal · P {Math.round(o.protein)} g</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{num(o.kcal)} kcal · P {Math.round(o.protein)} g</Text>
               </Surface>
             </PressScale>
           ))}

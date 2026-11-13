@@ -51,7 +51,8 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
   const focus = items.find((i) => i.state === 'current') ?? items.find((i) => i.state === 'missed') ?? items.find((i) => i.state === 'upcoming') ?? items[items.length - 1];
   const all = items;
   items = expanded || !focus ? all : [focus];
-  const hidden = all.length - items.length;
+  // What is hidden and still to do: a logged meal is not "more in your day".
+  const hidden = all.filter((i) => i.state !== 'done' && !items.includes(i)).length;
   const missedHidden = !expanded ? all.filter((i) => i.state === 'missed' && i.id !== focus?.id).length : 0;
   return (
     <View style={{ gap: 4 }}>
@@ -77,7 +78,7 @@ export function TodayLine({ items, logging, onAteAsPlanned, onSomethingElse, onS
     <Surface padding={16}>
       <View accessibilityRole="list">
         {items.map((it, idx) => {
-          const color = it.kind === 'meal' ? AREA_COLORS.burned : it.kind === 'session' ? B : AREA_COLORS.sleep;
+          const color = it.kind === 'meal' ? G : it.kind === 'session' ? B : AREA_COLORS.sleep;
           const last = idx === items.length - 1;
           const open = it.state === 'current' || it.state === 'missed';
           const dim = it.state === 'done' || (it.state === 'upcoming' && it.kind !== 'sleep');

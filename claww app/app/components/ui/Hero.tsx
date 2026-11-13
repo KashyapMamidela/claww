@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
 import { SURFACES } from '../../lib/theme';
 import { EASE_OUT, MOTION } from '../../lib/motion';
+import { Stamp } from './Stamp';
 
 // NG PHASE 1 (build plan 5.3): the hero card. The app's blue or green gradient,
 // thin diagonal lines top-left, a top light, a coloured under-glow, and a sheen
@@ -25,9 +26,11 @@ export interface HeroProps {
   /** Turn the one-time sheen off (e.g. a hero inside a list that re-mounts). */
   sheen?: boolean;
   accessibilityLabel?: string;
+  /** Icon name drawn as a faint stamp in the bottom-right corner. */
+  stamp?: string;
 }
 
-export function Hero({ variant = 'blue', children, style, padding = 18, radius = 22, sheen = true, accessibilityLabel }: HeroProps) {
+export function Hero({ variant = 'blue', children, style, padding = 18, radius = 22, sheen = true, accessibilityLabel, stamp }: HeroProps) {
   const v = VARIANTS[variant];
   const reduced = useReducedMotion();
   const [width, setWidth] = useState(0);
@@ -49,15 +52,8 @@ export function Hero({ variant = 'blue', children, style, padding = 18, radius =
     <View style={[{ borderRadius: radius }, glow(v.glow), style]} accessibilityLabel={accessibilityLabel} onLayout={onLayout}>
       <View style={{ borderRadius: radius, overflow: 'hidden', borderWidth: 1, borderColor: v.border }}>
         <LinearGradient colors={v.colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-        <View pointerEvents="none" style={styles.linesBox}>
-          <Image source={LINES} resizeMode="repeat" style={styles.lines} />
-          <LinearGradient
-            colors={['rgba(0,0,0,0)', v.colors[1]]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-        </View>
+        {/* The diagonal-lines texture is gone: its box ended in a visible dark rectangle on the gradient (seen behind
+            Train's plan line). The gradient, top light and sheen carry the hero on their own. */}
         <View pointerEvents="none" style={[styles.topLight, { borderTopLeftRadius: radius, borderTopRightRadius: radius }]} />
         {sheen && !reduced && width > 0 ? (
           <Animated.View pointerEvents="none" style={[styles.sheen, { width: width * 0.35 }, sheenStyle]}>
@@ -69,6 +65,7 @@ export function Hero({ variant = 'blue', children, style, padding = 18, radius =
             />
           </Animated.View>
         ) : null}
+        {stamp ? <Stamp name={stamp} color="#FFFFFF" size={96} opacity={0.1} right={-14} bottom={-18} /> : null}
         <View style={{ padding }}>{children}</View>
       </View>
     </View>

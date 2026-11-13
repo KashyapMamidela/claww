@@ -55,7 +55,7 @@ export function weekStrip(days: { day: string; focus: string }[], eventsDesc: Da
       else state = 'upcoming';
     }
     if (planned && state === 'missed' && !note) {
-      note = `missed ${WEEKDAY_NAMES[w]}, ${shortLabel(days[planIndex].focus).toLowerCase()} is still open`;
+      note = `${WEEKDAY_NAMES[w]}'s ${shortLabel(days[planIndex].focus)} is still open`;
     }
     cells.push({
       weekday: w,

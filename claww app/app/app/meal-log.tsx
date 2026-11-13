@@ -1,8 +1,11 @@
 import React, { useCallback, useState } from 'react';
+import { num } from '../lib/format';
 import { mealForClock } from '../components/nutrition/MealTypePicker';
 import { scanPlate, setScanSession } from '../lib/scanner';
 import { DEFAULT_CONTEXT, PORTION_FACTOR } from '../lib/engine';
 import { describeToItems } from '../lib/describeMeal';
+import { startCheck } from '../lib/mealCheck';
+import { estimateItem } from '../lib/mealCheckLogic';
 import { BackTile } from '../components/ui/BackTile';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -28,6 +31,8 @@ import { SUGGEST_MEAL_ENABLED } from '../lib/flags';
 import { Icon } from '../components/ui/Icon';
 import { Surface } from '../components/ui/Surface';
 import { Button } from '../components/ui/Button';
+import { Chip } from '../components/ui/Chip';
+import { Segmented } from '../components/ui/Segmented';
 import { ErrorCard } from '../components/ui/ErrorCard';
 
 const G = { deep: COLORS.greenDeep, bright: COLORS.green, border: COLORS.greenBorder };
@@ -39,34 +44,34 @@ interface Suggestion {
 
 const SUGGESTIONS: Record<string, Suggestion[]> = {
   Breakfast: [
-    { label: 'Oatmeal with fruit', violates: [] },
-    { label: 'Chia pudding', violates: [] },
-    { label: 'Scrambled eggs & toast', violates: ['vegan', 'gluten_free'] },
-    { label: 'Greek yogurt & granola', violates: ['vegan', 'dairy_free', 'gluten_free'] },
-    { label: 'Protein smoothie', violates: [] },
-    { label: 'Avocado toast', violates: ['gluten_free'] },
+    { label: '2 idli with sambar', violates: [] },
+    { label: '2 egg omelette and toast', violates: ['vegan', 'vegetarian', 'gluten_free'] },
+    { label: 'Masala dosa', violates: [] },
+    { label: 'Poha', violates: [] },
+    { label: 'Oats with milk', violates: ['vegan', 'dairy_free', 'gluten_free'] },
+    { label: 'Chai and 2 biscuits', violates: ['vegan', 'dairy_free', 'gluten_free'] },
   ],
   Lunch: [
-    { label: 'Lentil soup', violates: [] },
-    { label: 'Grilled chicken & rice', violates: ['vegetarian', 'vegan'] },
-    { label: 'Turkey sandwich', violates: ['vegetarian', 'vegan', 'gluten_free'] },
-    { label: 'Caesar salad', violates: ['vegetarian', 'vegan', 'dairy_free'] },
-    { label: 'Chicken burrito bowl', violates: ['vegetarian', 'vegan'] },
-    { label: 'Veggie stir fry', violates: ['gluten_free'] },
+    { label: 'Dal, rice and sabzi', violates: [] },
+    { label: '2 roti with paneer curry', violates: ['vegan', 'dairy_free', 'gluten_free'] },
+    { label: 'Chicken curry and rice', violates: ['vegetarian', 'vegan'] },
+    { label: 'Rajma chawal', violates: [] },
+    { label: 'Curd rice', violates: ['vegan', 'dairy_free'] },
+    { label: 'Veg biryani and raita', violates: ['vegan', 'dairy_free'] },
   ],
   Snack: [
-    { label: 'Protein bar', violates: [] },
-    { label: 'Apple & peanut butter', violates: ['nut_allergy'] },
-    { label: 'Mixed nuts', violates: ['nut_allergy'] },
-    { label: 'Greek yogurt', violates: ['vegan', 'dairy_free'] },
+    { label: 'Chai and samosa', violates: ['vegan', 'dairy_free', 'gluten_free'] },
+    { label: 'Banana', violates: [] },
+    { label: 'Roasted chana', violates: [] },
     { label: 'Protein shake', violates: [] },
+    { label: 'Handful of peanuts', violates: ['nut_allergy'] },
   ],
   Dinner: [
-    { label: 'Stir-fried tofu & rice', violates: ['gluten_free'] },
-    { label: 'Grilled salmon & veggies', violates: ['vegetarian', 'vegan'] },
-    { label: 'Pasta with meat sauce', violates: ['vegetarian', 'vegan', 'gluten_free'] },
-    { label: 'Steak & sweet potato', violates: ['vegetarian', 'vegan'] },
-    { label: 'Chicken curry & rice', violates: ['vegetarian', 'vegan'] },
+    { label: '2 roti with dal', violates: ['gluten_free'] },
+    { label: 'Chicken curry and 2 roti', violates: ['vegetarian', 'vegan', 'gluten_free'] },
+    { label: 'Khichdi with curd', violates: ['vegan', 'dairy_free'] },
+    { label: 'Egg curry and rice', violates: ['vegetarian', 'vegan'] },
+    { label: 'Paneer bhurji and roti', violates: ['vegan', 'dairy_free', 'gluten_free'] },
   ],
 };
 
@@ -265,6 +270,13 @@ export default function MealLogScreen() {
       setError(result.reason ?? "Couldn't estimate that meal — check your connection and try again.");
       return;
     }
+    if (!photo) {
+      const dish = text.trim().replace(/\s+/g, ' ');
+      const name = dish.charAt(0).toUpperCase() + dish.slice(1);
+      startCheck({ source: 'text', mealType: (mealType as string) || mealForClock(new Date().getHours()), dish: name, items: [estimateItem(name, result.meal)] });
+      router.push('/scan-check');
+      return;
+    }
     setReviewing(result.meal);
     setReviewFields({
       calories: String(Math.round(result.meal.calories)),
@@ -428,8 +440,8 @@ export default function MealLogScreen() {
           ) : null}
 
           <View style={{ marginTop: 24, gap: 10 }}>
-            <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth disabled={saving} onPress={handleConfirmLog}>
-              {saving ? 'Logging…' : 'Looks good, log it'}
+            <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth saving={saving} onPress={handleConfirmLog}>
+              Looks good, log it
             </Button>
             <Button variant="ghost" size="md" fullWidth onPress={handleEditEstimate} disabled={saving}>
               Edit meal instead
@@ -440,62 +452,71 @@ export default function MealLogScreen() {
     );
   }
 
+  const meal = (mealType as string) || mealForClock(new Date().getHours());
+  const ready = text.trim().length > 0 && !saving;
+
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 12,
-          paddingTop: insets.top + 26,
-          paddingHorizontal: 20,
-          paddingBottom: 4,
-        }}
-      >
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          activeOpacity={0.8}
-          onPress={() => router.back()}
-          style={{
-            width: 44,
-            height: 44,
-            borderRadius: 12,
-            backgroundColor: '#151517',
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.10)',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Icon name="x" size={16} color="#A1A1AA" />
-        </TouchableOpacity>
-        <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Log {mealType || 'a Meal'}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, paddingTop: insets.top + 26, paddingHorizontal: 20, paddingBottom: 4 }}>
+        <BackTile onPress={() => router.back()} label="Back" />
+        <View>
+          <Text style={{ color: '#fff', fontSize: 20, fontFamily: BG[800] }}>Log {meal.toLowerCase()}</Text>
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Scan below, or describe it</Text>
+        </View>
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24 }}>
-        {!photo && !text && photoHistory.length > 0 && (
-          <View style={{ marginBottom: 20 }}>
-            <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.6, marginBottom: 10, fontFamily: BG[700] }}>
-              EATEN THIS BEFORE?
-            </Text>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32, gap: 18 }} keyboardShouldPersistTaps="handled">
+        <View style={{ gap: 10 }}>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: BG[600] }}>Describe what you ate</Text>
+          <Surface radius={18} padding={0} grain={0.06} borderColor={text.length > 0 ? G.border : undefined}>
+            <TextInput
+              value={text}
+              onChangeText={setText}
+              placeholder="2 idli, sambar and a cup of chai"
+              placeholderTextColor={COLORS.textFaint}
+              multiline
+              accessibilityLabel="Describe what you ate"
+              style={{ color: '#fff', fontSize: 17, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 8, minHeight: 84, textAlignVertical: 'top', fontFamily: BG[500], lineHeight: 24 }}
+            />
+            <View style={{ paddingHorizontal: 10, paddingBottom: 10 }}>
+              <Segmented
+                options={PORTIONS.map((p) => ({ value: p.value, label: p.label }))}
+                value={portion}
+                onChange={setPortion}
+                accent={G.bright}
+                accentDeep={G.deep}
+                accessibilityLabel="How much did you have"
+              />
+            </View>
+          </Surface>
+          {suggestions.length > 0 ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} keyboardShouldPersistTaps="handled">
+              {suggestions.map((s) => (
+                <Chip key={s.label} active={text === s.label} accent={G.bright} accentDeep={G.deep} onPress={() => setText(s.label)}>
+                  {s.label}
+                </Chip>
+              ))}
+            </ScrollView>
+          ) : null}
+          {error ? <ErrorCard message={error} onRetry={ready ? handleEstimate : undefined} retrying={saving} /> : null}
+        </View>
+
+        {photoHistory.length > 0 && !text ? (
+          <View style={{ gap: 10 }}>
+            <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: BG[600] }}>Eaten this before</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
               {photoHistory.map((row) => (
-                <TouchableOpacity key={row.id} activeOpacity={0.85} onPress={() => reuseHistoryMeal(row)} style={{ width: 96 }}>
-                  <Image
-                    source={{ uri: photoHistoryUrls[row.id] }}
-                    style={{ width: 96, height: 96, borderRadius: 14, backgroundColor: '#151517' }}
-                    resizeMode="cover"
-                  />
-                  <Text numberOfLines={1} style={{ color: '#fff', fontSize: 11, marginTop: 5, fontFamily: BG[700] }}>
-                    {row.description}
-                  </Text>
-                  <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>{Math.round(row.calories ?? 0)} kcal</Text>
+                <TouchableOpacity key={row.id} activeOpacity={0.85} onPress={() => reuseHistoryMeal(row)} style={{ width: 96 }} accessibilityRole="button" accessibilityLabel={`Log again: ${row.description}`}>
+                  <Image source={{ uri: photoHistoryUrls[row.id] }} style={{ width: 96, height: 96, borderRadius: 14, backgroundColor: '#151517' }} resizeMode="cover" />
+                  <Text numberOfLines={1} style={{ color: '#fff', fontSize: 12, marginTop: 5, fontFamily: BG[700] }}>{row.description}</Text>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 12, fontFamily: BG[400] }}>{num(row.calories ?? 0)} kcal</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
-        )}
+        ) : null}
 
-        {!photo && SUGGEST_MEAL_ENABLED && (
+        {SUGGEST_MEAL_ENABLED ? (
           <MealSuggestions
             mealType={(mealType as MealType) ?? 'Snack'}
             remaining={remainingMacros}
@@ -504,213 +525,45 @@ export default function MealLogScreen() {
             goal={goal}
             eatenToday={eatenNames}
             trainedToday={trainedToday}
-            onPick={(meal) => {
-              setReviewing(meal);
-              setReviewFields({
-                calories: String(Math.round(meal.calories)),
-                protein_g: String(Math.round(meal.protein_g)),
-                carbs_g: String(Math.round(meal.carbs_g)),
-                fats_g: String(Math.round(meal.fats_g)),
-              });
+            onPick={(m) => {
+              setReviewing(m);
+              setReviewFields({ calories: String(Math.round(m.calories)), protein_g: String(Math.round(m.protein_g)), carbs_g: String(Math.round(m.carbs_g)), fats_g: String(Math.round(m.fats_g)) });
             }}
           />
-        )}
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-          <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: G.bright }} />
-          <Text style={{ color: G.bright, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>WHAT DID YOU EAT?</Text>
-        </View>
-        <Text style={{ color: '#fff', fontSize: 22, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginBottom: 14, lineHeight: 29, fontFamily: BG[800] }}>
-          Just tell us — in your own words.
-        </Text>
-
-        {!photo && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 14 }} contentContainerStyle={{ gap: 8 }}>
-            {suggestions.map((s) => (
-              <TouchableOpacity
-                key={s.label}
-                activeOpacity={0.8}
-                onPress={() => setText(s.label)}
-                style={{
-                  backgroundColor: text === s.label ? G.border : '#151517',
-                  borderWidth: 1,
-                  borderColor: text === s.label ? 'rgba(34,197,94,0.4)' : 'rgba(255,255,255,0.12)',
-                  borderRadius: 100,
-                  paddingHorizontal: 14,
-                  paddingVertical: 9,
-                }}
-              >
-                <Text style={{ color: text === s.label ? G.bright : '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>
-                  {s.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        )}
-
-        {photo ? (
-          <View
-            style={{
-              borderRadius: 18,
-              borderWidth: 1,
-              borderColor: G.border,
-              overflow: 'hidden',
-              marginBottom: 8,
-            }}
-          >
-            <Image source={{ uri: photo.uri }} style={{ width: '100%', height: 220 }} resizeMode="cover" />
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove the photo" hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-              activeOpacity={0.85}
-              onPress={() => setPhoto(null)}
-              style={{
-                position: 'absolute',
-                top: 10,
-                right: 10,
-                width: 30,
-                height: 30,
-                borderRadius: 9,
-                backgroundColor: 'rgba(0,0,0,0.6)',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Icon name="x" size={15} color="#fff" />
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <Surface radius={16} padding={0} grain={0.06} borderColor={text.length > 0 ? G.border : undefined}>
-          <TextInput
-            value={text}
-            onChangeText={setText}
-            placeholder="e.g. grilled chicken with rice"
-            placeholderTextColor="#52525B"
-            multiline
-            numberOfLines={3}
-            style={{
-              color: '#fff',
-              fontSize: 17,
-              padding: 16,
-              minHeight: 96,
-              textAlignVertical: 'top',
-              fontFamily: BG[500],
-              lineHeight: 24,
-            }}
-          />
-          </Surface>
-        )}
-        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: BG[400] }}>
-          {photo
-            ? 'CLAWW will read this photo and estimate calories and macros.'
-            : 'Portion size, brand, or a rough guess all work — CLAWW fills in the rest.'}
-        </Text>
-
-        <Text style={{ color: '#fff', fontSize: 13, marginTop: 22, marginBottom: 10, fontFamily: BG[700] }}>
-          How much did you have?
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 8, marginBottom: 4 }}>
-          {PORTIONS.map((p) => (
-            <TouchableOpacity
-              key={p.value}
-              activeOpacity={0.8}
-              onPress={() => setPortion(p.value)}
-              style={{ flex: 1 }}
-            >
-              <Surface
-                radius={14}
-                padding={0}
-                grain={0.06}
-                borderColor={portion === p.value ? 'rgba(34,197,94,0.45)' : undefined}
-                colors={portion === p.value ? ['#123A21', '#0D2A18'] : undefined}
-                shadow={false}
-              >
-              <View style={{ alignItems: 'center', paddingVertical: 12 }}>
-              <Text style={{ color: portion === p.value ? G.bright : '#fff', fontSize: 15, fontFamily: BG[700] }}>
-                {p.label}
-              </Text>
-              <Text style={{ color: portion === p.value ? G.bright : COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>
-                {p.hint}
-              </Text>
-              </View>
-              </Surface>
-            </TouchableOpacity>
-          ))}
-        </View>
-        <Text style={{ color: COLORS.textFaint, fontSize: 11, marginTop: 8, marginHorizontal: 2, fontFamily: BG[400] }}>
-          This scales the estimate up or down — pick what matches your plate.
-        </Text>
-
-        {error ? (
-          <View style={{ marginTop: 16 }}>
-            <ErrorCard message={error} onRetry={canSubmit ? handleEstimate : undefined} retrying={saving} />
-          </View>
         ) : null}
-
-        <View style={{ marginTop: 22 }}>
-          <Button
-            variant="primary"
-            accent={G.bright}
-            accentDeep={G.deep}
-            size="lg"
-            fullWidth
-            disabled={!canSubmit}
-            onPress={handleEstimate}
-            icon={<Icon name="sparkles" size={17} color="#fff" />}
-          >
-            {saving ? 'Estimating…' : photo ? 'Estimate from Photo' : 'Estimate Meal'}
-          </Button>
-        </View>
-
-        {!photo && (
-          <>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 22, marginBottom: 16 }}>
-              <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-              <Text style={{ color: COLORS.textFaint, fontSize: 11, letterSpacing: 0.8, fontFamily: BG[700] }}>OR</Text>
-              <View style={{ flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.08)' }} />
-            </View>
-
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => pickPhoto('camera')}
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  borderWidth: 1,
-                  borderStyle: 'dashed',
-                  borderColor: 'rgba(255,255,255,0.14)',
-                  borderRadius: 16,
-                  paddingVertical: 14,
-                }}
-              >
-                <Icon name="camera" size={16} color="#71717A" />
-                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>Take photo</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => pickPhoto('library')}
-                style={{
-                  flex: 1,
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                  borderWidth: 1,
-                  borderStyle: 'dashed',
-                  borderColor: 'rgba(255,255,255,0.14)',
-                  borderRadius: 16,
-                  paddingVertical: 14,
-                }}
-              >
-                <Icon name="image" size={16} color="#71717A" />
-                <Text style={{ color: '#A1A1AA', fontSize: 13, fontFamily: BG[600] }}>Choose photo</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
       </ScrollView>
+
+      {/* The main action sits at the bottom, under the thumb. It scans, and turns into "Check my meal" once something is typed. */}
+      <View style={{ flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingTop: 12, paddingBottom: insets.bottom + 12, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', backgroundColor: '#050505' }}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => pickPhoto('library')}
+          accessibilityRole="button"
+          accessibilityLabel="Use a photo from your gallery"
+          style={{ width: 56, height: 56, borderRadius: 28, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.10)' }}
+        >
+          <Icon name="image" size={22} color={G.bright} />
+        </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          {text.trim().length >= 2 ? (
+            <Button variant="primary" accent={G.bright} accentDeep={G.deep} size="lg" fullWidth disabled={saving} onPress={handleEstimate}>
+              {saving ? 'Checking…' : 'Check my meal'}
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              accent={G.bright}
+              accentDeep={G.deep}
+              size="lg"
+              fullWidth
+              onPress={() => router.replace({ pathname: '/scan', params: { mealType: meal } })}
+              icon={<Icon name="camera" size={20} color="#fff" />}
+            >
+              Scan your plate
+            </Button>
+          )}
+        </View>
+      </View>
     </View>
   );
 }

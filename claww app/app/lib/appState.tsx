@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { syncPenMarks } from './penData';
 import { useWriteQueueFlusher } from './writeQueueRuntime';
+import { useDayKey } from './dayKey';
 import { supabase } from './supabase';
 import { refreshReminders } from './reminderSync';
 import { loadPlanStreak } from './streakData';
@@ -17,6 +18,7 @@ import {
   getUserXp,
   insertSleepLog,
   saveMeal,
+  updateMealLog,
   type EstimatedMeal,
   type EstimateResult,
   type MealLogRow,
@@ -69,6 +71,8 @@ interface AppState {
   saveMeal: (type: MealType, meal: EstimatedMeal) => Promise<MealLogRow | null>;
   /** NG PHASE 8: takes a just-logged meal back (the Undo after a one-tap usual). */
   removeMeal: (id: string) => Promise<boolean>;
+  /** Changes a logged meal after it was edited on the check screen. False when it could not be saved. */
+  editMeal: (id: string, type: MealType, meal: EstimatedMeal) => Promise<boolean>;
   xp: number;
   bumpXp: (amount: number) => void;
   /** Plan days followed (rest days count, an exam week protects it): the one streak every screen shows. */
@@ -76,7 +80,7 @@ interface AppState {
   /** The same streak with its best run and the grid of recent days, for the sheet and the Tracker. */
   streakStats: PlanStreakStats | null;
   /** Re-reads it after something that can change it (a finished session, a new plan, the exam-week switch). */
-  refreshStreak: () => void;
+  refreshStreak: () => Promise<void>;
 }
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -94,6 +98,29 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const [xp, setXp] = useState(0);
   const [streakStats, setStreakStats] = useState<PlanStreakStats | null>(null);
   const streak = streakStats?.current ?? 0;
+
+  // A new day (midnight, or the app reopened on a later date) reloads everything that is "today's":
+  // without this an app left open overnight showed yesterday's meals as done on the new day.
+  const dayKey = useDayKey();
+  const firstDay = React.useRef(dayKey);
+  useEffect(() => {
+    if (!userId || dayKey === firstDay.current) return;
+    firstDay.current = dayKey;
+    let cancelled = false;
+    Promise.all([getTodaysMealLogs(userId), getLastNightSleep(userId), getRecoveryScore(userId), loadPlanStreak(userId).catch(() => null)]).then(
+      ([todaysMeals, sleep, rec, loadedStreak]) => {
+        if (cancelled) return;
+        setMeals(todaysMeals);
+        setTodaySleep(sleep);
+        setSleepLogged(!!sleep);
+        setRecovery(rec);
+        if (loadedStreak) setStreakStats(loadedStreak.stats);
+      }
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [dayKey, userId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -211,9 +238,21 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     [userId]
   );
 
+  const editMeal = useCallback(
+    async (id: string, type: MealType, meal: EstimatedMeal) => {
+      if (!userId) return false;
+      const changed = await updateMealLog(userId, id, type, meal);
+      if (!changed) return false;
+      setMeals((m) => m.map((x) => (x.id === id ? { ...x, ...changed } : x)));
+      refreshReminders(userId).catch(() => {});
+      return true;
+    },
+    [userId]
+  );
+
   const refreshStreak = useCallback(() => {
-    if (!userId) return;
-    loadPlanStreak(userId)
+    if (!userId) return Promise.resolve();
+    return loadPlanStreak(userId)
       .then((r) => setStreakStats(r.stats))
       .catch(() => {});
   }, [userId]);
@@ -238,6 +277,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       estimateMealPhoto,
       saveMeal: saveMealAndUpdateState,
       removeMeal,
+      editMeal,
       xp,
       bumpXp,
       streak,
@@ -258,6 +298,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       estimateMealPhoto,
       saveMealAndUpdateState,
       removeMeal,
+      editMeal,
       xp,
       bumpXp,
       streak,

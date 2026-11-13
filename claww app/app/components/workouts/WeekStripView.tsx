@@ -6,7 +6,7 @@ import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
 
 // NG PHASE 12 (screen 06): the week as seven tappable days. Done days carry a check, missed days a struck name,
-// rest days are dim and not tappable, today has a ring, and the selected day is filled.
+// rest days are dim and not tappable, today is marked by its glowing dot only, and the selected day is filled.
 
 const A = COLORS.blue;
 
@@ -34,7 +34,7 @@ function Cell({ cell, selected, onPress }: { cell: StripCell; selected: boolean;
           justifyContent: 'center',
           gap: 2,
           borderWidth: 1,
-          borderColor: selected ? A : today ? 'rgba(59,130,246,0.55)' : 'transparent',
+          borderColor: selected ? A : 'transparent',
           backgroundColor: selected ? 'rgba(59,130,246,0.30)' : 'transparent',
         }}
       >

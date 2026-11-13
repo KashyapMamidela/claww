@@ -47,12 +47,12 @@ export function PrivacyDataModal({ visible, onClose, onExport, onDelete }: Priva
             >
               <Icon name="shield" size={18} color="#A1A1AA" />
             </View>
-            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Privacy & Data</Text>
+            <Text style={{ flex: 1, color: '#fff', fontSize: 17, fontFamily: BG[800] }}>Privacy and data</Text>
           </View>
 
           <Text style={{ color: '#A1A1AA', fontSize: 13, lineHeight: 19, fontFamily: BG[400] }}>
             CLAWW stores your profile, workout and meal logs, and progress data to build and adapt
-            your plans. Meal photos and injury notes are sent to our AI provider only to generate
+            your plans. Meal photos and injury notes are sent to the service that reads them only to make
             estimates — never sold, never shared beyond what's needed to run the app.
           </Text>
 

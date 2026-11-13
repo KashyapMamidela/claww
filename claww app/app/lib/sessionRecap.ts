@@ -77,7 +77,7 @@ export function feelNote(feel: Feel): string {
     case 'too_hard':
       return 'noted, next session holds the weights';
     default:
-      return 'perfect, next week climbs as planned';
+      return 'perfect, next session climbs as planned';
   }
 }
 
@@ -87,9 +87,9 @@ export const FEEL_OPTIONS: { value: Feel; label: string }[] = [
   { value: 'too_hard', label: 'Too hard' },
 ];
 
-/** "Strong session" above 90 % of planned sets done, "Good session" above half, else "Session done". */
+/** "Strong session" above 90 % of planned sets done, "Good session" above half, else "Session saved" (a short session is not "done"). */
 export function sessionTitle(setsDone: number, setsPlanned: number): string {
   if (setsPlanned <= 0) return 'Session done';
   const pct = setsDone / setsPlanned;
-  return pct >= 0.9 ? 'Strong session' : pct >= 0.5 ? 'Good session' : 'Session done';
+  return pct >= 0.9 ? 'Strong session' : pct >= 0.5 ? 'Good session' : 'Session saved';
 }

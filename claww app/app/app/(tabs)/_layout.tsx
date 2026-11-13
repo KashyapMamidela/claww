@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { getMarks } from '../../lib/penData';
 import { View } from 'react-native';
+import { TabScene } from '../../components/ui/TabScene';
 import { Tabs, useGlobalSearchParams, usePathname, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../../components/ui/AppHeader';
 import { AmbientLight } from '../../components/ui/AmbientLight';
 import { TabBar } from '../../components/ui/TabBar';
 import { LiveWorkoutPlayer } from '../../components/LiveWorkoutPlayer';
+import { ActivityMiniBar } from '../../components/activity/ActivityPlayer';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { useAppState } from '../../lib/appState';
 import { dayLabel } from '../../lib/format';
@@ -15,6 +17,8 @@ import { TAB_ACCENTS, TAB_BAR_HEIGHT } from '../../lib/theme';
 import { useRenderCount } from '../../lib/perf';
 import { useQuickLog } from '../../components/QuickLog';
 
+const TAB_NAMES = ['index', 'workouts', 'nutrition', 'tracker'];
+
 export default function TabsLayout() {
   useRenderCount('TabsLayout');
   const pathname = usePathname();
@@ -22,7 +26,12 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const { status, endSession } = useWorkoutSession();
 
-  const routeName = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
+  const pathTab = pathname === '/' ? 'index' : pathname.replace(/^\//, '');
+  // While a screen opens over the tabs (session complete, profile), the path isn't a tab: keep the last tab, so the
+  // header behind it never loses its title for a moment.
+  const lastTab = useRef('index');
+  if (TAB_NAMES.includes(pathTab)) lastTab.current = pathTab;
+  const routeName = lastTab.current;
   const { userName, userId } = useAppState();
   useEffect(() => { setCurrentTab(routeName); }, [routeName]);
   // Premium F2: the widgets open the Quick log sheet (?quicklog=1) or the activity sheet (?quicklog=activity) through a link.
@@ -48,7 +57,7 @@ export default function TabsLayout() {
   const now = new Date();
   const headerTitle =
     routeName === 'index'
-      ? dayLabel(now)
+      ? 'Today'
       : ({ workouts: 'Train', nutrition: 'Food', tracker: 'Progress', more: 'More' } as Record<string, string>)[routeName] ?? '';
 
   // Session hits 'completed' the instant the last set is finished (or the
@@ -72,6 +81,7 @@ export default function TabsLayout() {
       <Tabs
         tabBar={(props) => <TabBar {...props} />}
         screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: '#050505' }, freezeOnBlur: true }}
+        screenLayout={({ children, route }) => <TabScene name={route.name}>{children}</TabScene>}
       >
         <Tabs.Screen name="index" />
         <Tabs.Screen name="workouts" />
@@ -82,12 +92,14 @@ export default function TabsLayout() {
       <AppHeader
         accent={headerAccent}
         title={headerTitle}
+        subtitle={routeName === 'index' ? dayLabel(now) : undefined}
         penDot={penDot}
         initial={(userName || 'M').charAt(0).toUpperCase()}
         onPenPress={() => router.push('/week-review')}
         onAvatarPress={() => router.push('/profile')}
       />
       <LiveWorkoutPlayer bottomOffset={tabBarHeight + 8} />
+      <ActivityMiniBar bottomOffset={tabBarHeight + 8} />
     </View>
   );
 }

@@ -10,6 +10,7 @@ import { Button } from '../../../components/ui/Button';
 import { Chip } from '../../../components/ui/Chip';
 import { Icon } from '../../../components/ui/Icon';
 import { ErrorCard } from '../../../components/ui/ErrorCard';
+import { PlanBuilding } from '../../../components/workouts/PlanBuilding';
 import { generateWorkoutPlan, saveTrainingSchedule } from '../../../lib/data';
 import { defaultWeekdays, sortWeekdays } from '../../../lib/trainingWeek';
 
@@ -46,6 +47,7 @@ export default function WorkoutSetupSchedule() {
   }, [saved.join(','), need]);
   const [usualTime, setUsualTime] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [phase, setPhase] = useState<'saving' | 'building'>('saving');
   const [error, setError] = useState<string | null>(null);
 
   const toggleDay = (day: string) => {
@@ -57,6 +59,7 @@ export default function WorkoutSetupSchedule() {
   const submit = async () => {
     if (!userId || submitting || !ready) return;
     setSubmitting(true);
+    setPhase('saving');
     setError(null);
 
     const saved = await saveTrainingSchedule(userId, sortWeekdays(trainingDays), usualTime);
@@ -66,6 +69,7 @@ export default function WorkoutSetupSchedule() {
       return;
     }
 
+    setPhase('building');
     const { workout, error: genError } = await generateWorkoutPlan(userId);
     setSubmitting(false);
     if (!workout) {
@@ -90,6 +94,10 @@ export default function WorkoutSetupSchedule() {
           Your plan has {need} sessions. Pick the weekdays and each session lands exactly there.
         </Text>
 
+        {submitting ? (
+          <PlanBuilding days={sortWeekdays(trainingDays)} phase={phase} />
+        ) : (
+        <>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {WEEKDAYS.map((day) => (
             <Chip key={day} active={trainingDays.includes(day)} accent={A} accentDeep={COLORS.blueDeep} onPress={() => toggleDay(day)}>
@@ -109,6 +117,8 @@ export default function WorkoutSetupSchedule() {
             </Chip>
           ))}
         </View>
+        </>
+        )}
 
         <View style={{ flex: 1, minHeight: 24 }} />
         {error ? (
@@ -116,9 +126,11 @@ export default function WorkoutSetupSchedule() {
             <ErrorCard message={error} onRetry={submit} retrying={submitting} />
           </View>
         ) : null}
-        <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={submitting || !ready} onPress={submit} icon={<Icon name="wand-2" size={16} color="#fff" />}>
-          {submitting ? 'Building your plan…' : 'Build my plan'}
-        </Button>
+        {submitting ? null : (
+          <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={!ready} onPress={submit} icon={<Icon name="wand-2" size={16} color="#fff" />}>
+            Build my plan
+          </Button>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

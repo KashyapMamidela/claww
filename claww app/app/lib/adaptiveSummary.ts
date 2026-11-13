@@ -2,6 +2,7 @@
 // so and names the next session; it says nothing about "changes" (nothing is being changed today).
 
 import { isWeekdayPlan, localWeekday, weekdayIndex } from './trainingWeek';
+import { sessionName } from './format';
 
 export function isRestDay(dayLabels: string[], now: Date): boolean {
   if (!isWeekdayPlan(dayLabels)) return false;
@@ -10,7 +11,8 @@ export function isRestDay(dayLabels: string[], now: Date): boolean {
 }
 
 export function adaptiveSummary(input: { dayLabels: string[]; focus: string; dayLabel: string; changed: number; answered: number; now: Date }): string {
-  const { dayLabels, focus, dayLabel, changed, answered, now } = input;
+  const { dayLabels, dayLabel, changed, answered, now } = input;
+  const focus = sessionName(input.focus);
   if (isRestDay(dayLabels, now)) return `Rest day · next is ${focus} on ${dayLabel}`;
   const changes = changed === 0 ? 'plan as written' : `${changed} ${changed === 1 ? 'change' : 'changes'} from your plan`;
   return `${focus} today · ${changes}${answered > 0 ? ' · check-in saved' : ''}`;

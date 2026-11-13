@@ -44,6 +44,13 @@ export function coachLine(i: CoachInput): CoachSegment[] {
   const out: CoachSegment[] = [];
   if (i.sleepHours === null) {
     out.push({ text: "Log last night's sleep and today's session will fit it." });
+  } else if (!i.sessionPlanned && !i.sessionDone) {
+    // A rest day: the line must not say "push" or "lighter" about a session that isn't there.
+    out.push(
+      i.sleepHours < LOW_SLEEP
+        ? { text: `You slept ${sleepText(i.sleepHours)}. A rest day is a good one to catch up.` }
+        : { text: `You slept ${sleepText(i.sleepHours)}. Rest today, and tomorrow's session starts fresh.` },
+    );
   } else if (i.sleepHours < LOW_SLEEP) {
     out.push({ text: `You slept ${sleepText(i.sleepHours)}, so ` }, { text: 'today is a little lighter', bold: true }, { text: '.' });
   } else if (i.sleepHours >= GOOD_SLEEP) {

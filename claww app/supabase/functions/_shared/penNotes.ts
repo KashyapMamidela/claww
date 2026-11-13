@@ -28,7 +28,8 @@ export function wordsFor(f: Finding): Words {
       return { note: `${f.slot} skipped ${f.count} times`, reason: `${cap(f.slot)} had no meal logged on ${f.count} days this week, so a lighter, quicker one is planned.` };
     case 'missed_days': {
       const n = f.dates.length;
-      return { note: `missed ${plural(n, f.weekday.slice(0, 3))}`, reason: `${plural(n, 'planned ' + f.weekday)} in the last 2 weeks had no session, so the session moves to a day that works.` };
+      // Full weekday names: "missed 2 Fris" read like an abbreviation table.
+      return { note: n === 1 ? `missed last ${f.weekday}` : `missed ${plural(n, f.weekday)}`, reason: `${plural(n, 'planned ' + f.weekday)} in the last 2 weeks had no session, so the session moves to a day that works.` };
     }
     case 'flat_weight':
       return { note: `weight flat for ${f.weeks} weeks`, reason: `Your weight has stayed near ${f.kg} kg for ${f.weeks} weeks (change ${f.deltaKg} kg), so calories move a little.` };

@@ -14,9 +14,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Session } from '@supabase/supabase-js';
 import { AppStateProvider } from '../lib/appState';
 import { OfflineBanner } from '../components/OfflineBanner';
+import { MomentHost } from '../components/moments/MomentHost';
 import { ToastProvider } from '../components/ui/Toast';
 import { QuickLogProvider } from '../components/QuickLog';
 import { WorkoutSessionProvider } from '../lib/workoutSession';
+import { ActivitySessionProvider } from '../lib/activitySession';
 import { supabase } from '../lib/supabase';
 import { ensureProfileRow, isOnboardingComplete } from '../lib/auth';
 import { notificationsSupported, type ReminderType } from '../lib/notifications';
@@ -162,18 +164,21 @@ function RootLayout() {
       <SafeAreaProvider>
         <AppStateProvider>
           <WorkoutSessionProvider>
-            <ToastProvider>
-              <QuickLogProvider>
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: '#050505' },
-                  }}
-                />
-              </QuickLogProvider>
-            </ToastProvider>
+            <ActivitySessionProvider>
+              <ToastProvider>
+                <QuickLogProvider>
+                  <Stack
+                    screenOptions={{
+                      headerShown: false,
+                      contentStyle: { backgroundColor: '#050505' },
+                    }}
+                  />
+                </QuickLogProvider>
+              </ToastProvider>
+            </ActivitySessionProvider>
           </WorkoutSessionProvider>
           <OfflineBanner />
+          <MomentHost />
         </AppStateProvider>
         {!introDone && (
           // Premium D15: the splash fades into Home instead of cutting.

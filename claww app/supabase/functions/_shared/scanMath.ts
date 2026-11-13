@@ -29,7 +29,7 @@ export interface ScanFood {
 }
 
 export type Place = 'home' | 'mess' | 'restaurant' | 'street';
-export type Oil = 'light' | 'normal' | 'heavy';
+export type Oil = 'none' | 'light' | 'normal' | 'heavy';
 export type Portion = 'small' | 'regular' | 'large' | 'shared';
 
 export interface ScanContext {
@@ -42,7 +42,7 @@ export const DEFAULT_CONTEXT: ScanContext = { place: 'home', oil: 'normal', port
 
 export const PORTION_FACTOR: Record<Portion, number> = { small: 0.75, regular: 1, large: 1.35, shared: 0.5 };
 /** Teaspoons of oil added for a whole plate, before the portion factor. */
-export const OIL_TSP: Record<Oil, number> = { light: 1, normal: 2, heavy: 3 };
+export const OIL_TSP: Record<Oil, number> = { none: 0, light: 1, normal: 2, heavy: 3 };
 export const OIL_FOOD = 'Oil, sunflower';
 
 // ─── What the model returns ───────────────────────────────────────────────────────────────────────────────────
@@ -53,6 +53,8 @@ export interface ModelItem {
   quantity: number;
   /** katori, piece, tsp, glass, plate, roti, idli, egg ... or "g". */
   unit: string;
+  /** The model's own estimate of what is visible, in grams. Used only where the food has no household unit to convert with. */
+  grams?: number;
 }
 
 export interface ModelOutput {
@@ -81,7 +83,13 @@ export function parseModelOutput(raw: unknown): ModelOutput | null {
     if (typeof o?.name !== 'string' || !o.name.trim()) continue;
     const quantity = Number(o.quantity);
     if (!Number.isFinite(quantity) || quantity <= 0 || quantity > 50) continue;
-    items.push({ name: o.name.trim().slice(0, 60), quantity, unit: typeof o.unit === 'string' && o.unit.trim() ? o.unit.trim().toLowerCase().slice(0, 20) : 'piece' });
+    const g = Number(o.grams);
+    items.push({
+      name: o.name.trim().slice(0, 60),
+      quantity,
+      unit: typeof o.unit === 'string' && o.unit.trim() ? o.unit.trim().toLowerCase().slice(0, 20) : 'piece',
+      ...(Number.isFinite(g) && g > 0 && g <= 2000 ? { grams: Math.round(g) } : {}),
+    });
   }
   const candidates = Array.isArray(r.candidates) ? r.candidates.filter((c): c is string => typeof c === 'string' && c.trim().length > 0).map((c) => c.trim().slice(0, 60)).slice(0, 4) : [];
   if (r.isFood && r.isAppropriate && items.length === 0) return null;
@@ -104,6 +112,8 @@ function singular(word: string): string {
 
 const stem = (text: string) => normalise(text).split(' ').map(singular).join(' ');
 
+const RAW_FORM = /\b(raw|dry|dried|uncooked|flour)\b/i;
+
 /** How well a model name matches a food, 0 to 100. Exact name or alias beats all words, which beats some words. */
 export function matchScore(name: string, food: Pick<ScanFood, 'name' | 'aliases' | 'kind'>): number {
   const q = stem(name);
@@ -118,16 +128,80 @@ export function matchScore(name: string, food: Pick<ScanFood, 'name' | 'aliases'
     else if (words.every((w) => c.split(' ').includes(w))) best = Math.max(best, 70);
     else if (words.some((w) => w.length > 3 && c.split(' ').includes(w))) best = Math.max(best, 45 * (words.filter((w) => c.split(' ').includes(w)).length / words.length));
   }
+  // A plate holds cooked food. "rice" must not become the raw-rice ingredient (365 kcal per 100 g, three times cooked rice)
+  // while a cooked row exists: raw, dry and flour forms lose 25 points unless the model itself said raw, dry or flour.
+  if (best > 0 && RAW_FORM.test(food.name) && !RAW_FORM.test(name)) best -= 25;
   return best + (food.kind === 'dish' ? 0.5 : 0);
 }
 
 export const MATCH_THRESHOLD = 40;
 
-export function matchFood(name: string, foods: ScanFood[]): { food: ScanFood; score: number } | null {
+/** Words that describe how a food looks or is cut, not what it is: "shredded purple cabbage" is cabbage. */
+const DESCRIPTORS = new Set([
+  'red', 'yellow', 'green', 'orange', 'purple', 'white', 'black', 'fresh', 'raw', 'ripe', 'small', 'large', 'big', 'baby',
+  'shredded', 'chopped', 'sliced', 'diced', 'cubed', 'grated', 'crushed', 'mashed', 'whole', 'halved', 'julienned', 'mixed',
+  'steamed', 'boiled', 'grilled', 'roasted', 'fried', 'sauteed', 'cooked', 'toasted', 'garnish', 'topping', 'some', 'a', 'of', 'with',
+  'cherry', 'grape', 'roma', 'baby', 'mini', 'heirloom',
+]);
+
+/** What the model says when it means a food the database holds under another name. */
+const NAME_SYNONYMS: Record<string, string> = {
+  'purple cabbage': 'red cabbage',
+  'red cabbage': 'red cabbage',
+  'mixed greens': 'salad greens',
+  'leafy greens': 'salad greens',
+  'mixed salad': 'salad greens',
+  'salad leaves': 'salad greens',
+  'lettuce leaves': 'lettuce',
+  'bell pepper': 'capsicum',
+  'bell peppers': 'capsicum',
+  'sweet pepper': 'capsicum',
+  'garbanzo beans': 'chickpeas',
+  'garbanzo': 'chickpeas',
+  'sesame': 'sesame seeds',
+  'cherry tomato': 'tomato',
+  'cherry tomatoes': 'tomato',
+  'grape tomato': 'tomato',
+};
+
+/** The model's name with the looks-and-cuts words dropped, or null when nothing would change. */
+export function coreName(name: string): string | null {
+  const words = normalise(name).split(' ').filter(Boolean);
+  const kept = words.filter((w) => !DESCRIPTORS.has(w));
+  if (kept.length === 0 || kept.length === words.length) return null;
+  return kept.join(' ');
+}
+
+function bestMatch(name: string, foods: ScanFood[]): { food: ScanFood; score: number } | null {
   let best: { food: ScanFood; score: number } | null = null;
   for (const f of foods) {
     const score = matchScore(name, f);
     if (score >= MATCH_THRESHOLD && (!best || score > best.score)) best = { food: f, score };
+  }
+  return best;
+}
+
+/**
+ * Matches the model's name to a food. The name is tried as given first (so "red bell pepper" finds a red capsicum row
+ * when there is one); then with its synonym ("purple cabbage" is red cabbage), then without the words that only say how
+ * it looks or is cut ("shredded purple cabbage" is cabbage).
+ */
+export function matchFood(name: string, foods: ScanFood[]): { food: ScanFood; score: number } | null {
+  const tries: string[] = [name];
+  const norm = normalise(name);
+  for (const [from, to] of Object.entries(NAME_SYNONYMS)) if (norm.includes(from)) tries.push(norm.replace(from, to));
+  const core = coreName(name);
+  if (core) {
+    tries.push(core);
+    const coreNorm = normalise(core);
+    for (const [from, to] of Object.entries(NAME_SYNONYMS)) if (coreNorm.includes(from)) tries.push(coreNorm.replace(from, to));
+  }
+  let best: { food: ScanFood; score: number } | null = null;
+  for (let i = 0; i < tries.length; i++) {
+    const m = bestMatch(tries[i], foods);
+    // A later, looser try only wins when the earlier ones found nothing: the exact name always gets first say.
+    if (m && !best) best = m;
+    if (best && best.score >= 70) break;
   }
   return best;
 }
@@ -139,13 +213,22 @@ export function defaultUnit(food: ScanFood): ScanUnit {
   return food.units.find((u) => u.isDefault) ?? food.units[0] ?? { unit: 'g', grams: 100, isDefault: true };
 }
 
+/**
+ * Typical grams for a household unit, used only when a food is measured in grams alone: "1 handful of avocado" must not
+ * become 1 gram. Rough on purpose; the user corrects it with - and + on the check screen.
+ */
+export const HOUSEHOLD_GRAMS: Record<string, number> = { handful: 30, piece: 50, slice: 25, tsp: 5, tbsp: 15, katori: 150, cup: 200, glass: 250, plate: 250 };
+
 /** Grams for a household quantity of a food; a unit the food does not have falls back to its default unit. */
 export function gramsFor(food: ScanFood, quantity: number, unit: string): { grams: number; unit: string } {
   const u = (UNIT_SYNONYMS[unit] ?? unit).toLowerCase();
   if (u === 'g') return { grams: quantity, unit: 'g' };
-  const hit = food.units.find((x) => x.unit.toLowerCase() === u) ?? (u === 'piece' ? defaultUnit(food) : undefined);
+  const hit = food.units.find((x) => x.unit.toLowerCase() === u);
   if (hit) return { grams: quantity * hit.grams, unit: hit.unit };
   const d = defaultUnit(food);
+  // The food only has grams: use a typical weight for the unit the model named instead of reading "1" as 1 gram.
+  if (d.grams === 1 && HOUSEHOLD_GRAMS[u]) return { grams: quantity * HOUSEHOLD_GRAMS[u], unit: 'g' };
+  if (u === 'piece') return { grams: quantity * d.grams, unit: d.unit };
   return { grams: quantity * d.grams, unit: d.unit };
 }
 
@@ -239,6 +322,9 @@ export function switchUnit(item: ScanItem, unit: string): ScanItem {
   return { ...item, unit: hit.unit, qty, grams };
 }
 
+/** How far apart (as a ratio) the household conversion and the model's gram estimate may be before the model's estimate is used. */
+export const GRAMS_DISAGREE = 1.6;
+
 /** The model's items matched to foods, in household units. Oil the model mentions is dropped: oil comes from "how oily?". */
 export function resolveItems(items: ModelItem[], foods: ScanFood[]): ScanItem[] {
   const out: ScanItem[] = [];
@@ -249,7 +335,20 @@ export function resolveItems(items: ModelItem[], foods: ScanFood[]): ScanItem[] 
       out.push({ key: `i${i}`, heard: it.name, food: null, qty: it.quantity, unit: it.unit, grams: 0 });
       return;
     }
+    // A food measured in grams only has no household unit to read "1 handful" with: take the model's own gram estimate.
+    const u = (UNIT_SYNONYMS[it.unit] ?? it.unit).toLowerCase();
+    if (it.grams && u !== 'g' && defaultUnit(m.food).grams === 1 && !m.food.units.some((x) => x.unit.toLowerCase() === u)) {
+      out.push({ key: `i${i}`, heard: it.name, food: m.food, qty: it.grams, unit: 'g', grams: it.grams });
+      return;
+    }
     const g = gramsFor(m.food, it.quantity, it.unit);
+    // The household conversion and the model's own gram estimate should roughly agree. When they are far apart ("1 piece"
+    // of avocado is 136 g but only a few slices are on the plate) the model's estimate of what it SEES wins; a countable
+    // food where they agree (2 roti = 80 g, model says 90 g) keeps its household unit.
+    if (it.grams && g.grams > 0 && (g.grams > it.grams * GRAMS_DISAGREE || g.grams < it.grams / GRAMS_DISAGREE)) {
+      out.push({ key: `i${i}`, heard: it.name, food: m.food, qty: it.grams, unit: 'g', grams: it.grams });
+      return;
+    }
     const qty = g.unit === 'g' ? Math.round(g.grams) : it.quantity;
     out.push({ key: `i${i}`, heard: it.name, food: m.food, qty, unit: g.unit, grams: Math.round(g.grams) });
   });
@@ -277,7 +376,8 @@ export function setQuantity(item: ScanItem, qty: number): ScanItem {
 export function applyContext(base: ScanItem[], ctx: ScanContext, oilFood: ScanFood | null): ScanItem[] {
   const factor = PORTION_FACTOR[ctx.portion];
   const scaled = base.map((i) => (factor === 1 || !i.food ? i : setQuantity(i, roundQty(i.qty * factor, i.unit))));
-  if (!oilFood) return scaled;
+  // "No oil" (a salad, fruit, a drink, boiled food) adds no oil line at all.
+  if (!oilFood || ctx.oil === 'none') return scaled;
   const tsp = Math.max(1, Math.round(OIL_TSP[ctx.oil] * factor));
   return [...scaled, { key: 'oil', heard: 'oil', food: oilFood, qty: tsp, unit: 'tsp', grams: Math.round(tsp * 5), hidden: true }];
 }

@@ -15,6 +15,9 @@ import { Chip } from '../../../components/ui/Chip';
 import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
 import { SectionLabel } from '../../../components/ui/SectionLabel';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
+import { Segmented } from '../../../components/ui/Segmented';
+import { FOOD_GOALS } from '../../../lib/mealPlanReset';
 
 const G = COLORS.green;
 
@@ -29,7 +32,8 @@ export default function MealSetupWhere() {
   const known = hasBasics(basics, ['heightCm', 'weightKg', 'age']);
 
   const [draft, setDraft] = useState<MealSetupDraft>(getDraft());
-  const [editing, setEditing] = useState(false);
+  // Starting over opens your height, weight and age for a check, since the new targets are worked out from them.
+  const [editing, setEditing] = useState(getDraft().fresh === true);
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
   const [age, setAge] = useState('');
@@ -57,38 +61,65 @@ export default function MealSetupWhere() {
     router.push('/screens/nutrition-setup/foods');
   };
 
+  const basicsBlock = (
+    known && !editing ? (
+            <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg', 'age'])} accent={G} onEdit={() => setEditing(true)} />
+          ) : showInputs ? (
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              {[
+                ['Height', 'cm', height, setHeight],
+                ['Weight', 'kg', weight, setWeight],
+                ['Age', 'years', age, setAge],
+              ].map(([label, unit, value, set]) => (
+                <View key={label as string} style={{ flex: 1, minWidth: 0, gap: 6 }}>
+                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[500] }}>
+                    {label as string} <Text style={{ color: COLORS.textFaint }}>· {unit as string}</Text>
+                  </Text>
+                  <TextInput
+                    value={value as string}
+                    onChangeText={set as (v: string) => void}
+                    placeholder={label as string}
+                    placeholderTextColor={COLORS.textFaint}
+                    keyboardType="numeric"
+                    accessibilityLabel={`${label as string} in ${unit as string}`}
+                    style={{ height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, paddingHorizontal: 12, fontFamily: BG[700] }}
+                  />
+                </View>
+              ))}
+            </View>
+          ) : null
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={1} sub="what you can get" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }} keyboardShouldPersistTaps="handled">
-          <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>Where does your food come from?</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
-            Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
-          </Text>
-
-          {known && !editing ? (
-            <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg', 'age'])} accent={G} onEdit={() => setEditing(true)} />
-          ) : showInputs ? (
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              {[
-                ['Height (cm)', height, setHeight],
-                ['Weight (kg)', weight, setWeight],
-                ['Age', age, setAge],
-              ].map(([ph, value, set]) => (
-                <TextInput
-                  key={ph as string}
-                  value={value as string}
-                  onChangeText={set as (v: string) => void}
-                  placeholder={ph as string}
-                  placeholderTextColor={COLORS.textFaint}
-                  keyboardType="numeric"
-                  accessibilityLabel={ph as string}
-                  style={{ flex: 1, minWidth: 0, height: 52, backgroundColor: COLORS.card, borderWidth: 1, borderColor: (value as string).length > 0 ? COLORS.greenBorder : COLORS.border, borderRadius: 14, color: COLORS.fg, fontSize: 17, paddingHorizontal: 12, fontFamily: BG[700] }}
-                />
-              ))}
+          {draft.fresh ? (
+            <View style={{ gap: 10 }}>
+              <Text style={{ color: COLORS.fg, fontSize: 28, letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>Start your meal plan over</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
+                New targets from your weight and goal today, and new meals from what you can get now. Meals you've logged stay.
+              </Text>
+              <SectionHeader>Your goal for food</SectionHeader>
+              <Segmented options={FOOD_GOALS} value={draft.foodGoal ?? 'maintain'} onChange={(g) => update({ foodGoal: g })} accent={G} accentDeep={COLORS.greenDeep} accessibilityLabel="Your goal for food" />
             </View>
           ) : null}
+          {draft.fresh && showInputs ? (
+            <View style={{ gap: 4, marginTop: 6 }}>
+              <SectionHeader>Your numbers</SectionHeader>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Your targets are worked out from these.</Text>
+            </View>
+          ) : null}
+          {draft.fresh ? basicsBlock : null}
+          <Text style={{ color: COLORS.fg, fontSize: draft.fresh ? 22 : 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: draft.fresh ? 28 : 32, marginTop: draft.fresh ? 8 : 0, fontFamily: BG[800] }}>Where does your food come from?</Text>
+          {draft.fresh ? null : (
+            <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 21, fontFamily: BG[400] }}>
+              Everyone eats differently. Pick all that apply; your plan only uses food you can actually get.
+            </Text>
+          )}
+          {draft.fresh ? null : basicsBlock}
+
 
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {SOURCES.map((s) => {
@@ -121,7 +152,7 @@ export default function MealSetupWhere() {
             })}
           </View>
 
-          <SectionLabel color={G}>WHAT CAN YOU COOK WITH?</SectionLabel>
+          <SectionHeader>What can you cook with?</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {COOK_OPTIONS.map((c) => (
               <Chip key={c.value} active={draft.cookWith.includes(c.value)} accent={G} accentDeep={COLORS.greenDeep} onPress={() => update({ cookWith: toggleCook(draft.cookWith, c.value) })}>
@@ -130,7 +161,7 @@ export default function MealSetupWhere() {
             ))}
           </View>
 
-          <SectionLabel color={G}>YOU EAT</SectionLabel>
+          <SectionHeader>You eat</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {DIET_OPTIONS.map((d) => (
               <Chip key={d.value} active={draft.diet === d.value} accent={G} accentDeep={COLORS.greenDeep} onPress={() => update({ diet: d.value })}>

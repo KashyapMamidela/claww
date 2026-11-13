@@ -25,7 +25,7 @@ const META: Record<string, { label: string; icon: string }> = {
 };
 const SIDE = 14;
 const PAD = 5;
-const SLIDE = { duration: 260, easing: Easing.bezier(0.25, 1, 0.5, 1) };
+const SLIDE = { duration: 220, easing: Easing.bezier(0.23, 1, 0.32, 1) };
 
 function TabButton({ label, icon, color, active, onPress }: { label: string; icon: string; color: string; active: boolean; onPress: () => void }) {
   const s = useSharedValue(1);
@@ -71,11 +71,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   useEffect(() => {
     const distance = Math.abs(activeSlot - lastSlot.current);
     lastSlot.current = activeSlot;
+    // The pill glides to the new tab on the same curve as the page shift. The old stretch read as a bounce, so it's gone.
     x.value = withTiming(activeSlot * slotW, SLIDE);
-    if (distance > 0) {
-      const amount = Math.min(1, 0.55 + distance * 0.15);
-      stretch.value = withSequence(withTiming(amount, { duration: 110, easing: Easing.out(Easing.quad) }), withTiming(0, { duration: 230, easing: Easing.bezier(0.25, 1, 0.5, 1) }));
-    }
+    void distance;
   }, [activeSlot, slotW, x, stretch]);
   const pillStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: x.value }, { scaleX: 1 + stretch.value * 0.16 }, { scaleY: 1 - stretch.value * 0.06 }],
@@ -88,9 +86,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <>
       {/* Content fades into the page colour before it reaches the bar. */}
-      <LinearGradient pointerEvents="none" colors={['rgba(5,5,5,0)', 'rgba(5,5,5,0.85)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: bottom + TAB_BAR_HEIGHT + 24 }} />
+      {/* A light fade only below the bar, so content still shows (blurred) through the glass above it. */}
+      <LinearGradient pointerEvents="none" colors={['rgba(5,5,5,0)', 'rgba(5,5,5,0.55)']} style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: bottom + TAB_BAR_HEIGHT / 2 }} />
       <View pointerEvents="box-none" style={{ position: 'absolute', left: SIDE, right: SIDE, bottom, zIndex: 10 }}>
-        <Glass radius={TAB_BAR_HEIGHT / 2} style={{ height: TAB_BAR_HEIGHT }}>
+        <Glass radius={TAB_BAR_HEIGHT / 2} blur={50} tint="rgba(16,17,21,0.42)" style={{ height: TAB_BAR_HEIGHT }}>
           <View style={{ flex: 1, padding: PAD }}>
             <Animated.View
               pointerEvents="none"

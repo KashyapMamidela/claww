@@ -32,3 +32,17 @@ export const steps = (n: number) => group(n);
 /** Litres from millilitres: 2000 -> "2 L", 1250 -> "1.25 L". */
 export const litres = (ml: number) => `${trim(ml / 1000, 2)}${THIN}L`;
 export const hoursText = (h: number) => `${trim(h, 1)}${THIN}h`;
+
+/**
+ * A plan day's name for people: blueprints number repeated days ("Push (2)"), which read like code. The second of a
+ * kind becomes "Push B", the third "Push C". Data keeps the original name; this is only for display.
+ */
+export function sessionName(focus: string | null | undefined): string {
+  if (!focus) return '';
+  return focus.replace(/\s*\((\d)\)\s*$/, (_m, n: string) => ` ${String.fromCharCode(64 + Number(n))}`);
+}
+
+/** A whole number with Indian digit grouping: 1542 -> "1,542". */
+export function num(n: number | null | undefined): string {
+  return Math.round(n ?? 0).toLocaleString('en-IN');
+}

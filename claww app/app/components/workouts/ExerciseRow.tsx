@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Skeleton } from '../ui/Skeleton';
 import { Surface } from '../ui/Surface';
 import { Pressable, Text, View } from 'react-native';
 import { COLORS, FONT, FONT_HAND, BG, bg } from '../../lib/theme';
@@ -18,7 +19,7 @@ export interface ExerciseRowProps {
   /** "Chest · triceps" */
   sub: string | null;
   /** "4 × 6–8" */
-  setsText: string;
+  setsText: string | null;
   /** "60 kg", null for bodyweight and timed work. */
   weightText: string | null;
   /** "last: 60 kg", the weight this exercise was last done at. */
@@ -48,7 +49,11 @@ export function ExerciseRow({ index, name, sub, setsText, weightText, lastText, 
           {sub ? <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{sub}</Text> : null}
         </View>
         <View style={{ alignItems: 'flex-end' }}>
-          <Text style={{ color: COLORS.fg, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{setsText}</Text>
+          {setsText === null ? (
+            <Skeleton width={56} height={18} borderRadius={6} />
+          ) : (
+            <Text style={{ color: COLORS.fg, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{setsText}</Text>
+          )}
           {lastText ? <Text style={{ color: COLORS.textFaint, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{lastText}</Text> : null}
           {weightText && !marked ? <Text style={{ color: COLORS.textMuted, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>{weightText}</Text> : null}
           {marked ? (

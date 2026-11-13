@@ -261,3 +261,200 @@ Masala buttermilk,glass,250,true
 Banana shake,glass,305,true
 Whey protein shake with water,glass,280,true
 Whey protein shake with milk,glass,280,true
+"Avocado",g,1,true
+"Avocado",piece,136,false
+"Avocado",slice,20,false
+"Lettuce and salad greens",g,1,true
+"Lettuce and salad greens",handful,30,false
+"Capsicum, red",g,1,true
+"Capsicum, red",piece,120,false
+"Capsicum, yellow",g,1,true
+"Capsicum, yellow",piece,120,false
+"Cabbage, red",g,1,true
+"Cabbage, red",handful,30,false
+"Chickpeas, boiled",g,1,true
+"Chickpeas, boiled",katori,150,false
+"Chickpeas, boiled",handful,30,false
+Paneer,g,1,true
+Paneer,cube,15,false
+Jaggery,g,1,true
+Jaggery,tsp,5,false
+Curry leaves,g,1,true
+Ragi flour,g,1,true
+"Cream, heavy",g,1,true
+"Cream, heavy",tbsp,15,false
+Almonds,g,1,true
+Almonds,piece,1.2,false
+Almonds,handful,28,false
+Bottle gourd,g,1,true
+Ridge gourd,g,1,true
+"Plantain, raw",g,1,true
+Fenugreek leaves,g,1,true
+Fenugreek leaves,handful,30,false
+Broccoli,g,1,true
+Sapota,g,1,true
+Sapota,piece,100,false
+Jackfruit,g,1,true
+Muskmelon,g,1,true
+Coconut water,ml,1,false
+Coconut water,glass,250,true
+Pistachios,g,1,true
+Pistachios,handful,28,false
+Sprouted moong,g,1,true
+Rava dosa,dosa,110.0,true
+Pesarattu,dosa,110.0,true
+Rava idli,idli,60.0,true
+Appam,appam,70.0,true
+Idiyappam,plate,120.0,true
+Puttu,puttu,110.0,true
+Kerala parotta,parotta,110.0,true
+Bisi bele bath,plate,300.0,true
+Coconut rice,plate,220.0,true
+Tomato rice,plate,250.0,true
+Vangi bath,plate,250.0,true
+Vegetable kurma,katori,150.0,true
+Avial,katori,150.0,true
+Kootu,katori,150.0,true
+Chicken chettinad,plate,200.0,true
+Prawn masala,plate,220.0,true
+Mutton biryani,plate,400.0,true
+Masala vada,vada,35.2,true
+Potato bonda,bonda,55.0,true
+Payasam,katori,190.3,true
+Ragi dosa,dosa,110.0,true
+Ragi mudde,ball,160.0,true
+Lemon rice with peanuts,plate,240.0,true
+Pappu annam,plate,300.0,true
+Butter chicken,plate,268.0,true
+Chicken tikka,piece,33.3,true
+Tandoori chicken,piece,116.0,true
+Chicken 65,plate,170.0,true
+Paneer butter masala,plate,229.5,true
+Palak paneer,plate,276.5,true
+Paneer bhurji,plate,200.0,true
+Matar paneer,plate,253.5,true
+Kadai paneer,plate,245.0,true
+Paneer tikka,piece,36.7,true
+Mushroom masala,plate,241.5,true
+Bhatura,bhatura,105.0,true
+Kulcha,kulcha,100.0,true
+Missi roti,roti,70.0,true
+Gobi paratha,paratha,120.0,true
+Paneer paratha,paratha,100.0,true
+Methi paratha,paratha,90.0,true
+Tandoori roti,roti,55.0,true
+Butter naan,naan,110.0,true
+Aloo matar,plate,231.5,true
+Jeera aloo,plate,170.0,true
+Lauki sabzi,katori,150.0,true
+Mutton rogan josh,plate,250.0,true
+Mutton keema,plate,251.0,true
+Matar pulao,plate,260.0,true
+Salted lassi,glass,250.0,true
+Mango lassi,glass,310.0,true
+Nimbu pani,glass,240.0,true
+Gulab jamun,piece,50.0,true
+Jalebi,piece,36.7,true
+Kheer,katori,245.3,true
+Suji halwa,katori,200.0,true
+Gajar halwa,katori,212.0,true
+Besan ladoo,piece,32.5,true
+Dahi vada,plate,170.0,true
+Dhokla,piece,30.0,true
+Thepla,thepla,80.0,true
+Egg roll,roll,190.0,true
+Bread toast with butter,slice,30.0,true
+Veg sandwich,sandwich,151.0,true
+Peanut butter toast,slice,40.0,true
+Gobi manchurian,plate,220.0,true
+Chicken hakka noodles,plate,350.0,true
+Sprouts curry,katori,150.0,true
+Fruit bowl,katori,200.0,true
+Kale,g,1,true
+Kale,handful,25,false
+Arugula,g,1,true
+Arugula,handful,20,false
+Spring onion,g,1,true
+Olives,g,1,true
+Olives,piece,4,false
+Hummus,g,1,true
+Hummus,tbsp,15,false
+Zucchini,g,1,true
+Zucchini,piece,196,false
+Celery,g,1,true
+Celery,piece,40,false
+Pickle,g,1,true
+Pickle,tsp,5,false
+Pickle,tbsp,15,false
+Makhana,g,1,true
+Makhana,handful,15,false
+Sabudana,g,1,true
+"Dalia, broken wheat",g,1,true
+Chia seeds,g,1,true
+Chia seeds,tsp,4,false
+Chia seeds,tbsp,12,false
+Cheese slice,g,1,true
+Cheese slice,slice,20,false
+Mayonnaise,g,1,true
+Mayonnaise,tbsp,14,false
+"Chocolate, dark",g,1,true
+"Chocolate, dark",piece,10,false
+"Ice cream, vanilla",g,1,true
+"Ice cream, vanilla",scoop,66,false
+French fries,g,1,true
+French fries,portion,117,false
+Cornflakes,g,1,true
+Cornflakes,bowl,30,false
+Sambar rice,plate,300.0,true
+Rasam rice,plate,300.0,true
+Lemon sevai,plate,220.0,true
+Egg dosa,dosa,160.0,true
+Set dosa,set,50.0,true
+Neer dosa,dosa,60.0,true
+Kothu parotta,plate,300.0,true
+Tomato pappu,katori,170.0,true
+Mirchi bajji,piece,40.0,true
+Onion pakoda,plate,100.0,true
+Aloo tikki,piece,62.2,true
+Pani puri,piece,25.0,true
+Bhel puri,plate,150.0,true
+Kachori,piece,70.0,true
+Dal fry,katori,170.0,true
+Shahi paneer,katori,180.0,true
+Malai kofta,plate,220.0,true
+Baingan masala,katori,167.2,true
+Chicken korma,plate,240.0,true
+Keema pav,plate,300.0,true
+Seekh kebab,piece,50.0,true
+Fish tikka,plate,179.2,true
+Paneer biryani,plate,380.0,true
+Chole bhature plate,plate,360.0,true
+Rasgulla,piece,50.0,true
+Kulfi,piece,90.2,true
+Khakhra,piece,12.5,true
+Sabudana khichdi,plate,200.0,true
+Roasted makhana,bowl,30.3,true
+Dalia porridge,bowl,280.0,true
+Masala oats,bowl,260.0,true
+Egg sandwich,sandwich,150.0,true
+Cheese sandwich,sandwich,130.0,true
+Chicken sandwich,sandwich,190.0,true
+Veg burger,burger,201.0,true
+Chicken burger,burger,230.0,true
+French fries portion,portion,117.0,true
+Pizza slice,slice,110.0,true
+Veg momos,piece,25.0,true
+Chicken momos,piece,26.7,true
+Chilli chicken,plate,220.0,true
+Chilli paneer,plate,200.0,true
+Sweet corn soup,bowl,250.0,true
+Filter coffee,cup,150.0,true
+Cold coffee,glass,250.0,true
+Green tea,cup,200.0,true
+Black coffee,cup,200.0,true
+Fruit salad,bowl,250.0,true
+Chicken salad,plate,280.0,true
+Tuna sandwich,sandwich,170.0,true
+Chia pudding,bowl,230.0,true
+Cornflakes with milk,bowl,230.0,true
+Peanut chikki,piece,20.0,true

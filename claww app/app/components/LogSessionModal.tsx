@@ -174,7 +174,7 @@ export function LogSessionModal({ visible, equipment, onClose, onLogged }: LogSe
                   }}
                 >
                   <Text style={{ color: '#000', fontSize: 15, fontFamily: BG[800] }}>
-                    {saving ? 'Logging…' : 'Log Session'}
+                    {saving ? 'Logging…' : 'Log session'}
                   </Text>
                 </TouchableOpacity>
               </>

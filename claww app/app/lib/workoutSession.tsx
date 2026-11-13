@@ -1,6 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { emitSessionSaved } from './sessionEvents';
+import { sessionName } from './format';
 import { AppState } from 'react-native';
 import * as Haptics from 'expo-haptics';
+import { isBarbellLift } from './plateMath';
 import { getExerciseForms, getLastTimeSets, getProfile, logWorkoutDayEvent, logWorkoutSet, type WorkoutRow } from './data';
 import type { ExerciseForm } from './exerciseForm';
 import { useAppState } from './appState';
@@ -138,8 +141,11 @@ interface WorkoutSessionState {
    */
   logTimedExercise: (exIdx: number, input: { minutes: number; distanceKm: number | null }) => void;
   togglePause: () => void;
+  /** Starts the session clock again from now, while nothing is logged. The start intro calls it at Go, so the timer only runs once you are training. */
+  restartClock: () => void;
   /** Edits a set row; a weight change carries forward to later unlogged sets. */
-  updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => void;
+  /** `patch` may be a function of the row as it is now, so repeated steps (a held stepper) never read a stale value. */
+  updateSetRow: (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>> | ((row: SetRowState) => Partial<Pick<SetRowState, 'reps' | 'weight'>>)) => void;
   /** Logs a set with its row's numbers — the current one by default. Updates the UI at once; saving happens in the background. `rir` is the optional reps-left-in-the-tank chip (0-3, 3 = 3+). */
   logSet: (exIdx?: number, setIdx?: number, rir?: number | null) => void;
   /** Id shared by every set of this session (V2 PHASE 6.3), or null when idle. */
@@ -257,6 +263,12 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         if (e === -1 || !p.managed || p.prescription.weightKg === null) return;
         initial[e] = { ...initial[e], rows: initial[e].rows.map((r, s) => { touched.current.add(`${e}:${s}`); return { ...r, weight: p.prescription.weightKg as number, prescribedWeight: p.prescription.weightKg as number }; }) };
       });
+      // A barbell lift with no weight yet starts at the empty bar (20 kg), never at 0 kg: 0 can't be loaded and the
+      // user had to tap + eight times to reach the bar. Last time's weight, if any, still replaces it once it loads.
+      dayExercises.forEach((ex, e) => {
+        if (!isBarbellLift(ex.name)) return;
+        initial[e] = { ...initial[e], rows: initial[e].rows.map((r) => (r.weight > 0 ? r : { ...r, weight: 20, prescribedWeight: 20 })) };
+      });
       setPlan(initial);
       setLastTime({});
       setLastTimeLoaded(false);
@@ -284,6 +296,11 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     [userId, setPlan]
   );
 
+  const restartClock = useCallback(() => {
+    if (planRef.current.some((ex) => ex.rows.some((r) => r.done))) return;
+    setClock((c) => (c ? startClock(Date.now()) : c));
+  }, []);
+
   const togglePause = useCallback(() => {
     setClock((c) => {
       if (!c) return c;
@@ -293,7 +310,10 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   }, []);
 
   const updateSetRow = useCallback(
-    (exIdx: number, setIdx: number, patch: Partial<Pick<SetRowState, 'reps' | 'weight'>>) => {
+    (exIdx: number, setIdx: number, patchOrFn: Partial<Pick<SetRowState, 'reps' | 'weight'>> | ((row: SetRowState) => Partial<Pick<SetRowState, 'reps' | 'weight'>>)) => {
+      const current = planRef.current[exIdx]?.rows[setIdx];
+      if (typeof patchOrFn === 'function' && !current) return;
+      const patch = typeof patchOrFn === 'function' ? patchOrFn(current!) : patchOrFn;
       touched.current.add(`${exIdx}:${setIdx}`);
       if (patch.weight !== undefined) {
         planRef.current[exIdx]?.rows.forEach((row, s) => {
@@ -307,10 +327,13 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
 
   const finish = useCallback(
     (finalPlan: ExerciseState[]) => {
+      // The session belongs to the day it started: one finished after midnight must not mark that day missed.
+      const startedAt = clock ? new Date(clock.startedAt) : new Date();
       if (userId && workout && today) {
-        logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed').then(() => {
+        logWorkoutDayEvent(userId, workout.id, today.day, today.focus, 'completed', startedAt).then(() => {
           refreshReminders(userId).catch(() => {}); // drops today's workout reminder
           refreshStreak(); // a finished session moves the plan streak
+          emitSessionSaved();
         });
       }
       const nextTargets: SessionSummary['nextTargets'] = {};
@@ -320,7 +343,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
         (workout?.plan.days[dayIndex]?.exercises ?? []).forEach((ex, i) => {
           rowsByName[ex.name] = finalPlan[i]?.rows ?? [];
         });
-        const date = localDateKey(new Date());
+        const date = localDateKey(startedAt);
         const outcomes = sessionOutcomes(prescribedRef.current, rowsByName, date);
         saveSessionOutcomes(userId, sessionIdRef.current, outcomes).catch(() => {});
         lastRunRef.current = { sessionId: sessionIdRef.current, prescribed: prescribedRef.current, rowsByName, date };
@@ -604,7 +627,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
   // One ongoing notification while a session runs: the current set, or the rest with a countdown the
   // system draws itself, so it keeps counting with the phone locked. Its Done / Skip buttons run the
   // same functions as the on-screen buttons.
-  const sessionLabel = today?.focus || today?.day || 'Workout';
+  const sessionLabel = sessionName(today?.focus) || today?.day || 'Workout';
   // The current exercise's target minutes when it is a timed block (cardio, yoga, mobility), else null.
   const currentExercise = exercises[exerciseIndex];
   const currentModality = currentExercise ? modalities[currentExercise.name] ?? null : null;
@@ -686,6 +709,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       modalityFor,
       logTimedExercise,
       togglePause,
+      restartClock,
       updateSetRow,
       logSet,
       skipExercise,
@@ -721,6 +745,7 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
       modalityFor,
       logTimedExercise,
       togglePause,
+      restartClock,
       updateSetRow,
       logSet,
       skipExercise,

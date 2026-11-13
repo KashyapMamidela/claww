@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BackTile } from '../components/ui/BackTile';
 import { Surface } from '../components/ui/Surface';
 import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
@@ -7,7 +7,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from '../components/ui/Icon';
-import { Badge } from '../components/ui/Badge';
+import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
+import { openSupportEmail } from '../lib/support';
 
 // SHIP PHASE 8.5 — reads the real version from app config instead of the
 // hardcoded "Version 3.4.1 · Build 20240414" string that used to live in
@@ -24,13 +25,18 @@ function getAppVersionLabel(): string {
 export default function AboutScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [disclaimer, setDisclaimer] = useState(false);
+  const links = [
+    { label: 'Medical disclaimer', icon: 'shield', onPress: () => setDisclaimer(true) },
+    { label: 'Contact support', icon: 'mail', onPress: () => openSupportEmail('CLAWW support') },
+  ];
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <Badge color="#A1A1AA">ABOUT</Badge>
+          <Text style={{ color: "#fff", fontSize: 28, fontFamily: BG[800] }}>About</Text>
         </View>
 
         <View style={{ alignItems: 'center', paddingVertical: 24, gap: 10 }}>
@@ -47,10 +53,27 @@ export default function AboutScreen() {
           </Text>
         </Surface>
 
+        <Surface radius={16} padding={0}>
+          {links.map((l, i) => (
+            <TouchableOpacity
+              key={l.label}
+              activeOpacity={0.7}
+              onPress={l.onPress}
+              accessibilityRole="button"
+              style={{ minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, borderTopWidth: i === 0 ? 0 : 1, borderTopColor: COLORS.border }}
+            >
+              <Icon name={l.icon} size={18} color={COLORS.textMuted} />
+              <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[500] }}>{l.label}</Text>
+              <Icon name="chevron-right" size={16} color={COLORS.textFaint} />
+            </TouchableOpacity>
+          ))}
+        </Surface>
+
         <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', marginTop: 8, fontFamily: BG[400] }}>
           © 2026 CLAWW. All rights reserved.
         </Text>
       </View>
+      <MedicalDisclaimerModal visible={disclaimer} onClose={() => setDisclaimer(false)} />
     </ScrollView>
   );
 }

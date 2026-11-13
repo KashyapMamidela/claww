@@ -139,6 +139,8 @@ export const AREA_COLORS = {
   sleep: '#818CF8',
   steps: '#F59E0B',
   burned: '#FB923C',
+  /** Activities (sports, walks): the gold of the Steps widget's Start activity button. */
+  activity: '#FBBF24',
   streak: '#F472B6',
   water: COLORS.water,
   engine: '#A855F7',
@@ -187,3 +189,6 @@ export const SURFACES = {
   heroBlue: ['#0F172A', '#1E3A5F', '#1D4ED8'] as const,
   heroGreen: ['#052E16', '#14532D', '#166534'] as const,
 } as const;
+
+/** Every switch in the app: the app's blue when on, a neutral grey when off, white thumb (not the system mint). */
+export const SWITCH_TRACK = { false: '#3F3F46', true: '#3B82F6' };

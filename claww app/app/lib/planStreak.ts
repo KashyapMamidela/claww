@@ -181,3 +181,28 @@ export function freezeCandidates(i: StreakInput): string[] {
   }
   return out;
 }
+
+/**
+ * The day a freeze should be offered for, or null. A freeze is offered only when it saves a streak: the missed
+ * day must be the most recent one (not today), within the last 7 days, in a week whose freeze is unused, and at
+ * least one followed day must come before it (back to the previous miss). Otherwise it would protect a day that
+ * changes nothing, which is what a wall of missed days looked like before.
+ */
+export function freezeCandidate(grid: StreakGridDay[], frozenDates: string[]): StreakGridDay | null {
+  if (grid.length < 2) return null;
+  const past = grid.slice(0, -1);
+  let idx = -1;
+  for (let i = past.length - 1; i >= 0; i--) {
+    if (past[i].status === 'missed') {
+      idx = i;
+      break;
+    }
+  }
+  if (idx < 0 || idx < past.length - 7) return null;
+  const day = past[idx];
+  const used = new Set(frozenDates.map(weekStartKey));
+  if (used.has(weekStartKey(day.key))) return null;
+  let before = 0;
+  for (let i = idx - 1; i >= 0 && past[i].status !== 'missed'; i--) if (past[i].counts) before += 1;
+  return before > 0 ? day : null;
+}

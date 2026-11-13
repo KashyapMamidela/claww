@@ -20,6 +20,8 @@ export interface TodayMealInput {
   plannedName: string | null;
   /** What was logged, once it has been, e.g. "490 kcal, 26 g protein". */
   loggedLine: string | null;
+  /** When it was logged, in minutes after midnight. A logged meal shows its real time, not the planned one. */
+  loggedAtMinutes?: number | null;
 }
 
 export interface TodaySessionInput {
@@ -63,7 +65,10 @@ export interface TodayInput {
 export function todayLine(i: TodayInput): TodayItem[] {
   const items: TodayItem[] = i.meals.map((m) => {
     const base = { id: `meal-${m.slot}`, kind: 'meal' as const, slot: m.slot, at: MEAL_MINUTES[m.slot], timeLabel: minutesLabel(MEAL_MINUTES[m.slot]), title: slotTitle(m.slot), hasPlan: !!m.plannedName };
-    if (m.state === 'as_planned' || m.state === 'swapped' || m.state === 'extra') return { ...base, state: 'done' as const, line: m.loggedLine ? `Done · ${m.loggedLine}` : 'Done' };
+    if (m.state === 'as_planned' || m.state === 'swapped' || m.state === 'extra') {
+      const at = m.loggedAtMinutes ?? base.at;
+      return { ...base, at, timeLabel: minutesLabel(at), state: 'done' as const, line: m.loggedLine ? `Done · ${m.loggedLine}` : 'Done' };
+    }
     if (m.state === 'skipped') return { ...base, state: 'done' as const, line: 'Skipped' };
     if (m.state === 'missed') return { ...base, state: 'missed' as const, line: m.plannedName };
     if (m.state === 'up_next') return { ...base, state: 'upcoming' as const, line: m.plannedName };

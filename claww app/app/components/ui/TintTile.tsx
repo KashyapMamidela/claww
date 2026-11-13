@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
 import { tint } from '../../lib/theme';
 import { Icon } from './Icon';
+import { Stamp } from './Stamp';
 import { Surface } from './Surface';
 
 // NG PHASE 1 (build plan 5.3): a Surface that belongs to one area (steps, water,
@@ -15,6 +16,8 @@ export interface TintTileProps {
   color: string;
   /** Icon name from components/ui/Icon, drawn large and faint bottom-right. */
   watermark?: string;
+  /** Stamp size; 64 fits a small tile, bigger cards want about 96. */
+  watermarkSize?: number;
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   padding?: number;
@@ -22,8 +25,8 @@ export interface TintTileProps {
   accessibilityLabel?: string;
 }
 
-// Polish step 8: the glow, tinted border and under-glow only. The dot grid and the icon watermark were cut.
-export function TintTile({ color, watermark: _watermark, children, style, padding = 14, radius = 18, accessibilityLabel }: TintTileProps) {
+// Polish step 8 cut the dot grid and the watermark; the watermark is back as a Stamp (user request, 2026-11-12).
+export function TintTile({ color, watermark, watermarkSize = 64, children, style, padding = 14, radius = 18, accessibilityLabel }: TintTileProps) {
   const decoration = (
     <>
       <LinearGradient
@@ -33,16 +36,19 @@ export function TintTile({ color, watermark: _watermark, children, style, paddin
         end={{ x: 0.35, y: 0.75 }}
         style={StyleSheet.absoluteFill}
       />
+      {watermark ? <Stamp name={watermark} color={color} size={watermarkSize} right={watermarkSize > 64 ? -14 : -10} bottom={watermarkSize > 64 ? -18 : -12} /> : null}
     </>
   );
 
   return (
     <Surface
-      style={[glow(color), style]}
+      // Neutral edge and no coloured under-glow: the area colour lives in the icon and the bar, so a row of tiles
+      // reads as one calm group instead of three glowing outlines.
+      style={style}
       shadow={false}
       padding={padding}
       radius={radius}
-      borderColor={tint(color, 0.35)}
+      borderColor="rgba(255,255,255,0.08)"
       decoration={decoration}
       accessibilityLabel={accessibilityLabel}
     >

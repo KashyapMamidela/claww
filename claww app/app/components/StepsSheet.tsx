@@ -64,7 +64,9 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
     week: dailyRanges(now, 7).map((r) => r.start.toLocaleDateString([], { weekday: 'narrow' })),
     month: dailyRanges(now, 30).map((r, i) => (i % 5 === 4 ? `${r.start.getDate()}` : '')),
   };
-  const kcal = steps.caloriesBurned ?? estimateCaloriesFromSteps(steps.steps, weightKg);
+  // A 0 from Health Connect (no watch wrote any energy) falls back to the steps estimate, like Home's Burned.
+  const fromHc = steps.caloriesBurned !== null && steps.caloriesBurned > 0;
+  const kcal = fromHc ? (steps.caloriesBurned as number) : estimateCaloriesFromSteps(steps.steps, weightKg);
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
@@ -131,7 +133,7 @@ export function StepsSheet({ visible, onClose, steps, goal, onGoalChange, weight
             <View style={{ flexDirection: 'row', gap: 10 }}>
               {[
                 { label: 'DISTANCE', value: `${stepsToKm(steps.steps, heightCm)} km`, sub: 'estimated' },
-                { label: 'CALORIES', value: `${kcal} kcal`, sub: steps.caloriesBurned !== null ? 'active, from Health Connect' : 'estimated from steps' },
+                { label: 'CALORIES', value: `${kcal} kcal`, sub: fromHc ? 'active, from Health Connect' : 'estimated from steps' },
               ].map((s) => (
                 <View key={s.label} style={{ flex: 1, padding: 12, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.04)' }}>
                   <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.6, fontFamily: BG[800] }}>{s.label}</Text>

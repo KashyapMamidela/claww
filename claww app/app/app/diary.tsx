@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { num } from '../lib/format';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
@@ -29,6 +30,8 @@ const DAY_MS = 86_400_000;
 const startOf = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
 const key = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 const timeText = (iso: string) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+const MEAL_ORDER: Record<string, number> = { Breakfast: 0, Lunch: 1, Snack: 2, Dinner: 3 };
 
 export default function DiaryScreen() {
   const router = useRouter();
@@ -68,7 +71,8 @@ export default function DiaryScreen() {
   }, [week]);
 
   const day = days[selected];
-  const entries = byDay.get(key(day)) ?? [];
+  // In meal order (breakfast, lunch, snack, dinner), then by time, so the day reads the way it was eaten.
+  const entries = [...(byDay.get(key(day)) ?? [])].sort((a, b) => (MEAL_ORDER[a.meal_type ?? ''] ?? 9) - (MEAL_ORDER[b.meal_type ?? ''] ?? 9) || a.logged_at.localeCompare(b.logged_at));
   const kcal = Math.round(entries.reduce((s, m) => s + (m.calories ?? 0), 0));
   const goals = targets ?? { calories: 2000, protein_g: 140, carbs_g: 220, fats_g: 65 };
   const mt = microTargets(age, normaliseSex(sex));
@@ -147,7 +151,7 @@ export default function DiaryScreen() {
                 const color = over ? COLORS.amber : G;
                 return (
                   <View key={m.key} style={{ width: '47%' }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8, marginBottom: 5 }}>
                       <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{m.label}</Text>
                       <Text style={{ color: over ? COLORS.amber : COLORS.fg, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>
                         {fmt(m.key, value)} / {m.key === 'sodiumMg' ? `${(target / 1000).toFixed(0)} g` : `${fmt(m.key, target)} ${m.unit}`}
@@ -174,8 +178,10 @@ export default function DiaryScreen() {
           </View>
         ) : null}
 
-        {rated.map(({ meal: m, rating, reason }) => {
+        {rated.map(({ meal: m, rating, reason }, idx) => {
           const expanded = open === m.id;
+          // The same kind line on every meal reads like a template: say it once, on the first meal it applies to.
+          const repeat = !!reason && rated.slice(0, idx).some((x) => x.reason === reason);
           const n = m.nutrients;
           const chips: [string, number | null | undefined, string][] = [
             ['Iron', n?.ironMg, 'mg'],
@@ -192,10 +198,10 @@ export default function DiaryScreen() {
               time={timeText(m.logged_at)}
               planStatus={m.plan_status}
               name={m.description}
-              macros={`${Math.round(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} · C ${Math.round(m.carbs_g ?? 0)} · F ${Math.round(m.fats_g ?? 0)}`}
+              macros={`${num(m.calories ?? 0)} kcal · P ${Math.round(m.protein_g ?? 0)} · C ${Math.round(m.carbs_g ?? 0)} · F ${Math.round(m.fats_g ?? 0)}`}
               photoPath={m.photo_url}
               rating={rating}
-              reason={reason}
+              reason={repeat ? undefined : reason}
               onPress={() => setOpen(expanded ? null : m.id)}
             >
               {expanded ? (
@@ -217,6 +223,8 @@ export default function DiaryScreen() {
           );
         })}
       </ScrollView>
+      {/* Content scrolls under the status bar, so the bar gets its own backing. */}
+      <View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, right: 0, height: insets.top, backgroundColor: 'rgba(5,5,5,0.92)' }} />
       <MealDetailModal meal={editing} onClose={() => setEditing(null)} />
     </View>
   );

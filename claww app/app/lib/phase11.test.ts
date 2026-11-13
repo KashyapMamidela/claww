@@ -58,6 +58,13 @@ describe('review list', () => {
     expect(out.map((m) => m.area)).toEqual(['workout', 'nutrition']);
     expect(out).toHaveLength(2);
   });
+  it('shows one row per marked item, the latest mark', () => {
+    const first = made([mk({ kind: 'move_day', target: { key: 'day:push' }, oldValue: 'Saturday', newValue: 'Sunday' })], '2026-11-05T09:00:00');
+    const second = made([mk({ kind: 'move_day', target: { key: 'day:push' }, oldValue: 'Sunday', newValue: 'Monday' })], '2026-11-06T09:00:00');
+    const out = marksForReview([...second, ...first], now);
+    expect(out).toHaveLength(1);
+    expect(out[0].newValue).toBe('Monday');
+  });
   it('counts kept and undone, and knows a climb from a drop', () => {
     const [a, b, c] = made([mk({ target: { key: 'a' } }), mk({ target: { key: 'b' } }), mk({ target: { key: 'c' } })], '2026-11-06T09:00:00');
     expect(reviewCounts([{ ...a, status: 'kept' }, { ...b, status: 'undone' }, c])).toEqual({ kept: 1, undone: 1, active: 1 });

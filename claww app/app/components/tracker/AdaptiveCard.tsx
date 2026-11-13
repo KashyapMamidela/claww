@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { sessionName } from '../../lib/format';
 import { adaptiveSummary } from '../../lib/adaptiveSummary';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -92,7 +93,7 @@ export function AdaptiveCard() {
 
   const changed = planned.prescribed.filter((p) => p.managed && commandPill(p.prescription.commands).tone !== 'hold').length;
   const answered = Object.values(checkins).filter((c) => c.soreness !== null || c.readiness !== null).length;
-  const summary = adaptiveSummary({ dayLabels: workout.plan.days.map((d) => d.day), focus: day.focus, dayLabel: day.day, changed, answered, now: new Date() });
+  const summary = adaptiveSummary({ dayLabels: workout.plan.days.map((d) => d.day), focus: sessionName(day.focus), dayLabel: day.day, changed, answered, now: new Date() });
 
   const setCheckin = (muscle: string, patch: Partial<Checkin>) => {
     const next = { ...checkins, [muscle]: { ...(checkins[muscle] ?? { soreness: null, readiness: null }), ...patch } };
@@ -157,7 +158,7 @@ export function AdaptiveCard() {
             </>
           ) : null}
 
-          <Text style={{ color: COLORS.fg, fontSize: 17, marginTop: 4, fontFamily: BG[800] }}>{`Today's prescription · ${day.focus}`}</Text>
+          <Text style={{ color: COLORS.fg, fontSize: 17, marginTop: 4, fontFamily: BG[800] }}>{`Today's prescription · ${sessionName(day.focus)}`}</Text>
           {planned.prescribed.map((p) => {
             const pill = commandPill(p.prescription.commands);
             const reason = reasonLine(p);

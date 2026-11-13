@@ -59,7 +59,7 @@ type Step = 'bedtime' | 'wake';
  * separate profile field to maintain in sync.
  */
 export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
-  const { userId, logSleep } = useAppState();
+  const { userId, logSleep, todaySleep } = useAppState();
   const [step, setStep] = useState<Step>('bedtime');
   const [bedtime, setBedtime] = useState<TimeValue>(DEFAULT_BEDTIME);
   const [wake, setWake] = useState<TimeValue>(DEFAULT_WAKE);
@@ -126,6 +126,12 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
               {step === 'bedtime' ? 'When did you go to bed?' : 'When did you wake up?'}
             </Text>
           </View>
+          {/* If last night is already logged, say so: asking again looked like the first log was lost. */}
+          {todaySleep && step === 'bedtime' ? (
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, textAlign: 'center', fontFamily: BG[400] }}>
+              Last night is logged ({Math.round((todaySleep.hours ?? 0) * 10) / 10} h). Saving again replaces it.
+            </Text>
+          ) : null}
 
           <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 6 }}>
             <View style={{ width: 22, height: 4, borderRadius: 2, backgroundColor: step === 'bedtime' ? SLEEP : 'rgba(255,255,255,0.14)' }} />
@@ -170,8 +176,8 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
             </View>
           )}
 
-          <Button variant="primary" size="lg" fullWidth accent={SLEEP} accentDeep="#4F46E5" disabled={!ready || saving} onPress={step === 'bedtime' ? () => setStep('wake') : handleSave}>
-            {step === 'bedtime' ? 'Next' : saving ? 'Saving…' : 'Log sleep'}
+          <Button variant="primary" size="lg" fullWidth accent={SLEEP} accentDeep="#4F46E5" saving={saving} disabled={!ready} onPress={step === 'bedtime' ? () => setStep('wake') : handleSave}>
+            {step === 'bedtime' ? 'Next' : 'Log sleep'}
           </Button>
         </View>
     </BottomSheet>

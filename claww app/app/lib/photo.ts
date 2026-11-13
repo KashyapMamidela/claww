@@ -1,0 +1,60 @@
+// A plate photo is sent to the scanner and stored, so it is shrunk first: about 1,024 px on the long edge at JPEG 0.6 is
+// roughly 100 to 200 KB instead of 500 KB to a few MB. The models see every food at that size; the upload (the slowest
+// part on mobile data in the first live scans) is several times quicker. If the resize module is missing (an older
+// dev build) or fails, the original photo is used, so nothing breaks.
+
+export interface PlatePhoto {
+  uri: string;
+  base64: string;
+  mime: string;
+}
+
+export const PLATE_EDGE_PX = 1024;
+
+/** The size to resize to, keeping the aspect ratio; null when the photo is already small enough. */
+export function targetSize(width: number, height: number, edge = PLATE_EDGE_PX): { width: number; height: number } | null {
+  const long = Math.max(width, height);
+  if (!(long > edge) || !(width > 0) || !(height > 0)) return null;
+  const k = edge / long;
+  return { width: Math.round(width * k), height: Math.round(height * k) };
+}
+
+export async function shrinkPhoto(photo: PlatePhoto, width?: number, height?: number): Promise<PlatePhoto> {
+  try {
+    // Look for the native module first: loading the JS package when the build lacks it raises an error screen in dev builds
+    // even though the failure is caught. Builds made before expo-image-manipulator was added simply skip the resize.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { requireOptionalNativeModule } = require('expo-modules-core') as typeof import('expo-modules-core');
+    if (!requireOptionalNativeModule('ExpoImageManipulator')) return photo;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const M = require('expo-image-manipulator') as typeof import('expo-image-manipulator');
+    const size = width && height ? targetSize(width, height) : { width: PLATE_EDGE_PX, height: undefined };
+    if (!size) return photo;
+    const out = await M.manipulateAsync(photo.uri, [{ resize: size.height ? { width: size.width, height: size.height } : { width: size.width } }], {
+      compress: 0.6,
+      format: M.SaveFormat.JPEG,
+      base64: true,
+    });
+    if (!out.base64) return photo;
+    return { uri: out.uri, base64: out.base64, mime: 'image/jpeg' };
+  } catch {
+    return photo;
+  }
+}
+
+/**
+ * Android camera picture sizes come as "WIDTHxHEIGHT" strings. Pick the biggest one whose long edge is at most `edge`
+ * (the smallest one when none is that small), so the camera itself takes a plate-sized picture and no resize is needed.
+ */
+export function pickPictureSize(sizes: string[], edge = 1280): string | undefined {
+  const parsed = sizes
+    .map((s) => {
+      const m = /^(\d+)x(\d+)$/.exec(s.trim());
+      return m ? { s, long: Math.max(Number(m[1]), Number(m[2])), area: Number(m[1]) * Number(m[2]) } : null;
+    })
+    .filter((x): x is { s: string; long: number; area: number } => !!x && x.long > 0);
+  if (parsed.length === 0) return undefined;
+  const fits = parsed.filter((x) => x.long <= edge);
+  if (fits.length > 0) return fits.sort((a, b) => b.area - a.area)[0].s;
+  return parsed.sort((a, b) => a.area - b.area)[0].s;
+}

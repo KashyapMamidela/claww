@@ -5,6 +5,7 @@
 // exactly as before.
 
 import type { DayEventLike, DayState } from './workoutDayState';
+import { sessionName } from './format';
 
 export const WEEKDAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const;
 
@@ -148,7 +149,7 @@ export function missedDayLabels<E extends DayEventLike>(dayLabels: string[], eve
  * "Day 1, Day 2" plan the old behaviour stays: the suggested day reads TODAY, others show their own label.
  */
 export function heroKicker(dayLabels: string[], selectedLabel: string, focus: string, selectedState: string, isSuggested: boolean, now: Date): string {
-  const focusUp = focus.toUpperCase();
+  const focusUp = sessionName(focus).toUpperCase();
   if (!isWeekdayPlan(dayLabels)) return `${isSuggested ? 'TODAY' : selectedLabel.toUpperCase()} · ${focusUp}`;
   const idx = weekdayIndex(selectedLabel) as number;
   const todayIdx = localWeekday(now);

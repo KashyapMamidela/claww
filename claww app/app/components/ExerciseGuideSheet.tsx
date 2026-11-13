@@ -95,11 +95,7 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
               </PressScale>
             </View>
 
-            {/* Reserved for the looping demo clip (V2 PHASE 11 makes them). */}
-            <View style={{ height: 150, borderRadius: 16, backgroundColor: '#0B0B0D', borderWidth: 1, borderColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center', gap: 6 }} accessibilityLabel="Demo clip placeholder">
-              <Icon name="play" size={22} color="#3F3F46" />
-              <Text style={{ color: COLORS.textFaint, fontSize: 13, fontFamily: BG[400] }}>Demo clip coming soon</Text>
-            </View>
+            {/* The demo clip area returns when V2 PHASE 11's clips exist; an empty placeholder made the guide feel unfinished. */}
 
             <View style={{ flexDirection: 'row', gap: 6 }}>
               {TABS.map((t) => (
@@ -197,11 +193,6 @@ export function ExerciseGuideSheet({ name, form: formProp, onClose }: ExerciseGu
               )
             ) : null}
 
-            <PressScale onPress={onClose}>
-              <View style={{ height: 50, borderRadius: 25, backgroundColor: 'rgba(255,255,255,0.07)', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>Done</Text>
-              </View>
-            </PressScale>
           </ScrollView>
         </Pressable>
       </Pressable>

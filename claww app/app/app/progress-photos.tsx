@@ -104,8 +104,8 @@ export default function ProgressPhotosScreen() {
 
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <View style={{ flex: 1 }}>
-            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} disabled={busy} onPress={() => add('camera')}>
-              {busy ? 'Saving…' : 'Take a photo'}
+            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} saving={busy} onPress={() => add('camera')}>
+              Take a photo
             </Button>
           </View>
           <View style={{ flex: 1 }}>

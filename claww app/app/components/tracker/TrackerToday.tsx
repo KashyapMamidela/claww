@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { sessionName } from '../../lib/format';
 import { ActivitySheet } from '../workouts/ActivityCard';
 import { LineChart } from '../charts/LineChart';
 import { TintTile } from '../ui/TintTile';
@@ -26,6 +27,9 @@ import { ProgressRing } from '../ui/ProgressRing';
 import { Segmented } from '../ui/Segmented';
 import { Surface } from '../ui/Surface';
 import type { ChartKind } from './TrackerBody';
+import { ActivityLogo } from '../activity/ActivityLogo';
+import { Skeleton } from '../ui/Skeleton';
+import { dayKey } from '../../lib/widgetSnapshot';
 
 // NG PHASE 13 (screen 04): the Tracker's top cards. Steps with Day / Week and the source line, one recovery score
 // with its factors and a Today line, sleep, water and weight, and the activities that are not your plan. Steps and
@@ -43,9 +47,12 @@ export interface TrackerTodayProps {
   onOpen: (kind: ChartKind) => void;
 }
 
+// The area's icon stamped faintly in each card's corner, like the Home tiles.
+const STAMPS: Record<string, string> = { STEPS: 'footprints', SLEEP: 'moon', WATER: 'droplets' };
+
 function Card({ color, label, right, onPress, children, glow }: { color: string; label: string; right?: React.ReactNode; onPress?: () => void; children: React.ReactNode; glow?: boolean }) {
   const body = (
-    <TintTile color={color} padding={16} radius={20}>
+    <TintTile color={color} watermark={STAMPS[label]} watermarkSize={96} padding={16} radius={20}>
     <View style={{ gap: 10 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -69,26 +76,60 @@ function Card({ color, label, right, onPress, children, glow }: { color: string;
 
 const hm = (iso: string | null | undefined) => (iso ? new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : null);
 
+// Today's numbers, kept for the day so returning to the tab shows the last values at once. Until they are known the
+// cards are skeletons: the first frame used to read "Burned not tracked yet" and "Rest day" and then correct itself.
+interface TodayCache {
+  userId: string;
+  day: string;
+  today: StepsResult;
+  loggedKcal: number;
+  weightKg: number | null;
+  goal: number;
+  waterMl: number;
+  weights: WeightLog[];
+  activities: LoggedActivity[];
+  setsLast72h: number;
+  proteinPct: number | null;
+  sessionFocus: string | null;
+}
+let todayCache: TodayCache | null = null;
+
+function TodaySkeleton() {
+  return (
+    <View style={{ gap: 12 }}>
+      <Skeleton height={196} borderRadius={20} />
+      <Skeleton height={150} borderRadius={20} />
+      <Skeleton height={88} borderRadius={20} />
+      <View style={{ flexDirection: 'row', gap: 12 }}>
+        <Skeleton height={120} borderRadius={20} style={{ flex: 1 }} />
+        <Skeleton height={120} borderRadius={20} style={{ flex: 1 }} />
+      </View>
+    </View>
+  );
+}
+
 export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: TrackerTodayProps) {
   const router = useRouter();
   const { userId, recovery, todaySleep } = useAppState();
+  const cached = todayCache && userId && todayCache.userId === userId && todayCache.day === dayKey(new Date()) ? todayCache : null;
+  const [ready, setReady] = useState(!!cached);
   const [mode, setMode] = useState<'day' | 'week'>('day');
-  const [today, setToday] = useState<StepsResult>({ steps: 0, available: false, caloriesBurned: null });
-  const [weightKg, setWeightKg] = useState<number | null>(null);
-  const [goal, setGoal] = useState(stepsGoal || DEFAULT_STEPS_GOAL);
-  const [waterMl, setWaterMl] = useState(0);
-  const [weights, setWeights] = useState<WeightLog[]>([]);
-  const [activities, setActivities] = useState<LoggedActivity[]>([]);
-  const [setsLast72h, setSetsLast72h] = useState(0);
-  const [proteinPct, setProteinPct] = useState<number | null>(null);
-  const [sessionFocus, setSessionFocus] = useState<string | null>(null);
+  const [today, setToday] = useState<StepsResult>(cached?.today ?? { steps: 0, available: false, caloriesBurned: null });
+  const [weightKg, setWeightKg] = useState<number | null>(cached?.weightKg ?? null);
+  const [goal, setGoal] = useState(cached?.goal ?? (stepsGoal || DEFAULT_STEPS_GOAL));
+  const [waterMl, setWaterMl] = useState(cached?.waterMl ?? 0);
+  const [weights, setWeights] = useState<WeightLog[]>(cached?.weights ?? []);
+  const [activities, setActivities] = useState<LoggedActivity[]>(cached?.activities ?? []);
+  const [setsLast72h, setSetsLast72h] = useState(cached?.setsLast72h ?? 0);
+  const [proteinPct, setProteinPct] = useState<number | null>(cached?.proteinPct ?? null);
+  const [sessionFocus, setSessionFocus] = useState<string | null>(cached?.sessionFocus ?? null);
   const [weightOpen, setWeightOpen] = useState(false);
   const [activityOpen, setActivityOpen] = useState(false);
   const [weightText, setWeightText] = useState('');
   const [savingWeight, setSavingWeight] = useState(false);
   const [syncedAt, setSyncedAt] = useState<Date | null>(null);
   // Calories of sessions and activities logged today: the same input Home's Burned tile uses, so the two agree.
-  const [loggedKcal, setLoggedKcal] = useState(0);
+  const [loggedKcal, setLoggedKcal] = useState(cached?.loggedKcal ?? 0);
 
   useFocusEffect(
     useCallback(() => {
@@ -116,9 +157,26 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         setWeights(logs);
         setActivities(acts);
         setSetsLast72h(sets.length);
-        setProteinPct(inputs.proteinPct);
-        setSessionFocus(workout ? workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus ?? null : null);
+        // getRecoveryInputs returns a share (0.67); this card shows a percentage (67 %).
+        setProteinPct(inputs.proteinPct === null ? null : inputs.proteinPct * 100);
+        const focus = workout ? sessionName(workout.plan.days[getSuggestedDayIndex(workout.plan, events)]?.focus) || null : null;
+        setSessionFocus(focus);
         setSyncedAt(new Date());
+        setReady(true);
+        todayCache = {
+          userId,
+          day: dayKey(new Date()),
+          today: steps,
+          loggedKcal: todayStats.calorieBurn,
+          weightKg: profile?.weight ?? null,
+          goal: profile?.personalization_profile?.stepsGoal ?? DEFAULT_STEPS_GOAL,
+          waterMl: water,
+          weights: logs,
+          activities: acts,
+          setsLast72h: sets.length,
+          proteinPct: inputs.proteinPct === null ? null : inputs.proteinPct * 100,
+          sessionFocus: focus,
+        };
       })();
       return () => {
         cancelled = true;
@@ -169,6 +227,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
     const span = Math.max(0.5, max - min);
     return pts.map((p, i) => `${(i / (pts.length - 1)) * 100},${28 - ((p - min) / span) * 24}`).join(' ');
   }, [trend]);
+
+  if (!ready) return <TodaySkeleton />;
 
   return (
     <View style={{ gap: 12 }}>
@@ -221,7 +281,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       </Card>
 
       {/* Recovery */}
-      <Card color={AREA_COLORS.recovery} label="RECOVERY · ONE SCORE" onPress={() => onOpen('recovery')}>
+      <Card color={AREA_COLORS.recovery} label="RECOVERY" onPress={() => onOpen('recovery')}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
           <ProgressRing size={96} rings={[{ r: 41, strokeWidth: 8, color: AREA_COLORS.recovery, pct: recovery?.score ?? 0 }]} trackColor="rgba(255,255,255,0.07)">
             <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{recovery ? recovery.score : '—'}</Text>
@@ -266,7 +326,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
             <View style={{ height: 10, borderRadius: 5, backgroundColor: tint(AREA_COLORS.sleep, 0.16), overflow: 'hidden' }}>
               <View style={{ height: '100%', width: `${Math.min(100, (sleepHours / 8) * 100)}%`, backgroundColor: AREA_COLORS.sleep, borderRadius: 5 }} />
             </View>
-            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Sleep stages need a watch connected; they are not shown yet.</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Connect a watch to see sleep stages.</Text>
           </>
         ) : (
           <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>Not logged yet. A bedtime of {bedtimeFor(null)} gives you 8 hours; log last night on Home.</Text>
@@ -289,7 +349,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
         <View style={{ flex: 1 }}>
           <Card color="#D4D4D8" label="WEIGHT" onPress={() => setWeightOpen(true)}>
             <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{latestWeight !== null ? `${latestWeight} kg` : '—'}</Text>
-            <Text style={{ color: trend?.deltaKg ? COLORS.green : COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{trend ? weightDeltaText(trend.deltaKg) : 'tap to log your weight'}</Text>
+            <Text style={{ color: trend?.deltaKg ? COLORS.green : COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{trend ? weightDeltaText(trend.deltaKg) : 'Log weight'}</Text>
             {spark ? (
               <Svg width="100%" height={30} viewBox="0 0 100 30" preserveAspectRatio="none">
                 <Polyline points={spark} fill="none" stroke="#E4E4E7" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -300,20 +360,20 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       </View>
 
       {/* What was recorded: activities outside the plan. They are logged on Workouts and Home, shown here. */}
-      <Card color={AREA_COLORS.burned} label="ACTIVITIES RECORDED">
+      <Card color={AREA_COLORS.activity} label="ACTIVITIES RECORDED">
         {activities.length === 0 ? (
           // Premium D9: an empty state says what will appear and offers the one action that fills it.
           <View style={{ gap: 12 }}>
             <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Sports and long walks you log show up here. They count for calories and recovery.</Text>
-            <Button variant="secondary" size="md" accent={AREA_COLORS.burned} onPress={() => setActivityOpen(true)} icon={<Icon name="zap" size={15} color={AREA_COLORS.burned} />}>
-              Log an activity
+            <Button variant="secondary" size="md" accent={AREA_COLORS.activity} onPress={() => setActivityOpen(true)} icon={<Icon name="play" size={15} color={AREA_COLORS.activity} />}>
+              Start an activity
             </Button>
           </View>
         ) : (
           activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.burned, 0.16) }}>
-                <Icon name="zap" size={20} color={AREA_COLORS.burned} />
+              <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.activity, 0.16), borderWidth: 1, borderColor: tint(AREA_COLORS.activity, 0.3) }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                <ActivityLogo name={a.name} size={22} color={AREA_COLORS.activity} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{a.name}</Text>
@@ -321,7 +381,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
                   {new Date(a.loggedAt).toLocaleDateString(undefined, { weekday: 'short' })} · {a.minutes} min
                 </Text>
               </View>
-              <Text style={{ color: AREA_COLORS.burned, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{a.kcal} kcal</Text>
+              <Text style={{ color: AREA_COLORS.activity, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{a.kcal} kcal</Text>
             </View>
           ))
         )}
@@ -359,8 +419,8 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
             style={{ height: 48, borderRadius: 12, borderWidth: 1, borderColor: weightText ? COLORS.borderStrong : COLORS.border, backgroundColor: COLORS.card, color: COLORS.fg, fontSize: 22, paddingHorizontal: 16, fontFamily: BG[800] }}
           />
           <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>Weigh yourself at the same time each week for a clean trend.</Text>
-          <Button variant="primary" size="lg" fullWidth disabled={parseWeight(weightText) === null || savingWeight} onPress={saveWeight}>
-            {savingWeight ? 'Saving…' : 'Save weight'}
+          <Button variant="primary" size="lg" fullWidth saving={savingWeight} disabled={parseWeight(weightText) === null} onPress={saveWeight}>
+            Save weight
           </Button>
         </View>
       </BottomSheet>

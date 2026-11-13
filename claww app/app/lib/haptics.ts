@@ -23,3 +23,9 @@ export function tick(): void {
 export function warning(): void {
   Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning).catch(() => {});
 }
+
+/** A stamp landing (the finish moments): one heavy hit, then a light echo. One per moment. */
+export function stamp(): void {
+  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+  setTimeout(() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}), 110);
+}

@@ -1,6 +1,12 @@
 import React from 'react';
 import {
   Activity,
+  Bike,
+  Flower2,
+  Mountain,
+  Timer,
+  WavesLadder,
+  Wind,
   ScanLine,
   Snowflake,
   CalendarDays,
@@ -72,6 +78,12 @@ import {
 // the lucide-react-native components.
 const ICONS: Record<string, LucideIcon> = {
   activity: Activity,
+  bike: Bike,
+  'flower-2': Flower2,
+  mountain: Mountain,
+  timer: Timer,
+  'waves-ladder': WavesLadder,
+  wind: Wind,
   'alert-triangle': AlertTriangle,
   apple: Apple,
   'arrow-up-right': ArrowUpRight,

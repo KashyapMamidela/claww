@@ -108,6 +108,16 @@ export async function resetMealPlans(userId: string): Promise<void> {
   cache.clear();
   const today = dateKey(new Date());
   await supabase.from('meal_plan_days').delete().eq('user_id', userId).gte('plan_date', today);
+  resetListeners.forEach((fn) => fn());
+}
+
+// The Food tab listens, so a plan rebuilt after its screen has already come back into view still shows at once.
+const resetListeners = new Set<() => void>();
+export function onMealPlansReset(fn: () => void): () => void {
+  resetListeners.add(fn);
+  return () => {
+    resetListeners.delete(fn);
+  };
 }
 
 /**

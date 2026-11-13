@@ -50,17 +50,8 @@ export function MealThumb({ photoPath, mealType, size = 34 }: MealThumbProps) {
 
   useEffect(() => setFailed(false), [url]);
 
-  if (url && !failed) {
-    return (
-      <Image
-        source={{ uri: url }}
-        onError={() => setFailed(true)}
-        style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: COLORS.greenGlow }}
-        resizeMode="cover"
-      />
-    );
-  }
-
+  // The meal's icon shows at once, and the photo fades in over it (150 ms) once it has loaded, so the circle is
+  // never blank while the link is signed or the image downloads.
   return (
     <View
       style={{
@@ -72,9 +63,19 @@ export function MealThumb({ photoPath, mealType, size = 34 }: MealThumbProps) {
         borderColor: COLORS.greenBorder,
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
       }}
     >
       <Icon name={mealTypeIcon(mealType)} size={Math.round(size * 0.47)} color={COLORS.green} />
+      {url && !failed ? (
+        <Image
+          source={{ uri: url }}
+          onError={() => setFailed(true)}
+          fadeDuration={150}
+          style={{ position: 'absolute', top: 0, left: 0, width: size, height: size, borderRadius: size / 2 }}
+          resizeMode="cover"
+        />
+      ) : null}
     </View>
   );
 }

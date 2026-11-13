@@ -188,7 +188,7 @@ export function rateMeal(meal: RatedMeal, needs: DayNeeds): MealRatingResult {
   const salty = (meal.sodiumMg ?? 0) >= 1500;
   const short = Math.max(0, Math.round(wantProtein - meal.protein));
   const next = needs.nextMeal ? `${needs.nextMeal} adds` : 'add';
-  const fix = needs.nextMeal ? `${needs.nextMeal} can close it.` : 'tomorrow can close it.';
+  const fix = needs.nextMeal ? `${needs.nextMeal} can close it.` : 'Tomorrow can close it.';
 
   // A snack only has to carry a little protein; a main meal has to carry its share.
   const isSnack = (meal.mealType ?? 'snack').toLowerCase() === 'snack';
@@ -216,7 +216,7 @@ export function rateMeal(meal: RatedMeal, needs: DayNeeds): MealRatingResult {
   return { rating, reason };
 }
 
-export const RATING_LABEL: Record<Rating, string> = { good: 'GOOD', okay: 'OKAY', poor: 'POOR' };
+export const RATING_LABEL: Record<Rating, string> = { good: 'Good', okay: 'Okay', poor: 'Poor' };
 
 // ─── The day's line ──────────────────────────────────────────────────────────────────────────────────────────
 

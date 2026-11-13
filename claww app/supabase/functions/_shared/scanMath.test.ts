@@ -5,7 +5,7 @@ import {
   applyContext, candidateChips, DEFAULT_CONTEXT, gramsFor, matchFood, MATCH_THRESHOLD, OIL_FOOD, parseModelOutput, resolveItems, roundQty, routeScan,
   setQuantity, totalsOf, type ModelOutput, type ScanFood,
 } from './scanMath.ts';
-import { AllVisionProvidersFailed, callVisionProviders, openAiCompatibleProvider, type VisionProvider } from './vision.ts';
+import { AllVisionProvidersFailed, callVisionProviders, openAiCompatibleProvider, stripJsonFence, type VisionProvider } from './vision.ts';
 
 // The real food database (113 ingredients, 86 dishes) as ScanFood rows.
 function loadScanFoods(): ScanFood[] {
@@ -50,6 +50,22 @@ describe('matching what the model heard to foods', () => {
     ['chai', 'Chai with sugar'],
     ['curd', 'Curd, plain'],
     ['dal', 'Dal tadka'],
+    // From the first live scan of a salad bowl: these all came back "not in the database".
+    ['red bell pepper', 'Capsicum, red'],
+    ['yellow bell pepper', 'Capsicum, yellow'],
+    ['shredded purple cabbage', 'Cabbage, red'],
+    ['mixed greens', 'Lettuce and salad greens'],
+    ['avocado', 'Avocado'],
+    ['chickpeas', 'Chickpeas, boiled'],
+    ['sliced avocado', 'Avocado'],
+    ['green bell pepper', 'Capsicum, green'],
+    ['chopped cabbage', 'Cabbage'],
+    ['cherry tomatoes', 'Tomato'],
+    ['cherry tomato', 'Tomato'],
+    ['rice', 'Rice, cooked'],
+    ['white rice', 'Rice, cooked'],
+    ['raw rice', 'Rice, white, raw'],
+    ['pickle', 'Pickle'],
   ];
   for (const [heard, expected] of cases) {
     it(`"${heard}" is ${expected}`, () => {
@@ -59,6 +75,52 @@ describe('matching what the model heard to foods', () => {
       expect(m!.score).toBeGreaterThanOrEqual(MATCH_THRESHOLD);
     });
   }
+  it('a unit a gram-only food lacks uses a typical weight, not 1 gram per unit', () => {
+    const avocado = FOODS.find((f) => f.name === 'Avocado')!;
+    const greens = FOODS.find((f) => f.name === 'Lettuce and salad greens')!;
+    const rice = FOODS.find((f) => f.name === 'Rice, cooked')!;
+    expect(gramsFor(greens, 1, 'handful').grams).toBe(30);
+    expect(gramsFor(avocado, 1, 'piece').grams).toBe(136);
+    const peppers = FOODS.find((f) => f.name === 'Capsicum, red')!;
+    expect(gramsFor(peppers, 2, 'tbsp').grams).toBe(30);
+    // A food that has its own household unit keeps using it.
+    expect(gramsFor(rice, 1, 'katori').grams).toBeGreaterThan(100);
+  });
+
+  it('keeps the model gram estimate and uses it only where the food has no household unit for what was named', () => {
+    const parsed = parseModelOutput({ isFood: true, isAppropriate: true, dish: 'Salad', confidence: 0.9, candidates: [], items: [
+      { name: 'mixed greens', quantity: 2, unit: 'cup', grams: 60 },
+      { name: 'roti', quantity: 2, unit: 'roti', grams: 90 },
+      { name: 'avocado', quantity: 1, unit: 'piece', grams: 5000 },
+    ] });
+    expect(parsed!.items[0].grams).toBe(60);
+    expect(parsed!.items[2].grams).toBeUndefined(); // an impossible weight is dropped
+    const out = resolveItems(parsed!.items, FOODS);
+    // greens have no "cup" unit and are measured in grams: the model's 60 g is used, not "2 cups = 2 g" or 400 g
+    expect(out[0]).toMatchObject({ unit: 'g', grams: 60 });
+    // roti has its own household unit: the household conversion stays (2 x 40 g), the model's 90 g is ignored
+    expect(out[1].grams).toBe(80);
+    // avocado: the model's 5000 g was impossible and dropped, so the household piece stands
+    expect(out[2].grams).toBe(136);
+  });
+
+  it('when the household conversion and the model gram estimate disagree a lot, what the model sees wins', () => {
+    const avocadoSlices = resolveItems([{ name: 'avocado', quantity: 1, unit: 'piece', grams: 40 }], FOODS)[0];
+    expect(avocadoSlices).toMatchObject({ unit: 'g', grams: 40 }); // 136 g vs 40 g
+    const roti = resolveItems([{ name: 'roti', quantity: 2, unit: 'roti', grams: 90 }], FOODS)[0];
+    expect(roti.grams).toBe(80); // 80 g vs 90 g agree: keep the household unit
+    const wholeAvocado = resolveItems([{ name: 'avocado', quantity: 1, unit: 'piece', grams: 150 }], FOODS)[0];
+    expect(wholeAvocado.grams).toBe(136);
+  });
+
+  it('no oil adds no oil line at all, any other level adds one', () => {
+    const base = resolveItems([{ name: 'avocado', quantity: 1, unit: 'g', grams: 60 }], FOODS);
+    const none = applyContext(base, { ...DEFAULT_CONTEXT, oil: 'none' }, oil);
+    expect(none.some((i) => i.hidden)).toBe(false);
+    const light = applyContext(base, { ...DEFAULT_CONTEXT, oil: 'light' }, oil);
+    expect(light.filter((i) => i.hidden).length).toBe(1);
+  });
+
   it('something that is not in the database does not match', () => {
     expect(matchFood('quinoa tabbouleh', FOODS)).toBeNull();
     expect(matchFood('', FOODS)).toBeNull();
@@ -198,5 +260,74 @@ describe('vision providers: order, timeout and validation', () => {
     expect(await p.call('sys', 'user', 'data:image/jpeg;base64,AAA', new AbortController().signal)).toBe('{"x":1}');
     expect(seen!.auth).toBe('Bearer k');
     expect(seen!.body.model).toBe('m');
+  });
+
+  it('repeats once without JSON mode when the provider rejects it, and removes a code fence', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const fakeFetch = (async (_url: string, init: { body: string }) => {
+      const body = JSON.parse(init.body);
+      bodies.push(body);
+      if (body.response_format) return { ok: false, status: 400, json: async () => ({}) };
+      return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '```json\n{"x":2}\n```' } }] }) };
+    }) as unknown as typeof fetch;
+    const p = openAiCompatibleProvider({ name: 'backup:test', url: 'https://example.test', key: 'k', model: 'm' }, fakeFetch);
+    expect(await p.call('s', 'u', 'data:image/jpeg;base64,AAA', new AbortController().signal)).toBe('{"x":2}');
+    expect(bodies.length).toBe(2);
+    expect(bodies[0].response_format).toBeDefined();
+    expect(bodies[1].response_format).toBeUndefined();
+  });
+
+  it('retries without thinking and JSON mode together when the provider rejects them', async () => {
+    const bodies: Record<string, unknown>[] = [];
+    const fakeFetch = (async (_url: string, init: { body: string }) => {
+      const body = JSON.parse(init.body);
+      bodies.push(body);
+      if (body.reasoning_effort) return { ok: false, status: 400, json: async () => ({}) };
+      return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '{"x":3}' } }] }) };
+    }) as unknown as typeof fetch;
+    const p = openAiCompatibleProvider({ name: 'g', url: 'https://example.test', key: 'k', model: 'm', reasoningEffort: 'low' }, fakeFetch);
+    expect(await p.call('s', 'u', 'data:image/jpeg;base64,AAA', new AbortController().signal)).toBe('{"x":3}');
+    expect(bodies[0].reasoning_effort).toBe('low');
+    expect(bodies[1].reasoning_effort).toBeUndefined();
+    expect(bodies[1].response_format).toBeUndefined();
+  });
+
+  it('gives each provider its own time limit and moves on at once when one fails', async () => {
+    const order: string[] = [];
+    const slow: VisionProvider = { name: 'slow', timeoutMs: 30, call: () => new Promise(() => {}) };
+    const bad: VisionProvider = { name: 'bad', call: async () => { order.push('bad'); throw new Error('HTTP 429'); } };
+    const good: VisionProvider = { name: 'good', call: async () => { order.push('good'); return '{"ok":true}'; } };
+    const r = await callVisionProviders([slow, bad, good], 's', 'u', 'img', (t) => JSON.parse(t), 5000);
+    expect(r.provider).toBe('good');
+    expect(r.attempts.map((x) => x.provider)).toEqual(['slow', 'bad', 'good']);
+    expect(order).toEqual(['bad', 'good']);
+  });
+
+  it('stops starting new providers once the total deadline has passed', async () => {
+    const a: VisionProvider = { name: 'a', call: async () => { await new Promise((r) => setTimeout(r, 40)); throw new Error('x'); } };
+    const b: VisionProvider = { name: 'b', call: async () => '{"ok":true}' };
+    await expect(callVisionProviders([a, b], 's', 'u', 'img', (t) => JSON.parse(t), 1000, 10)).rejects.toBeInstanceOf(AllVisionProvidersFailed);
+  });
+
+  it('hedged: a slow first provider does not hold the answer up, the next one starts after the hedge delay', async () => {
+    const slow: VisionProvider = { name: 'slow', call: () => new Promise((r) => setTimeout(() => r('{"from":"slow"}'), 500)) };
+    const fast: VisionProvider = { name: 'fast', call: async () => '{"from":"fast"}' };
+    const started = Date.now();
+    const r = await callVisionProviders([slow, fast], 's', 'u', 'img', (x) => JSON.parse(x), 2000, 28000, 30);
+    expect(r.provider).toBe('fast');
+    expect(Date.now() - started).toBeLessThan(300);
+  });
+
+  it('hedged: a failure starts the next provider at once, and all failing reports every attempt', async () => {
+    const bad = (name: string): VisionProvider => ({ name, call: async () => { throw new Error('HTTP 503'); } });
+    await expect(callVisionProviders([bad('a'), bad('b'), bad('c')], 's', 'u', 'img', (x) => JSON.parse(x), 2000, 28000, 1000)).rejects.toBeInstanceOf(AllVisionProvidersFailed);
+    const ok: VisionProvider = { name: 'ok', call: async () => '{"x":1}' };
+    const r = await callVisionProviders([bad('a'), ok], 's', 'u', 'img', (x) => JSON.parse(x), 2000, 28000, 5000);
+    expect(r.provider).toBe('ok');
+  });
+
+  it('stripJsonFence leaves plain JSON alone', () => {
+    expect(stripJsonFence('{"a":1}')).toBe('{"a":1}');
+    expect(stripJsonFence('```\n{"a":1}\n```')).toBe('{"a":1}');
   });
 });

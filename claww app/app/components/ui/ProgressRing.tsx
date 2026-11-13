@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Platform, View } from 'react-native';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { AccessibilityInfo, Platform, View } from 'react-native';
 import { ensureSkiaWebLoaded } from '../../lib/skiaWeb';
 import {
   Canvas,
@@ -225,6 +225,54 @@ export interface ProgressRingProps {
  * gradient whose end tracks the tip, plus path-boolean clipping for the
  * tip's forward shadow, neither of which react-native-svg can do cleanly.
  */
+/**
+ * The rings sweep from where they were to the new value (from 0 the first time they appear), 700 ms with a strong
+ * ease-out: the one "fill" moment Apple's rings have when the app opens or a log lands. Reduce motion jumps straight
+ * to the value. Driven by one frame loop for the short sweep only; at rest nothing re-renders.
+ */
+function useSweep(targets: number[]): number[] {
+  const [shown, setShown] = useState<number[]>(() => targets.map(() => 0));
+  const from = useRef<number[]>(targets.map(() => 0));
+  const live = useRef<number[]>(targets.map(() => 0));
+  const key = targets.map((t) => Math.round(t * 10)).join(',');
+  useEffect(() => {
+    let raf = 0;
+    let cancelled = false;
+    const start = from.current.slice();
+    AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
+      if (cancelled) return;
+      if (reduced) {
+        from.current = targets.slice();
+        live.current = targets.slice();
+        setShown(targets.slice());
+        return;
+      }
+      const t0 = Date.now();
+      const tick = () => {
+        const k = Math.min(1, (Date.now() - t0) / 700);
+        const e = 1 - Math.pow(1 - k, 3);
+        const now = targets.map((t, i) => (start[i] ?? 0) + (t - (start[i] ?? 0)) * e);
+        live.current = now;
+        setShown(now);
+        if (k < 1) raf = requestAnimationFrame(tick);
+        else {
+          from.current = targets.slice();
+          live.current = targets.slice();
+        }
+      };
+      raf = requestAnimationFrame(tick);
+    });
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      // Interrupted mid-sweep: the next sweep starts from where the ring is on screen, not from a stale value.
+      from.current = live.current.slice();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return shown;
+}
+
 export function ProgressRing({
   size,
   rings,
@@ -236,6 +284,7 @@ export function ProgressRing({
 }: ProgressRingProps) {
   const c = size / 2;
   const startAngle = rotation * DEG;
+  const swept = useSweep(rings.map((r) => r.pct));
   const sweepTotal = TWO_PI * trackFraction;
 
   // Native links CanvasKit in-process, so it's ready on first render; web
@@ -264,7 +313,7 @@ export function ProgressRing({
             r={ring.r}
             strokeWidth={ring.strokeWidth}
             color={ring.color}
-            progress={ring.pct / 100}
+            progress={(swept[i] ?? ring.pct) / 100}
             trackColor={ring.track ?? trackColor}
             trackDash={trackDash}
             startAngle={startAngle}

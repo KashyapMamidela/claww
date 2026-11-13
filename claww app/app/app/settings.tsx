@@ -6,13 +6,13 @@ import { ScrollView, Switch, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, FONT, BG, bg } from '../lib/theme';
+import { COLORS, FONT, BG, bg, SWITCH_TRACK } from '../lib/theme';
 import { useAppState } from '../lib/appState';
-import { signOut } from '../lib/auth';
 import { getGenerationUsageToday, getProfile, saveReminderSettings, saveScanTraining, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
 import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
+import { useScanQuestionPrefs } from '../lib/scanQuestionPrefs';
 import { getPerfReport, PERF_ENABLED, resetPerfReport, type PerfReport } from '../lib/perf';
 import { refreshReminders } from '../lib/reminderSync';
 import { DEFAULT_REMINDER_SETTINGS, normalizeReminderSettings, type ReminderSettings } from '../lib/reminderPlan';
@@ -27,6 +27,8 @@ const P = '#A1A1AA';
 // notification toggle, and sign-out. Units (metric/imperial) still need a
 // display-layer conversion audited across every screen that renders
 // kg/cm — deliberately left out rather than shipped as a decorative stub.
+// Sign out lives once, on Profile.
+
 export default function SettingsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -35,6 +37,7 @@ export default function SettingsScreen() {
   const [notificationsOn, setNotificationsOn] = useState(false);
   const [notificationsBusy, setNotificationsBusy] = useState(false);
   const [scanTraining, setScanTrainingOn] = useState(false);
+  const [questionPrefs, setQuestionPrefs] = useScanQuestionPrefs();
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [testStatus, setTestStatus] = useState<string | null>(null);
   const [reminderSettings, setReminderSettings] = useState<ReminderSettings>(DEFAULT_REMINDER_SETTINGS);
@@ -95,9 +98,11 @@ export default function SettingsScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <View><Badge color={P}>SETTINGS</Badge></View>
+          <Text style={{ color: '#fff', fontSize: 28, fontFamily: BG[800] }}>Settings</Text>
         </View>
 
+        {/* Generation caps are internal plumbing: shown only in dev and preview builds. */}
+        {SHOW_DEV_TOOLS ? (
 <Rise i={0}>
         <Surface radius={20} padding={16}>
           <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700], marginBottom: 4 }}>Today's generation usage</Text>
@@ -126,6 +131,7 @@ export default function SettingsScreen() {
           ))}
         </Surface>
 </Rise>
+        ) : null}
 
         {notificationsSupported ? (
 <Rise i={1}>
@@ -138,7 +144,7 @@ export default function SettingsScreen() {
                 <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[600] }}>Reminders</Text>
                 <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>Workout, meal, sleep and water nudges</Text>
               </View>
-              <Switch value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
+              <Switch trackColor={SWITCH_TRACK} thumbColor="#FFFFFF" value={notificationsOn} onValueChange={handleToggleNotifications} disabled={notificationsBusy} />
             </View>
             {notificationsOn ? (
               <View style={{ marginTop: 10, borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.06)', paddingTop: 4 }}>
@@ -163,10 +169,12 @@ export default function SettingsScreen() {
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>Help improve the scanner</Text>
               <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, lineHeight: 17, fontFamily: BG[400] }}>
-                When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals. Off by default. Turn it off any time.
+                When you fix a scanned plate, share the photo, what the scanner guessed and your fix, so it learns Indian meals.
               </Text>
             </View>
             <Switch
+              trackColor={SWITCH_TRACK}
+              thumbColor="#FFFFFF"
               value={scanTraining}
               accessibilityLabel="Help improve the scanner"
               onValueChange={(on) => {
@@ -175,6 +183,30 @@ export default function SettingsScreen() {
               }}
             />
           </View>
+        </Surface>
+</Rise>
+
+<Rise i={2}>
+        <Surface radius={20} padding={16}>
+          <View style={{ gap: 4 }}>
+            <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>Scan questions</Text>
+            <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>
+              Choose what to be asked after you scan a plate. Anything switched off uses your usual answer, and you can still change it for a scan.
+            </Text>
+          </View>
+          {([
+            ['place', 'Where it is from', 'Home, mess, restaurant or street'],
+            ['oil', 'How oily', 'Only asked when the plate has cooked food'],
+            ['portion', 'How much', 'Small, regular, large or shared'],
+          ] as const).map(([key, title, hint]) => (
+            <View key={key} style={{ flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 12 }}>
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[600] }}>{title}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, marginTop: 1, fontFamily: BG[400] }}>{hint}</Text>
+              </View>
+              <Switch trackColor={SWITCH_TRACK} thumbColor="#FFFFFF" value={questionPrefs[key]} accessibilityLabel={`Ask ${title}`} onValueChange={(on) => setQuestionPrefs({ ...questionPrefs, [key]: on })} />
+            </View>
+          ))}
         </Surface>
 </Rise>
 
@@ -208,20 +240,17 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         ) : null}
 
-<Rise i={3}>
-        <Surface radius={20} padding={16}>
+        {SHOW_DEV_TOOLS ? (
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={signOut}
-            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 13, gap: 12 }}
+            onPress={() => router.push('/dev/scanner-lab')}
+            accessibilityRole="button"
+            style={{ minHeight: 44, borderRadius: 16, borderWidth: 1, borderStyle: 'dashed', borderColor: 'rgba(245,158,11,0.35)', backgroundColor: '#151517', alignItems: 'center', justifyContent: 'center', paddingVertical: 12 }}
           >
-            <View style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="log-out" size={16} color="#EF4444" />
-            </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 13, fontFamily: BG[500] }}>Sign out</Text>
+            <Text style={{ color: COLORS.amber, fontSize: 13, fontFamily: BG[700] }}>Scanner lab</Text>
           </TouchableOpacity>
-        </Surface>
-</Rise>
+        ) : null}
+
       </View>
     </ScrollView>
   );

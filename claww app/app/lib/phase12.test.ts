@@ -135,14 +135,14 @@ describe('session recap', () => {
     expect(newBest(done.slice(4), history)).toBeNull();
   });
   it('the pen note says what each feel will do', () => {
-    expect(feelNote('just_right')).toBe('perfect, next week climbs as planned');
+    expect(feelNote('just_right')).toBe('perfect, next session climbs as planned');
     expect(feelNote('too_hard')).toContain('holds');
     expect(feelNote('too_easy')).toContain('sooner');
   });
   it('title by share of planned sets done', () => {
     expect(sessionTitle(16, 16)).toBe('Strong session');
     expect(sessionTitle(9, 16)).toBe('Good session');
-    expect(sessionTitle(3, 16)).toBe('Session done');
+    expect(sessionTitle(3, 16)).toBe('Session saved');
     expect(sessionTitle(0, 0)).toBe('Session done');
   });
 });
@@ -206,7 +206,7 @@ describe('week strip', () => {
     expect(s.cells[2].planIndex).toBeNull();
   });
   it('a missed day gets a pen note', () => {
-    expect(weekStrip(days, [], now)!.note).toBe('missed Monday, upper is still open');
+    expect(weekStrip(days, [], now)!.note).toBe("Monday's Upper is still open");
     expect(weekStrip(days, [ev('Monday', new Date(2026, 10, 2, 18)), ev('Tuesday', new Date(2026, 10, 3, 18))], now)!.note).toBeNull();
   });
   it('is null for a plan without weekdays; short labels', () => {
@@ -285,13 +285,15 @@ describe('one definition of a day', () => {
     expect(burnedKcal({ healthConnectKcal: null, steps: null, loggedKcal: 250, weightKg: null })).toEqual({ kcal: 250, source: 'estimate' });
     expect(burnedKcal({ healthConnectKcal: null, steps: null, loggedKcal: 0, weightKg: 70 })).toEqual({ kcal: null, source: 'none' });
     expect(burnedKcal({ healthConnectKcal: null, steps: 0, loggedKcal: 0, weightKg: 70 }).kcal).toBe(0);
+    // Health Connect saying 0 with steps on the board falls back to the estimate instead of showing 0.
+    expect(burnedKcal({ healthConnectKcal: 0, steps: 6000, loggedKcal: 0, weightKg: 70 })).toEqual({ kcal: 210, source: 'estimate' });
   });
   it('step maths and source lines', () => {
     expect(stepsKcal(10000, 80)).toBe(400);
     expect(stepsProgress(4000, 8000)).toBe(50);
     expect(stepsProgress(20000, 8000)).toBe(100);
     expect(stepsProgress(null, 8000)).toBe(0);
-    expect(stepsSourceLine('health-connect')).toContain('Never counted twice');
+    expect(stepsSourceLine('health-connect')).toContain('phone otherwise');
     expect(stepsSourceLine(null)).toContain('Connect');
   });
 });

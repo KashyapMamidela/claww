@@ -6,9 +6,11 @@ import { AREA_COLORS, COLORS, FONT, FONT_HAND, tint, BG, bg } from '../../lib/th
 import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
+import { Stamp } from '../ui/Stamp';
 
 // Premium H6: one card under Daily progress that answers "what am I training today". Three states, one accent each:
-// training (blue), rest day (indigo), done (green). The tile row above stays a quick glance; this card is the detail.
+// training (blue), rest day (indigo), done (a quieter blue: green belongs to food, and a finished session
+// shouldn't compete with what is still to do). The tile row above stays a quick glance; this card is the detail.
 
 export type SessionCardState = 'training' | 'rest' | 'done';
 
@@ -33,7 +35,7 @@ export interface SessionCardProps {
 const PALETTE: Record<SessionCardState, { accent: string; kicker: string; top: string; bottom: string }> = {
   training: { accent: AREA_COLORS.workouts, kicker: '#93C5FD', top: '#152445', bottom: '#0E1527' },
   rest: { accent: AREA_COLORS.sleep, kicker: '#A5B4FC', top: '#1B1C36', bottom: '#12132A' },
-  done: { accent: AREA_COLORS.nutrition, kicker: '#86EFAC', top: '#123022', bottom: '#0C1D15' },
+  done: { accent: AREA_COLORS.workouts, kicker: '#93C5FD', top: '#111A30', bottom: '#0B1120' },
 };
 
 const Pill = ({ text }: { text: string }) => (
@@ -52,17 +54,18 @@ export function SessionCard(p: SessionCardProps) {
       padding={16}
       radius={20}
       colors={[c.top, c.bottom]}
-      borderColor={tint(c.accent, 0.4)}
+      borderColor={tint(c.accent, p.state === 'done' ? 0.25 : 0.4)}
       decoration={
         <>
           <LinearGradient
             pointerEvents="none"
-            colors={[tint(c.accent, 0.3), tint(c.accent, 0)]}
+            colors={[tint(c.accent, p.state === 'done' ? 0.14 : 0.3), tint(c.accent, 0)]}
             start={{ x: 1, y: 0 }}
             end={{ x: 0.3, y: 0.8 }}
             style={StyleSheet.absoluteFill}
           />
           <TiltLight />
+          <Stamp name={p.state === 'rest' ? 'footprints' : 'dumbbell'} color={c.accent} size={96} opacity={p.state === 'done' ? 0.12 : 0.2} right={-14} bottom={-18} />
         </>
       }
     >
@@ -83,7 +86,7 @@ export function SessionCard(p: SessionCardProps) {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {p.exercises ? <Pill text={`${p.exercises} exercise${p.exercises === 1 ? '' : 's'}`} /> : null}
             {p.minutes ? <Pill text={`~${p.minutes} min`} /> : null}
-            {p.state === 'done' ? (p.setsDone ? <Pill text={`${p.setsDone} sets done`} /> : null) : p.sets ? <Pill text={`${p.sets} sets`} /> : null}
+            {p.state === 'done' ? (p.setsDone ? <Pill text={p.sets ? `${p.setsDone} of ${p.sets} sets` : `${p.setsDone} sets done`} /> : null) : p.sets ? <Pill text={`${p.sets} sets`} /> : null}
           </View>
         )}
 

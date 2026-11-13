@@ -36,8 +36,16 @@ export function reviewLine(f: WeekFacts): string {
 /** Marks shown in the review: made in the last 7 days and not expired, workouts first, oldest first within an area. */
 export function marksForReview(marks: PenMark[], now: Date): PenMark[] {
   const since = now.getTime() - 7 * DAY;
-  return marks
-    .filter((m) => m.status !== 'expired' && new Date(m.createdAt).getTime() >= since)
+  // One row per thing that was marked: the same meal or day marked again (a day moved Saturday to Sunday, then Sunday
+  // to Monday) shows only its latest mark, so the review never lists the same item twice or contradicts itself.
+  const latest = new Map<string, PenMark>();
+  for (const m of marks) {
+    if (m.status === 'expired' || new Date(m.createdAt).getTime() < since) continue;
+    const k = `${m.area}|${m.kind}|${m.target.key}|${m.target.field ?? ''}`;
+    const prev = latest.get(k);
+    if (!prev || prev.createdAt < m.createdAt) latest.set(k, m);
+  }
+  return [...latest.values()]
     .sort((a, b) => (a.area === b.area ? a.createdAt.localeCompare(b.createdAt) : a.area === 'workout' ? -1 : 1));
 }
 

@@ -17,7 +17,6 @@ import {
   getCompletedWorkoutDays,
   getLevelInfo,
   getProfile,
-  getTierName,
   getTotalVolume,
   type Achievement,
   type Profile,
@@ -34,9 +33,9 @@ import { openStoreListing, openSupportEmail } from '../lib/support';
 const P = COLORS.amber;
 
 const GOAL_LABELS: Record<string, string> = {
-  muscle_gain: 'Build Muscle',
-  fat_loss: 'Lose Fat',
-  strength: 'Get Stronger',
+  muscle_gain: 'Build muscle',
+  fat_loss: 'Lose fat',
+  strength: 'Get stronger',
   endurance: 'Endurance',
   maintenance: 'Maintain',
   flexibility: 'Flexibility',
@@ -107,7 +106,7 @@ export default function ProfileScreen() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getProfile(userId), getCompletedWorkoutDays(userId), getTotalVolume(userId), getAchievements(userId)]).then(
+      Promise.all([getProfile(userId), getCompletedWorkoutDays(userId), getTotalVolume(userId), getAchievements(userId, streak)]).then(
         ([p, wc, v, a]) => {
           if (cancelled) return;
           setProfile(p);
@@ -120,18 +119,19 @@ export default function ProfileScreen() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, streak])
   );
 
   const { level, xpIntoLevel, xpForNextLevel } = getLevelInfo(xp);
-  const tier = getTierName(level);
   const earnedCount = achievements.filter((a) => a.earned).length;
-  const displayName = profile?.name || userName || 'Member';
+  const rawName = profile?.name || userName || 'Member';
+  // Names saved from an email come in lowercase ("kashyap"); show them the way a person writes their name.
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1);
   const goalLabel = profile?.goal ? GOAL_LABELS[profile.goal] ?? profile.goal : '—';
 
   const stats = [
     { label: 'Workouts', value: String(workoutCount), icon: 'flame', color: '#FF4500' },
-    { label: 'Total Vol', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), icon: 'zap', color: '#A855F7' },
+    { label: 'kg lifted', value: volume >= 1000 ? `${(volume / 1000).toFixed(1)}K` : String(Math.round(volume)), icon: 'zap', color: '#A855F7' },
     { label: 'XP', value: xp.toLocaleString(), icon: 'trophy', color: P },
     { label: 'Streak', value: `${streak}d`, icon: 'star', color: '#00D68F' },
   ];
@@ -143,11 +143,12 @@ export default function ProfileScreen() {
 
   const menuItems: MenuRow[] = [
     { icon: 'settings', label: 'Settings', value: profile?.notifications_enabled ? 'Reminders on' : 'Reminders off', onPress: () => router.push('/settings') },
-    { icon: 'pencil', label: 'Your week, marked up', onPress: () => router.push('/week-review') },
+    { icon: 'pencil', label: 'Week review', onPress: () => router.push('/week-review') },
     { icon: 'camera', label: 'Progress photos', onPress: () => router.push('/progress-photos') },
+    { icon: 'salad', label: 'Meal plan', onPress: () => router.navigate({ pathname: '/(tabs)/nutrition', params: { planMenu: '1' } }) },
     { icon: 'utensils', label: 'Food preferences', value: (profile?.personalization_profile as any)?.foodProfile ? 'Set' : undefined, onPress: () => router.push({ pathname: '/screens/nutrition-setup/foodprofile', params: { edit: '1' } }) },
-    { icon: 'shield', label: 'Privacy & Data', onPress: () => setPrivacyModalVisible(true) },
-    { icon: 'help-circle', label: 'Help & Support', onPress: () => openSupportEmail('CLAWW support request') },
+    { icon: 'shield', label: 'Privacy and data', onPress: () => setPrivacyModalVisible(true) },
+    { icon: 'help-circle', label: 'Help and support', onPress: () => openSupportEmail('CLAWW support request') },
     { icon: 'star', label: 'Rate CLAWW', onPress: openStoreListing },
     { icon: 'info', label: 'About', onPress: () => router.push('/about') },
   ];
@@ -179,33 +180,27 @@ export default function ProfileScreen() {
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
           <BackTile onPress={() => router.back()} />
-          <View><Badge color={P}>MY PROFILE</Badge></View>
+          <Text style={{ color: "#fff", fontSize: 28, fontFamily: BG[800] }}>Profile</Text>
         </View>
 
         <Surface radius={20} padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-            <LinearGradient
-              colors={['#FF4500', P]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={{ width: 64, height: 64, borderRadius: 16, alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Text style={{ fontSize: 22, fontVariant: ['tabular-nums'], color: '#fff', fontFamily: BG[800] }}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#2C2C2E', alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 24, color: '#fff', fontFamily: BG[700] }}>
                 {displayName.charAt(0).toUpperCase()}
               </Text>
-            </LinearGradient>
+            </View>
             <View style={{ flex: 1 }}>
               <Text style={{ color: '#fff', fontSize: 17, letterSpacing: -0.3, fontFamily: BG[800] }}>{displayName}</Text>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>{profile?.email ?? ''} · {tier}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, marginTop: 1, fontFamily: BG[400] }}>{profile?.email ?? ''}</Text>
               <View style={{ flexDirection: 'row', gap: 6, marginTop: 5 }}>
                 <Badge color={P}>LVL {level}</Badge>
-                <Badge color="#00D68F">{streak}-DAY STREAK</Badge>
               </View>
             </View>
           </View>
           <View style={{ marginTop: 14 }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>XP Progress — Level {level}</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 11, fontFamily: BG[400] }}>XP to level {level + 1}</Text>
               <Text style={{ color: P, fontSize: 11, fontFamily: BG[600] }}>
                 {xpIntoLevel} / {xpForNextLevel}
               </Text>
@@ -254,6 +249,7 @@ export default function ProfileScreen() {
               <View key={b.label} style={{ width: '22.5%', alignItems: 'center', gap: 6 }}>
                 <Medallion icon={b.icon} color={b.color} earned={b.earned} />
                 <Text style={{ color: b.earned ? COLORS.fgGray : COLORS.textFaint, fontSize: 13, textAlign: 'center', lineHeight: 16, fontFamily: BG[400] }}>{b.label}</Text>
+                {b.earned ? null : <Text style={{ color: COLORS.textFaint, fontSize: 11, textAlign: 'center', lineHeight: 14, fontFamily: BG[400] }}>{b.need}</Text>}
               </View>
             ))}
           </View>
@@ -348,7 +344,7 @@ export default function ProfileScreen() {
               <Icon name="download" size={16} color="#A1A1AA" />
             </View>
             <Text style={{ flex: 1, color: '#fff', fontSize: 15, fontFamily: BG[600] }}>
-              {exporting ? 'Preparing export…' : 'Download My Data'}
+              {exporting ? 'Preparing export…' : 'Download my data'}
             </Text>
             <Icon name="chevron-right" size={15} color="#71717A" />
           </TouchableOpacity>
@@ -365,10 +361,11 @@ export default function ProfileScreen() {
               borderTopColor: 'rgba(255,255,255,0.08)',
             }}
           >
-            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(239,68,68,0.1)', alignItems: 'center', justifyContent: 'center' }}>
-              <Icon name="log-out" size={16} color="#EF4444" />
+            {/* Signing out isn't destructive (you can sign back in), so it isn't red: red is kept for Delete account. */}
+            <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.06)', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="log-out" size={16} color={COLORS.fg} />
             </View>
-            <Text style={{ flex: 1, color: '#EF4444', fontSize: 15, fontFamily: BG[600] }}>Sign out</Text>
+            <Text style={{ flex: 1, color: COLORS.fg, fontSize: 15, fontFamily: BG[600] }}>Sign out</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.8}

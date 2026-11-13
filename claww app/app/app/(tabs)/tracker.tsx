@@ -206,11 +206,9 @@ export default function TrackerTab() {
           </View>
 
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <Button variant={locked ? 'ghost' : 'inverted'} disabled={locked} onPress={shareReport} icon={<Icon name="download" size={16} color={locked ? GD : '#000'} />} style={{ flex: 2 }}>
-              Export report
-            </Button>
+            {/* Both buttons did the same thing; one quiet button, since sharing isn't this screen's main job. */}
             <Button variant="ghost" disabled={locked} onPress={shareReport} style={{ flex: 1 }} icon={<Icon name="share-2" size={15} color={locked ? GD : '#A1A1AA'} />}>
-              Share
+              Share report
             </Button>
           </View>
         </View>

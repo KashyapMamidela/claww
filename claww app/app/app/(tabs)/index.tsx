@@ -1,4 +1,5 @@
 import { moveDayItemLabel } from '../../lib/penDays';
+import { onSessionSaved } from '../../lib/sessionEvents';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { riseIn } from '../../lib/motion';
 import Animated from 'react-native-reanimated';
@@ -7,8 +8,10 @@ import { WriteOn } from '../../components/ui/WriteOn';
 import { TiltLight } from '../../components/ui/TiltLight';
 import { mealTitle } from '../../lib/mealPlanMeal';
 import { SessionCard } from '../../components/home/SessionCard';
+import { useWorkoutSession } from '../../lib/workoutSession';
+import { beginSession } from '../../lib/sessionStart';
 import { dayMinutes } from '../../lib/planStory';
-import { timeLabel } from '../../lib/format';
+import { timeLabel, sessionName, num } from '../../lib/format';
 import { logActivity } from '../../lib/data';
 import { penLine } from '../../lib/penLine';
 import { useToast } from '../../components/ui/Toast';
@@ -16,6 +19,7 @@ import { useHideBarOnScroll } from '../../lib/tabBarVisibility';
 import { greetingName } from '../../lib/greeting';
 import { useTabBottomPad } from '../../lib/useTabBottomPad';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { plannedSetsOf } from '../../lib/sessionPrescription';
 import { AppState, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
@@ -41,6 +45,7 @@ import { Hero } from '../../components/ui/Hero';
 import { PenMark } from '../../components/ui/PenMark';
 import { syncWidget } from '../../lib/widgetSync';
 import { dayKey } from '../../lib/widgetSnapshot';
+import { RingClosedPulse } from '../../components/home/RingClosedPulse';
 import { DEFAULT_STEPS_GOAL } from '../../lib/activityMath';
 import { coachLine, type CoachSegment } from '../../lib/coachLine';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
@@ -97,12 +102,18 @@ function useGreeting(): Greeting {
 // regains focus, same pattern as every other on-focus data fetch on this
 // screen. Shared between HomeEmptyState and HomePopulated since both show
 // the same Steps stat card.
+// The last reading, kept for the day, so coming back to Home shows it at once instead of flashing "—".
+let lastSteps: { day: string; value: StepsResult } | null = null;
+
 function useTodaySteps(): StepsResult {
-  const [steps, setSteps] = useState<StepsResult>({ steps: 0, available: false, caloriesBurned: null });
+  const [steps, setSteps] = useState<StepsResult>(() =>
+    lastSteps && lastSteps.day === dayKey(new Date()) ? lastSteps.value : { steps: 0, available: false, caloriesBurned: null }
+  );
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       getTodaySteps().then((result) => {
+        lastSteps = { day: dayKey(new Date()), value: result };
         if (!cancelled) setSteps(result);
       });
       return () => {
@@ -112,6 +123,19 @@ function useTodaySteps(): StepsResult {
   );
   return steps;
 }
+
+// Today's session state, kept for the day. Until it is known Home shows placeholders, never a guessed rest day
+// that turns into a session a second later; on a return visit it shows the last values at once.
+interface HomeSessionCache {
+  day: string;
+  userId: string;
+  latestWorkout: WorkoutRow | null;
+  suggestedDayIndex: number;
+  workoutToday: WorkoutToday;
+  usualTime: string | null;
+  proteinTarget: number | null;
+}
+let homeSession: HomeSessionCache | null = null;
 
 function AiCard({ children }: { children: React.ReactNode }) {
   return (
@@ -337,8 +361,10 @@ function HomePopulated() {
   const greeting = useGreeting();
   const recoveryColor = recovery?.band === 'Low' ? COLORS.danger : recovery?.band === 'High' ? COLORS.green : COLORS.amber;
 
-  const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(null);
-  const [suggestedDayIndex, setSuggestedDayIndex] = useState(0);
+  const cached = homeSession && homeSession.userId === userId && homeSession.day === dayKey(new Date()) ? homeSession : null;
+  const [sessionKnown, setSessionKnown] = useState(!!cached);
+  const [latestWorkout, setLatestWorkout] = useState<WorkoutRow | null>(cached?.latestWorkout ?? null);
+  const [suggestedDayIndex, setSuggestedDayIndex] = useState(cached?.suggestedDayIndex ?? 0);
   // Polish step 1: the calorie target comes from the cached profile (already loaded elsewhere), never a fallback number.
   // Until it is known the Nutrition row is a skeleton; with no target set it says so instead of guessing.
   const { profile: targetProfile, loading: targetLoading } = useProfile(userId);
@@ -347,8 +373,8 @@ function HomePopulated() {
   // The lowest per-muscle recovery score among today's muscles, when it is worth a mention (V2 PHASE 7.5).
   const [tiredMuscle, setTiredMuscle] = useState<{ muscle: string; band: string } | null>(null);
   // NG PHASE 2: today's session for the Workout ring, and the usual training time for its note.
-  const [workoutToday, setWorkoutToday] = useState<WorkoutToday>({ planned: false, completed: false, setsDone: 0, setsPlanned: 0 });
-  const [usualTime, setUsualTime] = useState<string | null>(null);
+  const [workoutToday, setWorkoutToday] = useState<WorkoutToday>(cached?.workoutToday ?? { planned: false, completed: false, setsDone: 0, setsPlanned: 0 });
+  const [usualTime, setUsualTime] = useState<string | null>(cached?.usualTime ?? null);
   // NG PHASE 12: where today's numbers differ from the plan (the Coach's Pen marks), and the protein target for the coach line.
   const [marks, setMarks] = useState<PlanMark[]>([]);
   // NG PHASE 11: stored pen marks (engine marks and the trend rules'), the same ones the weekly review lists.
@@ -359,7 +385,7 @@ function HomePopulated() {
     const next = await decideMark(userId, m, status);
     setPenAll((all) => all.map((x) => (x.id === next.id ? next : x)));
   };
-  const [proteinTarget, setProteinTarget] = useState<number | null>(null);
+  const [proteinTarget, setProteinTarget] = useState<number | null>(cached?.proteinTarget ?? null);
   const [sleepOpen, setSleepOpen] = useState(false);
   const steps = useTodaySteps();
   const burn = useBurnedToday(userId, steps);
@@ -376,6 +402,13 @@ function HomePopulated() {
   // xp/streak come from AppState directly — they update live as XP events
   // fire (set completed, meal logged, sleep logged, plan generated) instead
   // of only refreshing whenever this screen happens to regain focus.
+  // A session finished just before Home was shown may not have been saved yet: reload once it is.
+  const [savedKey, setSavedKey] = useState(0);
+  // The local day the session states describe. When the day has changed (midnight with the app open) the old
+  // "Done · 2 of 14 sets" must not show under the new day's session while the load runs.
+  const sessionDayRef = useRef(cached ? cached.day : '');
+  useEffect(() => onSessionSaved(() => setSavedKey((n) => n + 1)), []);
+
   useFocusEffect(
     useCallback(() => {
       if (!userId) return;
@@ -388,12 +421,12 @@ function HomePopulated() {
           if (re && !cancelled) setPlan(re);
         }
       });
+      if (sessionDayRef.current !== dayKey(new Date())) setSessionKnown(false);
       Promise.all([getLatestWorkout(userId), getProfile(userId)]).then(async ([w, profile]) => {
+        let latestToday: WorkoutToday = { planned: false, completed: false, setsDone: 0, setsPlanned: 0 };
         const dayEvents = w ? await getWorkoutDayEvents(userId, w.id) : [];
         if (cancelled) return;
-        setLatestWorkout(w);
         const dayIdx = w ? getSuggestedDayIndex(w.plan, dayEvents) : 0;
-        setSuggestedDayIndex(dayIdx);
         if (w) {
           const names = (w.plan.days[dayIdx]?.exercises ?? []).map((ex) => ex.name);
           const [catalog, sets] = await Promise.all([getCatalog(names), getRecentLoggedSets(userId)]);
@@ -402,15 +435,23 @@ function HomePopulated() {
           const now = new Date();
           const sameDay = (iso: string) => new Date(iso).toDateString() === now.toDateString();
           const day = w.plan.days[dayIdx];
-          setWorkoutToday({
+          // Planned sets come from today's prescription (the engine may add or drop a set), the same number Train's
+          // hero and the session use, so Home, Train and the finish screen agree.
+          const prescription = await loadDayPrescription(userId, w, dayIdx).catch(() => null);
+          if (cancelled) return;
+          const wt: WorkoutToday = {
             planned: isSessionPlannedToday(w.plan.days.map((d) => d.day), now),
             completed: dayEvents.some((e) => e.status === 'completed' && sameDay(e.createdAt)),
             setsDone: sets.filter((x) => sameDay(x.completedAt) && names.includes(x.exerciseName)).length,
-            setsPlanned: (day?.exercises ?? []).reduce((n, ex) => n + (Number(ex.sets) || 0), 0),
-          });
-          loadDayPrescription(userId, w, dayIdx)
+            setsPlanned: plannedSetsOf(day?.exercises ?? [], prescription),
+          };
+          setLatestWorkout(w);
+          setSuggestedDayIndex(dayIdx);
+          setWorkoutToday(wt);
+          latestToday = wt;
+          Promise.resolve(prescription)
             .then((p) => {
-              if (cancelled) return;
+              if (cancelled || !p) return;
               const local = marksFor(p);
               setMarks(local);
               recordEngineMarks(userId, local, dateKey(new Date()))
@@ -426,14 +467,30 @@ function HomePopulated() {
           const low = lowestMuscle(muscleScores(muscles, sets, { ...history, ...catalog }, new Date()), muscles);
           setTiredMuscle(low && low.band && low.band !== 'Excellent' && low.band !== 'Good' ? { muscle: low.muscle, band: low.band } : null);
         }
+        if (!w) {
+          setLatestWorkout(null);
+          setSuggestedDayIndex(0);
+          setWorkoutToday(latestToday);
+        }
         const targets = profile?.personalization_profile?.nutritionDefaults;
         setProteinTarget(targets?.protein_g ?? null);
         setUsualTime(profile?.personalization_profile?.workoutDefaults?.usualTrainingTime ?? null);
+        sessionDayRef.current = dayKey(new Date());
+        setSessionKnown(true);
+        homeSession = {
+          day: dayKey(new Date()),
+          userId,
+          latestWorkout: w,
+          suggestedDayIndex: dayIdx,
+          workoutToday: latestToday,
+          usualTime: profile?.personalization_profile?.workoutDefaults?.usualTrainingTime ?? null,
+          proteinTarget: targets?.protein_g ?? null,
+        };
       });
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, savedKey])
   );
 
   // Nutrition-today, derived from real meal logs against the user's real
@@ -460,7 +517,25 @@ function HomePopulated() {
   const planDays = latestWorkout?.plan.days ?? [];
   const today = planDays[suggestedDayIndex] ?? planDays[0];
   const todayIndex = planDays[suggestedDayIndex] ? suggestedDayIndex : 0;
-  const workoutRowText = workoutRow(workoutToday, today?.focus || today?.day || 'Today\'s session', usualTime);
+  // Start means start: the player opens over Home in one tap, with the same engine prescription Train uses.
+  // If the plan isn't loaded yet it falls back to opening Train on today's day.
+  const { startSession, status: sessionStatus } = useWorkoutSession();
+  const [startingSession, setStartingSession] = useState(false);
+  const startNow = useCallback(async () => {
+    if (startingSession || sessionStatus !== 'idle') return;
+    if (!latestWorkout) {
+      router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } });
+      return;
+    }
+    setStartingSession(true);
+    try {
+      const start = userId ? await beginSession(userId, latestWorkout, todayIndex).catch(() => null) : null;
+      startSession(start ? start.workout : latestWorkout, todayIndex, start ? { sessionId: start.sessionId, prescribed: start.prescribed } : undefined);
+    } finally {
+      setStartingSession(false);
+    }
+  }, [startingSession, sessionStatus, latestWorkout, userId, todayIndex, startSession, router]);
+  const workoutRowText = workoutRow(workoutToday, sessionName(today?.focus) || today?.day || 'Today\'s session', usualTime);
   const dayOfLabel = `DAY ${todayIndex + 1} OF ${planDays.length}`;
   const planCardLabel = today
     ? /^day \d+$/i.test(today.day.trim())
@@ -491,13 +566,12 @@ function HomePopulated() {
     slot: v.slot,
     state: v.state,
     plannedName: v.planned ? mealTitle(v.planned) : null,
-    loggedLine: v.logged ? `${Math.round(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
+    loggedLine: v.logged ? `${num(v.logged.calories ?? 0)} kcal, ${Math.round(v.logged.protein_g ?? 0)} g protein` : null,
+    loggedAtMinutes: v.logged ? new Date(v.logged.logged_at).getHours() * 60 + new Date(v.logged.logged_at).getMinutes() : null,
   }));
-  const sessionItem = sessionPlanned && today
-    ? { name: today.focus, minutes: sessionMinutes, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), markLine: marks[0] ? `${marks[0].name} ${marks[0].newText}` : null }
-    : null;
-  const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: sessionItem, sleepTargetHours: SLEEP_TARGET_HOURS });
-  const sessionTileValue = sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: today?.focus ?? '' });
+  // The session card above already shows today's session, so the timeline lists only the rest of the day.
+  const todayItems = todayLine({ nowMinutes: now.getHours() * 60 + now.getMinutes(), meals: todayMeals, session: null, sleepTargetHours: SLEEP_TARGET_HOURS });
+  const sessionTileValue = !sessionKnown ? { value: '—', sub: '' } : sessionTile({ planned: sessionPlanned, done: workoutToday.completed, usualMinutes: usualMinutesOf(usualTime), name: sessionName(today?.focus) });
   const usualMin = usualMinutesOf(usualTime);
   const sessionTimeLabel = usualMin !== null ? timeLabel(new Date(2000, 0, 1, Math.floor(usualMin / 60), usualMin % 60)) : undefined;
   useEffect(() => {
@@ -518,7 +592,7 @@ function HomePopulated() {
       fatTarget: targets?.fats_g ?? null,
       mealsLogged: meals.filter((m) => (m as { plan_status?: string }).plan_status !== 'skipped').length,
       nextMeal: next ? { slot: next.slot.charAt(0).toUpperCase() + next.slot.slice(1), name: next.planned ? mealTitle(next.planned) : null } : null,
-      session: sessionPlanned && today ? (today.focus || today.day) : null,
+      session: sessionPlanned && today ? (sessionName(today.focus) || today.day) : null,
       sessionDone: workoutToday.completed,
       sessionTime: sessionTimeLabel ?? null,
       streak,
@@ -531,7 +605,7 @@ function HomePopulated() {
       stepsGoal,
     });
   }, [userId, meals, plan, consumedKcal, consumedProtein, targetKcal, proteinTarget, targetProfile, sessionPlanned, today, workoutToday.completed, sessionTimeLabel, streak, workoutPct, nutritionPct, recovery?.score, dailyGoalPct, steps.steps, stepsGoal]);
-  const penLineText = penLine({ sleepHours, sessionPlanned, sessionDone: workoutToday.completed, hour: now.getHours() });
+  const penLineText = !sessionKnown ? null : penLine({ sleepHours, sessionPlanned, sessionDone: workoutToday.completed, hour: now.getHours() });
   const typeOf = (slot: MealSlot) => (slot.charAt(0).toUpperCase() + slot.slice(1)) as MealType;
   const replanAfter = async (row: Awaited<ReturnType<typeof saveMeal>>) => {
     if (row && userId) replanToday(userId, [...meals, row]).then((p) => p && setPlan(p));
@@ -598,9 +672,10 @@ function HomePopulated() {
       <Surface padding={17} decoration={<TiltLight />}>
         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 14 }}>
           <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>Daily progress</Text>
-          <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{dailyGoalPct}% of today</Text>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 18 }}>
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+          <RingClosedPulse closed={dailyGoalPct >= 100} day={dayKey(new Date())} size={150} color={tint(AREA_COLORS.nutrition, 0.35)} />
           <ProgressRing
             size={164}
             rings={
@@ -621,6 +696,7 @@ function HomePopulated() {
             <CountUp id="home.dailyGoal" value={dailyGoalPct} format={(n) => `${Math.round(n)}%`} textStyle={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], fontFamily: BG[800] }} />
             <Text style={{ color: '#A1A1AA', fontSize: 11, marginTop: 3, fontFamily: BG[400] }}>Daily goal</Text>
           </ProgressRing>
+          </View>
           <View style={{ flex: 1, gap: 11 }}>
             {(RINGS_V1
               ? [
@@ -647,9 +723,9 @@ function HomePopulated() {
                   {
                     label: 'Eaten',
                     value: Math.round(consumedKcal).toLocaleString('en-IN'),
-                    sub: targetKcal === null ? 'no target set' : `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
+                    sub: targetKcal === null ? 'no target set' : consumedKcal > targetKcal ? `· ${Math.round(consumedKcal - targetKcal).toLocaleString('en-IN')} over` : `/ ${targetKcal.toLocaleString('en-IN')} kcal`,
                     pct: nutritionPct,
-                    color: AREA_COLORS.nutrition,
+                    color: targetKcal !== null && consumedKcal > targetKcal ? COLORS.amber : AREA_COLORS.nutrition,
                     note: nutritionNote(meals.map((m) => m.meal_type ?? '').filter(Boolean)) as string | null,
                   },
                   {
@@ -693,9 +769,12 @@ function HomePopulated() {
       </Animated.View>
 
       <Animated.View entering={riseIn(1)}>
+      {!sessionKnown ? (
+        <Skeleton height={196} borderRadius={20} />
+      ) : (
       <SessionCard
         state={workoutToday.completed ? 'done' : sessionPlanned ? 'training' : 'rest'}
-        name={today?.focus ?? ''}
+        name={sessionName(today?.focus)}
         timeLabel={sessionTimeLabel}
         exercises={today?.exercises.length}
         minutes={today ? dayMinutes(today) : undefined}
@@ -703,7 +782,7 @@ function HomePopulated() {
         setsDone={workoutToday.setsDone}
         progression={marks[0] ? { name: marks[0].name, oldText: marks[0].oldText, newText: marks[0].newText } : null}
         note={marks[0]?.note ?? null}
-        onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onStart={startNow}
         onOpen={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
         onLogWalk={async () => {
           if (!userId) return;
@@ -711,6 +790,7 @@ function HomePopulated() {
           toast.show({ message: ok ? 'Logged a 20 minute walk' : 'Could not log the walk' });
         }}
       />
+      )}
       </Animated.View>
 
       {/* Premium H8: the marks live behind the pen button in the title bar (Your week, marked up). */}
@@ -721,7 +801,7 @@ function HomePopulated() {
         onAteAsPlanned={ateAsPlanned}
         onSomethingElse={somethingElse}
         onSkipped={skipMeal}
-        onStart={() => router.push({ pathname: '/(tabs)/workouts', params: { day: String(todayIndex) } })}
+        onStart={startNow}
         onPlan={() => router.push('/(tabs)/workouts')}
       />
 

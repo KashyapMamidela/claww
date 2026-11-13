@@ -9,7 +9,9 @@ import { useProfile } from '../../../lib/profile';
 import { track } from '../../../lib/analytics';
 import { computeNutritionSample, saveNutritionTargets, type ActivityLevel, type Goal, type NutritionDefaults } from '../../../lib/data';
 import { saveUserResources } from '../../../lib/userResources';
-import { resetMealPlans } from '../../../lib/mealPlanData';
+import { replanToday, resetMealPlans } from '../../../lib/mealPlanData';
+import { freshTargets, targetsChange } from '../../../lib/mealPlanReset';
+import { getTodaysMealLogs } from '../../../lib/data';
 import { ADD_ONS, MEAL_TEMPLATES, planDay, type PlanDiet } from '../../../lib/engine';
 import { itemsText } from '../../../lib/mealPlanMeal';
 import { planLine } from '../../../lib/mealPlanView';
@@ -24,8 +26,10 @@ import { Hero } from '../../../components/ui/Hero';
 import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
 import { SectionLabel } from '../../../components/ui/SectionLabel';
+import { SectionHeader } from '../../../components/ui/SectionHeader';
 import { Stepper } from '../../../components/ui/Stepper';
 import { Surface } from '../../../components/ui/Surface';
+import { useToast } from '../../../components/ui/Toast';
 
 const G = COLORS.green;
 const BUDGET_STEP = 25;
@@ -42,6 +46,7 @@ export default function MealSetupSummary() {
   const router = useRouter();
   const { userId } = useAppState();
   const { profile } = useProfile(userId);
+  const toast = useToast();
   const [draft, setDraft] = useState(getDraft());
   const [budgetOpen, setBudgetOpen] = useState(false);
   // A ref, not state: this screen must not redraw between the tap and leaving (a redraw just before the screens close
@@ -59,13 +64,29 @@ export default function MealSetupSummary() {
   const gaps = useMemo(() => resourceGaps({ sources: draft.sources, cookWith: draft.cookWith, diet: draft.diet, availability }), [draft, availability]);
   const chips = FOOD_ROWS.filter((r) => r.group === 'protein' && visible.has(r.key) && availability[r.key] !== 'no');
 
+  // Starting over: new targets from today's numbers and the goal picked in step 1, shown before anything is saved.
+  const savedTargets = profile?.personalization_profile?.nutritionDefaults ?? null;
+  const newTargets = useMemo(() => {
+    if (!draft.fresh) return null;
+    return freshTargets({
+      height: draft.basics?.height ?? profile?.height ?? 0,
+      weight: draft.basics?.weight ?? profile?.weight ?? 0,
+      age: draft.basics?.age ?? profile?.age ?? 0,
+      gender: profile?.gender ?? null,
+      activityLevel: (profile?.personalization_profile?.workoutDefaults?.activityLevel as ActivityLevel | undefined) ?? 'moderate',
+      foodGoal: draft.foodGoal ?? 'maintain',
+    });
+  }, [draft, profile]);
+  const change = newTargets ? targetsChange(newTargets, savedTargets) : null;
+
   // A day on this plan: the same planner the Nutrition tab uses, on the answers so far.
   const sampleTarget = useMemo(() => {
+    if (newTargets) return { kcal: newTargets.calories, protein: newTargets.protein_g };
     const saved = profile?.personalization_profile?.nutritionDefaults;
     if (saved) return { kcal: saved.calories, protein: saved.protein_g };
     const w = draft.basics?.weight ?? profile?.weight ?? 70;
     return { kcal: 2000, protein: Math.round(w * 1.6) };
-  }, [profile, draft.basics]);
+  }, [profile, draft.basics, newTargets]);
   const sample = useMemo(() => {
     if (!draft.diet) return null;
     return planDay({
@@ -92,7 +113,8 @@ export default function MealSetupSummary() {
     setError(null);
 
     const existingTargets = profile?.personalization_profile?.nutritionDefaults ?? null;
-    let targets: NutritionDefaults | null = existingTargets;
+    // Starting over replaces the targets; a normal setup keeps targets the user already has.
+    let targets: NutritionDefaults | null = draft.fresh ? newTargets : existingTargets;
     const height = draft.basics?.height ?? profile?.height ?? 0;
     const weight = draft.basics?.weight ?? profile?.weight ?? 0;
     const age = draft.basics?.age ?? profile?.age ?? 0;
@@ -125,16 +147,24 @@ export default function MealSetupSummary() {
     // answers are kept and the user is offered another try.
     router.dismissTo('/(tabs)/nutrition');
     setTimeout(async () => {
-      const okTargets = targets ? await saveNutritionTargets(userId, targets, restrictions, basics) : true;
+      const okTargets = targets ? await saveNutritionTargets(userId, targets, restrictions, basics, draft.fresh && draft.foodGoal ? { nutritionGoal: draft.foodGoal } : undefined) : true;
       const okResources = await saveUserResources(userId, resources);
-      if (okResources) await resetMealPlans(userId).catch(() => {});
+      if (okResources) {
+        await resetMealPlans(userId).catch(() => {});
+        // Anything already eaten today stays, and the meals still to come are planned around it.
+        if (draft.fresh) {
+          const eaten = await getTodaysMealLogs(userId).catch(() => []);
+          if (eaten.length > 0) await replanToday(userId, eaten).catch(() => null);
+        }
+      }
       if (okTargets && okResources) {
+        if (draft.fresh) toast.show({ message: targets ? `New meal plan ready · ${targets.calories.toLocaleString('en-IN')} kcal a day` : 'New meal plan ready' });
         resetDraft();
         return;
       }
       Alert.alert('Could not save your meal setup', 'Check your connection and try again. Your answers are kept.', [
         { text: 'Not now', style: 'cancel' },
-        { text: 'Try again', onPress: () => router.push('/nutrition-setup') },
+        { text: 'Try again', onPress: () => router.push(draft.fresh ? '/screens/nutrition-setup/where' : '/nutrition-setup') },
       ]);
     }, LEAVE_MS);
   };
@@ -159,7 +189,26 @@ export default function MealSetupSummary() {
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.bg }}>
       <MealSetupHeader step={3} sub="your resources" />
       <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 32, gap: 14 }}>
-        <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: BG[800] }}>Here is what you have</Text>
+        <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, fontFamily: BG[800] }}>{draft.fresh ? 'Your new plan' : 'Here is what you have'}</Text>
+
+        {draft.fresh ? (
+          <Surface padding={16}>
+            <SectionHeader>Your new daily targets</SectionHeader>
+            {newTargets && change ? (
+              <View style={{ gap: 4, marginTop: 8 }}>
+                <Text style={{ color: COLORS.fg, fontSize: 22, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{change.kcal}</Text>
+                <Text style={{ color: COLORS.fg, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>{change.protein}</Text>
+                <Text style={{ color: COLORS.textMuted, fontSize: 13, fontVariant: ['tabular-nums'], fontFamily: BG[400] }}>
+                  Carbs {newTargets.carbs_g} g · Fat {newTargets.fats_g} g. From your weight, height, age and goal.
+                </Text>
+              </View>
+            ) : (
+              <Text style={{ color: COLORS.amber, fontSize: 15, lineHeight: 20, marginTop: 8, fontFamily: BG[500] }}>
+                Add your height, weight and age in step 1 to work out new targets.
+              </Text>
+            )}
+          </Surface>
+        ) : null}
 
         <Hero variant="green" accessibilityLabel="Your kitchen">
           <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.9, fontFamily: BG[700] }}>YOUR KITCHEN</Text>
@@ -207,7 +256,7 @@ export default function MealSetupSummary() {
 
         <Surface padding={16}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-            <SectionLabel color={G}>A DAY ON THIS PLAN</SectionLabel>
+            <SectionHeader>A day on this plan</SectionHeader>
             {sample && sample.meals.length > 0 ? <Text style={{ color: COLORS.fg, fontSize: 13, flexShrink: 1, textAlign: 'right', fontFamily: BG[700] }}>{planLine(sample)}</Text> : null}
           </View>
           {sample && sample.meals.length > 0 ? (
@@ -230,8 +279,8 @@ export default function MealSetupSummary() {
 
         {error ? <ErrorCard message={error} onRetry={save} /> : null}
 
-        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={!draft.diet} onPress={save} icon={<Icon name="check" size={16} color="#fff" />}>
-          Save my setup
+        <Button variant="primary" accent={G} accentDeep={COLORS.greenDeep} size="lg" fullWidth disabled={!draft.diet || (draft.fresh === true && !newTargets)} onPress={save} icon={<Icon name="check" size={16} color="#fff" />}>
+          {draft.fresh ? 'Start my new plan' : 'Save my setup'}
         </Button>
       </ScrollView>
 

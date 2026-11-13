@@ -9,6 +9,7 @@ import type { Injury } from './engine';
 import { dateKey } from './planStreak';
 import { activityKcal, activityMet, OTHER_ACTIVITY_MET } from './activities';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
+import { showMoment } from './moments';
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
@@ -89,6 +90,8 @@ export interface PersonalizationProfile {
   frozenDates?: string[];
   /** Preferred cuisines and foods to avoid (V2 PHASE 5.1). */
   foodProfile?: FoodProfile;
+  /** The goal picked for food when the meal plan was last started over (lose, maintain, gain). */
+  nutritionGoal?: 'lose' | 'maintain' | 'gain';
 }
 
 export interface Profile {
@@ -324,11 +327,14 @@ export async function saveNutritionTargets(
   userId: string,
   targets: NutritionDefaults,
   dietaryRestrictions?: DietaryRestriction[],
-  basics?: ProfileBasicsInput
+  basics?: ProfileBasicsInput,
+  /** Extra settings saved with the targets, such as the goal picked for food when starting the meal plan over. */
+  extra?: Partial<PersonalizationProfile>
 ): Promise<boolean> {
   const profile = await getProfile(userId);
   const nextPersonalization: PersonalizationProfile = {
     ...(profile?.personalization_profile ?? {}),
+    ...(extra ?? {}),
     nutritionDefaults: targets,
     dietaryRestrictions: dietaryRestrictions ?? profile?.personalization_profile?.dietaryRestrictions,
   };
@@ -792,7 +798,11 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
     return null;
   }
   // A skipped meal (NG PHASE 10 catch-up) is an answer, not a meal: no meal event.
-  if (meal.planStatus !== 'skipped') track(AnalyticsEvent.MealLogged, { meal_type: mealType });
+  if (meal.planStatus !== 'skipped') {
+    track(AnalyticsEvent.MealLogged, { meal_type: mealType });
+    // The finish moment: a tick drawn inside the day's calorie ring, and the goals this meal reached.
+    if (core.calories > 0) showMoment({ kind: 'meal', userId, mealType, kcal: core.calories, proteinG: core.protein_g });
+  }
   return {
     id,
     description: core.description,
@@ -816,6 +826,33 @@ export async function deleteMealLog(userId: string, id: string): Promise<boolean
     return false;
   }
   return true;
+}
+
+/**
+ * Changes a logged meal (its meal type, name, numbers and, when given, its items and micronutrients). Returns the
+ * changed fields, or null when nothing was changed: no connection, or the meal has not reached the server yet.
+ */
+export async function updateMealLog(userId: string, id: string, mealType: MealType, meal: EstimatedMeal): Promise<Partial<MealLogRow> | null> {
+  const core = {
+    description: meal.description,
+    calories: Math.round(meal.calories),
+    protein_g: Math.round(meal.protein_g),
+    carbs_g: Math.round(meal.carbs_g),
+    fats_g: Math.round(meal.fats_g),
+    meal_type: mealType,
+  };
+  const extras = {
+    ...(meal.items ? { items: meal.items } : {}),
+    ...(meal.nutrients ? { nutrients: meal.nutrients } : {}),
+  };
+  let res = await supabase.from('meal_logs').update({ ...core, ...extras }).eq('id', id).eq('user_id', userId).select('id');
+  // An older database without the items and nutrients columns: change the rest.
+  if (res.error && Object.keys(extras).length > 0) res = await supabase.from('meal_logs').update(core).eq('id', id).eq('user_id', userId).select('id');
+  if (res.error || !res.data || res.data.length === 0) {
+    console.warn('[Claww] Failed to change the meal log:', res.error?.message ?? 'no row matched');
+    return null;
+  }
+  return { ...core, ...extras } as Partial<MealLogRow>;
 }
 
 /** Meals logged in [startIso, endIso), oldest first, with the NG PHASE 8 columns when they exist. */
@@ -1391,7 +1428,9 @@ export async function logWorkoutDayEvent(
   workoutId: string,
   dayLabel: string,
   dayFocus: string,
-  status: WorkoutDayStatus
+  status: WorkoutDayStatus,
+  /** When the session started. A session that runs past midnight belongs to the day it began, not the day it ended. */
+  at?: Date
 ): Promise<boolean> {
   const { error } = await supabase.from('workout_day_events').insert({
     user_id: userId,
@@ -1399,6 +1438,7 @@ export async function logWorkoutDayEvent(
     day_label: dayLabel,
     day_focus: dayFocus,
     status,
+    ...(at ? { created_at: at.toISOString(), event_date: at.toISOString().slice(0, 10) } : {}),
   });
   if (error) {
     console.warn('[Claww] Failed to log workout day event:', error.message);
@@ -1585,11 +1625,16 @@ export async function getTodaysWaterMl(userId: string): Promise<number> {
 }
 
 export async function logWater(userId: string, ml: number): Promise<boolean> {
-  // NG PHASE 14: stored on the phone first, sent from there; true means it is saved or safely waiting.
+  return (await logWaterEntry(userId, ml)) !== null;
+}
+
+/** Same as logWater, but returns the new entry's id (null on failure) so the add can be undone from a toast. */
+export async function logWaterEntry(userId: string, ml: number): Promise<string | null> {
+  // NG PHASE 14: stored on the phone first, sent from there; an id means it is saved or safely waiting.
   const id = newClientId();
   const outcome = await writeOrQueue(id, { op: 'insert', table: 'water_logs', userId, row: { id, user_id: userId, ml, logged_at: new Date().toISOString() } });
   if (outcome === 'failed') console.warn('[Claww] The server refused this water log.');
-  return outcome !== 'failed';
+  return outcome !== 'failed' ? id : null;
 }
 
 export interface WaterLogRow {
@@ -1638,9 +1683,12 @@ export interface Achievement {
   label: string;
   color: string;
   earned: boolean;
+  /** What it takes, shown under a badge that isn't earned yet. */
+  need: string;
 }
 
-export async function getAchievements(userId: string): Promise<Achievement[]> {
+/** `planStreak` is the one streak the app shows (plan days followed); without it the old activity streak is used. */
+export async function getAchievements(userId: string, planStreak?: number): Promise<Achievement[]> {
   const [sleepCountRes, mealCountRes, workoutCountRes, lateSleepRes, streak, xp] = await Promise.all([
     supabase.from('sleep_logs').select('*', { count: 'exact', head: true }).eq('user_id', userId),
     supabase.from('meal_logs').select('*', { count: 'exact', head: true }).eq('user_id', userId),
@@ -1659,14 +1707,21 @@ export async function getAchievements(userId: string): Promise<Achievement[]> {
     return hour >= 23 || hour < 4;
   });
 
+  const days = planStreak ?? streak;
+  // Tiers, so there is always a next badge to aim for.
   return [
-    { id: 'first_steps', icon: '🎯', label: 'First Steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0 },
-    { id: 'week_warrior', icon: '🔥', label: 'Week Warrior', color: '#FF4500', earned: streak >= 7 },
-    { id: 'planner', icon: '💪', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1 },
-    { id: 'nourished', icon: '🥗', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10 },
-    { id: 'night_owl', icon: '🌙', label: 'Night Owl', color: '#6366F1', earned: hasNightOwlSleep },
-    { id: 'consistent', icon: '⚡', label: 'Consistent', color: '#A855F7', earned: sleepCount >= 5 },
-    { id: 'legend', icon: '🚀', label: 'CLAWW Legend', color: '#EC4899', earned: xp >= 500 },
+    { id: 'first_steps', icon: 'footprints', label: 'First steps', color: '#00D68F', earned: sleepCount + mealCount + workoutCount > 0, need: 'Log anything' },
+    { id: 'planner', icon: 'dumbbell', label: 'Planner', color: '#3B82F6', earned: workoutCount >= 1, need: 'Build a plan' },
+    { id: 'week_warrior', icon: 'flame', label: 'Week warrior', color: '#FF4500', earned: days >= 7, need: '7-day streak' },
+    { id: 'month_strong', icon: 'flame', label: 'Month strong', color: '#FF4500', earned: days >= 30, need: '30-day streak' },
+    { id: 'nourished', icon: 'salad', label: 'Nourished', color: '#22C55E', earned: mealCount >= 10, need: 'Log 10 meals' },
+    { id: 'well_fed', icon: 'salad', label: 'Well fed', color: '#22C55E', earned: mealCount >= 100, need: 'Log 100 meals' },
+    { id: 'consistent', icon: 'moon', label: 'Rested', color: '#6366F1', earned: sleepCount >= 5, need: 'Log 5 nights' },
+    { id: 'sleep_month', icon: 'moon', label: 'Sleep habit', color: '#6366F1', earned: sleepCount >= 30, need: 'Log 30 nights' },
+    { id: 'night_owl', icon: 'moon', label: 'Night owl', color: '#6366F1', earned: hasNightOwlSleep, need: 'Bed after 11 pm' },
+    { id: 'legend', icon: 'trophy', label: 'CLAWW legend', color: '#EC4899', earned: xp >= 500, need: '500 XP' },
+    { id: 'legend_2', icon: 'trophy', label: 'CLAWW legend II', color: '#EC4899', earned: xp >= 2500, need: '2,500 XP' },
+    { id: 'legend_3', icon: 'zap', label: 'CLAWW legend III', color: '#A855F7', earned: xp >= 10000, need: '10,000 XP' },
   ];
 }
 

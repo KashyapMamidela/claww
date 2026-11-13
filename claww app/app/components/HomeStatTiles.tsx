@@ -33,7 +33,7 @@ function Tile({
   // Premium H5: the three tiles are identical in build and height: an icon chip, an uppercase label, the number and a
   // bar on the last line, so nothing sits at a different height or truncates next to its neighbour.
   const body = (
-    <TintTile color={color} padding={12} radius={18} style={{ flex: 1, height: 112 }}>
+    <TintTile color={color} watermark={icon} padding={12} radius={18} style={{ flex: 1, height: 112 }}>
       <View style={{ flex: 1, justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <View style={{ width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(color, 0.2) }}>
@@ -123,7 +123,7 @@ export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesP
 
         <Tile
           icon={session.value === 'Rest' ? 'moon' : session.value === 'Done' ? 'check' : 'dumbbell'}
-          color={session.value === 'Rest' ? AREA_COLORS.sleep : session.value === 'Done' ? AREA_COLORS.nutrition : AREA_COLORS.workouts}
+          color={session.value === 'Rest' ? AREA_COLORS.sleep : AREA_COLORS.workouts}
           label="TODAY"
           value={session.value}
           onPress={session.onPress}
@@ -131,7 +131,7 @@ export function HomeStatTiles({ userId, steps, streak, session }: HomeStatTilesP
         >
           <Bar
             pct={session.value === 'Rest' ? 100 : session.value === 'Done' ? 100 : session.pct ?? 0}
-            color={session.value === 'Rest' ? AREA_COLORS.sleep : session.value === 'Done' ? AREA_COLORS.nutrition : AREA_COLORS.workouts}
+            color={session.value === 'Rest' ? AREA_COLORS.sleep : AREA_COLORS.workouts}
           />
         </Tile>
 

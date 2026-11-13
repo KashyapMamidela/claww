@@ -50,7 +50,7 @@ interface LiveWorkoutPlayerProps {
  */
 export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps) {
   useRenderCount('LiveWorkoutPlayer');
-  const { status, workout, dayIndex, exerciseIndex, setIndex, plan, clock, isPaused, restEndsAt, logSet, skipRest, endSession } = useWorkoutSession();
+  const { status, workout, dayIndex, exerciseIndex, setIndex, plan, clock, isPaused, restEndsAt, logSet, skipRest, endSession, restartClock } = useWorkoutSession();
 
   const nextExercise = workout?.plan.days[dayIndex]?.exercises[exerciseIndex];
   const nextRow = setIndex >= 0 ? plan[exerciseIndex]?.rows[setIndex] : undefined;
@@ -68,13 +68,26 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
 
   // Every new session opens full screen.
   const prevStatus = useRef(status);
+  // The start intro (a line from your coach, the muscles, 3 2 1 Go) plays first; the session clock starts at Go.
+  const [intro, setIntro] = useState(false);
   useEffect(() => {
     if (prevStatus.current === 'idle' && status !== 'idle') {
       progress.set(0);
       setMode('full');
+      setIntro(true);
     }
+    if (status === 'idle') setIntro(false);
     prevStatus.current = status;
   }, [status, progress]);
+  const endIntro = () => {
+    setIntro(false);
+    restartClock();
+  };
+  // Minimising the player during the intro starts the clock at once.
+  useEffect(() => {
+    if (intro && mode !== 'full') endIntro();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   const toMode = (m: Mode) => {
     if (m !== 'full') progress.set(withSpring(m === 'pill' ? -1 : 0, SHEET_SPRING));
@@ -145,7 +158,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
 
   return (
     <>
-      <FullPlayer visible={mode === 'full'} onMinimize={() => toMode('bar')} />
+      <FullPlayer visible={mode === 'full'} onMinimize={() => toMode('bar')} intro={intro && mode === 'full'} onIntroDone={endIntro} />
 
       <View style={{ position: 'absolute', bottom: bottomOffset, left: 0, right: 0, height: 0 }} pointerEvents="box-none">
         {/* Minimized pill — corner-docked, doesn't cover other screens' content. */}

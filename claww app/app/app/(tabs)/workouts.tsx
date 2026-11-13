@@ -1,4 +1,6 @@
 import { Surface } from '../../components/ui/Surface';
+import { SectionHeader } from '../../components/ui/SectionHeader';
+import { sessionName } from '../../lib/format';
 import { Rise } from '../../components/ui/Rise';
 import { usePullToRefresh } from '../../lib/usePullToRefresh';
 import { getLastWeights } from '../../lib/adaptiveData';
@@ -50,11 +52,12 @@ import { ExerciseGuideSheet } from '../../components/ExerciseGuideSheet';
 import { getCatalog, getRecentLoggedSets, saveExerciseProgress } from '../../lib/adaptiveData';
 import { catalogKey, MAJOR_MUSCLES, muscleScores } from '../../lib/muscleRecovery';
 import { computeRepRange, startingPrescription } from '../../lib/engine';
-import { newStateFor, type PrescribedExercise } from '../../lib/sessionPrescription';
+import { newStateFor, plannedSetsOf, type PrescribedExercise } from '../../lib/sessionPrescription';
 import { Hero } from '../../components/ui/Hero';
 import { WeekStripView } from '../../components/workouts/WeekStripView';
 import { ExerciseRow } from '../../components/workouts/ExerciseRow';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
+import { useToast } from '../../components/ui/Toast';
 import { weekStrip } from '../../lib/weekStrip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { OLD_PLAN_CARD_KEY, showOldPlanCard } from '../../lib/planAge';
@@ -143,9 +146,13 @@ function WorkoutsEmptyState() {
 
 const MUSCLE_SET = new Set<string>(MUSCLES);
 
+// Today's numbers per plan day, kept while the app runs so returning to Train shows them at once.
+const prescriptionCache = new Map<string, PrescribedExercise[]>();
+
 export default function WorkoutsTab() {
   useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
+  const toast = useToast();
   const insets = useSafeAreaInsets();
   const tabPad100 = useTabBottomPad(100);
   const hideBar = useHideBarOnScroll('workouts');
@@ -193,6 +200,9 @@ export default function WorkoutsTab() {
   const [menuOpen, setMenuOpen] = useState(false);
   // NG PHASE 12: what the engine would prescribe for the selected day, for the marks and weights in the list.
   const [prescribed, setPrescribed] = useState<PrescribedExercise[]>([]);
+  // Which plan day `prescribed` belongs to. Until it matches the selected day the rows show placeholders, so the
+  // plan's raw numbers never flash before today's (e.g. 4 x 8 turning into 3 x 6-10).
+  const [prescribedKey, setPrescribedKey] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const exercisesY = useRef(0);
 
@@ -218,6 +228,15 @@ export default function WorkoutsTab() {
     };
   }, [pickerOpen, userId]);
   const [sessionModalOpen, setSessionModalOpen] = useState(false);
+
+  // Bumped each time Train is shown: today's numbers depend on sleep and food logged elsewhere, so they are worked
+  // out again on every visit (the last result shows meanwhile).
+  const [focusCount, setFocusCount] = useState(0);
+  useFocusEffect(
+    useCallback(() => {
+      setFocusCount((n) => n + 1);
+    }, [])
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -270,17 +289,30 @@ export default function WorkoutsTab() {
   useEffect(() => {
     if (!userId || !workout) return;
     let cancelled = false;
+    const key = `${workout.id}:${selectedDay}`;
+    const hit = prescriptionCache.get(key);
+    if (hit) {
+      setPrescribed(hit);
+      setPrescribedKey(key);
+    }
     loadDayPrescription(userId, workout, selectedDay)
       .then((p) => {
-        if (!cancelled) setPrescribed(p);
+        prescriptionCache.set(key, p);
+        if (!cancelled) {
+          setPrescribed(p);
+          setPrescribedKey(key);
+        }
       })
       .catch(() => {
-        if (!cancelled) setPrescribed([]);
+        if (!cancelled) {
+          setPrescribed([]);
+          setPrescribedKey(key);
+        }
       });
     return () => {
       cancelled = true;
     };
-  }, [userId, workout, selectedDay, events.length]);
+  }, [userId, workout, selectedDay, events.length, focusCount]);
 
   if (!loaded) {
     return (
@@ -334,7 +366,7 @@ export default function WorkoutsTab() {
   const markByName = new Map(marks.map((m) => [m.name, m]));
   const prescribedByName = new Map(prescribed.map((p) => [p.name, p]));
   const blueprint = BLUEPRINTS.find((b) => b.id === workout.blueprint_id) ?? null;
-  const totalSets = day.exercises.reduce((n, ex) => n + (Number(ex.sets) || 0), 0);
+  const totalSets = plannedSetsOf(day.exercises, prescribedKey === `${workout.id}:${selectedDay}` ? prescribed : null);
   const dayMinutes = Math.round((totalSets * 130) / 60 + 5);
   const weekLabel = workout.block_week ? `WEEK ${workout.block_week} OF 6` : null;
   const todayName = WEEKDAY_NAMES[(nowDate.getDay() + 6) % 7].toUpperCase();
@@ -485,7 +517,8 @@ export default function WorkoutsTab() {
                 gap: 10,
               }}
             >
-              <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>What should change?</Text>
+              <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[700] }}>What should change?</Text>
+              <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>This replaces your current plan. Your logged sessions stay.</Text>
               {regenError ? (
                 <ErrorCard message={regenError} onRetry={lastReason ? () => handleRegenerate(lastReason) : undefined} retrying={regenerating} />
               ) : null}
@@ -592,7 +625,7 @@ export default function WorkoutsTab() {
           )}
 
           <Rise i={1}>
-          <Hero variant="blue" accessibilityLabel={`${day.day}: ${day.focus}`}>
+          <Hero variant="blue" stamp="dumbbell" accessibilityLabel={`${day.day}: ${sessionName(day.focus)}`}>
             {/* Premium W3: the muscles this session works, lit on a small body map in the corner. */}
             {heroMuscles.length > 0 ? (
               <View pointerEvents="none" style={{ position: 'absolute', right: 14, top: 14, opacity: 0.9 }}>
@@ -602,7 +635,7 @@ export default function WorkoutsTab() {
             <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>
               {heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate)}
             </Text>
-            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: BG[800] }}>{day.focus}</Text>
+            <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: BG[800] }}>{sessionName(day.focus)}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
               {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
@@ -613,7 +646,7 @@ export default function WorkoutsTab() {
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14 }}>
               <Icon name="shield-check" size={16} color="rgba(255,255,255,0.75)" />
               <Text style={{ color: 'rgba(255,255,255,0.78)', fontSize: 13, flex: 1, fontFamily: BG[400] }}>
-                {blueprint ? `${blueprint.title.split(',')[0]} blueprint${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
+                {blueprint ? `${blueprint.title.split(',')[0]} plan${blueprint.reviewed ? ' \u00b7 trainer reviewed' : ''}` : 'Your plan'}
               </Text>
               <TouchableOpacity onPress={() => scrollRef.current?.scrollTo({ y: Math.max(0, exercisesY.current - 12), animated: true })} accessibilityRole="button" accessibilityLabel="See the exercises" style={{ minHeight: 44, justifyContent: 'center' }}>
                 <Text style={{ color: '#fff', fontSize: 15, fontFamily: BG[800] }}>Exercises {'\u203a'}</Text>
@@ -631,7 +664,7 @@ export default function WorkoutsTab() {
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <Text style={{ color: A, fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "TODAY'S EXERCISES" : `${day.day.toUpperCase()}'S EXERCISES`}</Text>
+              <SectionHeader>{heroKicker(dayLabels, day.day, day.focus, selectedState.state, isSuggested, nowDate).startsWith('TODAY') ? "Today's exercises" : `${day.day}'s exercises`}</SectionHeader>
               {marks.length > 0 ? <Text style={{ color: COLORS.textMuted, fontSize: 17, fontFamily: FONT_HAND }}>{marks.length} mark{marks.length === 1 ? '' : 's'} today</Text> : null}
             </View>
             <View style={{ gap: 10 }}>
@@ -650,7 +683,7 @@ export default function WorkoutsTab() {
                     index={i + 1}
                     name={ex.name}
                     sub={sub}
-                    setsText={`${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
+                    setsText={prescribedKey !== `${workout.id}:${selectedDay}` ? null : `${sets} \u00d7 ${repMin === repMax ? repMin : `${repMin}\u2013${repMax}`}`}
                     weightText={weight !== null && weight > 0 ? `${Math.round(weight * 100) / 100} kg` : null}
                     muscle={entry?.primaryMuscle && MUSCLE_SET.has(entry.primaryMuscle) ? (entry.primaryMuscle as Muscle) : null}
                     lastText={(lastKg[catalogKey(ex.name)] ?? 0) > 0 ? `last: ${Math.round(lastKg[catalogKey(ex.name)] * 100) / 100} kg` : null}
@@ -689,7 +722,7 @@ export default function WorkoutsTab() {
 
 
           {sessionStatus === 'idle' && selectedState.state === 'completed' && selectedState.event && userId ? (
-            <CompletedDayCard userId={userId} day={day} event={selectedState.event} />
+            <CompletedDayCard userId={userId} day={day} event={selectedState.event} plannedSets={totalSets} />
           ) : sessionStatus === 'idle' && selectedState.state === 'skipped' && selectedState.event ? (
             <SkippedDayCard
               day={day}
@@ -730,6 +763,8 @@ export default function WorkoutsTab() {
           )}
 
 
+          <ActivityCard userId={userId} onLogged={(message) => toast.show({ message })} />
+
           <Button variant="secondary" size="md" fullWidth accent={A} onPress={() => setSessionModalOpen(true)} icon={<Icon name="activity" size={15} color={A} />}>
             Log a session
           </Button>
@@ -739,14 +774,15 @@ export default function WorkoutsTab() {
       <BottomSheet visible={menuOpen} onClose={() => setMenuOpen(false)} maxHeightFraction={0.5}>
         <View style={{ paddingHorizontal: 20, paddingBottom: 12, gap: 8 }}>
           <Text style={{ color: COLORS.fg, fontSize: 22, fontFamily: BG[800], marginBottom: 6 }}>Your plan</Text>
-          <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="repeat" size={16} color={A} />} onPress={() => { setMenuOpen(false); setRegenError(null); setShowRegenCard(true); }}>
-            Regenerate the plan
-          </Button>
           <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="calendar" size={16} color={A} />} onPress={() => { setMenuOpen(false); router.push('/workout-setup'); }}>
             Change days or goal
           </Button>
           <Button variant="secondary" size="lg" fullWidth accent={A} icon={<Icon name="plus" size={16} color={A} />} onPress={() => { setMenuOpen(false); setPickerOpen(true); }}>
             Add an exercise
+          </Button>
+          {/* Regenerating replaces the plan, so it is the quietest option and asks what to change first. */}
+          <Button variant="ghost" size="lg" fullWidth icon={<Icon name="repeat" size={16} color="#A1A1AA" />} onPress={() => { setMenuOpen(false); setRegenError(null); setShowRegenCard(true); }}>
+            Rebuild the plan
           </Button>
         </View>
       </BottomSheet>

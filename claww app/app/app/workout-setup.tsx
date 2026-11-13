@@ -16,6 +16,7 @@ import { Hero } from '../components/ui/Hero';
 import { Icon } from '../components/ui/Icon';
 import { Segmented } from '../components/ui/Segmented';
 import { SectionLabel } from '../components/ui/SectionLabel';
+import { SectionHeader } from '../components/ui/SectionHeader';
 import { Surface } from '../components/ui/Surface';
 import { BottomSheet } from '../components/ui/BottomSheet';
 import { ErrorCard } from '../components/ui/ErrorCard';
@@ -173,7 +174,7 @@ export default function WorkoutSetup() {
 
           {inOnboarding ? null : (
             <>
-          <SectionLabel color={A}>YOUR GOAL</SectionLabel>
+          <SectionHeader>Your goal</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {GOALS.map((g) => {
               const on = goal === g.value;
@@ -199,7 +200,7 @@ export default function WorkoutSetup() {
 
           {inOnboarding ? null : (
             <>
-          <SectionLabel color={A}>DAYS A WEEK YOU CAN TRAIN</SectionLabel>
+          <SectionHeader>Days a week you can train</SectionHeader>
           <View style={{ flexDirection: 'row', gap: 8 }} accessibilityRole="radiogroup">
             {[2, 3, 4, 5, 6].map((n) => {
               const on = days === n;
@@ -218,7 +219,7 @@ export default function WorkoutSetup() {
 
           {inOnboarding ? null : (
             <>
-          <SectionLabel color={A}>WHERE YOU TRAIN</SectionLabel>
+          <SectionHeader>Where you train</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {PLACES.map((p) => (
               <Chip key={p.value} active={place === p.value} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setPlace(p.value)}>
@@ -230,7 +231,7 @@ export default function WorkoutSetup() {
             </>
           )}
 
-          <SectionLabel color={A}>HOW LONG HAVE YOU TRAINED?</SectionLabel>
+          <SectionHeader>How long have you trained?</SectionHeader>
           <Segmented
             options={EXPERIENCE.map((e) => ({ value: e.value, label: e.label }))}
             value={experienceOf(months)}
@@ -238,10 +239,10 @@ export default function WorkoutSetup() {
             accessibilityLabel="How long you have trained"
           />
 
-          <SectionLabel color={A}>TIME PER SESSION</SectionLabel>
+          <SectionHeader>Time per session</SectionHeader>
           <Segmented options={MINUTES} value={minutes} onChange={setMinutes} accessibilityLabel="Time per session" />
 
-          <SectionLabel color={A}>ANYTHING THAT HURTS?</SectionLabel>
+          <SectionHeader>Anything that hurts?</SectionHeader>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             <Chip active={injuries.length === 0} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setInjuries([])}>
               Nothing
@@ -271,8 +272,8 @@ export default function WorkoutSetup() {
 
           {error ? <ErrorCard message={error} onRetry={submit} retrying={saving} /> : null}
 
-          <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth disabled={saving || !basicsOk || !userId} onPress={submit}>
-            {saving ? 'Saving…' : 'Use this plan'}
+          <Button variant="primary" accent={A} accentDeep={COLORS.blueDeep} size="lg" fullWidth saving={saving} disabled={!basicsOk || !userId} onPress={submit}>
+            Use this plan
           </Button>
         </ScrollView>
       </KeyboardAvoidingView>

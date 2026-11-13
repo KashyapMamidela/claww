@@ -13,7 +13,7 @@ export interface PastScan {
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
 
 const PLACES: Place[] = ['home', 'mess', 'restaurant', 'street'];
-const OILS: Oil[] = ['light', 'normal', 'heavy'];
+const OILS: Oil[] = ['none', 'light', 'normal', 'heavy'];
 const PORTIONS: Portion[] = ['small', 'regular', 'large', 'shared'];
 
 const valid = (c: Partial<ScanContext> | null): c is ScanContext => !!c && PLACES.includes(c.place as Place) && OILS.includes(c.oil as Oil) && PORTIONS.includes(c.portion as Portion);
@@ -30,7 +30,8 @@ export function habitContext(past: PastScan[]): ScanContext {
   if (usable.length === 0) return DEFAULT_CONTEXT;
   return {
     place: mostCommon(usable.map((p) => p.context!.place as Place), DEFAULT_CONTEXT.place),
-    oil: mostCommon(usable.map((p) => p.context!.oil as Oil), DEFAULT_CONTEXT.oil),
+    // Scans with no oil (salads, fruit) say nothing about how oily your cooked food is, so they do not count here.
+    oil: mostCommon(usable.map((p) => p.context!.oil as Oil).filter((o) => o !== 'none'), DEFAULT_CONTEXT.oil),
     portion: mostCommon(usable.map((p) => p.context!.portion as Portion), DEFAULT_CONTEXT.portion),
   };
 }
@@ -49,5 +50,5 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** "Restaurant · heavy oil · regular" */
 export function contextText(c: ScanContext): string {
-  return `${cap(c.place)} · ${c.oil} oil · ${c.portion}`;
+  return `${cap(c.place)} · ${c.oil === 'none' ? 'no oil' : `${c.oil} oil`} · ${c.portion}`;
 }

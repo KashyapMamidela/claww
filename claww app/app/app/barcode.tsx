@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { num } from '../lib/format';
 import { MealTypePicker, mealForClock } from '../components/nutrition/MealTypePicker';
 import { Linking, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
@@ -133,12 +134,12 @@ export default function BarcodeScreen() {
               const n = portion(product, grams);
               return (
                 <Text style={{ color: COLORS.fgGray, fontSize: 17, fontFamily: BG[600], fontVariant: ['tabular-nums'] }}>
-                  {n.calories} kcal · P {n.protein_g} g · C {n.carbs_g} g · F {n.fats_g} g
+                  {num(n.calories)} kcal · P {n.protein_g} g · C {n.carbs_g} g · F {n.fats_g} g
                 </Text>
               );
             })()}
-            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} disabled={saving} onPress={log}>
-              {saving ? 'Saving…' : `Log as ${mealType.toLowerCase()}`}
+            <Button variant="primary" size="lg" fullWidth accent={G} accentDeep={COLORS.greenDeep} saving={saving} onPress={log}>
+              {`Log as ${mealType.toLowerCase()}`}
             </Button>
           </View>
         ) : null}
