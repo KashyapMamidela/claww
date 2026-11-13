@@ -77,7 +77,7 @@ export function QuickLogProvider({ children }: { children: React.ReactNode }) {
             <Action icon="moon" color={AREA_COLORS.sleep} title="Sleep" sub="Last night" onPress={() => { close(); setTimeout(() => setSleepOpen(true), 350); }} />
           </View>
           <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Action icon="zap" color={AREA_COLORS.streak} title="Activity" sub="Sport, a long walk" onPress={() => { close(); setTimeout(() => setActivityOpen(true), 350); }} />
+            <Action icon="zap" color={AREA_COLORS.activity} title="Activity" sub="Start a sport or walk" onPress={() => { close(); setTimeout(() => setActivityOpen(true), 350); }} />
             <Action icon="scan-line" color={AREA_COLORS.nutrition} title="Barcode" sub="Packaged food" onPress={() => { close(); router.push('/barcode'); }} />
           </View>
         </View>

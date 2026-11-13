@@ -27,6 +27,7 @@ import { Segmented } from '../components/ui/Segmented';
 import { Surface } from '../components/ui/Surface';
 import { ProgressRing } from '../components/ui/ProgressRing';
 import { CountUp } from '../components/ui/CountUp';
+import { showMoment } from '../lib/moments';
 import { Skeleton } from '../components/ui/Skeleton';
 import * as haptics from '../lib/haptics';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
@@ -183,27 +184,45 @@ export default function WorkoutCompleteScreen() {
 
   const handleDone = () => router.dismissTo('/(tabs)');
 
-  // Premium X6: the new best gets its own moment first, once.
+  // Premium X6: the new best gets its own moment, once, after the finish moment has played.
   const [prOpen, setPrOpen] = useState(false);
+  const [momentDone, setMomentDone] = useState(false);
   const prShown = useRef(false);
   useEffect(() => {
-    if (best && !prShown.current) {
+    if (best && momentDone && !prShown.current) {
       prShown.current = true;
       setPrOpen(true);
     }
-  }, [best]);
+  }, [best, momentDone]);
 
   // The app's one big moment: the sets ring closes once (700 ms) while the volume counts up in its middle, then a
   // single haptic lands with it. A new best has its own moment (PrMoment), so it doesn't buzz twice.
   const volumeId = useRef(`complete.volume.${Date.now()}`).current;
   const setsPct = summary && summary.totalSetsPlanned > 0 ? Math.min(100, (summary.setsCompleted / summary.totalSetsPlanned) * 100) : summary ? 100 : 0;
-  const buzzed = useRef(false);
+  // The finish moment (lib/moments, components/moments): a full-screen stamp over this screen, with its own haptic.
+  const momentShown = useRef(false);
   useEffect(() => {
-    if (!summary || buzzed.current || best) return;
-    buzzed.current = true;
-    const t = setTimeout(() => (setsPct >= 100 ? haptics.success() : haptics.setDone()), 700);
-    return () => clearTimeout(t);
-  }, [summary, best, setsPct]);
+    if (!summary || momentShown.current) return;
+    momentShown.current = true;
+    if (!userId) {
+      setMomentDone(true);
+      return;
+    }
+    showMoment({
+      kind: 'workout',
+      userId,
+      title,
+      setsDone: summary.setsCompleted,
+      setsPlanned: summary.totalSetsPlanned,
+      big: byReps ? repsDone : volume,
+      bigLabel: byReps ? 'reps' : 'kg lifted',
+      minutes,
+      kcal,
+      line: summary.setsCompleted < summary.totalSetsPlanned ? `${summary.setsCompleted} of ${summary.totalSetsPlanned} sets saved, the rest stays open` : null,
+      onDone: () => setMomentDone(true),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [summary, userId]);
   const stat = (value: string, label: string) => (
     <View>
       <Text style={{ color: '#fff', fontSize: 20, letterSpacing: -0.4, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{value}</Text>

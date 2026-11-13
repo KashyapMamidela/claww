@@ -9,6 +9,7 @@ import type { Injury } from './engine';
 import { dateKey } from './planStreak';
 import { activityKcal, activityMet, OTHER_ACTIVITY_MET } from './activities';
 import { computeNutritionSample, type ActivityLevel, type Goal, type NutritionDefaults } from './nutrition';
+import { showMoment } from './moments';
 import { track, AnalyticsEvent } from './analytics';
 import type { LoggedSetRow } from './workoutDayState';
 import { lastSessionSets, type LastTimeMap } from './sessionPlan';
@@ -797,7 +798,11 @@ export async function saveMeal(userId: string, mealType: MealType, meal: Estimat
     return null;
   }
   // A skipped meal (NG PHASE 10 catch-up) is an answer, not a meal: no meal event.
-  if (meal.planStatus !== 'skipped') track(AnalyticsEvent.MealLogged, { meal_type: mealType });
+  if (meal.planStatus !== 'skipped') {
+    track(AnalyticsEvent.MealLogged, { meal_type: mealType });
+    // The finish moment: a tick drawn inside the day's calorie ring, and the goals this meal reached.
+    if (core.calories > 0) showMoment({ kind: 'meal', userId, mealType, kcal: core.calories, proteinG: core.protein_g });
+  }
   return {
     id,
     description: core.description,

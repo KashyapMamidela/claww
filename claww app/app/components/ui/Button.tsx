@@ -36,6 +36,8 @@ export interface ButtonProps {
    * brings the label back, and shows the error.
    */
   saving?: boolean;
+  /** Label colour on a filled button; white by default. A light accent (gold) needs a dark label. */
+  labelColor?: string;
 }
 
 const EASE = Easing.bezier(0.23, 1, 0.32, 1);
@@ -52,6 +54,7 @@ export function Button({
   onPress,
   style,
   saving = false,
+  labelColor = '#fff',
 }: ButtonProps) {
   const t = useSharedValue(saving ? 1 : 0);
   useEffect(() => {
@@ -112,7 +115,7 @@ export function Button({
           // "Logging…" used to add and remove it, which made Android move the gradient to a new parent and crash.
           style={[base, ({ boxShadow: `0px 4px 10px ${accent}40` } as ViewStyle), style]}
         >
-          {inner('#fff')}
+          {inner(labelColor)}
         </LinearGradient>
       </PressScale>
     );

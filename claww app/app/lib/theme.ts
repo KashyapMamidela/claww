@@ -139,6 +139,8 @@ export const AREA_COLORS = {
   sleep: '#818CF8',
   steps: '#F59E0B',
   burned: '#FB923C',
+  /** Activities (sports, walks): the gold of the Steps widget's Start activity button. */
+  activity: '#FBBF24',
   streak: '#F472B6',
   water: COLORS.water,
   engine: '#A855F7',

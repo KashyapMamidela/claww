@@ -57,6 +57,7 @@ import { Hero } from '../../components/ui/Hero';
 import { WeekStripView } from '../../components/workouts/WeekStripView';
 import { ExerciseRow } from '../../components/workouts/ExerciseRow';
 import { ActivityCard } from '../../components/workouts/ActivityCard';
+import { useToast } from '../../components/ui/Toast';
 import { weekStrip } from '../../lib/weekStrip';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { OLD_PLAN_CARD_KEY, showOldPlanCard } from '../../lib/planAge';
@@ -151,6 +152,7 @@ const prescriptionCache = new Map<string, PrescribedExercise[]>();
 export default function WorkoutsTab() {
   useRenderCount('WorkoutsTab');
   const { userId, bumpXp } = useAppState();
+  const toast = useToast();
   const insets = useSafeAreaInsets();
   const tabPad100 = useTabBottomPad(100);
   const hideBar = useHideBarOnScroll('workouts');
@@ -760,6 +762,8 @@ export default function WorkoutsTab() {
             </View>
           )}
 
+
+          <ActivityCard userId={userId} onLogged={(message) => toast.show({ message })} />
 
           <Button variant="secondary" size="md" fullWidth accent={A} onPress={() => setSessionModalOpen(true)} icon={<Icon name="activity" size={15} color={A} />}>
             Log a session

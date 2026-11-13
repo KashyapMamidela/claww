@@ -8,6 +8,7 @@ import { AppHeader } from '../../components/ui/AppHeader';
 import { AmbientLight } from '../../components/ui/AmbientLight';
 import { TabBar } from '../../components/ui/TabBar';
 import { LiveWorkoutPlayer } from '../../components/LiveWorkoutPlayer';
+import { ActivityMiniBar } from '../../components/activity/ActivityPlayer';
 import { useWorkoutSession } from '../../lib/workoutSession';
 import { useAppState } from '../../lib/appState';
 import { dayLabel } from '../../lib/format';
@@ -98,6 +99,7 @@ export default function TabsLayout() {
         onAvatarPress={() => router.push('/profile')}
       />
       <LiveWorkoutPlayer bottomOffset={tabBarHeight + 8} />
+      <ActivityMiniBar bottomOffset={tabBarHeight + 8} />
     </View>
   );
 }

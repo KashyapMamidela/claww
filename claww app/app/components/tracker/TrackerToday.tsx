@@ -27,6 +27,7 @@ import { ProgressRing } from '../ui/ProgressRing';
 import { Segmented } from '../ui/Segmented';
 import { Surface } from '../ui/Surface';
 import type { ChartKind } from './TrackerBody';
+import { ActivityLogo } from '../activity/ActivityLogo';
 import { Skeleton } from '../ui/Skeleton';
 import { dayKey } from '../../lib/widgetSnapshot';
 
@@ -359,20 +360,20 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
       </View>
 
       {/* What was recorded: activities outside the plan. They are logged on Workouts and Home, shown here. */}
-      <Card color={AREA_COLORS.burned} label="ACTIVITIES RECORDED">
+      <Card color={AREA_COLORS.activity} label="ACTIVITIES RECORDED">
         {activities.length === 0 ? (
           // Premium D9: an empty state says what will appear and offers the one action that fills it.
           <View style={{ gap: 12 }}>
             <Text style={{ color: COLORS.textMuted, fontSize: 15, lineHeight: 20, fontFamily: BG[400] }}>Sports and long walks you log show up here. They count for calories and recovery.</Text>
-            <Button variant="secondary" size="md" accent={AREA_COLORS.burned} onPress={() => setActivityOpen(true)} icon={<Icon name="zap" size={15} color={AREA_COLORS.burned} />}>
-              Log an activity
+            <Button variant="secondary" size="md" accent={AREA_COLORS.activity} onPress={() => setActivityOpen(true)} icon={<Icon name="play" size={15} color={AREA_COLORS.activity} />}>
+              Start an activity
             </Button>
           </View>
         ) : (
           activities.slice(0, 6).map((a) => (
             <View key={`${a.name}-${a.loggedAt}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-              <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.burned, 0.16) }}>
-                <Icon name="zap" size={20} color={AREA_COLORS.burned} />
+              <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: tint(AREA_COLORS.activity, 0.16), borderWidth: 1, borderColor: tint(AREA_COLORS.activity, 0.3) }} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                <ActivityLogo name={a.name} size={22} color={AREA_COLORS.activity} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={{ color: COLORS.fg, fontSize: 17, fontFamily: BG[800] }}>{a.name}</Text>
@@ -380,7 +381,7 @@ export function TrackerToday({ weekSteps, weekLabels, stepsGoal, onOpen }: Track
                   {new Date(a.loggedAt).toLocaleDateString(undefined, { weekday: 'short' })} · {a.minutes} min
                 </Text>
               </View>
-              <Text style={{ color: AREA_COLORS.burned, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{a.kcal} kcal</Text>
+              <Text style={{ color: AREA_COLORS.activity, fontSize: 17, fontVariant: ['tabular-nums'], fontFamily: BG[800] }}>{a.kcal} kcal</Text>
             </View>
           ))
         )}
