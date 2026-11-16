@@ -14,6 +14,8 @@ import { getTodayCheckins, loadBundle, planDayFor, setTodayCheckins, type Bundle
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
 import { Surface } from '../ui/Surface';
+import { setsLabel } from '../../lib/plural';
+import { useWorkoutSession } from '../../lib/workoutSession';
 
 // The adaptive system, as a small card in the CLAWW Tracker that opens to the muscle check-in and today's prescription
 // (it used to be a full screen between Begin Workout and the player). The answers are optional, kept on the phone for
@@ -53,6 +55,9 @@ function Option({ label, active, onPress }: { label: string; active: boolean; on
 
 export function AdaptiveCard() {
   const { userId } = useAppState();
+  // While a session is running the card is about that session, even if it is a missed day done today.
+  const live = useWorkoutSession();
+  const liveDay = live.status !== 'idle' && live.status !== 'completed' ? live.dayIndex : null;
   const [open, setOpen] = useState(false);
   const [workout, setWorkout] = useState<WorkoutRow | null>(null);
   const [dayIndex, setDayIndex] = useState(0);
@@ -71,7 +76,7 @@ export function AdaptiveCard() {
           return;
         }
         const events = await getWorkoutDayEvents(userId, w.id);
-        const idx = getSuggestedDayIndex(w.plan, events);
+        const idx = liveDay !== null && w.plan.days[liveDay] ? liveDay : getSuggestedDayIndex(w.plan, events);
         const [b, c] = await Promise.all([loadBundle(userId, w, idx), getTodayCheckins()]);
         if (cancelled) return;
         setWorkout(w);
@@ -83,7 +88,7 @@ export function AdaptiveCard() {
       return () => {
         cancelled = true;
       };
-    }, [userId])
+    }, [userId, liveDay])
   );
 
   const day = workout?.plan.days[dayIndex];
@@ -171,7 +176,7 @@ export function AdaptiveCard() {
                 </View>
                 <Text style={{ color: COLORS.fg, fontSize: 15, fontVariant: ['tabular-nums'], fontFamily: BG[700] }}>
                   {w !== null ? `${w} kg · ` : ''}
-                  {p.prescription.reps} reps {'×'} {p.prescription.sets} sets
+                  {p.prescription.reps} reps {'×'} {setsLabel(p.prescription.sets)}
                 </Text>
                 {reason ? <Text style={{ color: E, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>{reason}</Text> : null}
               </View>

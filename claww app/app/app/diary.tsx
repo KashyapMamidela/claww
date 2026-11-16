@@ -19,6 +19,7 @@ import { SectionLabel } from '../components/ui/SectionLabel';
 import { Skeleton } from '../components/ui/Skeleton';
 import { Surface } from '../components/ui/Surface';
 import { Rise } from '../components/ui/Rise';
+import { StatusBarShield } from '../components/ui/StatusBarShield';
 
 // NG PHASE 8 (screen 18): the food diary. A strip of the last seven days with a dot per meal, the day's
 // micronutrients against targets for the user's age and sex (sodium over its limit is amber), and every entry with its
@@ -98,6 +99,7 @@ export default function DiaryScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
+      <StatusBarShield />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: insets.bottom + 40, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <BackTile onPress={() => router.back()} />

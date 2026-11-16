@@ -4,7 +4,8 @@ import { BottomSheet } from './ui/BottomSheet';
 import { Button } from './ui/Button';
 import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from './ui/Icon';
-import { TimeWheelPicker, dateToTimeValue, timeValueToDate, timeValueToLabel, type TimeValue } from './ui/TimeWheelPicker';
+import { TimeWheelPicker, dateToTimeValue, timeValueToLabel, type TimeValue } from './ui/TimeWheelPicker';
+import { sleepWindow } from '../lib/sleepTarget';
 import { getLatestSleepLog } from '../lib/data';
 import { useAppState } from '../lib/appState';
 
@@ -17,19 +18,6 @@ const SLEEP = COLORS.indigo;
 
 const DEFAULT_BEDTIME: TimeValue = { hour: 10, minute: 30, period: 'PM' };
 const DEFAULT_WAKE: TimeValue = { hour: 6, minute: 0, period: 'AM' };
-
-/** Hours between a bedtime and a wake time, assuming the wake time is the
- * next calendar occurrence at/after the bedtime (handles the normal
- * overnight case; a same-day nap-length entry isn't this card's job). */
-function hoursBetween(bedtime: TimeValue, wake: TimeValue): number {
-  const base = new Date(2000, 0, 1);
-  const bed = timeValueToDate(bedtime, base);
-  let wakeDate = timeValueToDate(wake, base);
-  if (wakeDate.getTime() <= bed.getTime()) {
-    wakeDate = new Date(wakeDate.getTime() + 24 * 60 * 60 * 1000);
-  }
-  return (wakeDate.getTime() - bed.getTime()) / (1000 * 60 * 60);
-}
 
 function quality(hours: number): { label: string; color: string } {
   if (hours < 5) return { label: 'Poor', color: COLORS.danger };
@@ -82,21 +70,14 @@ export function SleepLogModal({ visible, onClose }: SleepLogModalProps) {
     };
   }, [visible, userId]);
 
-  const hours = hoursBetween(bedtime, wake);
+  const hours = sleepWindow(bedtime, wake, new Date()).hours;
   const q = quality(hours);
 
   const handleSave = async () => {
     if (saving) return;
     setSaving(true);
-    const now = new Date();
-    const wakeDate = timeValueToDate(wake, now);
-    // Bedtime is "yesterday" relative to wake whenever it's a later clock
-    // time than wake (the normal overnight case, e.g. 10:30 PM -> 6:00 AM).
-    let bedtimeDate = timeValueToDate(bedtime, now);
-    if (bedtimeDate.getTime() >= wakeDate.getTime()) {
-      bedtimeDate = new Date(bedtimeDate.getTime() - 24 * 60 * 60 * 1000);
-    }
-    await logSleep(hours, bedtimeDate, wakeDate);
+    const w = sleepWindow(bedtime, wake, new Date());
+    await logSleep(w.hours, w.bedtime, w.wakeTime);
     setSaving(false);
     onClose();
   };

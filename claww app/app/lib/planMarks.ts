@@ -2,6 +2,7 @@
 // ("Marked on your plan today") and in the Workouts exercise list. Pure; fed by prescribeDay's output.
 
 import type { PrescribedExercise } from './sessionPrescription';
+import { setsLabel } from './plural';
 
 export interface PlanMark {
   name: string;
@@ -42,7 +43,7 @@ export function marksFor(prescribed: PrescribedExercise[]): PlanMark[] {
     if (plan.weightKg !== null && today.weightKg !== null && Math.abs(plan.weightKg - today.weightKg) > 0.001) {
       marks.push({ name: p.name, kind: 'weight', oldText: kgText(plan.weightKg), newText: `${kgText(today.weightKg)} kg`, note, reason: today.reason, direction: today.weightKg > plan.weightKg ? 'up' : 'down' });
     } else if (today.sets !== plan.sets) {
-      marks.push({ name: p.name, kind: 'sets', oldText: `${plan.sets} sets`, newText: `${today.sets} sets`, note, reason: today.reason, direction: today.sets > plan.sets ? 'up' : 'down' });
+      marks.push({ name: p.name, kind: 'sets', oldText: setsLabel(plan.sets), newText: setsLabel(today.sets), note, reason: today.reason, direction: today.sets > plan.sets ? 'up' : 'down' });
     } else if (today.reps !== plan.repTarget) {
       marks.push({ name: p.name, kind: 'reps', oldText: `${plan.repTarget}`, newText: `${today.reps} reps`, note, reason: today.reason, direction: today.reps > plan.repTarget ? 'up' : 'down' });
     }

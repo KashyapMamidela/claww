@@ -281,15 +281,17 @@ describe('one definition of a day', () => {
     expect(burnedKcal({ healthConnectKcal: 412.4, steps: 8000, loggedKcal: 300, weightKg: 70 })).toEqual({ kcal: 412, source: 'health-connect' });
   });
   it('without it: steps estimate plus logged sessions', () => {
-    expect(burnedKcal({ healthConnectKcal: null, steps: 6000, loggedKcal: 250, weightKg: 70 })).toEqual({ kcal: 210 + 250, source: 'estimate' });
+    expect(burnedKcal({ healthConnectKcal: null, steps: 6000, loggedKcal: 250, weightKg: 70 })).toEqual({ kcal: 147 + 250, source: 'estimate' });
     expect(burnedKcal({ healthConnectKcal: null, steps: null, loggedKcal: 250, weightKg: null })).toEqual({ kcal: 250, source: 'estimate' });
     expect(burnedKcal({ healthConnectKcal: null, steps: null, loggedKcal: 0, weightKg: 70 })).toEqual({ kcal: null, source: 'none' });
     expect(burnedKcal({ healthConnectKcal: null, steps: 0, loggedKcal: 0, weightKg: 70 }).kcal).toBe(0);
     // Health Connect saying 0 with steps on the board falls back to the estimate instead of showing 0.
-    expect(burnedKcal({ healthConnectKcal: 0, steps: 6000, loggedKcal: 0, weightKg: 70 })).toEqual({ kcal: 210, source: 'estimate' });
+    expect(burnedKcal({ healthConnectKcal: 0, steps: 6000, loggedKcal: 0, weightKg: 70 })).toEqual({ kcal: 147, source: 'estimate' });
   });
   it('step maths and source lines', () => {
-    expect(stepsKcal(10000, 80)).toBe(400);
+    expect(stepsKcal(10000, 80)).toBe(280);
+    // 6,000 steps for a 70 kg person is about 147 kcal of active energy, not 210.
+    expect(stepsKcal(6000, 70)).toBe(147);
     expect(stepsProgress(4000, 8000)).toBe(50);
     expect(stepsProgress(20000, 8000)).toBe(100);
     expect(stepsProgress(null, 8000)).toBe(0);

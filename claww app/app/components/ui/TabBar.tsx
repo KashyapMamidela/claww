@@ -1,11 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, FONT, TAB_ACCENTS, TAB_BAR_HEIGHT, BG, bg } from '../../lib/theme';
 import { tick } from '../../lib/haptics';
+import { slideToTab } from '../../lib/tabSlide';
 import { Icon } from './Icon';
 import { Glass } from './Glass';
 import { useQuickLog } from '../QuickLog';
@@ -57,6 +58,7 @@ function TabButton({ label, icon, color, active, onPress }: { label: string; ico
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  const reduced = useReducedMotion();
   const { open: openQuickLog } = useQuickLog();
   const inner = width - SIDE * 2 - PAD * 2;
   const slotW = inner / SLOTS.length;
@@ -156,8 +158,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
                     color={TAB_ACCENTS[slot]?.accent ?? '#FFFFFF'}
                     active={isActive}
                     onPress={() => {
-                      if (!isActive) tick();
-                      navigation.navigate(route.name);
+                      if (isActive) return;
+                      tick();
+                      slideToTab(activeName, route.name, (n) => navigation.navigate(n), reduced);
                     }}
                   />
                 );

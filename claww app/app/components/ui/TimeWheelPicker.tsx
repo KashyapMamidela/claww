@@ -114,27 +114,26 @@ interface TimeWheelPickerProps {
 
 /** Alarm-clock-style scroll picker: Hour / Minute (5-min steps) / AM-PM. */
 export function TimeWheelPicker({ initialValue, onChange }: TimeWheelPickerProps) {
+  // The three wheels are uncontrolled, so the picker keeps the running value itself. Each change must be written
+  // back here: before, every wheel spread the *starting* value, so changing the hour and then AM/PM kept only the
+  // last change (12:30 AM came out as 11:30 AM).
   const value = useRef({ ...initialValue }).current;
+  const change = (patch: Partial<TimeValue>) => {
+    Object.assign(value, patch);
+    onChange({ ...value });
+  };
 
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center' }}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <WheelColumn
-          items={HOURS}
-          initialIndex={value.hour - 1}
-          onChange={(i) => onChange({ ...value, hour: i + 1 })}
-        />
+        <WheelColumn items={HOURS} initialIndex={value.hour - 1} onChange={(i) => change({ hour: i + 1 })} />
         <Text style={{ color: '#fff', fontSize: 17, fontFamily: BG[800], marginHorizontal: 2 }}>:</Text>
-        <WheelColumn
-          items={MINUTES}
-          initialIndex={Math.round(value.minute / 5)}
-          onChange={(i) => onChange({ ...value, minute: i * 5 })}
-        />
+        <WheelColumn items={MINUTES} initialIndex={Math.round(value.minute / 5)} onChange={(i) => change({ minute: i * 5 })} />
         <View style={{ width: 14 }} />
         <WheelColumn
           items={PERIODS}
           initialIndex={value.period === 'AM' ? 0 : 1}
-          onChange={(i) => onChange({ ...value, period: i === 0 ? 'AM' : 'PM' })}
+          onChange={(i) => change({ period: i === 0 ? 'AM' : 'PM' })}
           width={46}
         />
       </View>
@@ -168,10 +167,10 @@ export function timeValueToDate(v: TimeValue, referenceDate: Date): Date {
 }
 
 export function dateToTimeValue(d: Date): TimeValue {
-  const h24 = d.getHours();
+  // Round the whole time to the nearest 5-minute step this picker supports, so 6:58 becomes 7:00, not 6:00.
+  const total = Math.round((d.getHours() * 60 + d.getMinutes()) / 5) * 5;
+  const h24 = Math.floor(total / 60) % 24;
   const period: 'AM' | 'PM' = h24 >= 12 ? 'PM' : 'AM';
   const hour = h24 % 12 === 0 ? 12 : h24 % 12;
-  // Round to the nearest 5-minute step this picker actually supports.
-  const minute = Math.round(d.getMinutes() / 5) * 5;
-  return { hour, minute: minute === 60 ? 0 : minute, period };
+  return { hour, minute: total % 60, period };
 }

@@ -5,7 +5,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { usePathname } from 'expo-router';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { interpolate, Extrapolation, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { interpolate, Extrapolation, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useWorkoutSession } from '../lib/workoutSession';
@@ -13,8 +13,9 @@ import { Icon } from './ui/Icon';
 import { PressScale } from './ui/PressScale';
 import { markSetTap, useRenderCount } from '../lib/perf';
 import { ElapsedClock, RestCountdown } from './player/clocks';
-import { FullPlayer } from './player/FullPlayer';
+import { FullPlayer, PLAYER_HIDDEN } from './player/FullPlayer';
 import { useRestEndNotification } from '../lib/restNotification';
+import { consumeResumed } from '../lib/liveSessionStore';
 
 const clockLabelStyle = { color: 'rgba(255,255,255,0.6)', fontSize: 11, letterSpacing: 0.7, fontFamily: BG[700] } as const;
 
@@ -65,20 +66,33 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
   // -1 = pill, 0 = bar. Dragging the bar upward past the threshold opens full screen.
   const progress = useSharedValue(0);
   const dragStart = useSharedValue(0);
+  // The full player's position, shared with it: dragging the bar up pulls it up under the finger.
+  const fullY = useSharedValue(PLAYER_HIDDEN);
+  const [peek, setPeek] = useState(false);
 
-  // Every new session opens full screen.
-  const prevStatus = useRef(status);
+  // Every new session opens full screen. Decided while rendering (not in an effect), so the very first frame of the
+  // player already carries the intro; an effect showed the player's own content for a frame first.
+  const [prevStatus, setPrevStatus] = useState(status);
   // The start intro (a line from your coach, the muscles, 3 2 1 Go) plays first; the session clock starts at Go.
   const [intro, setIntro] = useState(false);
-  useEffect(() => {
-    if (prevStatus.current === 'idle' && status !== 'idle') {
-      progress.set(0);
-      setMode('full');
-      setIntro(true);
+  const [starts, setStarts] = useState(0);
+  if (prevStatus !== status) {
+    setPrevStatus(status);
+    if (prevStatus === 'idle' && status !== 'idle') {
+      setStarts((n) => n + 1);
+      if (consumeResumed()) {
+        // The app was closed mid-workout: come back as the small bar, no intro, the clock keeps its time.
+        setMode('bar');
+      } else {
+        setMode('full');
+        setIntro(true);
+      }
     }
     if (status === 'idle') setIntro(false);
-    prevStatus.current = status;
-  }, [status, progress]);
+  }
+  useEffect(() => {
+    progress.set(0);
+  }, [starts, progress]);
   const endIntro = () => {
     setIntro(false);
     restartClock();
@@ -102,10 +116,14 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
   }, [pathname]);
 
   const pan = Gesture.Pan()
+    .activeOffsetY([-10, 10])
+    .failOffsetX([-40, 40])
     .onStart(() => {
       dragStart.set(progress.get());
+      scheduleOnRN(setPeek, true);
     })
     .onUpdate((e) => {
+      if (e.translationY < 0) fullY.set(Math.min(PLAYER_HIDDEN, Math.max(0, PLAYER_HIDDEN + e.translationY * 1.6)));
       let next = dragStart.get() - e.translationY / DRAG_RANGE;
       if (next < -1) next = -1 - rubberband(-1 - next, 1);
       else if (next > 1) next = 1 + rubberband(next - 1, 1);
@@ -117,11 +135,16 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
       if (projected >= 0.5) {
         progress.set(withSpring(0, SHEET_SPRING));
         scheduleOnRN(setMode, 'full');
+        scheduleOnRN(setPeek, false);
       } else if (projected <= -0.5) {
+        fullY.set(withTiming(PLAYER_HIDDEN, { duration: 200 }));
+        scheduleOnRN(setPeek, false);
         progress.set(withSpring(-1, SHEET_SPRING));
         scheduleOnRN(setMode, 'pill');
       } else {
         progress.set(withSpring(0, SHEET_SPRING));
+        fullY.set(withTiming(PLAYER_HIDDEN, { duration: 200 }));
+        scheduleOnRN(setPeek, false);
         scheduleOnRN(setMode, 'bar');
       }
     });
@@ -158,7 +181,7 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
 
   return (
     <>
-      <FullPlayer visible={mode === 'full'} onMinimize={() => toMode('bar')} intro={intro && mode === 'full'} onIntroDone={endIntro} />
+      <FullPlayer y={fullY} peek={peek} visible={mode === 'full'} onMinimize={() => toMode('bar')} intro={intro && mode === 'full'} onIntroDone={endIntro} />
 
       <View style={{ position: 'absolute', bottom: bottomOffset, left: 0, right: 0, height: 0 }} pointerEvents="box-none">
         {/* Minimized pill — corner-docked, doesn't cover other screens' content. */}
@@ -191,17 +214,17 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
 
         {/* Bar */}
         <Animated.View pointerEvents={mode === 'bar' ? 'auto' : 'none'} style={[{ position: 'absolute', bottom: 0, left: 12, right: 12 }, barStyle]}>
+          <GestureDetector gesture={pan}>
+          <View collapsable={false}>
           <LinearGradient
             colors={['#0A1628', '#0F2044', 'rgba(29,78,216,0.92)']}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={{ borderRadius: 18, borderWidth: 1, borderColor: 'rgba(59,130,246,0.40)', paddingHorizontal: 14, paddingTop: 6, paddingBottom: 10 }}
           >
-            <GestureDetector gesture={pan}>
-              <View style={{ alignItems: 'center', paddingVertical: 6 }}>
-                <View style={{ width: 34, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.25)' }} />
-              </View>
-            </GestureDetector>
+            <View style={{ alignItems: 'center', paddingVertical: 6 }}>
+              <View style={{ width: 34, height: 4, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.25)' }} />
+            </View>
 
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <TouchableOpacity activeOpacity={0.8} onPress={() => toMode('full')} style={{ flex: 1, minWidth: 0 }} accessibilityRole="button" accessibilityLabel="Open workout">
@@ -245,6 +268,8 @@ export function LiveWorkoutPlayer({ bottomOffset = 10 }: LiveWorkoutPlayerProps)
               <View style={{ height: '100%', borderRadius: 100, width: `${Math.max(0, Math.min(100, progressPct))}%`, backgroundColor: 'rgba(255,255,255,0.75)' }} />
             </View>
           </LinearGradient>
+          </View>
+          </GestureDetector>
         </Animated.View>
       </View>
       <EndWorkoutSheet visible={endOpen} onClose={() => setEndOpen(false)} />

@@ -21,14 +21,22 @@ const input = (r: Resources, kcal = 2200, protein = 120, date = '2026-11-04', hi
 const entry = (p: ReturnType<typeof planDay>, date: string) => ({ date, meals: p.meals.map((m) => ({ meal: m.meal, templateId: m.templateId, uses: m.uses })) });
 
 describe('the generated template data', () => {
-  it('has 40 templates per meal, every number computed, none reviewed', () => {
-    for (const m of ['breakfast', 'lunch', 'dinner']) expect(MEAL_TEMPLATES.filter((t) => t.meal === m)).toHaveLength(40);
+  it('has at least 50 templates per meal, every number computed, none reviewed', () => {
+    for (const m of ['breakfast', 'lunch', 'dinner']) expect(MEAL_TEMPLATES.filter((t) => t.meal === m).length).toBeGreaterThanOrEqual(50);
+    expect(MEAL_TEMPLATES).toHaveLength(163);
     for (const t of MEAL_TEMPLATES) {
       expect(t.reviewed).toBe(false);
       expect(t.kcal).toBeGreaterThan(100);
       expect(t.items.every((i) => i.kcal !== null && i.grams > 0)).toBe(true);
     }
-    expect(ADD_ONS.length).toBeGreaterThanOrEqual(6);
+    expect(ADD_ONS.length).toBeGreaterThanOrEqual(14);
+  });
+  it('tags the new foods, so a person who cannot get one never gets a meal that needs it', () => {
+    const usesOf = (name: string) => MEAL_TEMPLATES.find((t) => t.name === name)?.uses ?? [];
+    expect(usesOf('Rice, rajma masala, raita and cucumber')).toEqual(expect.arrayContaining(['rajma', 'rice', 'curd']));
+    expect(usesOf('Ragi dosa, peanut chutney and sambar')).toEqual(expect.arrayContaining(['millets', 'idli_dosa', 'peanuts']));
+    expect(usesOf('Fish tikka, 2 roti and cucumber')).toEqual(expect.arrayContaining(['fish', 'roti']));
+    expect(usesOf('Roti, palak paneer and raita')).toEqual(expect.arrayContaining(['paneer', 'roti', 'greens']));
   });
   it('covers every diet', () => {
     expect([...new Set(MEAL_TEMPLATES.map((t) => t.diet))].sort()).toEqual(['egg', 'nonveg', 'veg', 'vegan']);

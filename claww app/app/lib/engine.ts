@@ -15,7 +15,10 @@ export { distributeStyleDays, needsStyledPlan, buildStyledPlan, cleanStyles as c
 export type { TrainStyle } from '../../supabase/functions/_shared/stylePlan';
 export { INJURY_PARTS, SEVERITIES, parseInjuries, injuriesFromText, contraindicatedPatterns, isExerciseAllowed } from '../../supabase/functions/_shared/injuryRules';
 export type { Injury, InjuryPart, Severity } from '../../supabase/functions/_shared/injuryRules';
-export { BLUEPRINTS } from '../../supabase/functions/_shared/blueprints';
+export { ALL_BLUEPRINTS as BLUEPRINTS } from '../../supabase/functions/_shared/blueprints/all';
+export { SPLIT_IDS, SPLIT_LABELS, SPLIT_BLURBS, SPLIT_DAYS } from '../../supabase/functions/_shared/blueprints/splits';
+export type { Split } from '../../supabase/functions/_shared/blueprints/splits';
+export { INTENSITIES, applyIntensity, defaultSplitFor, type Intensity } from '../../supabase/functions/_shared/planTree';
 export { planDay, swapOptions, DIET_ALLOWED, replanRemaining, scaleTemplate, cheapestFix, isEligible, stepFor, KCAL_TOLERANCE, PROTEIN_MIN } from '../../supabase/functions/_shared/mealPlanner';
 export type { DayPlan, PlannedMeal, PlanInput, Resources, HistoryDay, Shortfall, Diet as PlanDiet } from '../../supabase/functions/_shared/mealPlanner';
 export { MEAL_TEMPLATES, ADD_ONS } from '../../supabase/functions/_shared/mealTemplates';

@@ -3,7 +3,7 @@ import { Glass } from './Glass';
 import { Dimensions, Keyboard, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Extrapolation, interpolate, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { COLORS } from '../../lib/theme';
 
@@ -46,8 +46,18 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
     };
   }, []);
 
+  // The sheet's window stays up for a beat after it closes, with an invisible backdrop that swallows taps. Without it a
+  // second tap on a sheet button (a double tap) fell through onto whatever was behind it, such as the + button.
+  const [mounted, setMounted] = useState(visible);
   useEffect(() => {
-    if (visible) y.set(reduced ? 0 : withSpring(0, SHEET_OPEN));
+    if (visible) {
+      setMounted(true);
+      y.set(reduced ? 0 : withSpring(0, SHEET_OPEN));
+      return;
+    }
+    y.set(reduced ? SCREEN_H : withTiming(SCREEN_H, { duration: 220 }));
+    const t = setTimeout(() => setMounted(false), 420);
+    return () => clearTimeout(t);
   }, [visible, reduced, y]);
 
   const close = () => {
@@ -72,17 +82,19 @@ export function BottomSheet({ visible, onClose, children, maxHeightFraction = 0.
     });
 
   const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: y.get() }] }));
+  // The dimmed backdrop follows the sheet, so it fades in and out with it.
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: interpolate(y.get(), [0, SCREEN_H * 0.6], [1, 0], Extrapolation.CLAMP) }));
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={close} statusBarTranslucent>
+    <Modal visible={mounted} transparent animationType="none" onRequestClose={close} statusBarTranslucent>
       <GestureHandlerRootView style={{ flex: 1 }}>
         {/* Polish step 1: the sheet rides above the keyboard so a text field and its first results stay visible. */}
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: Platform.OS === 'android' ? keyboard : 0 }}
         >
-        <Pressable onPress={close} style={StyleSheet.absoluteFill} accessibilityLabel="Close">
-          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} />
+        <Pressable onPress={visible ? close : undefined} style={StyleSheet.absoluteFill} accessibilityLabel="Close">
+          <Animated.View style={[{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }, backdropStyle]} />
         </Pressable>
         {/* Never taller than the space between the status bar and the keyboard: with the keyboard up, a tall sheet used to slide under the clock. */}
         <Animated.View style={[{ maxHeight: Math.min(SCREEN_H * maxHeightFraction, SCREEN_H - insets.top - 12 - (Platform.OS === 'android' ? keyboard : 0)) }, sheetStyle]}>

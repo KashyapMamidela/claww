@@ -26,6 +26,7 @@ import { ActivityLogo } from '../activity/ActivityLogo';
 import { CountUp } from '../ui/CountUp';
 import { Icon } from '../ui/Icon';
 import { ProgressRing } from '../ui/ProgressRing';
+import { setsLabel } from '../../lib/plural';
 
 // The finish moments. A PhonePe or GPay confirmation takes the whole screen for about two seconds, draws one shape and
 // lands a haptic on the same frame; CLAWW does the same with its own shapes. A saved workout stamps a dumbbell (the same
@@ -187,7 +188,7 @@ function View_({ moment, onClose }: { moment: Moment; onClose: () => void }) {
   const bigUnit = moment.kind === 'workout' ? moment.bigLabel : moment.kind === 'meal' ? 'kcal' : 'min';
   const sub =
     moment.kind === 'workout'
-      ? `${moment.setsDone} of ${moment.setsPlanned} sets · ${moment.minutes} min`
+      ? `${moment.setsDone} of ${setsLabel(moment.setsPlanned)} · ${moment.minutes} min`
       : moment.kind === 'meal'
       ? kcalToday
         ? `${n(kcalToday.eaten)}${kcalToday.target ? ` of ${n(kcalToday.target)}` : ''} kcal today`

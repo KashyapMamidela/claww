@@ -288,9 +288,12 @@ export function evaluateSession(
     stagnantSessions += 1;
     if (failureStreak >= cfg.failuresForDeload) {
       if (meta.loadable && weight !== null) {
-        next.weightKg = Math.max(0, kg(roundTo(weight * (1 - cfg.deloadFraction), cfg.deloadRoundKg)));
+        // A deload must come down: on a light weight, 5% rounds back to the same number, so it steps down one notch instead.
+        let lighter = roundTo(weight * (1 - cfg.deloadFraction), cfg.deloadRoundKg);
+        if (lighter >= weight) lighter = weight - cfg.deloadRoundKg;
+        next.weightKg = Math.max(0, kg(lighter));
         commands.push('DELOAD');
-        reason = `${pct}% of target two sessions running, so the weight drops 5% (${fmtKg(weight)} to ${fmtKg(next.weightKg)}).`;
+        reason = `${pct}% of target two sessions running, so the weight comes down (${fmtKg(weight)} to ${fmtKg(next.weightKg)}).`;
       } else {
         next.repTarget = Math.max(state.repMin, next.repTarget - 2);
         commands.push('DELOAD');

@@ -2,10 +2,12 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { BLUEPRINTS } from './blueprints/index.ts';
+import { ALL_BLUEPRINTS } from './blueprints/all.ts';
+import { SPLIT_BLUEPRINTS, SPLIT_IDS, SPLIT_DAYS } from './blueprints/splits.ts';
 import { validateBlueprint, type Blueprint } from './blueprints/schema.ts';
 import { contraindicatedPatterns, INJURY_PARTS, injuriesFromText, isExerciseAllowed, parseInjuries, SEVERITIES, type Injury } from './injuryRules.ts';
 import {
-  applyBlockWeek, applyRegenerationReason, checkPlan, equipmentToPlace, excusedMuscles, fillBlueprint, fitPlan, goalToBlueprintGoal, hash,
+  applyBlockWeek, applyIntensity, defaultSplitFor, splitFromPreference, INTENSITIES, applyRegenerationReason, checkPlan, equipmentToPlace, excusedMuscles, fillBlueprint, fitPlan, goalToBlueprintGoal, hash,
   nextBlockState, pickBlueprint, sessionMinutes, toPlan, weeklyMuscleSets, type CatalogRow, type PlanProfile,
 } from './planTree.ts';
 
@@ -80,9 +82,12 @@ describe('pickBlueprint', () => {
     expect(r.blueprint.place).not.toBe('gym');
     expect(r.note).toMatch(/Nearest/);
   });
-  it('keeps experience gates: a beginner is not given the 6-day plan', () => {
-    expect(pickBlueprint(profile({ daysPerWeek: 6, trainingMonths: 2 }), BLUEPRINTS).blueprint.daysPerWeek).toBeLessThan(6);
-    expect(pickBlueprint(profile({ daysPerWeek: 6, trainingMonths: 24 }), BLUEPRINTS).blueprint.daysPerWeek).toBe(6);
+  it('a 6-day week is Upper / Lower unless push / pull / legs is asked for, at any experience', () => {
+    for (const trainingMonths of [2, 24]) {
+      const r = pickBlueprint(profile({ daysPerWeek: 6, trainingMonths }), ALL_BLUEPRINTS);
+      expect(r.blueprint.daysPerWeek).toBe(6);
+      expect(r.blueprint.split).toBe('UL');
+    }
   });
   it('maps profile values', () => {
     expect(goalToBlueprintGoal('muscle_gain')).toBe('muscle');
@@ -123,8 +128,83 @@ describe('injury rules', () => {
   });
 });
 
+describe('training styles (splits)', () => {
+  it('every generated blueprint is valid, unique and unreviewed, for all 4 goals and 3 places', () => {
+    for (const b of SPLIT_BLUEPRINTS) expect(validateBlueprint(b)).toEqual([]);
+    expect(new Set(ALL_BLUEPRINTS.map((b) => b.id)).size).toBe(ALL_BLUEPRINTS.length);
+    expect(SPLIT_BLUEPRINTS.every((b) => !b.reviewed && b.minMonths === 0)).toBe(true);
+    const count = SPLIT_IDS.reduce((n, s) => n + SPLIT_DAYS[s].length, 0) * 4 * 3;
+    expect(SPLIT_BLUEPRINTS.length).toBe(count);
+  });
+  it('a chosen style is honoured when it has a week for the days asked', () => {
+    for (const split of SPLIT_IDS) for (const daysPerWeek of SPLIT_DAYS[split]) {
+      const r = pickBlueprint(profile({ split, daysPerWeek, trainingMonths: 0 }), ALL_BLUEPRINTS);
+      expect(r.blueprint.split, `${split} ${daysPerWeek}d`).toBe(split);
+      expect(r.blueprint.daysPerWeek).toBe(daysPerWeek);
+    }
+  });
+  it('a beginner who picks push / pull / legs for 6 days gets it (the experience gate is for plans nobody asked for)', () => {
+    const r = pickBlueprint(profile({ split: 'PPL', daysPerWeek: 6, trainingMonths: 0 }), ALL_BLUEPRINTS);
+    expect(r.blueprint.split).toBe('PPL');
+    expect(r.blueprint.daysPerWeek).toBe(6);
+  });
+  it('without a choice 5 and 6 days are no longer push / pull / legs', () => {
+    expect(defaultSplitFor(2)).toBe('FB');
+    expect(defaultSplitFor(4)).toBe('UL');
+    expect(defaultSplitFor(5)).toBe('BRO');
+    expect(defaultSplitFor(6)).toBe('UL');
+    for (const d of [5, 6]) expect(pickBlueprint(profile({ daysPerWeek: d, trainingMonths: 36 }), ALL_BLUEPRINTS).blueprint.split).not.toBe('PPL');
+  });
+  it('a style with no week for those days gives the nearest one and says so', () => {
+    const r = pickBlueprint(profile({ split: 'BRO', daysPerWeek: 2, trainingMonths: 0 }), ALL_BLUEPRINTS);
+    expect(r.blueprint.split).toBe('BRO');
+    expect(r.exact).toBe(false);
+    expect(r.note).toMatch(/nearest/i);
+  });
+  it('maps the stored choice', () => {
+    expect(splitFromPreference('full_body')).toBe('FB');
+    expect(splitFromPreference('body_part')).toBe('BRO');
+    expect(splitFromPreference('auto')).toBeNull();
+    expect(splitFromPreference(undefined)).toBeNull();
+  });
+  it('easy takes sets off and adds reserve, hard adds a set to main lifts, standard changes nothing', () => {
+    const base = ALL_BLUEPRINTS.find((b) => b.id === 'muscle-gym-ul-6d')!;
+    expect(applyIntensity(base, 'standard')).toBe(base);
+    const easy = applyIntensity(base, 'easy');
+    const hard = applyIntensity(base, 'hard');
+    const mains = (b: typeof base) => b.days.flatMap((d) => d.slots).filter((s) => s.role === 'main');
+    const total = (b: typeof base) => b.days.flatMap((d) => d.slots).reduce((n, s) => n + s.sets, 0);
+    expect(total(easy)).toBeLessThan(total(base));
+    expect(total(hard)).toBeGreaterThan(total(base));
+    expect(mains(easy).every((s) => s.sets === 3 && s.rir === 3)).toBe(true);
+    expect(mains(hard).every((s) => s.sets === 5 && s.rir === 1)).toBe(true);
+    expect(easy.days.flatMap((d) => d.slots).every((s) => s.sets >= 2)).toBe(true);
+    // the original is never changed
+    expect(mains(base).every((s) => s.sets === 4 && s.rir === 2)).toBe(true);
+  });
+});
+
+describe('every style x level x injury passes the checks', () => {
+  const injuryCases: (Injury | null)[] = [null];
+  for (const { part } of INJURY_PARTS) for (const severity of SEVERITIES) injuryCases.push({ part, severity });
+  it('passes for the whole table', () => {
+    const failures: string[] = [];
+    let count = 0;
+    for (const split of SPLIT_IDS) for (const daysPerWeek of SPLIT_DAYS[split]) for (const goal of ['muscle_gain', 'fat_loss', 'strength', 'maintenance']) for (const equipment of ['gym', 'home', 'none']) for (const intensity of INTENSITIES) for (const inj of injuryCases) {
+      const p = profile({ split, daysPerWeek, goal, equipment, intensity, trainingMonths: 0, injuries: inj ? [inj] : [] });
+      const picked = pickBlueprint(p, ALL_BLUEPRINTS);
+      const filled = fillBlueprint(applyIntensity(picked.blueprint, intensity), CATALOG, { seed: 'u', allowedEquipment: TIERS[equipmentToPlace(equipment)], injuries: p.injuries });
+      const { check } = fitPlan(filled, p, picked.blueprint.goal);
+      count++;
+      if (!check.ok) failures.push(`${split}/${daysPerWeek}d/${goal}/${equipment}/${intensity}/${inj ? inj.part + ':' + inj.severity : 'none'} -> ${check.problems.join('; ')}`);
+    }
+    expect(count).toBeGreaterThan(5000);
+    expect(failures.length, failures.slice(0, 12).join(' | ')).toBe(0);
+  });
+});
+
 function build(p: PlanProfile, seed = 'user-1', blockNumber = 1) {
-  const picked = pickBlueprint(p, BLUEPRINTS);
+  const picked = pickBlueprint(p, ALL_BLUEPRINTS);
   const filled = fillBlueprint(picked.blueprint, CATALOG, { seed, allowedEquipment: TIERS[equipmentToPlace(p.equipment)], injuries: p.injuries, blockNumber });
   const goal = picked.blueprint.goal;
   return { picked, goal, ...fitPlan(filled, p, goal) };
@@ -159,7 +239,7 @@ describe('fillBlueprint', () => {
   });
   it('never picks a disliked exercise', () => {
     const p = profile();
-    const picked = pickBlueprint(p, BLUEPRINTS);
+    const picked = pickBlueprint(p, ALL_BLUEPRINTS);
     const base = fillBlueprint(picked.blueprint, CATALOG, { seed: 'u', allowedEquipment: TIERS.gym, injuries: [] });
     const first = base.days[0].slots[0].exercise.name;
     const again = fillBlueprint(picked.blueprint, CATALOG, { seed: 'u', allowedEquipment: TIERS.gym, injuries: [], dislikes: [first] });

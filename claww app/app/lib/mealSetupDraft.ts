@@ -10,6 +10,8 @@ export interface MealSetupDraft {
   diet: Diet | null;
   /** Foods the user set by hand in step 2; they win over the defaults whenever step 1 changes. */
   edits: Partial<AvailabilityMap>;
+  /** Foods added with "Add a food I get" (names from the food database). */
+  customFoods: string[];
   /** null until the user taps the budget; then it replaces the default. */
   budget: number | null;
   planStyle: 'same' | 'varied';
@@ -21,7 +23,7 @@ export interface MealSetupDraft {
   foodGoal?: FoodGoal;
 }
 
-export const emptyDraft = (): MealSetupDraft => ({ sources: [], cookWith: [], diet: null, edits: {}, budget: null, planStyle: 'same' });
+export const emptyDraft = (): MealSetupDraft => ({ sources: [], cookWith: [], diet: null, edits: {}, customFoods: [], budget: null, planStyle: 'same' });
 
 let draft: MealSetupDraft = emptyDraft();
 

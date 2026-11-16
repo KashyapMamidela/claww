@@ -357,6 +357,9 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
  * 3. short sleep on several nights,
  * 4. otherwise a plain consistency line.
  */
+// Muscle names that read as plural ("Calves are", "Quads are"); the rest are singular ("Chest is").
+const PLURAL_MUSCLES = new Set<string>(['quads', 'hamstrings', 'glutes', 'calves', 'shoulders', 'biceps', 'triceps']);
+
 export function buildInsight(i: InsightInput): Insight {
   const half = WEEKLY_SETS_TARGET / 2;
   const lagging = MAJOR_MUSCLES.filter((m) => (i.thisWeekSets[m] ?? 0) < half && (i.lastWeekSets[m] ?? 0) < half).sort(
@@ -366,7 +369,7 @@ export function buildInsight(i: InsightInput): Insight {
     const m = lagging[0];
     const recovery = i.lowestMuscle && i.lowestMuscle.muscle === m ? ` Its recovery score is ${i.lowestMuscle.score}.` : '';
     return {
-      text: `${cap(m)} is under target for the second week: ${i.thisWeekSets[m] ?? 0} sets this week and ${i.lastWeekSets[m] ?? 0} last week, against ${WEEKLY_SETS_TARGET}.${recovery}`,
+      text: `${cap(m)} ${PLURAL_MUSCLES.has(m) ? 'are' : 'is'} under target for the second week: ${i.thisWeekSets[m] ?? 0} sets this week and ${i.lastWeekSets[m] ?? 0} last week, against ${WEEKLY_SETS_TARGET}.${recovery}`,
     };
   }
   if (i.proteinHits !== null && i.nutritionDaysLogged >= 4 && i.proteinHits <= Math.floor(i.nutritionDaysLogged / 2)) {

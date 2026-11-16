@@ -23,6 +23,9 @@ export interface GapInput {
 const WORD: Record<FoodKey, string> = {
   eggs: 'eggs', paneer: 'paneer', chicken: 'chicken', soya: 'soya', dal: 'dal', curd: 'curd',
   milk: 'milk', peanuts: 'peanuts', banana: 'banana', sprouts: 'sprouts', oats: 'oats', whey: 'whey',
+  tofu: 'tofu', rajma: 'rajma', chana: 'chana', fish: 'fish', mutton: 'mutton', besan: 'besan', buttermilk: 'buttermilk',
+  nuts: 'nuts', makhana: 'makhana', roti: 'roti', rice: 'rice', millets: 'millets', poha: 'poha', idli_dosa: 'idli and dosa',
+  bread: 'bread', greens: 'greens', fruit: 'fruit',
 };
 
 function list(items: string[]): string {
@@ -62,8 +65,8 @@ export function resourceGaps(input: GapInput): ResourceGap[] {
   }
 
   if (diet === 'nonveg' && !ok('chicken')) {
-    const swap = (['eggs', 'paneer', 'soya'] as FoodKey[]).filter(ok).map((k) => WORD[k]);
-    gaps.push({ id: 'no_chicken', title: 'No chicken', fix: `${list(swap) || 'dal and curd'} for protein`, step: 2 });
+    const swap = (['fish', 'eggs', 'paneer', 'soya', 'rajma'] as FoodKey[]).filter(ok).map((k) => WORD[k]);
+    gaps.push({ id: 'no_chicken', title: 'No chicken', fix: `${list(swap.slice(0, 3)) || 'dal and curd'} for protein`, step: 2 });
   }
 
   if (!ok('whey')) {
@@ -73,7 +76,7 @@ export function resourceGaps(input: GapInput): ResourceGap[] {
 
   const protein = FOOD_ROWS.filter((r) => r.group === 'protein' && visible.has(r.key)).map((r) => r.key);
   if (protein.filter(ok).length < 2) {
-    gaps.push({ id: 'few_protein', title: 'Few protein options', fix: 'soya chunks and dal give the most protein per rupee', step: 2 });
+    gaps.push({ id: 'few_protein', title: 'Few protein options', fix: 'soya chunks, rajma and dal give the most protein per rupee', step: 2 });
   }
   return gaps;
 }

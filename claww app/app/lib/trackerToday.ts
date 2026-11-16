@@ -29,7 +29,12 @@ export function recoveryFactors(i: { sleepHours: number | null; setsLast72h: num
   const load = trainingLoad(i.setsLast72h);
   out.push({ label: 'Training load', value: '', word: load === 'high' ? 'high' : load === 'low' ? 'light' : 'normal', level: load === 'high' ? 'low' : 'good' });
   if (i.proteinPct === null) out.push({ label: 'Protein', value: 'not tracked', word: '', level: 'ok' });
-  else out.push({ label: `Protein ${Math.round(i.proteinPct)} %`, value: '', word: i.proteinPct >= 80 ? 'on track' : i.proteinPct >= 50 ? 'a bit low' : 'low', level: i.proteinPct >= 80 ? 'good' : i.proteinPct >= 50 ? 'ok' : 'low' });
+  else {
+    // 80 to 140 % is on track; far past the target is not "good", it is just a lot (a day of doubled-up meals).
+    const p = i.proteinPct;
+    const over = p > 140;
+    out.push({ label: `Protein ${Math.round(p)} %`, value: '', word: over ? 'well over' : p >= 80 ? 'on track' : p >= 50 ? 'a bit low' : 'low', level: over ? 'ok' : p >= 80 ? 'good' : p >= 50 ? 'ok' : 'low' });
+  }
   return out;
 }
 

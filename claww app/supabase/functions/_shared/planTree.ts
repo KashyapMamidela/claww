@@ -4,6 +4,7 @@
 // the app's setup screen run this one file.
 
 import type { Blueprint, BlueprintGoal, BlueprintPlace, BlueprintSlot } from './blueprints/schema.ts';
+import { SPLIT_LABELS, trainsOnceAWeek, type Split } from './blueprints/splits.ts';
 import { avoidsImpact, contraindicatedPatterns, isExerciseAllowed, type Injury } from './injuryRules.ts';
 
 // ─── Picking ──────────────────────────────────────────────────────────────
@@ -17,6 +18,32 @@ export interface PlanProfile {
   trainingMonths: number | null;
   sessionMinutes: number | null;
   injuries: Injury[];
+  /** How the week is cut up (full body, upper / lower, push / pull / legs, body part); null lets the days decide. */
+  split?: Split | null;
+  /** How hard the sessions are: easy has fewer sets and a bigger reserve, hard has one more set on the main lifts. */
+  intensity?: Intensity | null;
+}
+
+export type Intensity = 'easy' | 'standard' | 'hard';
+export const INTENSITIES: Intensity[] = ['easy', 'standard', 'hard'];
+
+/** profiles' stored style choice -> a split. 'auto' and anything unknown mean "let the days decide". */
+export function splitFromPreference(pref: unknown): Split | null {
+  switch (pref) {
+    case 'full_body': case 'FB': return 'FB';
+    case 'upper_lower': case 'UL': return 'UL';
+    case 'push_pull_legs': case 'PPL': return 'PPL';
+    case 'body_part': case 'BRO': return 'BRO';
+    default: return null;
+  }
+}
+
+/** The style a person gets when they have not picked one: the gentlest sensible week for their days. */
+export function defaultSplitFor(daysPerWeek: number): Split {
+  if (daysPerWeek <= 3) return 'FB';
+  if (daysPerWeek === 4) return 'UL';
+  if (daysPerWeek === 5) return 'BRO';
+  return 'UL';
 }
 
 export function goalToBlueprintGoal(goal: string | null | undefined): BlueprintGoal {
@@ -52,6 +79,7 @@ export function pickBlueprint(profile: PlanProfile, blueprints: Blueprint[]): Pi
   const place = equipmentToPlace(profile.equipment);
   const chain = PLACE_CHAIN[place];
   const months = profile.trainingMonths ?? 0;
+  const preferredSplit = profile.split ?? defaultSplitFor(profile.daysPerWeek);
 
   const score = (b: Blueprint): number => {
     const placeRank = chain.indexOf(b.place);
@@ -59,19 +87,23 @@ export function pickBlueprint(profile: PlanProfile, blueprints: Blueprint[]): Pi
     const goalCost = b.goal === goal ? 0 : b.goal === 'general' ? 100 : 200;
     const dayDiff = Math.abs(b.daysPerWeek - profile.daysPerWeek);
     const tooMany = b.daysPerWeek > profile.daysPerWeek ? 1 : 0; // on a tie, fewer days than asked beats more
-    const experiencePenalty = b.minMonths > months ? 1000 : 0;
-    return experiencePenalty + goalCost + placeRank * 400 + dayDiff * 10 + tooMany;
+    // A style the person picked themselves is honoured at any experience; the hand-written 5 and 6 day plans keep
+    // their gate when nobody asked for them.
+    const experiencePenalty = b.minMonths > months && !(profile.split && b.split === profile.split) ? 1000 : 0;
+    const splitCost = b.split === preferredSplit ? 0 : 60;
+    return experiencePenalty + goalCost + placeRank * 400 + splitCost + dayDiff * 10 + tooMany;
   };
 
   const ranked = [...blueprints].map((b) => ({ b, s: score(b) })).filter((x) => Number.isFinite(x.s)).sort((a, b) => a.s - b.s || a.b.id.localeCompare(b.b.id));
   const best = (ranked[0] ?? { b: blueprints[0] }).b;
-  const exact = best.goal === goal && best.place === place && best.daysPerWeek === profile.daysPerWeek && best.minMonths <= months;
+  const exact = best.goal === goal && best.place === place && best.daysPerWeek === profile.daysPerWeek && best.minMonths <= months && (!profile.split || best.split === profile.split);
   let note = 'Matches your goal, place and days.';
   if (!exact) {
     const parts: string[] = [];
     if (best.daysPerWeek !== profile.daysPerWeek) parts.push(`${best.daysPerWeek} days (nearest to ${profile.daysPerWeek})`);
     if (best.place !== place) parts.push(`a ${best.place === 'none' ? 'no-equipment' : best.place} version`);
     if (best.goal !== goal) parts.push(`a ${best.goal.replace('_', ' ')} plan`);
+    if (profile.split && best.split !== profile.split) parts.push(`${SPLIT_LABELS[best.split as Split] ?? best.split} (no ${SPLIT_LABELS[profile.split]} week for these days)`);
     note = parts.length > 0 ? `Nearest reviewed plan: ${parts.join(', ')}.` : 'Nearest reviewed plan for your experience.';
   }
   return { blueprint: best, exact, note };
@@ -112,6 +144,8 @@ export interface FilledPlan {
   dropped: DroppedSlot[];
   /** What was changed to make the plan pass the checks. */
   adjustments: string[];
+  /** Times a week each big muscle is trained by design: 1 for body-part weeks and 3-day push / pull / legs, else 2. */
+  weeklyFrequency?: 1 | 2;
 }
 
 export interface FillOptions {
@@ -211,7 +245,10 @@ export function fillBlueprint(blueprint: Blueprint, catalog: CatalogRow[], opts:
   // A session whose every slot was ruled out (for example a pull day with a severe elbow) is removed, not shown empty.
   const kept = days.filter((d) => d.slots.length > 0);
   const adjustments = days.filter((d) => d.slots.length === 0).map((d) => `${d.name} removed: nothing in it is safe for your injuries`);
-  return { blueprintId: blueprint.id, blueprintVersion: blueprint.version, days: kept, dropped, adjustments };
+  return {
+    blueprintId: blueprint.id, blueprintVersion: blueprint.version, days: kept, dropped, adjustments,
+    weeklyFrequency: trainsOnceAWeek(blueprint.split, blueprint.daysPerWeek) ? 1 : 2,
+  };
 }
 
 // ─── Checking ─────────────────────────────────────────────────────────────
@@ -308,7 +345,7 @@ export interface CheckResult {
   problems: string[];
 }
 
-export function checkPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMinutes' | 'injuries'>, goal: BlueprintGoal): CheckResult {
+export function checkPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMinutes' | 'injuries' | 'intensity'>, goal: BlueprintGoal): CheckResult {
   const problems: string[] = [];
   if (plan.days.length === 0 || plan.days.some((d) => d.slots.length === 0)) problems.push('A session has no exercises.');
   for (const d of plan.days) {
@@ -318,12 +355,17 @@ export function checkPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionM
   }
   const weekly = weeklyMuscleSets(plan);
   const excused = excusedMuscles(profile.injuries);
-  const bounds = WEEKLY_SETS[goal];
+  const base = WEEKLY_SETS[goal];
+  // An easy week is allowed to be lighter than the usual floor.
+  const bounds = profile.intensity === 'easy' ? { min: Math.floor(base.min * 0.7), max: base.max } : base;
+  const needed = plan.weeklyFrequency === 1 ? 1 : 2;
   for (const m of TWICE_A_WEEK) {
     if (excused.has(m)) continue;
     const w = weekly[m] ?? { sets: 0, days: 0 };
-    if (plan.days.length >= 2 && w.days < 2) problems.push(`${m} is trained ${w.days} time(s) a week, needs 2.`);
-    if (w.sets < bounds.min) problems.push(`${m} has ${w.sets} weekly sets, needs at least ${bounds.min}.`);
+    if (plan.days.length >= 2 && w.days < needed) problems.push(`${m} is trained ${w.days} time(s) a week, needs ${needed}.`);
+    // Glutes are worked as a helper (squats, lunges, hinges), so in a once-a-week plan their floor is lower.
+    const floor = m === 'glutes' && needed === 1 ? Math.floor(bounds.min * 0.7) : bounds.min;
+    if (w.sets < floor) problems.push(`${m} has ${w.sets} weekly sets, needs at least ${floor}.`);
     if (w.sets > bounds.max) problems.push(`${m} has ${w.sets} weekly sets, over ${bounds.max}.`);
   }
   return { ok: problems.length === 0, problems };
@@ -337,7 +379,7 @@ export function checkPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionM
  * 2. over the weekly set ceiling for a muscle: trim that muscle's accessory sets.
  * Never removes a main lift's only slot for a muscle that must be trained twice.
  */
-export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMinutes' | 'injuries'>, goal: BlueprintGoal): { plan: FilledPlan; check: CheckResult } {
+export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMinutes' | 'injuries' | 'intensity'>, goal: BlueprintGoal): { plan: FilledPlan; check: CheckResult } {
   const days = plan.days.map((d) => ({ ...d, slots: d.slots.map((s) => ({ ...s })) }));
   const dropped = [...plan.dropped];
   const adjustments = [...plan.adjustments];
@@ -395,10 +437,13 @@ export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMin
     const weekly = weeklyMuscleSets(fitted);
     const over = Object.entries(weekly).find(([m, w]) => TWICE_A_WEEK.includes(m) && w.sets > bounds.max);
     if (!over) break;
-    const target = [...fitted.days].reverse().flatMap((d) => [...d.slots].reverse()).find((s) => {
+    const touches = (s: FilledSlot) => {
       const m = PATTERN_MUSCLES[s.exercise.movement_pattern ?? s.pattern];
-      return s.role !== 'main' && s.sets > 2 && m && (m.primary === over[0] || m.secondary.includes(over[0]));
-    });
+      return !!m && (m.primary === over[0] || m.secondary.includes(over[0]));
+    };
+    const slotsBackToFront = [...fitted.days].reverse().flatMap((d) => [...d.slots].reverse());
+    // Accessories give up sets first; only when none can, a main lift loses one (never below 3 sets).
+    const target = slotsBackToFront.find((s) => s.role !== 'main' && s.sets > 2 && touches(s)) ?? slotsBackToFront.find((s) => s.role === 'main' && s.sets > 3 && touches(s));
     if (!target) break;
     target.sets -= 1;
     adjustments.push(`trimmed ${target.exercise.name} to ${target.sets} sets (${over[0]} volume)`);
@@ -406,6 +451,22 @@ export function fitPlan(plan: FilledPlan, profile: Pick<PlanProfile, 'sessionMin
   }
 
   return { plan: fitted, check: checkPlan(fitted, profile, goal) };
+}
+
+// ─── Intensity ────────────────────────────────────────────────────────────
+
+/**
+ * Easy, standard or hard, applied to the blueprint before any exercise is chosen. Easy takes about a fifth off the sets
+ * (never below 2) and leaves one more rep in reserve; hard adds one set to each main lift (never above 5) and leaves
+ * one fewer in reserve on them; standard changes nothing. Rest and rep ranges stay as the blueprint wrote them.
+ */
+export function applyIntensity(blueprint: Blueprint, intensity: Intensity | null | undefined): Blueprint {
+  if (!intensity || intensity === 'standard') return blueprint;
+  const slot = (s: BlueprintSlot): BlueprintSlot => {
+    if (intensity === 'easy') return { ...s, sets: Math.max(2, Math.round(s.sets * 0.8)), rir: Math.min(4, s.rir + 1) };
+    return s.role === 'main' ? { ...s, sets: Math.min(5, s.sets + 1), rir: Math.max(1, s.rir - 1) } : s;
+  };
+  return { ...blueprint, days: blueprint.days.map((d) => ({ ...d, slots: d.slots.map(slot) })) };
 }
 
 // ─── Blocks ───────────────────────────────────────────────────────────────

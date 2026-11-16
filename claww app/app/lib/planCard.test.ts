@@ -18,9 +18,20 @@ describe('planCard', () => {
     expect(planCard({ ...base, sessionMinutes: 75 }).minutes % 5).toBe(0);
   });
   it('says so when it is the nearest plan', () => {
-    const c = planCard({ ...base, daysPerWeek: 6, trainingMonths: 1 });
-    expect(c.days).toBeLessThan(6);
+    const c = planCard({ ...base, daysPerWeek: 6, trainingMonths: 1, split: 'BRO' });
+    expect(c.days).toBe(5);
+    expect(c.title).toMatch(/^Body-part split/);
     expect(c.nearest).toMatch(/Nearest/);
+  });
+  it('follows the chosen style and says so in the title', () => {
+    expect(planCard({ ...base, split: 'PPL', daysPerWeek: 6, trainingMonths: 0 }).title).toBe('Push / Pull / Legs · gym');
+    expect(planCard({ ...base, split: 'FB', daysPerWeek: 3 }).title).toBe('Full body · gym');
+    expect(planCard({ ...base, split: 'BRO', daysPerWeek: 5 }).title).toBe('Body-part split · gym');
+  });
+  it('an easy week is shorter than a hard one', () => {
+    const easy = planCard({ ...base, sessionMinutes: 90, intensity: 'easy' });
+    const hard = planCard({ ...base, sessionMinutes: 90, intensity: 'hard' });
+    expect(easy.minutes).toBeLessThan(hard.minutes);
   });
   it('strength and general goals map to their own plans', () => {
     expect(planCard({ ...base, goal: 'strength', daysPerWeek: 3 }).blueprintId).toBe('strength-gym-3d');

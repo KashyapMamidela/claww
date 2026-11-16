@@ -20,6 +20,17 @@ describe('makeFreeWeekday', () => {
   it('returns null when the week is full', () => {
     expect(makeFreeWeekday(['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])('Monday')).toBeNull();
   });
+  it('only looks forward: never wraps into the next week or lands before the missed day', () => {
+    // Missed Saturday, Sunday taken: nothing later is free, so no move (it used to wrap round to Monday).
+    expect(makeFreeWeekday(['Monday', 'Saturday', 'Sunday'])('Saturday')).toBeNull();
+    expect(makeFreeWeekday(['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])('Tuesday')).toBeNull();
+  });
+  it('never picks today or a day already gone', () => {
+    // Missed Monday, today is Wednesday (index 2): the first free day is Thursday.
+    expect(makeFreeWeekday(['Monday', 'Friday'], 2)('Monday')).toBe('Thursday');
+    // Today is Friday and only Saturday and Sunday are later; Saturday is taken.
+    expect(makeFreeWeekday(['Monday', 'Saturday'], 4)('Monday')).toBe('Sunday');
+  });
   it('returns null for a label that is not a weekday', () => {
     expect(makeFreeWeekday(['Day 1'])('Day 1')).toBeNull();
   });

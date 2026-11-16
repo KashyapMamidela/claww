@@ -34,18 +34,26 @@ export const DIET_OPTIONS: { value: Diet; label: string }[] = [
   { value: 'jain', label: 'Jain' },
 ];
 
-export type FoodKey = 'eggs' | 'paneer' | 'chicken' | 'soya' | 'dal' | 'curd' | 'milk' | 'peanuts' | 'banana' | 'sprouts' | 'oats' | 'whey';
+export type FoodKey =
+  | 'eggs' | 'paneer' | 'chicken' | 'soya' | 'dal' | 'curd' | 'milk' | 'peanuts' | 'banana' | 'sprouts' | 'oats' | 'whey'
+  // Added with the card deck: more protein, the staples a meal is built on, and fresh food.
+  | 'tofu' | 'rajma' | 'chana' | 'fish' | 'mutton' | 'besan' | 'buttermilk' | 'nuts' | 'makhana'
+  | 'roti' | 'rice' | 'millets' | 'poha' | 'idli_dosa' | 'bread' | 'greens' | 'fruit';
 
 export interface FoodRow {
   key: FoodKey;
   title: string;
   sub: string;
-  group: 'protein' | 'everyday';
+  group: FoodGroup;
 }
+
+/** protein: what carries the day's protein; everyday: dairy, snacks and quick foods; staple: what a meal is built on; fresh: vegetables and fruit. */
+export type FoodGroup = 'protein' | 'everyday' | 'staple' | 'fresh';
+export const GROUP_TITLES: Record<FoodGroup, string> = { protein: 'PROTEIN', everyday: 'EVERYDAY', staple: 'STAPLES', fresh: 'FRESH' };
 
 export const FOOD_ROWS: FoodRow[] = [
   { key: 'eggs', title: 'Eggs', sub: '6 g protein each', group: 'protein' },
-  { key: 'paneer', title: 'Paneer', sub: 'or tofu', group: 'protein' },
+  { key: 'paneer', title: 'Paneer', sub: '18 g protein per 100 g', group: 'protein' },
   { key: 'chicken', title: 'Chicken', sub: 'mess, home or outside', group: 'protein' },
   { key: 'soya', title: 'Soya chunks', sub: 'cheap, very high protein', group: 'protein' },
   { key: 'dal', title: 'Dal and chana', sub: 'any lentils', group: 'protein' },
@@ -55,7 +63,24 @@ export const FOOD_ROWS: FoodRow[] = [
   { key: 'banana', title: 'Banana', sub: 'quick energy', group: 'everyday' },
   { key: 'sprouts', title: 'Sprouts', sub: 'moong, chana', group: 'everyday' },
   { key: 'oats', title: 'Oats', sub: 'with a kettle', group: 'everyday' },
-  { key: 'whey', title: 'Whey protein', sub: 'optional', group: 'everyday' },
+  { key: 'whey', title: 'Whey protein', sub: 'optional; food comes first', group: 'everyday' },
+  { key: 'tofu', title: 'Tofu', sub: '10 g protein per 100 g, low fat', group: 'protein' },
+  { key: 'rajma', title: 'Rajma', sub: 'kidney beans, 15 g a cup', group: 'protein' },
+  { key: 'chana', title: 'Chole and kala chana', sub: 'chickpeas, 14 g a cup', group: 'protein' },
+  { key: 'fish', title: 'Fish and prawns', sub: 'rohu, sardine, tilapia', group: 'protein' },
+  { key: 'mutton', title: 'Mutton and keema', sub: 'a few times a month', group: 'protein' },
+  { key: 'besan', title: 'Besan chilla', sub: 'gram flour, 6 g per quarter cup', group: 'protein' },
+  { key: 'buttermilk', title: 'Buttermilk (chaas)', sub: 'light, with meals', group: 'everyday' },
+  { key: 'nuts', title: 'Almonds and walnuts', sub: 'a handful, 6 g protein', group: 'everyday' },
+  { key: 'makhana', title: 'Makhana', sub: 'roasted fox nuts', group: 'everyday' },
+  { key: 'roti', title: 'Roti and atta', sub: 'whole wheat', group: 'staple' },
+  { key: 'rice', title: 'Rice', sub: 'white or brown', group: 'staple' },
+  { key: 'millets', title: 'Ragi, bajra, jowar', sub: 'millets: ICMR says 30 to 40 percent of cereals', group: 'staple' },
+  { key: 'poha', title: 'Poha and upma', sub: 'quick breakfasts', group: 'staple' },
+  { key: 'idli_dosa', title: 'Idli and dosa', sub: 'fermented batter', group: 'staple' },
+  { key: 'bread', title: 'Bread', sub: 'whole wheat if you can', group: 'staple' },
+  { key: 'greens', title: 'Leafy greens', sub: 'palak, methi, amaranth', group: 'fresh' },
+  { key: 'fruit', title: 'Seasonal fruit', sub: 'ICMR: whole fruit beats juice', group: 'fresh' },
 ];
 
 export type AvailabilityMap = Record<FoodKey, Availability>;
@@ -63,11 +88,13 @@ export type AvailabilityMap = Record<FoodKey, Availability>;
 /** Foods that do not apply to a diet are not shown (and count as "no"): vegetarians never see eggs or chicken. */
 export function visibleFoods(diet: Diet | null): FoodKey[] {
   const hidden = new Set<FoodKey>();
+  const MEAT: FoodKey[] = ['chicken', 'fish', 'mutton'];
   if (diet === 'veg' || diet === 'vegan' || diet === 'jain') {
     hidden.add('eggs');
-    hidden.add('chicken');
+    for (const k of MEAT) hidden.add(k);
   }
-  if (diet === 'egg') hidden.add('chicken');
+  if (diet === 'egg') for (const k of MEAT) hidden.add(k);
+  if (diet === 'vegan') hidden.add('buttermilk');
   return FOOD_ROWS.map((r) => r.key).filter((k) => !hidden.has(k));
 }
 
@@ -116,6 +143,37 @@ export function defaultAvailability(sources: Source[], cook: Cook[], diet: Diet 
         return cooksAtHome && canHeat(cook) ? 'yes' : has('pg_tiffin') && canHeat(cook) ? 'sometimes' : 'no';
       case 'whey':
         return 'no';
+      case 'tofu':
+        return vegan ? 'sometimes' : cooksAtHome && canHeat(cook) ? 'sometimes' : 'no';
+      case 'rajma':
+      case 'chana':
+        // Home kitchens make them weekly; a mess serves them now and then; eating out is the odd chole.
+        return cooksAtHome && canHeat(cook) ? 'yes' : fixedMeals || has('outside') ? 'sometimes' : 'no';
+      case 'fish':
+        return fixedMeals || has('outside') || (cooksAtHome && (has('home') || hasStove(cook))) ? 'sometimes' : 'no';
+      case 'mutton':
+        return has('outside') || (cooksAtHome && (has('home') || hasStove(cook))) ? 'sometimes' : 'no';
+      case 'besan':
+        return cooksAtHome && canHeat(cook) ? 'yes' : 'no';
+      case 'buttermilk':
+        return vegan ? 'no' : has('home') || has('mess') ? 'yes' : any ? 'sometimes' : 'no';
+      case 'nuts':
+      case 'makhana':
+        return any ? 'sometimes' : 'no';
+      case 'roti':
+      case 'rice':
+      case 'bread':
+        return any ? 'yes' : 'no';
+      case 'millets':
+        return cooksAtHome && has('home') ? 'sometimes' : 'no';
+      case 'poha':
+        return cooksAtHome && canHeat(cook) ? 'yes' : fixedMeals || has('outside') ? 'sometimes' : 'no';
+      case 'idli_dosa':
+        return has('home') ? 'yes' : fixedMeals || has('outside') ? 'sometimes' : 'no';
+      case 'greens':
+        return has('home') || has('mess') || has('self_cook') ? 'yes' : any ? 'sometimes' : 'no';
+      case 'fruit':
+        return has('home') || has('self_cook') ? 'yes' : any ? 'sometimes' : 'no';
     }
   };
 
@@ -135,7 +193,7 @@ export function proteinVerdict(map: AvailabilityMap, diet: Diet | null): string 
   const protein = visibleFoods(diet).filter((k) => FOOD_ROWS.find((r) => r.key === k)?.group === 'protein');
   const c = countAvailability(map, protein);
   const good = c.yes + c.sometimes * 0.5;
-  return good >= 3.5 ? 'Plenty of protein options' : good >= 2 ? 'A few protein options' : 'Few protein options';
+  return good >= 4.5 ? 'Plenty of protein options' : good >= 2.5 ? 'A few protein options' : 'Few protein options';
 }
 
 /** Merge what the user fixed by hand over fresh defaults, so changing step 1 never undoes a correction. */

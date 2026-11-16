@@ -116,6 +116,15 @@ describe('deload after two failed sessions in a row', () => {
     expect(second.state.next.weightKg).toBe(92.5);
     expect(second.state.failureStreak).toBe(0);
   });
+  it('a light weight still comes down: 5% rounding back to the same number steps down one notch', () => {
+    let s = base({ next: { weightKg: 17.5, repTarget: 8, sets: 3 } });
+    s = evaluateSession(s, session(s, [5, 5, 5]), barbell).state;
+    const before = s.next.weightKg as number;
+    const second = evaluateSession(s, session(s, [5, 5, 5]), barbell);
+    expect(second.commands).toEqual(['DELOAD']);
+    expect(second.state.next.weightKg as number).toBeLessThan(before);
+    expect(second.reason).not.toMatch(/(\d+(?:\.\d+)?) kg to  kg/);
+  });
   it('a good session in between resets the failure count', () => {
     let s = base();
     s = evaluateSession(s, session(s, [5, 5, 5]), barbell).state;

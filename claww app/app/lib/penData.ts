@@ -301,7 +301,7 @@ export async function syncPenMarks(userId: string, force = false): Promise<PenMa
       if (!pick) return null;
       return { fromId: current.templateId, fromName: current.name, fromKcal: current.kcal, fromFactor: current.factor, toId: pick.templateId, toName: pick.name, toKcal: pick.kcal, toFactor: pick.factor };
     },
-    freeWeekday: makeFreeWeekday(labels),
+    freeWeekday: makeFreeWeekday(labels, localWeekday(now)),
   };
 
   const candidates = applyRules(findings, ctx).map(({ finding: _f, ...m }) => m);

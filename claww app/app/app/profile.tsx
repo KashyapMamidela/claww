@@ -29,6 +29,7 @@ import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
 import { PrivacyDataModal } from '../components/PrivacyDataModal';
 import { openStoreListing, openSupportEmail } from '../lib/support';
+import { StatusBarShield } from '../components/ui/StatusBarShield';
 
 const P = COLORS.amber;
 
@@ -176,6 +177,7 @@ export default function ProfileScreen() {
   }
 
   return (
+    <>
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
@@ -399,5 +401,7 @@ export default function ProfileScreen() {
         onDelete={() => setDeleteModalVisible(true)}
       />
     </ScrollView>
+    <StatusBarShield color="#050505" />
+    </>
   );
 }

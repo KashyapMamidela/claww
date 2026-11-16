@@ -47,3 +47,22 @@ format in `schema.ts`.
 Gaps the trainer should know about: the catalog has few isolation exercises for gym users (no lateral raises or
 flyes yet), one biceps curl and one triceps extension, and no cardio slots. Add exercises to the catalog first, then
 add slots here.
+
+## Training styles (splits.ts)
+
+Besides the JSON files above, `splits.ts` writes the same weeks for four styles the user can choose in setup: Full body
+(2 to 4 days), Upper / Lower (4 and 6), Push / Pull / Legs (3 and 6) and Body-part split (4 and 5: chest, back, shoulders,
+legs, arms). Each style is written once as a list of days and slots (`SPLITS`), and expanded for every goal and place with
+the sets, reps, reps in reserve and rest in `GOAL_PARAMS`, which copy the numbers the reviewed JSON files use for each goal.
+So the trainer reviews one template per style plus that table, not 80 files. All are `reviewed: false` and `minMonths: 0`:
+a person who picks a style gets it at any experience.
+
+Body-part weeks, and the 3-day push / pull / legs week, train each muscle once a week by design; the twice-a-week check is
+not applied to them (and glutes, which are only a helper in those weeks, have a lower floor).
+
+**Comfort level.** Easy, Standard and Hard (`applyIntensity` in `planTree.ts`): Easy takes about a fifth off every slot's sets
+(never below 2) and adds one rep in reserve; Hard adds one set to each main lift (never above 5) and takes one rep off the
+reserve; Standard changes nothing. An easy week may sit under the usual weekly-sets floor (70 % of it).
+
+**Default style** when nobody chose one (`defaultSplitFor`): 2 or 3 days full body, 4 days upper / lower, 5 days body-part,
+6 days upper / lower. Push / Pull / Legs is only given when it is picked.

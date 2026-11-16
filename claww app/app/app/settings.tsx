@@ -10,7 +10,7 @@ import { COLORS, FONT, BG, bg, SWITCH_TRACK } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getGenerationUsageToday, getProfile, saveReminderSettings, saveScanTraining, setNotificationsEnabled } from '../lib/data';
 import { GENERATION_CAPS } from '../lib/generationCaps';
-import { cancelAllReminders, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
+import { cancelAllReminders, hasNotificationPermission, notificationsSupported, requestNotificationPermission, scheduleTestReminder } from '../lib/notifications';
 import { SHOW_DEV_TOOLS } from '../lib/devTools';
 import { useScanQuestionPrefs } from '../lib/scanQuestionPrefs';
 import { getPerfReport, PERF_ENABLED, resetPerfReport, type PerfReport } from '../lib/perf';
@@ -19,6 +19,7 @@ import { DEFAULT_REMINDER_SETTINGS, normalizeReminderSettings, type ReminderSett
 import { ReminderSettingsCard } from '../components/ReminderSettingsCard';
 import { Icon } from '../components/ui/Icon';
 import { Badge } from '../components/ui/Badge';
+import { StatusBarShield } from '../components/ui/StatusBarShield';
 
 const P = '#A1A1AA';
 
@@ -46,10 +47,13 @@ export default function SettingsScreen() {
     useCallback(() => {
       if (!userId) return;
       let cancelled = false;
-      Promise.all([getGenerationUsageToday(userId), getProfile(userId)]).then(([u, profile]) => {
+      Promise.all([getGenerationUsageToday(userId), getProfile(userId), hasNotificationPermission().catch(() => false)]).then(([u, profile, granted]) => {
         if (cancelled) return;
         setUsage(u);
-        setNotificationsOn(profile?.notifications_enabled ?? false);
+        // The switch tells the truth: "on" in the account but blocked in the phone's settings means no reminder can arrive.
+        const wanted = profile?.notifications_enabled ?? false;
+        setNotificationsOn(wanted && granted);
+        setPermissionDenied(wanted && !granted);
         setScanTrainingOn(!!profile?.personalization_profile?.scanTraining);
         setReminderSettings(normalizeReminderSettings(profile?.personalization_profile?.reminders));
       });
@@ -94,6 +98,7 @@ export default function SettingsScreen() {
   ];
 
   return (
+    <>
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
@@ -253,6 +258,8 @@ export default function SettingsScreen() {
 
       </View>
     </ScrollView>
+    <StatusBarShield color="#050505" />
+    </>
   );
 }
 

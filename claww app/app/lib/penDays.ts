@@ -7,15 +7,17 @@ import { WEEKDAY_NAMES, weekdayIndex } from './trainingWeek';
 /**
  * A picker of free weekdays for a plan on real weekdays. Each call returns the first weekday after the missed one that
  * no session uses, then reserves it (and the missed one), so a second call in the same run can never pick it again.
- * null when the week is full.
+ * It looks only forward in this week: never earlier than the missed day, never today or a day already gone (`todayIdx`,
+ * Monday 0), and never wrapping into the next week, so a missed Tuesday can't be "moved" to a Monday that has passed.
+ * null when no later day is free.
  */
-export function makeFreeWeekday(labels: string[]): (missed: string) => string | null {
+export function makeFreeWeekday(labels: string[], todayIdx: number | null = null): (missed: string) => string | null {
   const used = new Set<number | null>(labels.map((l) => weekdayIndex(l)));
   return (missed) => {
     const from = weekdayIndex(missed);
     if (from === null) return null;
-    for (let step = 1; step <= 6; step++) {
-      const idx = (from + step) % 7;
+    const first = Math.max(from, todayIdx ?? -1) + 1;
+    for (let idx = first; idx <= 6; idx++) {
       if (!used.has(idx)) {
         used.add(idx);
         used.add(from);

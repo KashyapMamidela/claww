@@ -11,7 +11,7 @@
 
 import type { Blueprint, BlueprintPlace } from './blueprints/schema.ts';
 import {
-  applyBlockWeek, applyRegenerationReason, fillBlueprint, fitPlan, hash, pickBlueprint, toPlan,
+  applyBlockWeek, applyIntensity, applyRegenerationReason, fillBlueprint, fitPlan, hash, pickBlueprint, toPlan,
   type CatalogRow, type PlanExerciseOut, type PlanOut, type PlanProfile,
 } from './planTree.ts';
 import { isExerciseAllowed, type Injury } from './injuryRules.ts';
@@ -157,7 +157,7 @@ export function buildStyledPlan(input: StyledInput): StyledResult {
     const place = PLACE_OF[style];
     const groupProfile: PlanProfile = { ...profile, equipment: place, daysPerWeek: Math.max(2, count) };
     const picked = pickBlueprint(groupProfile, blueprints);
-    const filled = fillBlueprint(picked.blueprint, catalog, {
+    const filled = fillBlueprint(applyIntensity(picked.blueprint, groupProfile.intensity), catalog, {
       seed: `${input.seed}|${style}`,
       allowedEquipment: TIERS[place],
       injuries: profile.injuries,

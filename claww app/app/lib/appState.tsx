@@ -189,16 +189,17 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const logSleep = useCallback(
     async (hours: number, bedtime: Date, wakeTime: Date) => {
       if (!userId) return;
-      const ok = await insertSleepLog(userId, hours, bedtime, wakeTime);
+      const firstOfTheDay = !todaySleep;
+      const ok = await insertSleepLog(userId, hours, bedtime, wakeTime, firstOfTheDay);
       if (ok) {
         setSleepLogged(true);
         setTodaySleep({ hours, bedtime: bedtime.toISOString(), wake_time: wakeTime.toISOString(), logged_at: new Date().toISOString() });
         setRecovery(await getRecoveryScore(userId));
-        bumpXp(10); // matches awardXp(userId, 10, 'sleep_logged') in insertSleepLog
+        if (firstOfTheDay) bumpXp(10); // matches awardXp(userId, 10, 'sleep_logged') in insertSleepLog; a correction earns none
         refreshReminders(userId).catch(() => {}); // drops today's sleep reminder
       }
     },
-    [userId, bumpXp]
+    [userId, bumpXp, todaySleep]
   );
 
   const estimateMealText = useCallback(

@@ -36,6 +36,7 @@ import { BottomSheet } from '../../components/ui/BottomSheet';
 import { ensureMealPlans, onMealPlansReset, replanToday, swapChoices, applySwap, type StoredPlan } from '../../lib/mealPlanData';
 import { planLine, slotLabel, slotViews, type MealSlot } from '../../lib/mealPlanView';
 import { SKIPPED } from '../../lib/catchUp';
+import { CardCarousel } from '../../components/ui/CardCarousel';
 import { itemsText, plannedToMeal } from '../../lib/mealPlanMeal';
 import type { PlannedMeal } from '../../lib/engine';
 
@@ -166,9 +167,19 @@ export default function NutritionTab() {
     });
   }, [sorted, goals.kcal, goals.protein]);
 
+  // One tap, one meal: a second tap while the first is saving is ignored (a ref, so it holds before the next render).
+  const loggingUsual = useRef(false);
   const logUsual = async (u: Usual) => {
+    if (loggingUsual.current) return;
+    loggingUsual.current = true;
     const type = (u.mealType as MealType | null) ?? upNext ?? 'Snack';
-    const row = await saveMeal(type, { description: u.label, calories: u.kcal, protein_g: u.protein, carbs_g: u.carbs, fats_g: u.fats, planStatus: 'extra' });
+    let row: MealLogRow | null = null;
+    try {
+      row = await saveMeal(type, { description: u.label, calories: u.kcal, protein_g: u.protein, carbs_g: u.carbs, fats_g: u.fats, planStatus: 'extra' });
+    } finally {
+      // Held a moment past the save: the same chip is not re-logged by an echo of the same tap.
+      setTimeout(() => { loggingUsual.current = false; }, 600);
+    }
     if (!row) return;
     replanToday(userId!, [...meals, row]).then((p) => p && setPlan(p));
     toast.show({ message: `Logged ${u.label}`, actionLabel: 'Undo', onAction: () => { removeMeal(row.id); } });
@@ -192,6 +203,11 @@ export default function NutritionTab() {
   const claimed = new Set(slots.map((v) => v.logged?.id).filter(Boolean) as string[]);
   const extras = meals.filter((m) => !claimed.has(m.id) && m.plan_status !== 'skipped');
   const [showMissed, setShowMissed] = useState(false);
+  // The day's meals as a deck you browse (swipe up for the next meal, down for the one before) or as the plain list.
+  const [mealView, setMealView] = useState<'deck' | 'list'>('deck');
+  const [deckPick, setDeckPick] = useState<number | null>(null);
+  // While a finger is on the meal deck the page does not scroll, so a swipe on the deck is never a scroll.
+  const [deckTouched, setDeckTouched] = useState(false);
 
   const ateAsPlanned = async (m: PlannedMeal) => {
     if (logging) return;
@@ -270,7 +286,7 @@ export default function NutritionTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
-      <ScrollView {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false}>
+      <ScrollView {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false} scrollEnabled={!deckTouched}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -353,7 +369,7 @@ export default function NutritionTab() {
                     { label: 'Fat', cur: fats, goal: goals.fats, color: MACRO.fat },
                   ].map((m) => (
                     <View key={m.label}>
-                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 12, marginBottom: 5 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                           <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: m.color, boxShadow: `0px 0px 6px ${m.color}` } as object} />
                           <Text style={{ color: COLORS.textMuted, fontSize: 15, fontFamily: BG[400] }}>{m.label}</Text>
@@ -444,10 +460,11 @@ export default function NutritionTab() {
               <Text key={n} style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>{n}</Text>
             ))}
 
-            {slots.map((v) => {
+            {(() => {
+            const renderSlot = (v: (typeof slots)[number], open = false) => {
               const label = slotLabel(v.slot);
               // Meals you have not logged fold into one row until you open them (each is a tall card with three buttons).
-              if (v.state === 'missed' && !showMissed) {
+              if (v.state === 'missed' && !showMissed && !open) {
                 if (v.slot !== missedSlots[0]?.slot) return null;
                 return (
                   <PressScale key="missed-fold" onPress={() => setShowMissed(true)} accessibilityRole="button" accessibilityLabel={`${missedSlots.length} meals not logged. Open them.`}>
@@ -598,7 +615,43 @@ export default function NutritionTab() {
                   <SlotPenMark marks={penMarks.marks} slot={v.slot} onDecide={penMarks.decide} />
                 </View>
               );
-            })}
+            };
+            const upIdx = Math.max(0, slots.findIndex((x) => x.state === 'up_next'));
+            const deckIdx = Math.min(slots.length - 1, deckPick ?? upIdx);
+            if (mealView === 'deck' && plan && slots.length > 1) {
+              return (
+                <View style={{ gap: 12 }}>
+                  <CardCarousel items={slots} keyOf={(x) => x.slot} index={deckIdx} onIndexChange={setDeckPick} onTouching={setDeckTouched} renderCard={(x) => renderSlot(x, true)} />
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                    {slots.map((x, i) => (
+                      <PressScale key={x.slot} onPress={() => setDeckPick(i)} accessibilityRole="button" accessibilityLabel={`${slotLabel(x.slot)}${i === deckIdx ? ', showing' : ''}`}>
+                        <View style={{ minHeight: 36, paddingHorizontal: 14, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: i === deckIdx ? 'rgba(34,197,94,0.22)' : 'rgba(255,255,255,0.06)', borderWidth: 1, borderColor: i === deckIdx ? COLORS.greenBorderMd : COLORS.border }}>
+                          <Text style={{ color: i === deckIdx ? G : COLORS.textMuted, fontSize: 13, fontFamily: BG[700] }}>{slotLabel(x.slot)}</Text>
+                        </View>
+                      </PressScale>
+                    ))}
+                    <PressScale onPress={() => setMealView('list')} accessibilityRole="button" accessibilityLabel="Show the meals as a list">
+                      <View style={{ minHeight: 36, paddingHorizontal: 12, justifyContent: 'center' }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>List</Text>
+                      </View>
+                    </PressScale>
+                  </View>
+                </View>
+              );
+            }
+            return (
+              <>
+                {plan && slots.length > 1 ? (
+                  <PressScale onPress={() => setMealView('deck')} accessibilityRole="button" accessibilityLabel="Show the meals as cards" style={{ alignSelf: 'flex-end' }}>
+                    <View style={{ minHeight: 36, paddingHorizontal: 4, justifyContent: 'center' }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>Cards</Text>
+                    </View>
+                  </PressScale>
+                ) : null}
+                {slots.map((x) => renderSlot(x))}
+              </>
+            );
+            })()}
             {!plan && targetsLoaded && planLoaded ? (
               <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 18, fontFamily: BG[400] }}>
                 Finish "Set up your meals" and your three meals a day are planned from what you can get.

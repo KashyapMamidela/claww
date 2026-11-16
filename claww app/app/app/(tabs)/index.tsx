@@ -807,7 +807,7 @@ function HomePopulated() {
 
       <WaterRow userId={userId} />
 
-      {todaySleep ? null : <SleepRow />}
+      <SleepRow />
       <SleepLogModal visible={sleepOpen} onClose={() => setSleepOpen(false)} />
 
       <FoodSearchSheet

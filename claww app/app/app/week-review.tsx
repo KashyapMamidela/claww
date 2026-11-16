@@ -13,7 +13,7 @@ import { useAppState } from '../lib/appState';
 import { getLatestWorkout, getMealLogsBetween, getProfile, getWorkoutDayEvents } from '../lib/data';
 import { BLOCK_WEEKS, reviewCounts, type PenMark } from '../lib/engine';
 import { usePenMarks } from '../lib/usePenMarks';
-import { dateLine, isClimb, marksForReview, reviewLine, weekStart, type WeekFacts } from '../lib/weekReview';
+import { dateLine, isClimb, marksForReview, reviewLine, sessionsDoneThisWeek, weekStart, type WeekFacts } from '../lib/weekReview';
 import { Hero } from '../components/ui/Hero';
 import { LetterCard } from '../components/LetterCard';
 import { letterChanges, letterFileName, letterNumbers } from '../lib/letter';
@@ -24,6 +24,7 @@ import { Skeleton } from '../components/ui/Skeleton';
 import { Surface } from '../components/ui/Surface';
 import { Rise } from '../components/ui/Rise';
 import { Display } from '../components/ui/Typography';
+import { StatusBarShield } from '../components/ui/StatusBarShield';
 
 // NG PHASE 11.5 (screen 03): "Your week, marked up". The week in one line with kept / undone counts, the workout and
 // nutrition marks each with a Keep / Undo control, a short footnote and "Start week n". Undo puts the old plan back for
@@ -105,7 +106,7 @@ export default function WeekReviewScreen() {
         setBlockWeek(workout?.block_week ?? null);
         setPlanDays(workout?.plan.days ?? []);
         setFacts({
-          sessionsDone: events.filter((e) => e.status === 'completed' && new Date(e.createdAt) >= start).length,
+          sessionsDone: sessionsDoneThisWeek(events, start, workout?.plan.days.length ?? 0),
           sessionsPlanned: workout?.plan.days.length ?? 0,
           proteinDays: proteinTarget > 0 ? [...perDay.values()].filter((p) => p >= proteinTarget * 0.9).length : 0,
           mealDays: perDay.size,
@@ -146,6 +147,7 @@ export default function WeekReviewScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: COLORS.bg }}>
+      <StatusBarShield />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop: insets.top + 12, paddingHorizontal: 16, paddingBottom: insets.bottom + 40, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
           <BackTile onPress={() => router.back()} />

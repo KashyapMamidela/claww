@@ -1118,5 +1118,368 @@
       }
     ],
     "reviewed": false
+  },
+  {
+    "id": "dinner-41",
+    "meal": "dinner",
+    "name": "Ragi mudde, sambar and sundal",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Ragi mudde",
+        "qty": 1
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      },
+      {
+        "food": "Sundal, chana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-42",
+    "meal": "dinner",
+    "name": "Jowar roti, moong dal and mixed vegetable curry",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Jowar roti",
+        "qty": 2
+      },
+      {
+        "food": "Moong dal",
+        "qty": 1
+      },
+      {
+        "food": "Mixed vegetable curry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-43",
+    "meal": "dinner",
+    "name": "Roti, palak paneer and dal tadka",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Palak paneer",
+        "qty": 1
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-44",
+    "meal": "dinner",
+    "name": "Roti, palak paneer and dal tadka (eating out)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Palak paneer",
+        "qty": 1
+      },
+      {
+        "food": "Dal tadka",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-45",
+    "meal": "dinner",
+    "name": "Besan chilla, raita and papaya",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Besan chilla",
+        "qty": 2
+      },
+      {
+        "food": "Raita",
+        "qty": 1
+      },
+      {
+        "food": "Papaya",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-46",
+    "meal": "dinner",
+    "name": "Vegetable kurma, 2 roti and curd",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Vegetable kurma",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-47",
+    "meal": "dinner",
+    "name": "Vegetable kurma, 2 roti and curd (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Vegetable kurma",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-48",
+    "meal": "dinner",
+    "name": "Vegetable kurma, 2 roti and curd (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Vegetable kurma",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-49",
+    "meal": "dinner",
+    "name": "Lobia curry, 2 roti and cucumber",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Lobia curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-50",
+    "meal": "dinner",
+    "name": "Lobia curry, 2 roti and cucumber (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Lobia curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Cucumber",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-51",
+    "meal": "dinner",
+    "name": "Tofu, 2 roti and dal fry",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Tofu, firm",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Dal fry",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-52",
+    "meal": "dinner",
+    "name": "Sprouts curry, 2 roti and curd",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Sprouts curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "dinner-53",
+    "meal": "dinner",
+    "name": "Sprouts curry, 2 roti and curd (mess or tiffin)",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Sprouts curry",
+        "qty": 1
+      },
+      {
+        "food": "Roti",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
   }
 ]

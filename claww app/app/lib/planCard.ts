@@ -1,7 +1,7 @@
 // NG PHASE 5.5: the "Your plan" card on the setup screen. It runs the same pickBlueprint as generate-plan
 // on the same inputs, so the card and the plan that gets generated always agree.
 
-import { BLOCK_WEEKS, BLUEPRINTS, blueprintDayMinutes, distributeStyleDays, needsStyledPlan, pickBlueprint, type PickResult, type PlanProfile, type TrainStyle } from './engine';
+import { BLOCK_WEEKS, BLUEPRINTS, applyIntensity, blueprintDayMinutes, distributeStyleDays, needsStyledPlan, pickBlueprint, type Intensity, type PickResult, type PlanProfile, type Split, type TrainStyle } from './engine';
 
 export interface PlanCardInput {
   goal: string | null;
@@ -12,6 +12,10 @@ export interface PlanCardInput {
   injuries: PlanProfile['injuries'];
   /** Polish step 2/3: how the user likes to train, first = main. A mixed week is described by its styles. */
   styles?: TrainStyle[];
+  /** How the week is cut up; null or absent lets the days decide. */
+  split?: Split | null;
+  /** Easy, standard or hard; sessions get shorter or longer with it. */
+  intensity?: Intensity | null;
 }
 
 export interface PlanCard {
@@ -32,6 +36,7 @@ const SPLIT_TITLES: Record<string, string> = {
   FB: 'Full body',
   UL: 'Upper / Lower',
   PPL: 'Push / Pull / Legs',
+  BRO: 'Body-part split',
   PPLUL: 'Push / Pull / Legs + Upper / Lower',
 };
 
@@ -52,7 +57,7 @@ export function planCard(input: PlanCardInput): PlanCard {
   const { styles, ...rest } = input;
   const profile: PlanProfile = { ...rest };
   const pick: PickResult = pickBlueprint(profile, BLUEPRINTS);
-  const bp = pick.blueprint;
+  const bp = applyIntensity(pick.blueprint, input.intensity);
   const longest = Math.max(...bp.days.map(blueprintDayMinutes));
   const minutes = input.sessionMinutes ? Math.min(longest, input.sessionMinutes) : longest;
   const mains = bp.days.flatMap((d) => d.slots.filter((s) => s.role === 'main'));
@@ -70,7 +75,7 @@ export function planCard(input: PlanCardInput): PlanCard {
     };
   }
   return {
-    blueprintId: bp.id,
+    blueprintId: pick.blueprint.id,
     title: `${SPLIT_TITLES[bp.split] ?? bp.title} · ${PLACE_TITLES[bp.place] ?? bp.place}`,
     days: bp.daysPerWeek,
     weeks: BLOCK_WEEKS,

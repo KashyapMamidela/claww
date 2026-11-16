@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { sessionName } from '../../lib/format';
 import { EndWorkoutSheet } from './EndWorkoutSheet';
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native';
+import { Dimensions, Modal, Pressable, ScrollView, Text, View } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
-import Animated, { Easing, Keyframe, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, Keyframe, useAnimatedStyle, useReducedMotion, useSharedValue, withSpring, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 import { AREA_COLORS, COLORS, FONT, FONT_HAND, SURFACES, BG, bg } from '../../lib/theme';
 import { useWorkoutSession } from '../../lib/workoutSession';
@@ -23,11 +23,13 @@ import {
   tickTap,
 } from '../../lib/sessionPlan';
 import { markSetTap, useRenderCount, useSetLatency } from '../../lib/perf';
-import { setDone } from '../../lib/haptics';
+import { setDone, warning } from '../../lib/haptics';
+import { dialTouching } from '../../lib/dialTouch';
 import { useAppState } from '../../lib/appState';
 import { useProfile } from '../../lib/profile';
 import { Icon } from '../ui/Icon';
 import { PressScale } from '../ui/PressScale';
+import { CardCarousel } from '../ui/CardCarousel';
 import { Button } from '../ui/Button';
 import { BottomSheet } from '../ui/BottomSheet';
 import { Stepper } from '../ui/Stepper';
@@ -45,6 +47,7 @@ import { RestSheet } from './RestView';
 import { FormStrip } from './FormStrip';
 import { ExerciseGuideSheet } from '../ExerciseGuideSheet';
 import { ValuePickerSheet, type PickerKind } from './ValuePickerSheet';
+import { setsLabel } from '../../lib/plural';
 
 // The live player, v3 layout (NG PHASE 3.1, screen 07). Ticking the current set's row logs it
 // exactly as planned; the bottom sheet's steppers change the current set first, then Done
@@ -75,7 +78,18 @@ export interface FullPlayerProps {
   /** Show the start intro over the player; the clock starts when it ends. */
   intro?: boolean;
   onIntroDone?: () => void;
+  /** Vertical offset of the player: 0 is fully open, PLAYER_HIDDEN is out of sight below the screen. Shared with the bar,
+   * so dragging the bar up pulls the player up under the finger and dragging the player down hands it back to the bar. */
+  y?: SharedValue<number>;
+  /** Keep the window mounted while the bar is being dragged up, before the player counts as open. */
+  peek?: boolean;
 }
+
+export const PLAYER_HIDDEN = Dimensions.get('window').height + 120;
+const OPEN_SPRING = { duration: 340, dampingRatio: 1 } as const;
+const CLOSE_MS = 240;
+const CLOSE_DISTANCE = 130;
+const CLOSE_VELOCITY = 800;
 
 /** 150 → "2:30", 45 → "45 s". */
 function restText(sec: number): string {
@@ -89,7 +103,7 @@ const SET_IN = new Keyframe({
   100: { opacity: 1, transform: [{ translateY: 0 }], easing: Easing.bezier(0.23, 1, 0.32, 1) },
 }).duration(180);
 
-export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntroDone }: FullPlayerProps) {
+export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntroDone, y: yProp, peek = false }: FullPlayerProps) {
   useRenderCount('FullPlayer');
   const insets = useSafeAreaInsets();
   const reduced = useReducedMotion();
@@ -129,9 +143,46 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
   const [swapOpen, setSwapOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [rir, setRir] = useState<number | null>(null);
+  // While a finger is on the exercise deck the exercise area does not scroll, so a swipe on the deck is never a scroll.
+  const [deckTouched, setDeckTouched] = useState(false);
+  // A weighted lift with no weight set asks once before it logs 0 kg (a set at 0 kg tracks nothing and stalls progress).
+  const [zeroAsked, setZeroAsked] = useState<string | null>(null);
   // Warm-up ticks are only a reminder for the lifter: they are never logged as work sets.
   const [warmDone, setWarmDone] = useState<Record<string, boolean[]>>({});
   const translateX = useSharedValue(0);
+
+  // The window opens and closes by moving one shared value, so the same motion serves the bar's drag, a tap and a
+  // swipe down on the header. It stays mounted until the slide down has finished, then goes.
+  const ownY = useSharedValue(PLAYER_HIDDEN);
+  const y = yProp ?? ownY;
+  const [mounted, setMounted] = useState(visible);
+  useEffect(() => {
+    if (visible) {
+      setMounted(true);
+      y.set(reduced ? 0 : withSpring(0, OPEN_SPRING));
+      return;
+    }
+    y.set(reduced ? PLAYER_HIDDEN : withTiming(PLAYER_HIDDEN, { duration: CLOSE_MS }));
+    const t = setTimeout(() => setMounted(false), CLOSE_MS + 60);
+    return () => clearTimeout(t);
+  }, [visible, reduced, y]);
+  const showWindow = mounted || peek;
+  const playerStyle = useAnimatedStyle(() => ({ transform: [{ translateY: y.get() }] }));
+  // Swipe down on the header to put the player away; it follows the finger and a flick is enough.
+  const dragDown = Gesture.Pan()
+    .activeOffsetY(12)
+    .failOffsetX([-24, 24])
+    .onUpdate((e) => {
+      y.set(Math.max(0, e.translationY));
+    })
+    .onEnd((e) => {
+      if (e.translationY > CLOSE_DISTANCE || e.velocityY > CLOSE_VELOCITY) {
+        y.set(withTiming(PLAYER_HIDDEN, { duration: CLOSE_MS }));
+        scheduleOnRN(onMinimize);
+      } else {
+        y.set(withSpring(0, { duration: 340, dampingRatio: 0.8, velocity: e.velocityY }));
+      }
+    });
 
   const onSwipeLeft = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
@@ -147,9 +198,13 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
     .activeOffsetX([-24, 24])
     .failOffsetY([-14, 14])
     .onUpdate((e) => {
-      if (!reduced) translateX.set(e.translationX * 0.55);
+      if (!reduced && !dialTouching.get()) translateX.set(e.translationX * 0.55);
     })
     .onEnd((e) => {
+      if (dialTouching.get()) {
+        translateX.set(withSpring(0, { duration: 300, dampingRatio: 1 }));
+        return;
+      }
       if (e.translationX < -SWIPE_DISTANCE || e.velocityX < -SWIPE_VELOCITY) scheduleOnRN(onSwipeLeft);
       else if (e.translationX > SWIPE_DISTANCE || e.velocityX > SWIPE_VELOCITY) scheduleOnRN(onSwipeRight);
       translateX.set(withSpring(0, { duration: 400, dampingRatio: 0.8, velocity: e.velocityX }));
@@ -186,6 +241,13 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
   const warmups = rx?.role === 'main' && !workDoneAny && !state.skipped ? warmupSets(firstWorkKg, barbell ? barKg : 0) : [];
   const warmTicks = warmDone[exercise.name] ?? [];
 
+  // The start briefing: today in three numbers (sets include every row, minutes are work at about 40 s a set plus the rests).
+  const introStats = {
+    exercises: exercises.length,
+    sets: plan.reduce((n, ex) => n + ex.rows.length, 0),
+    minutes: Math.max(1, Math.round(plan.reduce((sec, ex, i) => sec + ex.rows.length * (40 + (exercises[i] ? restSecondsForExercise(exercises[i].name) : 60)), 0) / 60)),
+  };
+
   const currentRow = setIndex >= 0 ? state.rows[setIndex] : null;
   const exerciseDone = isExerciseComplete(state);
   const upNextIdx = nextExerciseWithWork(plan, exerciseIndex);
@@ -199,8 +261,16 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
   const stepReps = (dir: 1 | -1) => updateSetRow(exerciseIndex, setIndex, (row) => ({ reps: stepValue(row.reps, dir, 1, 1) }));
   const lastDiffers = !!lastSet && !!currentRow && (lastSet.weight !== currentRow.weight || lastSet.reps !== currentRow.reps);
 
+  const zeroKey = `${exerciseIndex}:${setIndex}`;
+  const needsWeight = showKgStepper && !!currentRow && currentRow.weight <= 0;
+  const askingZero = needsWeight && zeroAsked === zeroKey;
   const logCurrent = () => {
     if (!currentRow) return;
+    if (needsWeight && zeroAsked !== zeroKey) {
+      setZeroAsked(zeroKey);
+      warning();
+      return;
+    }
     markSetTap();
     setDone();
     logSet(undefined, undefined, rir);
@@ -217,9 +287,15 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
   const pickerLast = picker ? lastFor(lastTime, exercises[picker.exIdx]?.name ?? '', picker.setIdx) : null;
 
   return (
-    <Modal visible={visible} animationType="slide" onRequestClose={onMinimize} statusBarTranslucent>
-      <GestureHandlerRootView style={{ flex: 1, backgroundColor: COLORS.bg }}>
+    <Modal visible={showWindow} transparent animationType="none" onRequestClose={onMinimize} statusBarTranslucent>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+      <Animated.View style={[{ flex: 1, backgroundColor: COLORS.bg }, playerStyle]}>
         <View style={{ flex: 1, paddingTop: insets.top + 6 }}>
+          <GestureDetector gesture={dragDown}>
+          <View collapsable={false}>
+          <View style={{ alignItems: 'center', paddingBottom: 2 }} accessibilityLabel="Drag down to put the player away">
+            <View style={{ width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.22)' }} />
+          </View>
           {/* Header: close, session, exercise n of N with the elapsed clock, kcal, and the exercise list */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 10 }}>
             <PressScale onPress={onMinimize} accessibilityRole="button" accessibilityLabel="Close the player (the workout keeps running)">
@@ -257,12 +333,14 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
               </View>
             ))}
           </View>
+          </View>
+          </GestureDetector>
 
           {/* NG PHASE 3.2: rest no longer replaces the screen; the rows stay and the sheet shows the rest. */}
           <>
               <GestureDetector gesture={swipe}>
                 <Animated.View style={[{ flex: 1 }, contentStyle]}>
-                  <ScrollView contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
+                  <ScrollView scrollEnabled={!deckTouched} contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 12 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
                       <View style={{ flex: 1 }}>
                         <Text style={{ color: COLORS.fg, fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.6, lineHeight: 32, fontFamily: BG[800] }}>{exercise.name}</Text>
@@ -325,7 +403,54 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
                         })}
                       </View>
                     ) : null}
+                      </>
+                    )}
 
+                    {/* The session as a deck: this exercise in front, the ones to come behind it. Swipe up to skip to the next
+                        one, down to go back; the same as the swipe sideways, with the stack to show where you are. */}
+                    {exercises.length > 1 ? (
+                      <View style={{ marginTop: 6, gap: 8 }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 11, letterSpacing: 0.8, fontFamily: BG[700] }}>THE SESSION</Text>
+                        <CardCarousel
+                          items={exercises.map((ex, i) => ({ ex, i }))}
+                          keyOf={(x) => `${x.ex.name}-${x.i}`}
+                          index={exerciseIndex}
+                          onIndexChange={(i) => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                            if (i > exerciseIndex) skipExercise();
+                            else previousExercise();
+                          }}
+                          onTouching={setDeckTouched}
+                          renderCard={(x) => {
+                            const st = plan[x.i];
+                            const done = st ? st.rows.filter((r) => r.done).length : 0;
+                            const total = st ? st.rows.length : 0;
+                            const front = x.i === exerciseIndex;
+                            return (
+                              <View style={{ minHeight: 72, borderRadius: 20, borderWidth: 1, borderColor: front ? 'rgba(59,130,246,0.45)' : COLORS.border, backgroundColor: '#15151A', paddingHorizontal: 16, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                                <View style={{ width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(59,130,246,0.16)' }}>
+                                  <Text style={{ color: A, fontSize: 15, fontFamily: BG[800] }}>{x.i + 1}</Text>
+                                </View>
+                                <View style={{ flex: 1, minWidth: 0 }}>
+                                  <Text numberOfLines={1} style={{ color: COLORS.fg, fontSize: 16, fontFamily: BG[800] }}>{x.ex.name}</Text>
+                                  <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[400] }}>
+                                    {front ? 'Now · ' : ''}{done} of {total} sets{front && exerciseIndex < exercises.length - 1 ? ' · swipe up to skip' : ''}
+                                  </Text>
+                                </View>
+                                {done === total && total > 0 ? <Icon name="check" size={16} color={COLORS.green} strokeWidth={3} /> : null}
+                              </View>
+                            );
+                          }}
+                        />
+                      </View>
+                    ) : null}
+                  </ScrollView>
+                </Animated.View>
+              </GestureDetector>
+
+              {/* The dial lives outside the swiped area and above the Done bar, so a ruler can never also change exercise and never moves. */}
+              {!timed ? (
+                <View style={{ paddingHorizontal: 16, paddingBottom: 12 }}>
                     {currentRow ? (
                       <Animated.View key={`${exerciseIndex}-${setIndex}`} entering={reduced ? undefined : SET_IN} style={{ gap: 14 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -342,8 +467,9 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
                         <SetDial
                           weight={showKgStepper ? currentRow.weight : null}
                           reps={currentRow.reps}
-                          onWeightStep={stepWeight}
-                          onRepsStep={stepReps}
+                          kgStep={kgStep}
+                          onWeightChange={(v) => updateSetRow(exerciseIndex, setIndex, { weight: v })}
+                          onRepsChange={(v) => updateSetRow(exerciseIndex, setIndex, { reps: Math.round(v) })}
                           onOpenWeight={() => setPicker({ kind: 'kg', exIdx: exerciseIndex, setIdx: setIndex })}
                           onOpenReps={() => setPicker({ kind: 'reps', exIdx: exerciseIndex, setIdx: setIndex })}
                         />
@@ -390,12 +516,8 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
                         <SetDots rows={state.rows} current={-1} onPick={(i) => setPicker({ kind: state.rows[i].weight > 0 ? 'kg' : 'reps', exIdx: exerciseIndex, setIdx: i })} />
                       </View>
                     )}
-                      </>
-                    )}
-
-                  </ScrollView>
-                </Animated.View>
-              </GestureDetector>
+                </View>
+              ) : null}
 
               {/* Bottom sheet: the current set's steppers and Done, or "Exercise done" with Next */}
               {timed && !exerciseDone ? null : (
@@ -418,14 +540,14 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
                   <RestSheet />
                 ) : currentRow ? (
                   <Button size="lg" fullWidth accent={A} accentDeep={COLORS.blueDeep} onPress={logCurrent} icon={<Icon name="check" size={18} color="#fff" strokeWidth={3} />}>
-                    {`Done \u00b7 set ${setIndex + 1}`}
+                    {askingZero ? 'No weight set \u00b7 tap to log anyway' : `Done \u00b7 set ${setIndex + 1}`}
                   </Button>
                 ) : exerciseDone ? (
                   <>
                     <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[800] }}>
                       Exercise done
                       <Text style={{ color: COLORS.textMuted, fontWeight: '600' }}>
-                        {exerciseVolume(state) > 0 ? ` · ${exerciseVolume(state).toLocaleString('en-IN')} kg volume` : ` · ${state.rows.length} sets`}
+                        {exerciseVolume(state) > 0 ? ` · ${exerciseVolume(state).toLocaleString('en-IN')} kg volume` : ` · ${setsLabel(state.rows.length)}`}
                       </Text>
                     </Text>
                     {upNext ? (
@@ -564,7 +686,17 @@ export function FullPlayer({ visible, onMinimize, reason, intro = false, onIntro
             </Pressable>
           </Modal>
         ) : null}
-        {intro ? <SessionIntro title={sessionName(today.focus) || today.day} focus={today.focus} muscles={exercises.map((e) => forms[e.name]?.primaryMuscle)} onDone={() => onIntroDone?.()} /> : null}
+        {intro ? (
+          <SessionIntro
+            title={sessionName(today.focus) || today.day}
+            focus={today.focus}
+            muscles={exercises.map((e) => forms[e.name]?.primaryMuscle)}
+            stats={introStats}
+            ready={lastTimeLoaded}
+            onDone={() => onIntroDone?.()}
+          />
+        ) : null}
+      </Animated.View>
       </GestureHandlerRootView>
       <EndWorkoutSheet visible={endOpen} onClose={() => setEndOpen(false)} />
     </Modal>

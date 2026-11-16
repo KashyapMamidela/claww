@@ -1,6 +1,7 @@
 import { Linking, Platform } from 'react-native';
 import { Pedometer } from 'expo-sensors';
 import * as HealthConnect from 'react-native-health-connect';
+import { KCAL_PER_STEP_PER_KG } from './stepsConstants';
 
 // Health Connect's own Play Store package — distinct from CLAWW's. Most
 // Android versions below 14 don't ship it preinstalled, so "the permission
@@ -179,15 +180,10 @@ export async function getStepsInRanges(ranges: { start: Date; end: Date }[]): Pr
 }
 
 /**
- * Very rough calories-from-steps estimate: ~0.0005 kcal per step per kg of
- * bodyweight, the same order-of-magnitude figure most step-tracking apps
- * use (a 70kg person burns roughly 0.035 kcal/step). Deterministic math,
- * not a claim of precision — same "estimate, not AI" posture as the
- * nutrition formulas in lib/nutrition.ts. Only used as a fallback when a
- * real caloriesBurned figure isn't available (iOS, or Android without
- * Health Connect permission).
+ * Rough active calories from steps. Deterministic math, not a claim of precision, the same "estimate, not AI" posture
+ * as the nutrition formulas in lib/nutrition.ts. Only used when a real figure from Health Connect isn't available.
  */
 export function estimateCaloriesFromSteps(steps: number, weightKg: number | null): number {
   const weight = weightKg ?? 70; // population-average fallback when no profile weight is set yet
-  return Math.round(steps * weight * 0.0005);
+  return Math.round(steps * weight * KCAL_PER_STEP_PER_KG);
 }

@@ -6,6 +6,8 @@ import { effectiveAvailability, effectiveDiet } from './dietAvoid';
 import { supabase } from './supabase';
 import { getProfile } from './data';
 import { getUserResources } from './userResources';
+import { customAddOns, customNamesFrom } from './customFoods';
+import { loadFoods } from './foodDb';
 import { dateKey } from './planStreak';
 import { MEAL_TEMPLATES, ADD_ONS, planDay, replanRemaining, swapOptions, type DayPlan, type HistoryDay, type PlanInput, type PlannedMeal, type Resources } from './engine';
 import { eatenTotals, remainingSlots, type LoggedLike } from './mealPlanView';
@@ -52,7 +54,10 @@ export async function loadPlanInputs(userId: string): Promise<Inputs | null> {
     avoid,
     style: resources.planStyle,
   };
-  return { input: { target: { kcal: targets.calories, protein: targets.protein_g }, resources: r, seed: userId, templates: MEAL_TEMPLATES, addOns: ADD_ONS } };
+  // Foods the person added themselves are extra ways to close a protein gap, on top of the built-in add-ons.
+  const names = customNamesFrom(resources.availability as Record<string, unknown>);
+  const extra = names.length > 0 ? customAddOns(names, await loadFoods().catch(() => []), diet) : [];
+  return { input: { target: { kcal: targets.calories, protein: targets.protein_g }, resources: r, seed: userId, templates: MEAL_TEMPLATES, addOns: [...ADD_ONS, ...extra] } };
 }
 
 async function loadHistory(userId: string, date: string): Promise<HistoryDay[]> {

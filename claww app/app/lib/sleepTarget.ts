@@ -53,8 +53,38 @@ const wokeAt = (l: SleepLike) => new Date(l.wake_time ?? l.logged_at).getTime();
  */
 export function lastNightSleep<T extends SleepLike>(logs: T[], now: Date): T | null {
   const newestFirst = [...logs].sort((a, b) => wokeAt(b) - wokeAt(a));
-  const today = newestFirst.find((l) => sameLocalDay(new Date(wokeAt(l)), now));
+  // Entering a night again replaces it, so among the logs that woke today the one typed in last wins, not the one with
+  // the latest wake time (a correction to an earlier wake time used to lose to the entry it was fixing).
+  const today = logs
+    .filter((l) => sameLocalDay(new Date(wokeAt(l)), now))
+    .sort((a, b) => new Date(b.logged_at).getTime() - new Date(a.logged_at).getTime())[0];
   if (today) return today;
   const limit = now.getTime() - LAST_NIGHT_WINDOW_HOURS * 3600 * 1000;
   return newestFirst.find((l) => wokeAt(l) >= limit && wokeAt(l) <= now.getTime()) ?? null;
+}
+
+export interface ClockTime {
+  hour: number; // 1-12
+  minute: number;
+  period: 'AM' | 'PM';
+}
+
+const hour24 = (t: ClockTime) => (t.period === 'AM' ? (t.hour === 12 ? 0 : t.hour) : t.hour === 12 ? 12 : t.hour + 12);
+
+/**
+ * The real bedtime and wake time for two clock times typed into the sleep sheet, as of `now`. The wake time is the
+ * most recent time of day it could have been (today, or yesterday if that is still ahead of now, e.g. logging at
+ * 1 AM about a 7 AM wake-up); the bedtime is the latest time of day before it. Hours are the gap between the two.
+ */
+export function sleepWindow(bed: ClockTime, wake: ClockTime, now: Date): { bedtime: Date; wakeTime: Date; hours: number } {
+  const at = (t: ClockTime, base: Date) => {
+    const d = new Date(base);
+    d.setHours(hour24(t), t.minute, 0, 0);
+    return d;
+  };
+  let wakeTime = at(wake, now);
+  if (wakeTime.getTime() > now.getTime()) wakeTime = new Date(wakeTime.getTime() - 24 * 3600 * 1000);
+  let bedtime = at(bed, wakeTime);
+  if (bedtime.getTime() >= wakeTime.getTime()) bedtime = new Date(bedtime.getTime() - 24 * 3600 * 1000);
+  return { bedtime, wakeTime, hours: (wakeTime.getTime() - bedtime.getTime()) / 3600000 };
 }

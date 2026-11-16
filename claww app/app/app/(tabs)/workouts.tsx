@@ -66,6 +66,8 @@ import { loadDayPrescription } from '../../lib/todayPlan';
 import { BLUEPRINTS } from '../../lib/engine';
 import { blueprintDayMinutes } from '../../lib/engine';
 import { WEEKDAY_NAMES } from '../../lib/trainingWeek';
+import { setsLabel } from '../../lib/plural';
+import { CardCarousel } from '../../components/ui/CardCarousel';
 
 const A = COLORS.blue;
 const A2 = COLORS.blueMid;
@@ -169,6 +171,8 @@ export default function WorkoutsTab() {
   const [events, setEvents] = useState<WorkoutDayEvent[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [selectedDay, setSelectedDay] = useState(0);
+  // While a finger is on the day deck the page does not scroll, so a swipe on the deck is never a scroll.
+  const [deckTouched, setDeckTouched] = useState(false);
   // Polish step 1: a plan made by the old builder gets a one-time offer to rebuild it.
   const [dismissedOldPlan, setDismissedOldPlan] = useState<string | null | undefined>(undefined);
   useEffect(() => {
@@ -205,6 +209,7 @@ export default function WorkoutsTab() {
   const [prescribedKey, setPrescribedKey] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
   const exercisesY = useRef(0);
+  const addingExercise = useRef(false);
 
   // Hints for the exercise picker: muscles that are Low or Very low today.
   useEffect(() => {
@@ -431,6 +436,16 @@ export default function WorkoutsTab() {
   };
 
   const handleAddExercise = async (exercise: CatalogExercise) => {
+    // A double tap on a result adds it once.
+    if (addingExercise.current) return;
+    addingExercise.current = true;
+    try {
+      await addExercise(exercise);
+    } finally {
+      addingExercise.current = false;
+    }
+  };
+  const addExercise = async (exercise: CatalogExercise) => {
     setPickerOpen(false);
     let sets = 3;
     let reps = 10;
@@ -461,7 +476,7 @@ export default function WorkoutsTab() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#050505' }}>
-      <ScrollView ref={scrollRef} {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} {...hideBar} key={pull.key} refreshControl={pull.refreshControl} showsVerticalScrollIndicator={false} scrollEnabled={!deckTouched}>
         <View
           style={{
             paddingHorizontal: 16,
@@ -625,6 +640,8 @@ export default function WorkoutsTab() {
           )}
 
           <Rise i={1}>
+          {(() => {
+          const fullHero = (
           <Hero variant="blue" stamp="dumbbell" accessibilityLabel={`${day.day}: ${sessionName(day.focus)}`}>
             {/* Premium W3: the muscles this session works, lit on a small body map in the corner. */}
             {heroMuscles.length > 0 ? (
@@ -637,7 +654,7 @@ export default function WorkoutsTab() {
             </Text>
             <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, paddingRight: heroMuscles.length > 0 ? 78 : 0, fontFamily: BG[800] }}>{sessionName(day.focus)}</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
-              {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, `${totalSets} sets`].map((t) => (
+              {[`${day.exercises.length} exercise${day.exercises.length === 1 ? '' : 's'}`, `~${dayMinutes} min`, setsLabel(totalSets)].map((t) => (
                 <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
                   <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>{t}</Text>
                 </View>
@@ -660,6 +677,38 @@ export default function WorkoutsTab() {
               </View>
             ) : null}
           </Hero>
+          );
+          // The week as a deck: today's card in front (swipe up for the next day, down for the one before), the days
+          // behind it. Only the day in front is the full card with its Start button; the others show their numbers.
+          const lightHero = (d: (typeof workout.plan.days)[number], i: number) => {
+            const sets = d.exercises.reduce((n, e) => n + (e.sets || 0), 0);
+            return (
+              <Hero variant="blue" stamp="dumbbell" accessibilityLabel={`${d.day}: ${sessionName(d.focus)}`}>
+                <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, letterSpacing: 0.9, fontFamily: BG[700] }}>
+                  {heroKicker(dayLabels, d.day, d.focus, dayStates[i]?.state ?? 'upcoming', i === suggestedDay, nowDate)}
+                </Text>
+                <Text style={{ color: '#fff', fontSize: 28, fontVariant: ['tabular-nums'], letterSpacing: -0.5, marginTop: 6, fontFamily: BG[800] }}>{sessionName(d.focus)}</Text>
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+                  {[`${d.exercises.length} exercise${d.exercises.length === 1 ? '' : 's'}`, `~${Math.round((sets * 130) / 60 + 5)} min`, setsLabel(sets)].map((t) => (
+                    <View key={t} style={{ borderRadius: 10, paddingHorizontal: 12, paddingVertical: 7, backgroundColor: 'rgba(255,255,255,0.12)' }}>
+                      <Text style={{ color: '#fff', fontSize: 13, fontFamily: BG[700] }}>{t}</Text>
+                    </View>
+                  ))}
+                </View>
+              </Hero>
+            );
+          };
+          return (
+            <CardCarousel
+              items={workout.plan.days}
+              keyOf={(d) => `${d.day}-${d.focus}`}
+              index={selectedDay}
+              onIndexChange={setSelectedDay}
+              onTouching={setDeckTouched}
+              renderCard={(d, i) => (i === selectedDay ? fullHero : lightHero(d, i))}
+            />
+          );
+          })()}
           </Rise>
 
           <View onLayout={(e) => { exercisesY.current = e.nativeEvent.layout.y; }}>

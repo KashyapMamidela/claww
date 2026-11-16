@@ -249,7 +249,11 @@ describe('buildInsight', () => {
       lastWeekSets: { ...evenlyTrained, quads: 4 },
       lowestMuscle: { muscle: 'quads', score: 44 },
     }).text;
-    expect(t).toBe(`Quads is under target for the second week: 3 sets this week and 4 last week, against ${WEEKLY_SETS_TARGET}. Its recovery score is 44.`);
+    expect(t).toBe(`Quads are under target for the second week: 3 sets this week and 4 last week, against ${WEEKLY_SETS_TARGET}. Its recovery score is 44.`);
+  });
+  it('says "is" for a singular muscle name', () => {
+    const t = buildInsight({ ...base, thisWeekSets: { ...evenlyTrained, chest: 1 }, lastWeekSets: { ...evenlyTrained, chest: 1 } }).text;
+    expect(t).toMatch(/^Chest is under target/);
   });
   it('needs a few weeks of training before calling a muscle low', () => {
     const t = buildInsight({ ...base, thisWeekSets: { ...evenlyTrained, quads: 0 }, lastWeekSets: { ...evenlyTrained, quads: 0 }, sessionsLast4Weeks: 2 }).text;

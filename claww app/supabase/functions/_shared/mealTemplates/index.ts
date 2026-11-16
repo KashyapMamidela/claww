@@ -19,7 +19,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   ],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Idli",
@@ -93,6 +95,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
+   "idli_dosa",
    "peanuts"
   ],
   "items": [
@@ -171,6 +174,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "poha",
    "eggs"
   ],
   "items": [
@@ -233,6 +237,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "poha",
    "peanuts",
    "curd"
   ],
@@ -312,8 +317,10 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "poha",
    "eggs",
-   "banana"
+   "banana",
+   "fruit"
   ],
   "items": [
    {
@@ -387,7 +394,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   ],
   "diet": "veg",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "rice"
+  ],
   "items": [
    {
     "food": "Ven pongal",
@@ -461,6 +470,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "besan",
    "curd"
   ],
   "items": [
@@ -520,7 +530,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
-   "eggs"
+   "eggs",
+   "roti"
   ],
   "items": [
    {
@@ -580,7 +591,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
-   "banana"
+   "bread",
+   "banana",
+   "fruit"
   ],
   "items": [
    {
@@ -645,6 +658,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
    "milk",
    "oats",
    "banana",
+   "fruit",
    "peanuts"
   ],
   "items": [
@@ -719,6 +733,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "uses": [
    "milk",
    "banana",
+   "fruit",
    "eggs"
   ],
   "items": [
@@ -778,6 +793,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
    "milk",
    "whey",
    "banana",
+   "fruit",
    "peanuts"
   ],
   "items": [
@@ -853,6 +869,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "roti",
    "curd"
   ],
   "items": [
@@ -984,7 +1001,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   ],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Uttapam",
@@ -1045,6 +1064,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": true,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -1175,7 +1195,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Idli",
@@ -1247,6 +1269,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
+   "idli_dosa",
    "peanuts"
   ],
   "items": [
@@ -1320,6 +1343,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "poha",
    "eggs"
   ],
   "items": [
@@ -1377,6 +1401,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "poha",
    "peanuts",
    "curd"
   ],
@@ -1451,8 +1476,10 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "poha",
    "eggs",
-   "banana"
+   "banana",
+   "fruit"
   ],
   "items": [
    {
@@ -1524,7 +1551,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "veg",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "rice"
+  ],
   "items": [
    {
     "food": "Ven pongal",
@@ -1596,7 +1625,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
-   "eggs"
+   "eggs",
+   "roti"
   ],
   "items": [
    {
@@ -1654,7 +1684,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
-   "banana"
+   "bread",
+   "banana",
+   "fruit"
   ],
   "items": [
    {
@@ -1713,6 +1745,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "uses": [
    "milk",
    "banana",
+   "fruit",
    "eggs"
   ],
   "items": [
@@ -1773,6 +1806,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
    "milk",
    "whey",
    "banana",
+   "fruit",
    "peanuts"
   ],
   "items": [
@@ -1846,6 +1880,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "roti",
    "curd"
   ],
   "items": [
@@ -1973,7 +2008,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Uttapam",
@@ -2029,6 +2066,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": true,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -2158,7 +2196,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Idli",
@@ -2228,6 +2268,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
+   "idli_dosa",
    "peanuts"
   ],
   "items": [
@@ -2299,6 +2340,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "poha",
    "eggs"
   ],
   "items": [
@@ -2354,6 +2396,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "poha",
    "peanuts",
    "curd"
   ],
@@ -2426,8 +2469,10 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "poha",
    "eggs",
-   "banana"
+   "banana",
+   "fruit"
   ],
   "items": [
    {
@@ -2497,7 +2542,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "veg",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "rice"
+  ],
   "items": [
    {
     "food": "Ven pongal",
@@ -2567,6 +2614,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "besan",
    "curd"
   ],
   "items": [
@@ -2622,7 +2670,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
-   "eggs"
+   "eggs",
+   "roti"
   ],
   "items": [
    {
@@ -2666,6 +2715,872 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "reviewed": false
  },
  {
+  "id": "breakfast-41",
+  "meal": "breakfast",
+  "name": "Ragi dosa, peanut chutney and sambar",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "idli_dosa",
+   "peanuts"
+  ],
+  "items": [
+   {
+    "food": "Ragi dosa",
+    "unit": "dosa",
+    "qty": 2,
+    "grams": 220,
+    "kcal": 403,
+    "protein": 7.3,
+    "carbs": 66.5,
+    "fat": 12.1,
+    "fibreG": 3.2,
+    "ironMg": 2.85,
+    "calciumMg": 284,
+    "vitcMg": 1.6,
+    "b12Ug": 0.11,
+    "sodiumMg": 797
+   },
+   {
+    "food": "Peanut chutney",
+    "unit": "tbsp",
+    "qty": 2,
+    "grams": 60,
+    "kcal": 183,
+    "protein": 6.4,
+    "carbs": 6.7,
+    "fat": 15.8,
+    "fibreG": 2.3,
+    "ironMg": 1.26,
+    "calciumMg": 26,
+    "vitcMg": 9.8,
+    "b12Ug": 0,
+    "sodiumMg": 393
+   },
+   {
+    "food": "Sambar",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 127,
+    "protein": 5.3,
+    "carbs": 19.4,
+    "fat": 3.8,
+    "fibreG": 5.1,
+    "ironMg": 1.89,
+    "calciumMg": 46,
+    "vitcMg": 4.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   }
+  ],
+  "kcal": 713,
+  "protein": 19,
+  "carbs": 92.6,
+  "fat": 31.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-42",
+  "meal": "breakfast",
+  "name": "Ragi dosa, peanut chutney and sambar (mess or tiffin)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "idli_dosa",
+   "peanuts"
+  ],
+  "items": [
+   {
+    "food": "Ragi dosa",
+    "unit": "dosa",
+    "qty": 2,
+    "grams": 220,
+    "kcal": 403,
+    "protein": 7.3,
+    "carbs": 66.5,
+    "fat": 12.1,
+    "fibreG": 3.2,
+    "ironMg": 2.85,
+    "calciumMg": 284,
+    "vitcMg": 1.6,
+    "b12Ug": 0.11,
+    "sodiumMg": 797
+   },
+   {
+    "food": "Peanut chutney",
+    "unit": "tbsp",
+    "qty": 2,
+    "grams": 60,
+    "kcal": 183,
+    "protein": 6.4,
+    "carbs": 6.7,
+    "fat": 15.8,
+    "fibreG": 2.3,
+    "ironMg": 1.26,
+    "calciumMg": 26,
+    "vitcMg": 9.8,
+    "b12Ug": 0,
+    "sodiumMg": 393
+   },
+   {
+    "food": "Sambar",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 127,
+    "protein": 5.3,
+    "carbs": 19.4,
+    "fat": 3.8,
+    "fibreG": 5.1,
+    "ironMg": 1.89,
+    "calciumMg": 46,
+    "vitcMg": 4.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   }
+  ],
+  "kcal": 713,
+  "protein": 19,
+  "carbs": 92.6,
+  "fat": 31.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-43",
+  "meal": "breakfast",
+  "name": "Ragi dosa, peanut chutney and sambar (eating out)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "idli_dosa",
+   "peanuts"
+  ],
+  "items": [
+   {
+    "food": "Ragi dosa",
+    "unit": "dosa",
+    "qty": 2,
+    "grams": 220,
+    "kcal": 403,
+    "protein": 7.3,
+    "carbs": 66.5,
+    "fat": 12.1,
+    "fibreG": 3.2,
+    "ironMg": 2.85,
+    "calciumMg": 284,
+    "vitcMg": 1.6,
+    "b12Ug": 0.11,
+    "sodiumMg": 797
+   },
+   {
+    "food": "Peanut chutney",
+    "unit": "tbsp",
+    "qty": 2,
+    "grams": 60,
+    "kcal": 183,
+    "protein": 6.4,
+    "carbs": 6.7,
+    "fat": 15.8,
+    "fibreG": 2.3,
+    "ironMg": 1.26,
+    "calciumMg": 26,
+    "vitcMg": 9.8,
+    "b12Ug": 0,
+    "sodiumMg": 393
+   },
+   {
+    "food": "Sambar",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 127,
+    "protein": 5.3,
+    "carbs": 19.4,
+    "fat": 3.8,
+    "fibreG": 5.1,
+    "ironMg": 1.89,
+    "calciumMg": 46,
+    "vitcMg": 4.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   }
+  ],
+  "kcal": 713,
+  "protein": 19,
+  "carbs": 92.6,
+  "fat": 31.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-44",
+  "meal": "breakfast",
+  "name": "Pesarattu, coconut chutney and curd",
+  "cuisine": "Andhra/Telangana",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "idli_dosa",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Pesarattu",
+    "unit": "dosa",
+    "qty": 2,
+    "grams": 220,
+    "kcal": 461,
+    "protein": 22.4,
+    "carbs": 65.8,
+    "fat": 13.2,
+    "fibreG": 15,
+    "ironMg": 6.59,
+    "calciumMg": 124,
+    "vitcMg": 14.3,
+    "b12Ug": 0,
+    "sodiumMg": 790
+   },
+   {
+    "food": "Coconut chutney",
+    "unit": "tbsp",
+    "qty": 2,
+    "grams": 60,
+    "kcal": 129,
+    "protein": 1.2,
+    "carbs": 5.1,
+    "fat": 12.3,
+    "fibreG": 2.8,
+    "ironMg": 0.84,
+    "calciumMg": 7,
+    "vitcMg": 10.7,
+    "b12Ug": 0,
+    "sodiumMg": 394
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 682,
+  "protein": 28.8,
+  "carbs": 77.9,
+  "fat": 30.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-45",
+  "meal": "breakfast",
+  "name": "Pesarattu, coconut chutney and curd (eating out)",
+  "cuisine": "Andhra/Telangana",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "idli_dosa",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Pesarattu",
+    "unit": "dosa",
+    "qty": 2,
+    "grams": 220,
+    "kcal": 461,
+    "protein": 22.4,
+    "carbs": 65.8,
+    "fat": 13.2,
+    "fibreG": 15,
+    "ironMg": 6.59,
+    "calciumMg": 124,
+    "vitcMg": 14.3,
+    "b12Ug": 0,
+    "sodiumMg": 790
+   },
+   {
+    "food": "Coconut chutney",
+    "unit": "tbsp",
+    "qty": 2,
+    "grams": 60,
+    "kcal": 129,
+    "protein": 1.2,
+    "carbs": 5.1,
+    "fat": 12.3,
+    "fibreG": 2.8,
+    "ironMg": 0.84,
+    "calciumMg": 7,
+    "vitcMg": 10.7,
+    "b12Ug": 0,
+    "sodiumMg": 394
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 682,
+  "protein": 28.8,
+  "carbs": 77.9,
+  "fat": 30.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-46",
+  "meal": "breakfast",
+  "name": "Upma, peanuts and a glass of milk",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "poha",
+   "peanuts",
+   "milk"
+  ],
+  "items": [
+   {
+    "food": "Upma",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 180,
+    "protein": 4.8,
+    "carbs": 27.2,
+    "fat": 5.6,
+    "fibreG": 1.7,
+    "ironMg": 0.54,
+    "calciumMg": 11,
+    "vitcMg": 6,
+    "b12Ug": 0,
+    "sodiumMg": 389
+   },
+   {
+    "food": "Roasted peanuts",
+    "unit": "handful",
+    "qty": 1,
+    "grams": 30,
+    "kcal": 170,
+    "protein": 7.7,
+    "carbs": 4.8,
+    "fat": 14.8,
+    "fibreG": 2.5,
+    "ironMg": 1.37,
+    "calciumMg": 28,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 5
+   },
+   {
+    "food": "Milk, whole",
+    "unit": "glass",
+    "qty": 1,
+    "grams": 250,
+    "kcal": 153,
+    "protein": 7.9,
+    "carbs": 12,
+    "fat": 8.2,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 283,
+    "vitcMg": 0,
+    "b12Ug": 1.13,
+    "sodiumMg": 108
+   }
+  ],
+  "kcal": 503,
+  "protein": 20.4,
+  "carbs": 44,
+  "fat": 28.6,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-47",
+  "meal": "breakfast",
+  "name": "Upma, peanuts and a glass of milk (mess or tiffin)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "poha",
+   "peanuts",
+   "milk"
+  ],
+  "items": [
+   {
+    "food": "Upma",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 180,
+    "protein": 4.8,
+    "carbs": 27.2,
+    "fat": 5.6,
+    "fibreG": 1.7,
+    "ironMg": 0.54,
+    "calciumMg": 11,
+    "vitcMg": 6,
+    "b12Ug": 0,
+    "sodiumMg": 389
+   },
+   {
+    "food": "Roasted peanuts",
+    "unit": "handful",
+    "qty": 1,
+    "grams": 30,
+    "kcal": 170,
+    "protein": 7.7,
+    "carbs": 4.8,
+    "fat": 14.8,
+    "fibreG": 2.5,
+    "ironMg": 1.37,
+    "calciumMg": 28,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 5
+   },
+   {
+    "food": "Milk, whole",
+    "unit": "glass",
+    "qty": 1,
+    "grams": 250,
+    "kcal": 153,
+    "protein": 7.9,
+    "carbs": 12,
+    "fat": 8.2,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 283,
+    "vitcMg": 0,
+    "b12Ug": 1.13,
+    "sodiumMg": 108
+   }
+  ],
+  "kcal": 503,
+  "protein": 20.4,
+  "carbs": 44,
+  "fat": 28.6,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-48",
+  "meal": "breakfast",
+  "name": "Upma, peanuts and a glass of milk (eating out)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "poha",
+   "peanuts",
+   "milk"
+  ],
+  "items": [
+   {
+    "food": "Upma",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 180,
+    "protein": 4.8,
+    "carbs": 27.2,
+    "fat": 5.6,
+    "fibreG": 1.7,
+    "ironMg": 0.54,
+    "calciumMg": 11,
+    "vitcMg": 6,
+    "b12Ug": 0,
+    "sodiumMg": 389
+   },
+   {
+    "food": "Roasted peanuts",
+    "unit": "handful",
+    "qty": 1,
+    "grams": 30,
+    "kcal": 170,
+    "protein": 7.7,
+    "carbs": 4.8,
+    "fat": 14.8,
+    "fibreG": 2.5,
+    "ironMg": 1.37,
+    "calciumMg": 28,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 5
+   },
+   {
+    "food": "Milk, whole",
+    "unit": "glass",
+    "qty": 1,
+    "grams": 250,
+    "kcal": 153,
+    "protein": 7.9,
+    "carbs": 12,
+    "fat": 8.2,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 283,
+    "vitcMg": 0,
+    "b12Ug": 1.13,
+    "sodiumMg": 108
+   }
+  ],
+  "kcal": 503,
+  "protein": 20.4,
+  "carbs": 44,
+  "fat": 28.6,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-49",
+  "meal": "breakfast",
+  "name": "Sprouts salad, curd and a banana",
+  "cuisine": "North Indian",
+  "needsSources": [],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "sprouts",
+   "curd",
+   "banana",
+   "fruit"
+  ],
+  "items": [
+   {
+    "food": "Sprouts salad",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 41,
+    "protein": 3.4,
+    "carbs": 8.6,
+    "fat": 0.2,
+    "fibreG": 2.3,
+    "ironMg": 1.02,
+    "calciumMg": 20,
+    "vitcMg": 18.6,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   },
+   {
+    "food": "Banana",
+    "unit": "banana",
+    "qty": 1,
+    "grams": 118,
+    "kcal": 105,
+    "protein": 1.3,
+    "carbs": 27,
+    "fat": 0.4,
+    "fibreG": 3.1,
+    "ironMg": 0.31,
+    "calciumMg": 6,
+    "vitcMg": 10.3,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   }
+  ],
+  "kcal": 238,
+  "protein": 9.9,
+  "carbs": 42.6,
+  "fat": 5.5,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-50",
+  "meal": "breakfast",
+  "name": "Banana, roasted peanuts and a glass of milk",
+  "cuisine": "North Indian",
+  "needsSources": [],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": true,
+  "uses": [
+   "banana",
+   "fruit",
+   "peanuts",
+   "milk"
+  ],
+  "items": [
+   {
+    "food": "Banana",
+    "unit": "banana",
+    "qty": 2,
+    "grams": 236,
+    "kcal": 210,
+    "protein": 2.6,
+    "carbs": 53.9,
+    "fat": 0.8,
+    "fibreG": 6.1,
+    "ironMg": 0.61,
+    "calciumMg": 12,
+    "vitcMg": 20.5,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   },
+   {
+    "food": "Roasted peanuts",
+    "unit": "handful",
+    "qty": 1,
+    "grams": 30,
+    "kcal": 170,
+    "protein": 7.7,
+    "carbs": 4.8,
+    "fat": 14.8,
+    "fibreG": 2.5,
+    "ironMg": 1.37,
+    "calciumMg": 28,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 5
+   },
+   {
+    "food": "Milk, whole",
+    "unit": "glass",
+    "qty": 1,
+    "grams": 250,
+    "kcal": 153,
+    "protein": 7.9,
+    "carbs": 12,
+    "fat": 8.2,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 283,
+    "vitcMg": 0,
+    "b12Ug": 1.13,
+    "sodiumMg": 108
+   }
+  ],
+  "kcal": 533,
+  "protein": 18.2,
+  "carbs": 70.7,
+  "fat": 23.8,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-51",
+  "meal": "breakfast",
+  "name": "Thepla with curd",
+  "cuisine": "Gujarati",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": true,
+  "uses": [
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Thepla",
+    "unit": "thepla",
+    "qty": 2,
+    "grams": 160,
+    "kcal": 476,
+    "protein": 16.7,
+    "carbs": 71.4,
+    "fat": 15.9,
+    "fibreG": 11.1,
+    "ironMg": 4.44,
+    "calciumMg": 167,
+    "vitcMg": 15.7,
+    "b12Ug": 0.04,
+    "sodiumMg": 817
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 568,
+  "protein": 21.9,
+  "carbs": 78.4,
+  "fat": 20.8,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "breakfast-52",
+  "meal": "breakfast",
+  "name": "Masala oats and 2 boiled eggs",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook",
+   "pg_tiffin"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove",
+   "kettle",
+   "microwave",
+   "rice_cooker"
+  ],
+  "diet": "egg",
+  "jainOk": false,
+  "uses": [
+   "oats",
+   "eggs"
+  ],
+  "items": [
+   {
+    "food": "Masala oats",
+    "unit": "bowl",
+    "qty": 1,
+    "grams": 260,
+    "kcal": 211,
+    "protein": 6.1,
+    "carbs": 32.3,
+    "fat": 7,
+    "fibreG": 6.1,
+    "ironMg": 2.23,
+    "calciumMg": 43,
+    "vitcMg": 5.1,
+    "b12Ug": 0,
+    "sodiumMg": 403
+   },
+   {
+    "food": "Boiled eggs",
+    "unit": "egg",
+    "qty": 2,
+    "grams": 100,
+    "kcal": 143,
+    "protein": 12.6,
+    "carbs": 0.7,
+    "fat": 9.5,
+    "fibreG": 0,
+    "ironMg": 1.75,
+    "calciumMg": 56,
+    "vitcMg": 0,
+    "b12Ug": 0.89,
+    "sodiumMg": 142
+   }
+  ],
+  "kcal": 354,
+  "protein": 18.7,
+  "carbs": 33,
+  "fat": 16.5,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
   "id": "lunch-01",
   "meal": "lunch",
   "name": "Rice, dal tadka, aloo gobi and curd",
@@ -2681,6 +3596,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "dal",
    "curd"
   ],
@@ -2773,7 +3689,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "roti",
+   "rajma",
    "curd"
   ],
   "items": [
@@ -2849,6 +3766,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -2956,6 +3874,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
+   "rice",
    "chicken"
   ],
   "items": [
@@ -3031,7 +3950,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "rice",
+   "fish",
+   "greens"
   ],
   "items": [
    {
@@ -3107,6 +4028,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "chicken",
+   "rice",
    "curd"
   ],
   "items": [
@@ -3167,6 +4089,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "roti",
    "sprouts"
   ],
   "items": [
@@ -3242,7 +4165,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "soya"
+   "soya",
+   "roti",
+   "rice"
   ],
   "items": [
    {
@@ -3317,7 +4242,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "chana",
+   "rice",
    "curd"
   ],
   "items": [
@@ -3393,7 +4319,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal"
+   "dal",
+   "roti"
   ],
   "items": [
    {
@@ -3468,6 +4395,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -3528,6 +4456,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "chicken",
+   "rice",
    "curd"
   ],
   "items": [
@@ -3588,6 +4517,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "rice",
    "curd"
   ],
   "items": [
@@ -3651,7 +4581,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": true,
   "uses": [
    "curd",
-   "dal"
+   "rice",
+   "chana"
   ],
   "items": [
    {
@@ -3727,6 +4658,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "dal",
+   "greens",
+   "roti",
    "curd"
   ],
   "items": [
@@ -3818,7 +4751,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "mutton",
+   "rice"
   ],
   "items": [
    {
@@ -3891,6 +4825,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "dal",
    "curd"
   ],
@@ -3981,7 +4916,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "roti",
+   "rajma",
    "curd"
   ],
   "items": [
@@ -4055,6 +4991,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -4160,6 +5097,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
+   "rice",
    "chicken"
   ],
   "items": [
@@ -4233,7 +5171,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "rice",
+   "fish",
+   "greens"
   ],
   "items": [
    {
@@ -4307,6 +5247,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "roti",
    "sprouts"
   ],
   "items": [
@@ -4380,7 +5321,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "soya"
+   "soya",
+   "roti",
+   "rice"
   ],
   "items": [
    {
@@ -4453,7 +5396,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "chana",
+   "rice",
    "curd"
   ],
   "items": [
@@ -4527,7 +5471,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal"
+   "dal",
+   "roti"
   ],
   "items": [
    {
@@ -4601,7 +5546,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": true,
   "uses": [
    "curd",
-   "dal"
+   "rice",
+   "chana"
   ],
   "items": [
    {
@@ -4674,7 +5620,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "rice",
    "dal",
+   "roti",
    "curd",
    "eggs"
   ],
@@ -4797,7 +5745,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "dal",
+   "roti",
    "curd",
    "soya"
   ],
@@ -4921,6 +5871,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "dal",
+   "greens",
+   "roti",
    "curd"
   ],
   "items": [
@@ -5010,7 +5962,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "mutton",
+   "rice"
   ],
   "items": [
    {
@@ -5081,6 +6034,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "dal",
    "curd"
   ],
@@ -5169,7 +6123,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "roti",
+   "rajma",
    "curd"
   ],
   "items": [
@@ -5241,6 +6196,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -5344,6 +6300,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
+   "rice",
    "chicken"
   ],
   "items": [
@@ -5415,7 +6372,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "rice",
+   "fish",
+   "greens"
   ],
   "items": [
    {
@@ -5487,6 +6446,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "chicken",
+   "rice",
    "curd"
   ],
   "items": [
@@ -5543,6 +6503,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "roti",
    "sprouts"
   ],
   "items": [
@@ -5614,7 +6575,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "chana",
+   "rice",
    "curd"
   ],
   "items": [
@@ -5686,7 +6648,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal"
+   "dal",
+   "roti"
   ],
   "items": [
    {
@@ -5757,6 +6720,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -5801,6 +6765,1507 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "reviewed": false
  },
  {
+  "id": "lunch-41",
+  "meal": "lunch",
+  "name": "Jowar roti, dal tadka, palak sabzi and curd",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "dal",
+   "greens",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Jowar roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 90,
+    "kcal": 230,
+    "protein": 7.4,
+    "carbs": 50.5,
+    "fat": 2.4,
+    "fibreG": 4.7,
+    "ironMg": 2.35,
+    "calciumMg": 9,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Dal tadka",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 139,
+    "protein": 6.1,
+    "carbs": 19.4,
+    "fat": 4.7,
+    "fibreG": 4.6,
+    "ironMg": 2.08,
+    "calciumMg": 48,
+    "vitcMg": 4.9,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Palak, spinach sabzi",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 120,
+    "kcal": 74,
+    "protein": 3.1,
+    "carbs": 5.2,
+    "fat": 5.4,
+    "fibreG": 2.4,
+    "ironMg": 2.77,
+    "calciumMg": 105,
+    "vitcMg": 29.5,
+    "b12Ug": 0,
+    "sodiumMg": 467
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 535,
+  "protein": 21.8,
+  "carbs": 82.1,
+  "fat": 17.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-42",
+  "meal": "lunch",
+  "name": "Bajra roti, kadhi and aloo sabzi",
+  "cuisine": "Gujarati",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Bajra roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 90,
+    "kcal": 265,
+    "protein": 7.7,
+    "carbs": 51,
+    "fat": 3,
+    "fibreG": 6,
+    "ironMg": 2.11,
+    "calciumMg": 6,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 4
+   },
+   {
+    "food": "Kadhi",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 123,
+    "protein": 4.9,
+    "carbs": 10.2,
+    "fat": 7,
+    "fibreG": 1.5,
+    "ironMg": 0.94,
+    "calciumMg": 80,
+    "vitcMg": 0.3,
+    "b12Ug": 0.22,
+    "sodiumMg": 423
+   },
+   {
+    "food": "Aloo sabzi",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 120,
+    "kcal": 142,
+    "protein": 2.2,
+    "carbs": 18,
+    "fat": 7.2,
+    "fibreG": 2.3,
+    "ironMg": 1.42,
+    "calciumMg": 18,
+    "vitcMg": 19.7,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   }
+  ],
+  "kcal": 530,
+  "protein": 14.8,
+  "carbs": 79.2,
+  "fat": 17.2,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-43",
+  "meal": "lunch",
+  "name": "Rice, rajma masala, raita and cucumber",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "rajma",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Rice, cooked",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 183,
+    "protein": 3.6,
+    "carbs": 40,
+    "fat": 0.3,
+    "fibreG": 0.7,
+    "ironMg": 2.15,
+    "calciumMg": 14,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 3
+   },
+   {
+    "food": "Rajma masala",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 179,
+    "protein": 8.1,
+    "carbs": 23.6,
+    "fat": 6.6,
+    "fibreG": 9.4,
+    "ironMg": 3.03,
+    "calciumMg": 66,
+    "vitcMg": 8,
+    "b12Ug": 0,
+    "sodiumMg": 399
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   }
+  ],
+  "kcal": 443,
+  "protein": 16.1,
+  "carbs": 73,
+  "fat": 10.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-44",
+  "meal": "lunch",
+  "name": "Rice, rajma masala, raita and cucumber (mess or tiffin)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "rajma",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Rice, cooked",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 183,
+    "protein": 3.6,
+    "carbs": 40,
+    "fat": 0.3,
+    "fibreG": 0.7,
+    "ironMg": 2.15,
+    "calciumMg": 14,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 3
+   },
+   {
+    "food": "Rajma masala",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 179,
+    "protein": 8.1,
+    "carbs": 23.6,
+    "fat": 6.6,
+    "fibreG": 9.4,
+    "ironMg": 3.03,
+    "calciumMg": 66,
+    "vitcMg": 8,
+    "b12Ug": 0,
+    "sodiumMg": 399
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   }
+  ],
+  "kcal": 443,
+  "protein": 16.1,
+  "carbs": 73,
+  "fat": 10.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-45",
+  "meal": "lunch",
+  "name": "Rice, rajma masala, raita and cucumber (eating out)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "rajma",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Rice, cooked",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 183,
+    "protein": 3.6,
+    "carbs": 40,
+    "fat": 0.3,
+    "fibreG": 0.7,
+    "ironMg": 2.15,
+    "calciumMg": 14,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 3
+   },
+   {
+    "food": "Rajma masala",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 179,
+    "protein": 8.1,
+    "carbs": 23.6,
+    "fat": 6.6,
+    "fibreG": 9.4,
+    "ironMg": 3.03,
+    "calciumMg": 66,
+    "vitcMg": 8,
+    "b12Ug": 0,
+    "sodiumMg": 399
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   }
+  ],
+  "kcal": 443,
+  "protein": 16.1,
+  "carbs": 73,
+  "fat": 10.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-46",
+  "meal": "lunch",
+  "name": "Roti, chole masala and raita",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "chana",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Chole masala",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 212,
+    "protein": 8.2,
+    "carbs": 27.7,
+    "fat": 8.5,
+    "fibreG": 6.2,
+    "ironMg": 2.08,
+    "calciumMg": 43,
+    "vitcMg": 8.1,
+    "b12Ug": 0,
+    "sodiumMg": 400
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   }
+  ],
+  "kcal": 496,
+  "protein": 20.4,
+  "carbs": 79.6,
+  "fat": 13.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-47",
+  "meal": "lunch",
+  "name": "Roti, chole masala and raita (mess or tiffin)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "chana",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Chole masala",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 212,
+    "protein": 8.2,
+    "carbs": 27.7,
+    "fat": 8.5,
+    "fibreG": 6.2,
+    "ironMg": 2.08,
+    "calciumMg": 43,
+    "vitcMg": 8.1,
+    "b12Ug": 0,
+    "sodiumMg": 400
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   }
+  ],
+  "kcal": 496,
+  "protein": 20.4,
+  "carbs": 79.6,
+  "fat": 13.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-48",
+  "meal": "lunch",
+  "name": "Roti, chole masala and raita (eating out)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "chana",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Chole masala",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 212,
+    "protein": 8.2,
+    "carbs": 27.7,
+    "fat": 8.5,
+    "fibreG": 6.2,
+    "ironMg": 2.08,
+    "calciumMg": 43,
+    "vitcMg": 8.1,
+    "b12Ug": 0,
+    "sodiumMg": 400
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   }
+  ],
+  "kcal": 496,
+  "protein": 20.4,
+  "carbs": 79.6,
+  "fat": 13.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-49",
+  "meal": "lunch",
+  "name": "Rice, lobia curry, cabbage poriyal and curd",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "dal",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Rice, cooked",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 183,
+    "protein": 3.6,
+    "carbs": 40,
+    "fat": 0.3,
+    "fibreG": 0.7,
+    "ironMg": 2.15,
+    "calciumMg": 14,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 3
+   },
+   {
+    "food": "Lobia curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 162,
+    "protein": 7.7,
+    "carbs": 21.7,
+    "fat": 5.7,
+    "fibreG": 4.6,
+    "ironMg": 2.88,
+    "calciumMg": 48,
+    "vitcMg": 5.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Cabbage poriyal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 116,
+    "kcal": 92,
+    "protein": 1.7,
+    "carbs": 7.3,
+    "fat": 7,
+    "fibreG": 3.3,
+    "ironMg": 0.74,
+    "calciumMg": 43,
+    "vitcMg": 41.7,
+    "b12Ug": 0,
+    "sodiumMg": 407
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 529,
+  "protein": 18.2,
+  "carbs": 76,
+  "fat": 17.9,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-50",
+  "meal": "lunch",
+  "name": "Rice, lobia curry, cabbage poriyal and curd (mess or tiffin)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "dal",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Rice, cooked",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 183,
+    "protein": 3.6,
+    "carbs": 40,
+    "fat": 0.3,
+    "fibreG": 0.7,
+    "ironMg": 2.15,
+    "calciumMg": 14,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 3
+   },
+   {
+    "food": "Lobia curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 162,
+    "protein": 7.7,
+    "carbs": 21.7,
+    "fat": 5.7,
+    "fibreG": 4.6,
+    "ironMg": 2.88,
+    "calciumMg": 48,
+    "vitcMg": 5.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Cabbage poriyal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 116,
+    "kcal": 92,
+    "protein": 1.7,
+    "carbs": 7.3,
+    "fat": 7,
+    "fibreG": 3.3,
+    "ironMg": 0.74,
+    "calciumMg": 43,
+    "vitcMg": 41.7,
+    "b12Ug": 0,
+    "sodiumMg": 407
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 529,
+  "protein": 18.2,
+  "carbs": 76,
+  "fat": 17.9,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-51",
+  "meal": "lunch",
+  "name": "Fish tikka, 2 roti and cucumber",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "nonveg",
+  "jainOk": false,
+  "uses": [
+   "fish",
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Fish tikka",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 179,
+    "kcal": 205,
+    "protein": 29.3,
+    "carbs": 3.9,
+    "fat": 8.4,
+    "fibreG": 0.7,
+    "ironMg": 1.03,
+    "calciumMg": 48,
+    "vitcMg": 4.6,
+    "b12Ug": 2.29,
+    "sodiumMg": 549
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 530,
+  "protein": 43.7,
+  "carbs": 60.6,
+  "fat": 15,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-52",
+  "meal": "lunch",
+  "name": "Fish tikka, 2 roti and cucumber (eating out)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "nonveg",
+  "jainOk": false,
+  "uses": [
+   "fish",
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Fish tikka",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 179,
+    "kcal": 205,
+    "protein": 29.3,
+    "carbs": 3.9,
+    "fat": 8.4,
+    "fibreG": 0.7,
+    "ironMg": 1.03,
+    "calciumMg": 48,
+    "vitcMg": 4.6,
+    "b12Ug": 2.29,
+    "sodiumMg": 549
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 530,
+  "protein": 43.7,
+  "carbs": 60.6,
+  "fat": 15,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-53",
+  "meal": "lunch",
+  "name": "Sambar rice, beans poriyal and curd",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Sambar rice",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 300,
+    "kcal": 336,
+    "protein": 9.1,
+    "carbs": 61.3,
+    "fat": 6.3,
+    "fibreG": 6.9,
+    "ironMg": 4.07,
+    "calciumMg": 72,
+    "vitcMg": 3,
+    "b12Ug": 0,
+    "sodiumMg": 602
+   },
+   {
+    "food": "Beans poriyal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 114,
+    "kcal": 97,
+    "protein": 2.2,
+    "carbs": 8.3,
+    "fat": 7.1,
+    "fibreG": 3.5,
+    "ironMg": 1.27,
+    "calciumMg": 40,
+    "vitcMg": 12.5,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 525,
+  "protein": 16.5,
+  "carbs": 76.6,
+  "fat": 18.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-54",
+  "meal": "lunch",
+  "name": "Sambar rice, beans poriyal and curd (mess or tiffin)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Sambar rice",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 300,
+    "kcal": 336,
+    "protein": 9.1,
+    "carbs": 61.3,
+    "fat": 6.3,
+    "fibreG": 6.9,
+    "ironMg": 4.07,
+    "calciumMg": 72,
+    "vitcMg": 3,
+    "b12Ug": 0,
+    "sodiumMg": 602
+   },
+   {
+    "food": "Beans poriyal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 114,
+    "kcal": 97,
+    "protein": 2.2,
+    "carbs": 8.3,
+    "fat": 7.1,
+    "fibreG": 3.5,
+    "ironMg": 1.27,
+    "calciumMg": 40,
+    "vitcMg": 12.5,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 525,
+  "protein": 16.5,
+  "carbs": 76.6,
+  "fat": 18.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-55",
+  "meal": "lunch",
+  "name": "Sambar rice, beans poriyal and curd (eating out)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Sambar rice",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 300,
+    "kcal": 336,
+    "protein": 9.1,
+    "carbs": 61.3,
+    "fat": 6.3,
+    "fibreG": 6.9,
+    "ironMg": 4.07,
+    "calciumMg": 72,
+    "vitcMg": 3,
+    "b12Ug": 0,
+    "sodiumMg": 602
+   },
+   {
+    "food": "Beans poriyal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 114,
+    "kcal": 97,
+    "protein": 2.2,
+    "carbs": 8.3,
+    "fat": 7.1,
+    "fibreG": 3.5,
+    "ironMg": 1.27,
+    "calciumMg": 40,
+    "vitcMg": 12.5,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 525,
+  "protein": 16.5,
+  "carbs": 76.6,
+  "fat": 18.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-56",
+  "meal": "lunch",
+  "name": "Rice, moong dal, tofu and mixed vegetables",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "vegan",
+  "jainOk": false,
+  "uses": [
+   "rice",
+   "dal",
+   "tofu"
+  ],
+  "items": [
+   {
+    "food": "Rice, cooked",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 183,
+    "protein": 3.6,
+    "carbs": 40,
+    "fat": 0.3,
+    "fibreG": 0.7,
+    "ironMg": 2.15,
+    "calciumMg": 14,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 3
+   },
+   {
+    "food": "Moong dal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 128,
+    "protein": 6.2,
+    "carbs": 16.8,
+    "fat": 4.4,
+    "fibreG": 4.4,
+    "ironMg": 2.34,
+    "calciumMg": 40,
+    "vitcMg": 3.3,
+    "b12Ug": 0,
+    "sodiumMg": 393
+   },
+   {
+    "food": "Tofu, firm",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fat": 8.7,
+    "fibreG": 2.3,
+    "ironMg": 2.66,
+    "calciumMg": 683,
+    "vitcMg": 0.2,
+    "b12Ug": 0,
+    "sodiumMg": 14
+   },
+   {
+    "food": "Mixed vegetable curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 154,
+    "protein": 3.1,
+    "carbs": 15.4,
+    "fat": 9.9,
+    "fibreG": 5.3,
+    "ironMg": 1.49,
+    "calciumMg": 41,
+    "vitcMg": 18.9,
+    "b12Ug": 0,
+    "sodiumMg": 412
+   }
+  ],
+  "kcal": 609,
+  "protein": 30.2,
+  "carbs": 75,
+  "fat": 23.3,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-57",
+  "meal": "lunch",
+  "name": "Roti, palak paneer and raita",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "paneer",
+   "greens",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Palak paneer",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 277,
+    "kcal": 371,
+    "protein": 18.2,
+    "carbs": 11.8,
+    "fat": 28.5,
+    "fibreG": 5,
+    "ironMg": 4.72,
+    "calciumMg": 324,
+    "vitcMg": 45.5,
+    "b12Ug": 0.58,
+    "sodiumMg": 722
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   }
+  ],
+  "kcal": 655,
+  "protein": 30.4,
+  "carbs": 63.7,
+  "fat": 33.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "lunch-58",
+  "meal": "lunch",
+  "name": "Roti, palak paneer and raita (eating out)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "paneer",
+   "greens",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Palak paneer",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 277,
+    "kcal": 371,
+    "protein": 18.2,
+    "carbs": 11.8,
+    "fat": 28.5,
+    "fibreG": 5,
+    "ironMg": 4.72,
+    "calciumMg": 324,
+    "vitcMg": 45.5,
+    "b12Ug": 0.58,
+    "sodiumMg": 722
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   }
+  ],
+  "kcal": 655,
+  "protein": 30.4,
+  "carbs": 63.7,
+  "fat": 33.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
   "id": "dinner-01",
   "meal": "dinner",
   "name": "Egg bhurji, 2 roti and dal",
@@ -5817,6 +8282,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "roti",
    "dal"
   ],
   "items": [
@@ -5892,7 +8358,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "roti",
+   "dal",
+   "greens"
   ],
   "items": [
    {
@@ -5967,7 +8435,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "chicken",
+   "roti"
   ],
   "items": [
    {
@@ -6042,7 +8511,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "chicken",
+   "roti"
   ],
   "items": [
    {
@@ -6117,7 +8587,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken",
+   "fish",
+   "rice",
    "dal"
   ],
   "items": [
@@ -6196,6 +8667,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": true,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -6272,6 +8744,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "soya",
+   "roti",
    "dal"
   ],
   "items": [
@@ -6346,7 +8819,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   ],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Idli",
@@ -6403,7 +8878,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   ],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Plain dosa",
@@ -6478,6 +8955,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": true,
   "uses": [
    "dal",
+   "rice",
    "curd"
   ],
   "items": [
@@ -6569,7 +9047,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
-   "eggs"
+   "eggs",
+   "rice"
   ],
   "items": [
    {
@@ -6644,7 +9123,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "rajma",
+   "rice",
    "curd"
   ],
   "items": [
@@ -6720,7 +9200,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "chana",
+   "roti"
   ],
   "items": [
    {
@@ -6795,7 +9276,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "dal",
+   "roti"
   ],
   "items": [
    {
@@ -6868,6 +9350,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "sprouts",
+   "roti",
    "curd"
   ],
   "items": [
@@ -6943,7 +9426,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "mutton",
+   "roti"
   ],
   "items": [
    {
@@ -7017,6 +9501,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "roti",
    "dal"
   ],
   "items": [
@@ -7090,7 +9575,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "roti",
+   "dal",
+   "greens"
   ],
   "items": [
    {
@@ -7163,7 +9650,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "chicken",
+   "roti"
   ],
   "items": [
    {
@@ -7236,7 +9724,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "chicken",
+   "roti"
   ],
   "items": [
    {
@@ -7309,7 +9798,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken",
+   "fish",
+   "rice",
    "dal"
   ],
   "items": [
@@ -7383,6 +9873,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": true,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -7457,6 +9948,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "soya",
+   "roti",
    "dal"
   ],
   "items": [
@@ -7529,7 +10021,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Idli",
@@ -7584,7 +10078,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "needsCook": [],
   "diet": "vegan",
   "jainOk": false,
-  "uses": [],
+  "uses": [
+   "idli_dosa"
+  ],
   "items": [
    {
     "food": "Plain dosa",
@@ -7657,6 +10153,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": true,
   "uses": [
    "dal",
+   "rice",
    "curd"
   ],
   "items": [
@@ -7746,7 +10243,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
-   "eggs"
+   "eggs",
+   "rice"
   ],
   "items": [
    {
@@ -7819,7 +10317,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
-   "dal",
+   "rajma",
+   "rice",
    "curd"
   ],
   "items": [
@@ -7893,7 +10392,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "chana",
+   "roti"
   ],
   "items": [
    {
@@ -7966,7 +10466,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "dal",
+   "roti"
   ],
   "items": [
    {
@@ -8040,6 +10541,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "sprouts",
+   "roti",
    "curd"
   ],
   "items": [
@@ -8113,7 +10615,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "egg",
   "jainOk": false,
   "uses": [
+   "roti",
    "dal",
+   "rice",
    "eggs"
   ],
   "items": [
@@ -8219,7 +10723,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": false,
   "uses": [
+   "roti",
    "dal",
+   "rice",
    "soya",
    "curd"
   ],
@@ -8342,7 +10848,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "mutton",
+   "roti"
   ],
   "items": [
    {
@@ -8414,6 +10921,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "jainOk": false,
   "uses": [
    "eggs",
+   "roti",
    "dal"
   ],
   "items": [
@@ -8485,7 +10993,9 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "vegan",
   "jainOk": false,
   "uses": [
-   "dal"
+   "roti",
+   "dal",
+   "greens"
   ],
   "items": [
    {
@@ -8556,7 +11066,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "chicken",
+   "roti"
   ],
   "items": [
    {
@@ -8627,7 +11138,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken"
+   "chicken",
+   "roti"
   ],
   "items": [
    {
@@ -8698,7 +11210,8 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "nonveg",
   "jainOk": false,
   "uses": [
-   "chicken",
+   "fish",
+   "rice",
    "dal"
   ],
   "items": [
@@ -8770,6 +11283,7 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "diet": "veg",
   "jainOk": true,
   "uses": [
+   "rice",
    "curd"
   ],
   "items": [
@@ -8826,6 +11340,988 @@ export const MEAL_TEMPLATES: MealTemplate[] = [
   "protein": 15.5,
   "carbs": 58.7,
   "fat": 13.1,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-41",
+  "meal": "dinner",
+  "name": "Ragi mudde, sambar and sundal",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "vegan",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "chana"
+  ],
+  "items": [
+   {
+    "food": "Ragi mudde",
+    "unit": "ball",
+    "qty": 1,
+    "grams": 160,
+    "kcal": 164,
+    "protein": 3.7,
+    "carbs": 36,
+    "fat": 0.7,
+    "fibreG": 1.8,
+    "ironMg": 1.95,
+    "calciumMg": 172,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 199
+   },
+   {
+    "food": "Sambar",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 127,
+    "protein": 5.3,
+    "carbs": 19.4,
+    "fat": 3.8,
+    "fibreG": 5.1,
+    "ironMg": 1.89,
+    "calciumMg": 46,
+    "vitcMg": 4.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Sundal, chana",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 120,
+    "kcal": 190,
+    "protein": 7.6,
+    "carbs": 23.4,
+    "fat": 8,
+    "fibreG": 5.1,
+    "ironMg": 1.75,
+    "calciumMg": 23,
+    "vitcMg": 1.7,
+    "b12Ug": 0,
+    "sodiumMg": 398
+   }
+  ],
+  "kcal": 481,
+  "protein": 16.6,
+  "carbs": 78.8,
+  "fat": 12.5,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-42",
+  "meal": "dinner",
+  "name": "Jowar roti, moong dal and mixed vegetable curry",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "vegan",
+  "jainOk": false,
+  "uses": [
+   "millets",
+   "dal"
+  ],
+  "items": [
+   {
+    "food": "Jowar roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 90,
+    "kcal": 230,
+    "protein": 7.4,
+    "carbs": 50.5,
+    "fat": 2.4,
+    "fibreG": 4.7,
+    "ironMg": 2.35,
+    "calciumMg": 9,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Moong dal",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 128,
+    "protein": 6.2,
+    "carbs": 16.8,
+    "fat": 4.4,
+    "fibreG": 4.4,
+    "ironMg": 2.34,
+    "calciumMg": 40,
+    "vitcMg": 3.3,
+    "b12Ug": 0,
+    "sodiumMg": 393
+   },
+   {
+    "food": "Mixed vegetable curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 154,
+    "protein": 3.1,
+    "carbs": 15.4,
+    "fat": 9.9,
+    "fibreG": 5.3,
+    "ironMg": 1.49,
+    "calciumMg": 41,
+    "vitcMg": 18.9,
+    "b12Ug": 0,
+    "sodiumMg": 412
+   }
+  ],
+  "kcal": 512,
+  "protein": 16.7,
+  "carbs": 82.7,
+  "fat": 16.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-43",
+  "meal": "dinner",
+  "name": "Roti, palak paneer and dal tadka",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "paneer",
+   "greens",
+   "dal"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Palak paneer",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 277,
+    "kcal": 371,
+    "protein": 18.2,
+    "carbs": 11.8,
+    "fat": 28.5,
+    "fibreG": 5,
+    "ironMg": 4.72,
+    "calciumMg": 324,
+    "vitcMg": 45.5,
+    "b12Ug": 0.58,
+    "sodiumMg": 722
+   },
+   {
+    "food": "Dal tadka",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 139,
+    "protein": 6.1,
+    "carbs": 19.4,
+    "fat": 4.7,
+    "fibreG": 4.6,
+    "ironMg": 2.08,
+    "calciumMg": 48,
+    "vitcMg": 4.9,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   }
+  ],
+  "kcal": 728,
+  "protein": 32.8,
+  "carbs": 77.3,
+  "fat": 34.8,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-44",
+  "meal": "dinner",
+  "name": "Roti, palak paneer and dal tadka (eating out)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "paneer",
+   "greens",
+   "dal"
+  ],
+  "items": [
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Palak paneer",
+    "unit": "plate",
+    "qty": 1,
+    "grams": 277,
+    "kcal": 371,
+    "protein": 18.2,
+    "carbs": 11.8,
+    "fat": 28.5,
+    "fibreG": 5,
+    "ironMg": 4.72,
+    "calciumMg": 324,
+    "vitcMg": 45.5,
+    "b12Ug": 0.58,
+    "sodiumMg": 722
+   },
+   {
+    "food": "Dal tadka",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 139,
+    "protein": 6.1,
+    "carbs": 19.4,
+    "fat": 4.7,
+    "fibreG": 4.6,
+    "ironMg": 2.08,
+    "calciumMg": 48,
+    "vitcMg": 4.9,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   }
+  ],
+  "kcal": 728,
+  "protein": 32.8,
+  "carbs": 77.3,
+  "fat": 34.8,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-45",
+  "meal": "dinner",
+  "name": "Besan chilla, raita and papaya",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "besan",
+   "curd",
+   "fruit"
+  ],
+  "items": [
+   {
+    "food": "Besan chilla",
+    "unit": "chilla",
+    "qty": 2,
+    "grams": 180,
+    "kcal": 319,
+    "protein": 13.9,
+    "carbs": 38.3,
+    "fat": 12.1,
+    "fibreG": 7.2,
+    "ironMg": 3.04,
+    "calciumMg": 36,
+    "vitcMg": 5,
+    "b12Ug": 0,
+    "sodiumMg": 41
+   },
+   {
+    "food": "Raita",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 121,
+    "kcal": 66,
+    "protein": 3.7,
+    "carbs": 5.8,
+    "fat": 3.3,
+    "fibreG": 0.2,
+    "ironMg": 0.3,
+    "calciumMg": 128,
+    "vitcMg": 1.3,
+    "b12Ug": 0.37,
+    "sodiumMg": 318
+   },
+   {
+    "food": "Papaya",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 65,
+    "protein": 0.7,
+    "carbs": 16.2,
+    "fat": 0.4,
+    "fibreG": 2.6,
+    "ironMg": 0.38,
+    "calciumMg": 30,
+    "vitcMg": 91.4,
+    "b12Ug": 0,
+    "sodiumMg": 12
+   }
+  ],
+  "kcal": 450,
+  "protein": 18.3,
+  "carbs": 60.3,
+  "fat": 15.8,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-46",
+  "meal": "dinner",
+  "name": "Vegetable kurma, 2 roti and curd",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Vegetable kurma",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 178,
+    "protein": 3.1,
+    "carbs": 16.4,
+    "fat": 12.2,
+    "fibreG": 5.7,
+    "ironMg": 1.59,
+    "calciumMg": 38,
+    "vitcMg": 17.1,
+    "b12Ug": 0,
+    "sodiumMg": 411
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 488,
+  "protein": 16.8,
+  "carbs": 69.5,
+  "fat": 18.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-47",
+  "meal": "dinner",
+  "name": "Vegetable kurma, 2 roti and curd (mess or tiffin)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Vegetable kurma",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 178,
+    "protein": 3.1,
+    "carbs": 16.4,
+    "fat": 12.2,
+    "fibreG": 5.7,
+    "ironMg": 1.59,
+    "calciumMg": 38,
+    "vitcMg": 17.1,
+    "b12Ug": 0,
+    "sodiumMg": 411
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 488,
+  "protein": 16.8,
+  "carbs": 69.5,
+  "fat": 18.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-48",
+  "meal": "dinner",
+  "name": "Vegetable kurma, 2 roti and curd (eating out)",
+  "cuisine": "South Indian",
+  "needsSources": [
+   "outside"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Vegetable kurma",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 178,
+    "protein": 3.1,
+    "carbs": 16.4,
+    "fat": 12.2,
+    "fibreG": 5.7,
+    "ironMg": 1.59,
+    "calciumMg": 38,
+    "vitcMg": 17.1,
+    "b12Ug": 0,
+    "sodiumMg": 411
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 488,
+  "protein": 16.8,
+  "carbs": 69.5,
+  "fat": 18.7,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-49",
+  "meal": "dinner",
+  "name": "Lobia curry, 2 roti and cucumber",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "vegan",
+  "jainOk": false,
+  "uses": [
+   "dal",
+   "roti"
+  ],
+  "items": [
+   {
+    "food": "Lobia curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 162,
+    "protein": 7.7,
+    "carbs": 21.7,
+    "fat": 5.7,
+    "fibreG": 4.6,
+    "ironMg": 2.88,
+    "calciumMg": 48,
+    "vitcMg": 5.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   }
+  ],
+  "kcal": 395,
+  "protein": 16.9,
+  "carbs": 71.4,
+  "fat": 7.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-50",
+  "meal": "dinner",
+  "name": "Lobia curry, 2 roti and cucumber (mess or tiffin)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "vegan",
+  "jainOk": false,
+  "uses": [
+   "dal",
+   "roti"
+  ],
+  "items": [
+   {
+    "food": "Lobia curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 162,
+    "protein": 7.7,
+    "carbs": 21.7,
+    "fat": 5.7,
+    "fibreG": 4.6,
+    "ironMg": 2.88,
+    "calciumMg": 48,
+    "vitcMg": 5.4,
+    "b12Ug": 0,
+    "sodiumMg": 395
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Cucumber",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 15,
+    "protein": 0.7,
+    "carbs": 3.6,
+    "fat": 0.1,
+    "fibreG": 0.5,
+    "ironMg": 0.28,
+    "calciumMg": 16,
+    "vitcMg": 2.8,
+    "b12Ug": 0,
+    "sodiumMg": 2
+   }
+  ],
+  "kcal": 395,
+  "protein": 16.9,
+  "carbs": 71.4,
+  "fat": 7.4,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-51",
+  "meal": "dinner",
+  "name": "Tofu, 2 roti and dal fry",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "tofu",
+   "roti",
+   "dal"
+  ],
+  "items": [
+   {
+    "food": "Tofu, firm",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 100,
+    "kcal": 144,
+    "protein": 17.3,
+    "carbs": 2.8,
+    "fat": 8.7,
+    "fibreG": 2.3,
+    "ironMg": 2.66,
+    "calciumMg": 683,
+    "vitcMg": 0.2,
+    "b12Ug": 0,
+    "sodiumMg": 14
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Dal fry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 170,
+    "kcal": 195,
+    "protein": 7.3,
+    "carbs": 23.4,
+    "fat": 8.7,
+    "fibreG": 5.4,
+    "ironMg": 2.36,
+    "calciumMg": 58,
+    "vitcMg": 6.6,
+    "b12Ug": 0,
+    "sodiumMg": 590
+   }
+  ],
+  "kcal": 557,
+  "protein": 33.1,
+  "carbs": 72.3,
+  "fat": 19,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-52",
+  "meal": "dinner",
+  "name": "Sprouts curry, 2 roti and curd",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "home",
+   "self_cook"
+  ],
+  "needsCook": [
+   "full_kitchen",
+   "stove"
+  ],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "chana",
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Sprouts curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 7.2,
+    "fat": 4.4,
+    "fibreG": 2.5,
+    "ironMg": 0.81,
+    "calciumMg": 23,
+    "vitcMg": 12.8,
+    "b12Ug": 0,
+    "sodiumMg": 394
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 381,
+  "protein": 16.2,
+  "carbs": 60.3,
+  "fat": 10.9,
+  "costInr": null,
+  "reviewed": false
+ },
+ {
+  "id": "dinner-53",
+  "meal": "dinner",
+  "name": "Sprouts curry, 2 roti and curd (mess or tiffin)",
+  "cuisine": "North Indian",
+  "needsSources": [
+   "mess",
+   "pg_tiffin",
+   "canteen"
+  ],
+  "needsCook": [],
+  "diet": "veg",
+  "jainOk": false,
+  "uses": [
+   "chana",
+   "roti",
+   "curd"
+  ],
+  "items": [
+   {
+    "food": "Sprouts curry",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 71,
+    "protein": 2.5,
+    "carbs": 7.2,
+    "fat": 4.4,
+    "fibreG": 2.5,
+    "ironMg": 0.81,
+    "calciumMg": 23,
+    "vitcMg": 12.8,
+    "b12Ug": 0,
+    "sodiumMg": 394
+   },
+   {
+    "food": "Roti",
+    "unit": "roti",
+    "qty": 2,
+    "grams": 80,
+    "kcal": 218,
+    "protein": 8.5,
+    "carbs": 46.1,
+    "fat": 1.6,
+    "fibreG": 6.8,
+    "ironMg": 2.3,
+    "calciumMg": 22,
+    "vitcMg": 0,
+    "b12Ug": 0,
+    "sodiumMg": 1
+   },
+   {
+    "food": "Curd, plain",
+    "unit": "katori",
+    "qty": 1,
+    "grams": 150,
+    "kcal": 92,
+    "protein": 5.2,
+    "carbs": 7,
+    "fat": 4.9,
+    "fibreG": 0,
+    "ironMg": 0.08,
+    "calciumMg": 182,
+    "vitcMg": 0.8,
+    "b12Ug": 0.56,
+    "sodiumMg": 69
+   }
+  ],
+  "kcal": 381,
+  "protein": 16.2,
+  "carbs": 60.3,
+  "fat": 10.9,
   "costInr": null,
   "reviewed": false
  }
@@ -8917,7 +12413,7 @@ export const ADD_ONS: AddOn[] = [
   "fat": 8.2
  },
  {
-  "key": "paneer",
+  "key": "tofu",
   "label": "tofu",
   "food": "Tofu, firm",
   "unit": "katori",
@@ -8927,5 +12423,77 @@ export const ADD_ONS: AddOn[] = [
   "protein": 17.3,
   "carbs": 2.8,
   "fat": 8.7
+ },
+ {
+  "key": "paneer",
+  "label": "paneer",
+  "food": "Paneer",
+  "unit": "g",
+  "qty": 1,
+  "grams": 1,
+  "kcal": 3,
+  "protein": 0.2,
+  "carbs": 0,
+  "fat": 0.2
+ },
+ {
+  "key": "rajma",
+  "label": "rajma",
+  "food": "Rajma masala",
+  "unit": "katori",
+  "qty": 1,
+  "grams": 150,
+  "kcal": 179,
+  "protein": 8.1,
+  "carbs": 23.6,
+  "fat": 6.6
+ },
+ {
+  "key": "chana",
+  "label": "chana",
+  "food": "Sundal, chana",
+  "unit": "katori",
+  "qty": 1,
+  "grams": 120,
+  "kcal": 190,
+  "protein": 7.6,
+  "carbs": 23.4,
+  "fat": 8
+ },
+ {
+  "key": "sprouts",
+  "label": "sprouts",
+  "food": "Sprouts salad",
+  "unit": "katori",
+  "qty": 1,
+  "grams": 150,
+  "kcal": 41,
+  "protein": 3.4,
+  "carbs": 8.6,
+  "fat": 0.2
+ },
+ {
+  "key": "fish",
+  "label": "fish curry",
+  "food": "Fish curry",
+  "unit": "katori",
+  "qty": 1,
+  "grams": 200,
+  "kcal": 249,
+  "protein": 20.6,
+  "carbs": 8.9,
+  "fat": 14.6
+ },
+ {
+  "key": "buttermilk",
+  "label": "buttermilk",
+  "food": "Masala buttermilk",
+  "unit": "glass",
+  "qty": 1,
+  "grams": 250,
+  "kcal": 98,
+  "protein": 8,
+  "carbs": 11.7,
+  "fat": 2.7
  }
 ];

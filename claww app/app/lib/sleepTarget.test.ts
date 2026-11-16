@@ -84,3 +84,54 @@ describe('lastNightSleep', () => {
     expect(lastNightSleep([], now)).toBeNull();
   });
 });
+
+import { sleepWindow } from './sleepTarget';
+
+describe('lastNightSleep: entering a night again replaces it', () => {
+  it('a corrected entry with an earlier wake time wins over the one it corrects', () => {
+    const now = new Date(2026, 10, 14, 15, 4);
+    const old = { hours: 10, wake_time: new Date(2026, 10, 14, 9, 30).toISOString(), logged_at: new Date(2026, 10, 14, 15, 1).toISOString() };
+    const fixed = { hours: 6.5, wake_time: new Date(2026, 10, 14, 7, 0).toISOString(), logged_at: new Date(2026, 10, 14, 15, 4).toISOString() };
+    expect(lastNightSleep([old, fixed], now)).toBe(fixed);
+    expect(lastNightSleep([fixed, old], now)).toBe(fixed);
+  });
+});
+
+describe('sleepWindow: different timings', () => {
+  const t = (hour: number, minute: number, period: 'AM' | 'PM') => ({ hour, minute, period });
+  const hm = (d: Date) => `${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+  const at = (h: number, m = 0, day = 14) => new Date(2026, 10, day, h, m);
+
+  it('after midnight: 12:30 AM to 7:00 AM is 6.5 h, both on today', () => {
+    const w = sleepWindow(t(12, 30, 'AM'), t(7, 0, 'AM'), at(15, 4));
+    expect(w.hours).toBe(6.5);
+    expect(hm(w.bedtime)).toBe('14 0:30');
+    expect(hm(w.wakeTime)).toBe('14 7:00');
+  });
+  it('before midnight: 10:30 PM to 6:00 AM is 7.5 h, bed on the day before', () => {
+    const w = sleepWindow(t(10, 30, 'PM'), t(6, 0, 'AM'), at(8));
+    expect(w.hours).toBe(7.5);
+    expect(hm(w.bedtime)).toBe('13 22:30');
+  });
+  it('late: 2:00 AM to 10:00 AM is 8 h', () => {
+    expect(sleepWindow(t(2, 0, 'AM'), t(10, 0, 'AM'), at(15)).hours).toBe(8);
+  });
+  it('across midnight by minutes: 11:55 PM to 12:05 AM is 10 minutes', () => {
+    expect(sleepWindow(t(11, 55, 'PM'), t(12, 5, 'AM'), at(8)).hours).toBeCloseTo(10 / 60, 5);
+  });
+  it('early evening: 9:00 PM to 5:30 AM is 8.5 h', () => {
+    expect(sleepWindow(t(9, 0, 'PM'), t(5, 30, 'AM'), at(9)).hours).toBe(8.5);
+  });
+  it('12 PM and 12 AM are noon and midnight: 12:00 AM to 12:00 PM is 12 h', () => {
+    expect(sleepWindow(t(12, 0, 'AM'), t(12, 0, 'PM'), at(15)).hours).toBe(12);
+  });
+  it('a wake time still ahead of now means yesterday: logging at 1 AM about a 9 AM wake', () => {
+    const w = sleepWindow(t(1, 0, 'AM'), t(9, 0, 'AM'), at(1, 0));
+    expect(w.hours).toBe(8);
+    expect(hm(w.wakeTime)).toBe('13 9:00');
+    expect(hm(w.bedtime)).toBe('13 1:00');
+  });
+  it('the same bed and wake time is a full 24 h, never 0', () => {
+    expect(sleepWindow(t(10, 0, 'PM'), t(10, 0, 'PM'), at(23)).hours).toBe(24);
+  });
+});

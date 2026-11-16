@@ -1030,5 +1030,321 @@
       }
     ],
     "reviewed": false
+  },
+  {
+    "id": "breakfast-41",
+    "meal": "breakfast",
+    "name": "Ragi dosa, peanut chutney and sambar",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Ragi dosa",
+        "qty": 2
+      },
+      {
+        "food": "Peanut chutney",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-42",
+    "meal": "breakfast",
+    "name": "Ragi dosa, peanut chutney and sambar (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Ragi dosa",
+        "qty": 2
+      },
+      {
+        "food": "Peanut chutney",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-43",
+    "meal": "breakfast",
+    "name": "Ragi dosa, peanut chutney and sambar (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Ragi dosa",
+        "qty": 2
+      },
+      {
+        "food": "Peanut chutney",
+        "qty": 2
+      },
+      {
+        "food": "Sambar",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-44",
+    "meal": "breakfast",
+    "name": "Pesarattu, coconut chutney and curd",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Pesarattu",
+        "qty": 2
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-45",
+    "meal": "breakfast",
+    "name": "Pesarattu, coconut chutney and curd (eating out)",
+    "cuisine": "Andhra/Telangana",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Pesarattu",
+        "qty": 2
+      },
+      {
+        "food": "Coconut chutney",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-46",
+    "meal": "breakfast",
+    "name": "Upma, peanuts and a glass of milk",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Upma",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Milk, whole",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-47",
+    "meal": "breakfast",
+    "name": "Upma, peanuts and a glass of milk (mess or tiffin)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "mess",
+      "pg_tiffin",
+      "canteen"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Upma",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Milk, whole",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-48",
+    "meal": "breakfast",
+    "name": "Upma, peanuts and a glass of milk (eating out)",
+    "cuisine": "South Indian",
+    "needsSources": [
+      "outside"
+    ],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Upma",
+        "qty": 1
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Milk, whole",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-49",
+    "meal": "breakfast",
+    "name": "Sprouts salad, curd and a banana",
+    "cuisine": "North Indian",
+    "needsSources": [],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Sprouts salad",
+        "qty": 1
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      },
+      {
+        "food": "Banana",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-50",
+    "meal": "breakfast",
+    "name": "Banana, roasted peanuts and a glass of milk",
+    "cuisine": "North Indian",
+    "needsSources": [],
+    "needsCook": [],
+    "items": [
+      {
+        "food": "Banana",
+        "qty": 2
+      },
+      {
+        "food": "Roasted peanuts",
+        "qty": 1
+      },
+      {
+        "food": "Milk, whole",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-51",
+    "meal": "breakfast",
+    "name": "Thepla with curd",
+    "cuisine": "Gujarati",
+    "needsSources": [
+      "home",
+      "self_cook"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove"
+    ],
+    "items": [
+      {
+        "food": "Thepla",
+        "qty": 2
+      },
+      {
+        "food": "Curd, plain",
+        "qty": 1
+      }
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "breakfast-52",
+    "meal": "breakfast",
+    "name": "Masala oats and 2 boiled eggs",
+    "cuisine": "North Indian",
+    "needsSources": [
+      "home",
+      "self_cook",
+      "pg_tiffin"
+    ],
+    "needsCook": [
+      "full_kitchen",
+      "stove",
+      "kettle",
+      "microwave",
+      "rice_cooker"
+    ],
+    "items": [
+      {
+        "food": "Masala oats",
+        "qty": 1
+      },
+      {
+        "food": "Boiled eggs",
+        "qty": 2
+      }
+    ],
+    "reviewed": false
   }
 ]

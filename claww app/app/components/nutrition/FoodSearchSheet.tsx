@@ -36,6 +36,8 @@ export interface FoodSearchSheetProps {
   initialQuery?: string;
   /** When given, picking a food hands it back (with quantity and unit) instead of logging a meal: the scanner's "add something we missed". */
   onPickFood?: (food: Food, qty: number, unit: string) => void;
+  /** With onPickFood: a tap on a result hands it back at once, with no quantity step ("Add a food I get"). */
+  pickImmediately?: boolean;
   onClose: () => void;
   onLogged: (row: MealLogRow) => void;
 }
@@ -71,7 +73,7 @@ function SearchSkeleton() {
   );
 }
 
-export function FoodSearchSheet({ visible, mealType, recent, planned = false, initialQuery, onPickFood, onClose, onLogged }: FoodSearchSheetProps) {
+export function FoodSearchSheet({ visible, mealType, recent, planned = false, initialQuery, onPickFood, pickImmediately = false, onClose, onLogged }: FoodSearchSheetProps) {
   const router = useRouter();
   const { saveMeal, userId } = useAppState();
   // Polish step 6: saved plates come first, one tap to log.
@@ -127,6 +129,10 @@ export function FoodSearchSheet({ visible, mealType, recent, planned = false, in
 
   const choose = (food: Food) => {
     const def = defaultUnit(food);
+    if (pickImmediately && onPickFood) {
+      onPickFood(food, 1, def.unit);
+      return;
+    }
     // What was typed comes first: "2 roti" starts at 2 roti, "1 katori dal" at 1 katori, "200g paneer" at 200 g.
     const typed = parseQuery(query);
     const typedUnit = typed.unitWord === 'g' || typed.unitWord === 'gram' ? 'g' : unitsFor(food).find((x) => x.unit.toLowerCase() === typed.unitWord)?.unit;

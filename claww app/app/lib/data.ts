@@ -30,7 +30,8 @@ export type ExperienceLevel = 'beginner' | 'intermediate' | 'advanced';
 export type Equipment = 'gym' | 'home' | 'none';
 export type Modality = 'strength' | 'cardio' | 'mobility' | 'yoga';
 
-export type SplitPreference = 'auto' | 'full_body' | 'upper_lower' | 'push_pull_legs';
+export type SplitPreference = 'auto' | 'full_body' | 'upper_lower' | 'push_pull_legs' | 'body_part';
+export type WorkoutIntensity = 'easy' | 'standard' | 'hard';
 
 export interface WorkoutDefaults {
   /** NG PHASE 5: days per week asked in setup; generate-plan uses it before the weekday picks. */
@@ -53,6 +54,8 @@ export interface WorkoutDefaults {
    * before this existed — the other values are a hard constraint passed
    * into the prompt, not another exercise-picking `suggestion`. */
   splitPreference?: SplitPreference;
+  /** How hard the sessions are: easy has fewer sets, hard one more set on the main lifts. Absent means standard. */
+  intensity?: WorkoutIntensity;
 }
 
 export type DietaryRestriction =
@@ -242,6 +245,9 @@ export interface WorkoutIntakeInput {
   trainingMonths: number;
   sessionMinutes: number;
   injuries: Injury[];
+  /** The style of week; 'auto' lets the days decide. */
+  splitPreference?: SplitPreference;
+  intensity?: WorkoutIntensity;
 }
 
 /** Experience level kept in step with the months trained (older code still reads experience_level). */
@@ -265,6 +271,8 @@ export async function saveWorkoutIntake(userId: string, input: WorkoutIntakeInpu
       activityLevel: existing?.activityLevel ?? 'moderate',
       ...existing,
       daysPerWeek: input.daysPerWeek,
+      ...(input.splitPreference ? { splitPreference: input.splitPreference } : {}),
+      ...(input.intensity ? { intensity: input.intensity } : {}),
       // The structured injuries replace the old free text, so the two can't disagree.
       injuries: undefined,
     },
@@ -425,7 +433,7 @@ export async function getRecentSleepLogs(userId: string, days = 7): Promise<Slee
   return data ?? [];
 }
 
-export async function insertSleepLog(userId: string, hours: number, bedtime: Date, wakeTime: Date): Promise<boolean> {
+export async function insertSleepLog(userId: string, hours: number, bedtime: Date, wakeTime: Date, awardXpForLog = true): Promise<boolean> {
   // NG PHASE 14: stored on the phone first, sent from there; XP is awarded when it is really saved.
   const id = newClientId();
   const outcome = await writeOrQueue(id, {
@@ -433,7 +441,8 @@ export async function insertSleepLog(userId: string, hours: number, bedtime: Dat
     table: 'sleep_logs',
     userId,
     row: { id, user_id: userId, hours, bedtime: bedtime.toISOString(), wake_time: wakeTime.toISOString(), logged_at: new Date().toISOString() },
-    xp: { amount: 10, reason: 'sleep_logged' },
+    // Entering a night again corrects it; it does not earn XP a second time.
+    xp: awardXpForLog ? { amount: 10, reason: 'sleep_logged' } : undefined,
   });
   if (outcome === 'failed') console.warn('[Claww] The server refused this sleep log.');
   return outcome !== 'failed';

@@ -36,3 +36,10 @@ UPDATE foods SET reviewed_by = 'Name', reviewed_at = now() WHERE name IN ('...')
 ```
 
 Open rows: `SELECT name, source FROM foods WHERE reviewed_by IS NULL ORDER BY source, name;`
+
+## Added with the card deck (for the nutritionist)
+
+- **29 foods are asked about in "Can you get these?"** (was 12): the new ones are tofu, rajma, chole and kala chana, fish and prawns, mutton and keema, besan chilla, buttermilk, almonds and walnuts, makhana, roti, rice, ragi / bajra / jowar, poha and upma, idli and dosa, bread, leafy greens and seasonal fruit. Sources: ICMR-NIN Dietary Guidelines 2024 (cereal to pulse about 3:1, millets 30 to 40 percent of cereals, 400 g vegetables, whole fruit over juice, about 200 g of oily fish a week for non-vegetarians), and IFCT 2017 protein values as quoted by Indian dietitians' lists. Please check the default yes / sometimes / no per kitchen set-up in `app/lib/resourceDefaults.ts` (`defaultAvailability`).
+- **Protein powder.** ICMR-NIN says protein powders are unnecessary for normal healthy life. Whey stays as an optional row, default "no", and the planner only suggests it when the person says they can get it.
+- **43 new meal templates** (163 in all; 21 new base meals, each written for home, mess or tiffin, or eating out where that makes sense): ragi dosa, pesarattu, upma with peanuts and milk, sprouts and banana, thepla, masala oats and eggs, jowar and bajra roti meals, rajma, chole, lobia, fish tikka, sambar rice, tofu, palak paneer, ragi mudde, besan chilla, vegetable kurma and sprouts curry. Every number is computed from the food database and every template is `reviewed: false`.
+- **Tag fix.** The "paneer" tag used to match only tofu, so paneer dishes were never excluded for someone who cannot get paneer. It now matches paneer dishes, and tofu has its own row. Meat and fish used to share the Chicken row; fish and mutton now have their own.

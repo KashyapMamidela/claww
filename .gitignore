@@ -5,3 +5,9 @@ supabase/.temp/
 # Showreel renders (hundreds of MB) and its packages: keep them out of git and EAS build uploads.
 claww app/showreel/out/
 claww app/showreel/node_modules/
+
+# Stray empty root lockfile and empty node_modules folder
+/package-lock.json
+claww app/node_modules/
+claww app/showreel/.claude/
+claww app/showreel/.agents/

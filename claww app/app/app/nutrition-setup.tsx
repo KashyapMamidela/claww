@@ -6,6 +6,7 @@ import { COLORS } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { getProfile } from '../lib/data';
 import { getUserResources } from '../lib/userResources';
+import { customNamesFrom, withoutCustom } from '../lib/customFoods';
 import { dietFromRestrictions } from '../lib/resourceDefaults';
 import { emptyDraft, resetDraft } from '../lib/mealSetupDraft';
 
@@ -41,7 +42,8 @@ export default function NutritionSetupEntry() {
           sources: resources.sources,
           cookWith: resources.cookWith,
           diet: resources.diet,
-          edits: resources.availability,
+          edits: withoutCustom(resources.availability),
+          customFoods: customNamesFrom(resources.availability),
           budget: resources.budgetInrDay,
           planStyle: resources.planStyle,
         });

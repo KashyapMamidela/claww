@@ -11,6 +11,9 @@ import { setDone } from './haptics';
 import { hideSessionNotification, onSessionNotificationAction, showSessionNotification } from '../modules/claww-session-notification';
 import { ActivityPlayer } from '../components/activity/ActivityPlayer';
 
+/** Under this a started activity counts as a slip and is not logged. */
+const MIN_LOGGED_SECONDS = 30;
+
 // A live activity: pick a sport or a walk, start a timer, and play. The timer is timestamp-based (lib/sessionClock), so it
 // stays right while the app is in the background, and it is saved on the phone so a restart brings it back. While it runs
 // there is a player (full screen, or a bar above the tab bar) and an ongoing notification with a chronometer and a Done
@@ -136,12 +139,24 @@ export function ActivitySessionProvider({ children }: { children: React.ReactNod
     hideSessionNotification();
   }, [save]);
 
+  const finishing = useRef(false);
   const finish = useCallback(async () => {
     const a = activeRef.current;
-    if (!a || !userId) return false;
+    if (!a || !userId || finishing.current) return false;
     const seconds = elapsedSeconds(a.clock, Date.now());
+    if (seconds < MIN_LOGGED_SECONDS) {
+      // Started by accident (a double tap): nothing was played, so nothing is logged, and no celebration.
+      discard();
+      return true;
+    }
+    finishing.current = true;
     const minutes = Math.max(1, Math.round(seconds / 60));
-    const ok = await logActivity(userId, a.name, minutes);
+    let ok = false;
+    try {
+      ok = await logActivity(userId, a.name, minutes);
+    } finally {
+      finishing.current = false;
+    }
     if (!ok) return false;
     const kcal = liveActivityKcal(a.name, seconds, weightKg);
     setActive(null);
@@ -150,7 +165,7 @@ export function ActivitySessionProvider({ children }: { children: React.ReactNod
     hideSessionNotification();
     showMoment({ kind: 'activity', userId, name: a.name, minutes, kcal });
     return true;
-  }, [userId, weightKg, save]);
+  }, [userId, weightKg, save, discard]);
 
   // The notification: a count-up chronometer while it runs, "Paused" when it doesn't, and a Done button. A workout shares
   // the same notification, so while one is running it keeps the notification to itself.

@@ -22,6 +22,16 @@ export interface WeekFacts {
   climbs: number;
 }
 
+/**
+ * Sessions done this week: the distinct plan days with a completed event since Monday, never more than the plan has.
+ * Doing the same day twice, or logging a session again, is still one session of the plan.
+ */
+export function sessionsDoneThisWeek(events: { status: string; dayLabel: string; createdAt: string }[], start: Date, planned: number): number {
+  const days = new Set<string>();
+  for (const e of events) if (e.status === 'completed' && new Date(e.createdAt) >= start) days.add(e.dayLabel);
+  return planned > 0 ? Math.min(days.size, planned) : days.size;
+}
+
 /** "4 of 4 sessions, protein hit on 5 days. Next week climbs a little." */
 export function reviewLine(f: WeekFacts): string {
   const parts: string[] = [];

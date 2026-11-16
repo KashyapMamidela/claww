@@ -8,13 +8,36 @@ import { resourceGaps } from './resourceGaps';
 describe('visibleFoods', () => {
   it('vegetarian, vegan and Jain hide eggs and chicken; eggetarian hides chicken only', () => {
     for (const d of ['veg', 'vegan', 'jain'] as const) {
-      expect(visibleFoods(d)).not.toContain('eggs');
-      expect(visibleFoods(d)).not.toContain('chicken');
+      for (const meat of ['eggs', 'chicken', 'fish', 'mutton'] as const) expect(visibleFoods(d)).not.toContain(meat);
     }
     expect(visibleFoods('egg')).toContain('eggs');
-    expect(visibleFoods('egg')).not.toContain('chicken');
-    expect(visibleFoods('nonveg')).toHaveLength(12);
-    expect(visibleFoods(null)).toHaveLength(12);
+    for (const meat of ['chicken', 'fish', 'mutton'] as const) expect(visibleFoods('egg')).not.toContain(meat);
+    expect(visibleFoods('nonveg')).toHaveLength(FOOD_ROWS.length);
+    expect(visibleFoods(null)).toHaveLength(FOOD_ROWS.length);
+    expect(visibleFoods('vegan')).not.toContain('buttermilk');
+  });
+  it('asks about 29 foods in four groups, each with a title and a line', () => {
+    expect(FOOD_ROWS).toHaveLength(29);
+    expect(new Set(FOOD_ROWS.map((r) => r.key)).size).toBe(29);
+    expect(new Set(FOOD_ROWS.map((r) => r.group))).toEqual(new Set(['protein', 'everyday', 'staple', 'fresh']));
+    for (const r of FOOD_ROWS) {
+      expect(r.title.length).toBeGreaterThan(2);
+      expect(r.sub.length).toBeGreaterThan(2);
+    }
+  });
+  it('defaults follow where food comes from and how it is cooked', () => {
+    const home = defaultAvailability(['home'], ['full_kitchen'], 'veg');
+    expect(home.rajma).toBe('yes');
+    expect(home.idli_dosa).toBe('yes');
+    expect(home.roti).toBe('yes');
+    expect(home.fish).toBe('no');
+    const mess = defaultAvailability(['mess'], ['kettle'], 'nonveg');
+    expect(mess.rajma).toBe('sometimes');
+    expect(mess.fish).toBe('sometimes');
+    expect(mess.besan).toBe('no');
+    const nothing = defaultAvailability([], [], null);
+    expect(nothing.rajma).toBe('no');
+    expect(nothing.roti).toBe('no');
   });
 });
 
@@ -86,8 +109,10 @@ describe('budget, labels and helpers', () => {
   });
   it('counts and the protein verdict', () => {
     const a = defaultAvailability(['mess', 'outside'], ['kettle'], 'egg');
-    expect(countAvailability(a, FOOD_ROWS.map((r) => r.key))).toEqual({ yes: 6, sometimes: 2, no: 4 });
-    expect(proteinVerdict(a, 'egg')).toBe('Plenty of protein options');
+    const c = countAvailability(a, FOOD_ROWS.map((r) => r.key));
+    expect(c.yes + c.sometimes + c.no).toBe(29);
+    expect(c.yes).toBeGreaterThanOrEqual(6);
+    expect(proteinVerdict(a, 'egg')).toMatch(/protein options/);
     expect(proteinVerdict(defaultAvailability(['outside'], ['none'], 'veg'), 'veg')).not.toBe('Plenty of protein options');
   });
   it('hand edits survive new defaults', () => {

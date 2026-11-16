@@ -9,6 +9,7 @@ import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { Icon } from '../components/ui/Icon';
 import { MedicalDisclaimerModal } from '../components/MedicalDisclaimerModal';
 import { openSupportEmail } from '../lib/support';
+import { StatusBarShield } from '../components/ui/StatusBarShield';
 
 // SHIP PHASE 8.5 — reads the real version from app config instead of the
 // hardcoded "Version 3.4.1 · Build 20240414" string that used to live in
@@ -32,6 +33,7 @@ export default function AboutScreen() {
   ];
 
   return (
+    <>
     <ScrollView style={{ flex: 1, backgroundColor: '#050505' }} showsVerticalScrollIndicator={false}>
       <View style={{ paddingHorizontal: 16, paddingTop: insets.top + 8, paddingBottom: 32, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingTop: 2 }}>
@@ -75,5 +77,7 @@ export default function AboutScreen() {
       </View>
       <MedicalDisclaimerModal visible={disclaimer} onClose={() => setDisclaimer(false)} />
     </ScrollView>
+    <StatusBarShield color="#050505" />
+    </>
   );
 }

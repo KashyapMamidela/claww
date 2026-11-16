@@ -2,12 +2,12 @@ import { corsHeaders, jsonHeaders } from '../_shared/cors.ts';
 import { logGenerationFailure } from '../_shared/generationFailures.ts';
 import { computeRecoveryScore, proteinShare } from '../_shared/recovery.ts';
 import { applyTrainingWeekdays, deriveAllowedEquipment } from '../_shared/planning.ts';
-import { BLUEPRINTS } from '../_shared/blueprints/index.ts';
+import { ALL_BLUEPRINTS as BLUEPRINTS } from '../_shared/blueprints/all.ts';
 import { buildStyledPlan, cleanStyles, needsStyledPlan } from '../_shared/stylePlan.ts';
 import { injuriesFromText, parseInjuries } from '../_shared/injuryRules.ts';
 import {
-  applyBlockWeek, applyRegenerationReason, fillBlueprint, fitPlan, nextBlockState, pickBlueprint, toPlan,
-  type BlockState, type CatalogRow, type PlanOut,
+  applyBlockWeek, applyIntensity, applyRegenerationReason, fillBlueprint, fitPlan, INTENSITIES, nextBlockState, pickBlueprint, splitFromPreference, toPlan,
+  type BlockState, type Intensity, type CatalogRow, type PlanOut,
 } from '../_shared/planTree.ts';
 import { UnauthorizedError, requireUser, userClientFromRequest } from '../_shared/supabaseClient.ts';
 import { reportEdgeError } from '../_shared/sentry.ts';
@@ -116,7 +116,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const personalizationProfile = (profile?.personalization_profile ?? null) as Record<string, unknown> | null;
-    const workoutDefaults = (personalizationProfile as { workoutDefaults?: { injuries?: string; activityLevel?: string; dislikedExercises?: unknown } } | null)?.workoutDefaults;
+    const workoutDefaults = (personalizationProfile as { workoutDefaults?: { injuries?: string; activityLevel?: string; dislikedExercises?: unknown; splitPreference?: unknown; intensity?: unknown } } | null)?.workoutDefaults;
     const trainingDays = deriveTrainingDays(personalizationProfile);
     const daysPerWeek = deriveDaysPerWeek(personalizationProfile) ?? (trainingDays?.length || computeTrainingDays(profile?.experience_level ?? null, workoutDefaults?.activityLevel ?? null, profile?.age ?? null));
     const structured = parseInjuries(profile?.injuries);
@@ -124,7 +124,9 @@ Deno.serve(async (req: Request) => {
     const trainingMonths = profile?.training_months ?? MONTHS_BY_LEVEL[profile?.experience_level ?? ''] ?? 12;
     const dislikes = Array.isArray(workoutDefaults?.dislikedExercises) ? (workoutDefaults!.dislikedExercises as unknown[]).filter((x): x is string => typeof x === 'string') : [];
 
-    const planProfile = { goal: profile?.goal ?? null, equipment: profile?.equipment ?? null, daysPerWeek, trainingMonths, sessionMinutes: profile?.session_minutes ?? null, injuries };
+    const split = splitFromPreference(workoutDefaults?.splitPreference);
+    const intensity: Intensity = (INTENSITIES as unknown[]).includes(workoutDefaults?.intensity) ? (workoutDefaults!.intensity as Intensity) : 'standard';
+    const planProfile = { goal: profile?.goal ?? null, equipment: profile?.equipment ?? null, daysPerWeek, trainingMonths, sessionMinutes: profile?.session_minutes ?? null, injuries, split, intensity };
 
     const previousBlock =
       latestWorkout?.block_number && latestWorkout.block_week
@@ -175,7 +177,7 @@ Deno.serve(async (req: Request) => {
       }
     } else {
       const picked = pickBlueprint(planProfile, BLUEPRINTS);
-      const filled = fillBlueprint(picked.blueprint, catalog as CatalogRow[], {
+      const filled = fillBlueprint(applyIntensity(picked.blueprint, intensity), catalog as CatalogRow[], {
         seed: user.id,
         allowedEquipment: deriveAllowedEquipment(profile?.equipment),
         injuries,

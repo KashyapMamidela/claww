@@ -33,6 +33,7 @@ import * as haptics from '../lib/haptics';
 import { NotificationPromptCard } from '../components/NotificationPromptCard';
 import { ShareCard } from '../components/workouts/ShareCard';
 import { track, AnalyticsEvent } from '../lib/analytics';
+import { setsLabel } from '../lib/plural';
 
 const RATING_PROMPT_AT_WORKOUTS = 3; // same milestone as Tracker's own unlock threshold
 
@@ -158,7 +159,7 @@ export default function WorkoutCompleteScreen() {
     title,
     focus: summary?.focus || 'Workout',
     minutes,
-    setsText: summary ? `${summary.setsCompleted} sets` : '0 sets',
+    setsText: setsLabel(summary?.setsCompleted ?? 0),
     volumeText: byReps ? `${repsDone} reps` : `${volume.toLocaleString('en-IN')} kg`,
     kcal,
     bestLine: best ? `${best.name}: ${newBestText(best)}` : null,
@@ -174,7 +175,7 @@ export default function WorkoutCompleteScreen() {
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: shareFileName(now), UTI: 'public.png' });
       } else {
-        await Share.share({ message: `${title}: ${summary?.setsCompleted ?? 0} sets, ${byReps ? `${repsDone} reps` : `${volume} kg`}, ${minutes} min. Trained with CLAWW.` });
+        await Share.share({ message: `${title}: ${setsLabel(summary?.setsCompleted ?? 0)}, ${byReps ? `${repsDone} reps` : `${volume} kg`}, ${minutes} min. Trained with CLAWW.` });
       }
     } catch {
       // The user closing the share sheet is not an error; a failed capture just leaves the card as it was.

@@ -7,6 +7,7 @@ import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
 import { Stamp } from '../ui/Stamp';
+import { setsLabel } from '../../lib/plural';
 
 // Premium H6: one card under Daily progress that answers "what am I training today". Three states, one accent each:
 // training (blue), rest day (indigo), done (a quieter blue: green belongs to food, and a finished session
@@ -86,7 +87,7 @@ export function SessionCard(p: SessionCardProps) {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
             {p.exercises ? <Pill text={`${p.exercises} exercise${p.exercises === 1 ? '' : 's'}`} /> : null}
             {p.minutes ? <Pill text={`~${p.minutes} min`} /> : null}
-            {p.state === 'done' ? (p.setsDone ? <Pill text={p.sets ? `${p.setsDone} of ${p.sets} sets` : `${p.setsDone} sets done`} /> : null) : p.sets ? <Pill text={`${p.sets} sets`} /> : null}
+            {p.state === 'done' ? (p.setsDone ? <Pill text={p.sets && p.setsDone <= p.sets ? `${p.setsDone} of ${setsLabel(p.sets)}` : `${setsLabel(p.setsDone)} done`} /> : null) : p.sets ? <Pill text={setsLabel(p.sets)} /> : null}
           </View>
         )}
 

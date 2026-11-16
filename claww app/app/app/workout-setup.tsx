@@ -6,11 +6,12 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { COLORS, FONT, BG, bg } from '../lib/theme';
 import { useAppState } from '../lib/appState';
 import { basicsSummary, hasBasics, profileBasics, useProfile } from '../lib/profile';
-import { saveWorkoutIntake, type Equipment, type Goal } from '../lib/data';
-import { INJURY_PARTS, SEVERITIES, cleanTrainStyles, type Injury, type InjuryPart, type Severity } from '../lib/engine';
+import { saveWorkoutIntake, type Equipment, type Goal, type SplitPreference, type WorkoutIntensity } from '../lib/data';
+import { INJURY_PARTS, SEVERITIES, SPLIT_BLURBS, SPLIT_DAYS, SPLIT_IDS, SPLIT_LABELS, cleanTrainStyles, type Injury, type InjuryPart, type Severity, type Split } from '../lib/engine';
 import { planCard } from '../lib/planCard';
 import { trainingDaysPerWeek } from '../lib/trainingWeek';
 import { Button } from '../components/ui/Button';
+import { CardCarousel } from '../components/ui/CardCarousel';
 import { Chip } from '../components/ui/Chip';
 import { Hero } from '../components/ui/Hero';
 import { Icon } from '../components/ui/Icon';
@@ -66,6 +67,24 @@ const SEVERITY_TEXT: Record<Severity, { label: string; note: string }> = {
   severe: { label: 'Severe', note: 'It hurts day to day.' },
 };
 
+// The style of week: stored as the older SplitPreference words, shown with the plain names from the blueprints.
+const SPLIT_PREF: Record<Split, SplitPreference> = { FB: 'full_body', UL: 'upper_lower', PPL: 'push_pull_legs', BRO: 'body_part' };
+const splitFromPref = (p: unknown): Split | null => (SPLIT_IDS.find((id) => SPLIT_PREF[id] === p) ?? null);
+
+const INTENSITY_OPTIONS: { value: WorkoutIntensity; label: string; note: string }[] = [
+  { value: 'easy', label: 'Easy', note: 'Fewer sets, more in reserve. Gentle on a busy or low-energy week.' },
+  { value: 'standard', label: 'Standard', note: 'The plan as written.' },
+  { value: 'hard', label: 'Hard', note: 'One more set on the main lifts, closer to failure.' },
+];
+
+/** "Nearest: 4 days" for a style that has no week for the days picked, else null. */
+function styleDaysNote(split: Split, days: number): string | null {
+  const have = SPLIT_DAYS[split];
+  if (have.includes(days)) return null;
+  const nearest = [...have].sort((a, b) => Math.abs(a - days) - Math.abs(b - days) || a - b)[0];
+  return `Nearest: ${nearest} days`;
+}
+
 const goalFromProfile = (g: string | null | undefined): Goal => (g === 'muscle_gain' || g === 'fat_loss' || g === 'strength' ? g : 'maintenance');
 
 export default function WorkoutSetup() {
@@ -87,6 +106,12 @@ export default function WorkoutSetup() {
   const [months, setMonths] = useState(12);
   const [minutes, setMinutes] = useState<Minutes>('60');
   const [injuries, setInjuries] = useState<Injury[]>([]);
+  const [split, setSplit] = useState<Split | null>(null);
+  const [qIdx, setQIdx] = useState(0);
+  const [qView, setQView] = useState<'cards' | 'list'>('cards');
+  // While a finger is on the question deck the page does not scroll, so a swipe on the deck is never a scroll.
+  const [qTouched, setQTouched] = useState(false);
+  const [intensity, setIntensity] = useState<WorkoutIntensity>('standard');
   const styles = useMemo(() => cleanTrainStyles(profile?.personalization_profile?.workoutDefaults?.styles), [profile]);
   const [sheetPart, setSheetPart] = useState<InjuryPart | null>(null);
   const [saving, setSaving] = useState(false);
@@ -105,13 +130,16 @@ export default function WorkoutSetup() {
     setInjuries(Array.isArray(profile.injuries) ? profile.injuries : []);
     const stored = profile.personalization_profile?.workoutDefaults?.daysPerWeek;
     setDays(stored ?? Math.min(6, Math.max(2, trainingDaysPerWeek(profile.experience_level, profile.personalization_profile?.workoutDefaults?.activityLevel ?? null, profile.age))));
+    const wd = profile.personalization_profile?.workoutDefaults;
+    setSplit(splitFromPref(wd?.splitPreference));
+    if (wd?.intensity === 'easy' || wd?.intensity === 'hard') setIntensity(wd.intensity);
     if (profile.height) setHeight(String(profile.height));
     if (profile.weight) setWeight(String(profile.weight));
   }, [seeded, loading, profile]);
 
   const card = useMemo(
-    () => planCard({ goal, equipment: place, daysPerWeek: days, trainingMonths: months, sessionMinutes: Number(minutes), injuries, styles }),
-    [goal, place, days, months, minutes, injuries, styles]
+    () => planCard({ goal, equipment: place, daysPerWeek: days, trainingMonths: months, sessionMinutes: Number(minutes), injuries, styles, split, intensity }),
+    [goal, place, days, months, minutes, injuries, styles, split, intensity]
   );
 
   const showInputs = !known && !loading ? true : editing;
@@ -139,6 +167,8 @@ export default function WorkoutSetup() {
       trainingMonths: months,
       sessionMinutes: Number(minutes),
       injuries,
+      splitPreference: split ? SPLIT_PREF[split] : 'auto',
+      intensity,
     });
     setSaving(false);
     if (!ok) {
@@ -165,21 +195,26 @@ export default function WorkoutSetup() {
       </View>
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 14 }} keyboardShouldPersistTaps="handled">
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, gap: 14 }} keyboardShouldPersistTaps="handled" scrollEnabled={!qTouched}>
           {known && !editing ? (
             <ProfileBasicsCard summary={basicsSummary(basics, ['heightCm', 'weightKg'])} accent={A} onEdit={() => setEditing(true)} />
           ) : showInputs ? (
             <BasicsInputs initialHeight={height} initialWeight={weight} onChange={(h, w) => { setHeight(h); setWeight(w); }} />
           ) : null}
 
-          {inOnboarding ? null : (
-            <>
-          <SectionHeader>Your goal</SectionHeader>
+          {(() => {
+            // Each question is a card. Swipe up for the next one, down for the one before (or use the buttons);
+            // List shows them all at once, as before.
+            const questions: { id: string; title: string; body: React.ReactNode }[] = [
+              ...(inOnboarding
+                ? []
+                : [
+                    { id: 'goal', title: 'Your goal', body: <View style={{ gap: 12 }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {GOALS.map((g) => {
               const on = goal === g.value;
               return (
-                <PressScale key={g.value} onPress={() => setGoal(g.value)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${g.title}. ${g.sub}`} style={{ width: '48.4%' }}>
+                <PressScale key={g.value} onPress={() => setGoal(g.value)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${g.title}. ${g.sub}`} style={{ width: '47.5%' }}>
                   <View style={{ minHeight: 100, borderRadius: 18, borderWidth: 1, borderColor: on ? A : COLORS.border, overflow: 'hidden', padding: 14, gap: 10, backgroundColor: COLORS.card }}>
                     {on ? <LinearGradient pointerEvents="none" colors={['rgba(59,130,246,0.30)', 'rgba(29,78,216,0.10)']} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} /> : null}
                     <View style={{ width: 32, height: 32, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: on ? 'rgba(255,255,255,0.12)' : 'rgba(59,130,246,0.14)' }}>
@@ -194,13 +229,8 @@ export default function WorkoutSetup() {
               );
             })}
           </View>
-
-            </>
-          )}
-
-          {inOnboarding ? null : (
-            <>
-          <SectionHeader>Days a week you can train</SectionHeader>
+          </View> },
+                    { id: 'days', title: 'Days a week you can train', body: <View style={{ gap: 12 }}>
           <View style={{ flexDirection: 'row', gap: 8 }} accessibilityRole="radiogroup">
             {[2, 3, 4, 5, 6].map((n) => {
               const on = days === n;
@@ -213,13 +243,31 @@ export default function WorkoutSetup() {
               );
             })}
           </View>
-
-            </>
-          )}
-
-          {inOnboarding ? null : (
-            <>
-          <SectionHeader>Where you train</SectionHeader>
+          </View> },
+                    { id: 'style', title: 'Training style', body: <View style={{ gap: 12 }}>
+          <View style={{ gap: 8 }} accessibilityRole="radiogroup">
+            {([null, ...SPLIT_IDS] as (Split | null)[]).map((id) => {
+              const on = split === id;
+              const title = id ? SPLIT_LABELS[id] : 'Let CLAWW choose';
+              const blurb = id ? SPLIT_BLURBS[id] : 'Picks the gentlest style that fits your days.';
+              const note = id ? styleDaysNote(id, days) : null;
+              return (
+                <PressScale key={id ?? 'auto'} onPress={() => setSplit(id)} accessibilityRole="radio" accessibilityState={{ selected: on }} accessibilityLabel={`${title}. ${blurb}${note ? ` ${note}.` : ''}`}>
+                  <View style={{ borderRadius: 16, borderWidth: 1, borderColor: on ? A : COLORS.border, overflow: 'hidden', paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: COLORS.card }}>
+                    {on ? <LinearGradient pointerEvents="none" colors={['rgba(59,130,246,0.26)', 'rgba(29,78,216,0.08)']} style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} /> : null}
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={{ color: COLORS.fg, fontSize: 15, fontFamily: BG[800] }}>{title}</Text>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>{blurb}</Text>
+                      {note ? <Text style={{ color: COLORS.amber, fontSize: 12, fontFamily: BG[700], marginTop: 2 }}>{note}</Text> : null}
+                    </View>
+                    {on ? <Icon name="check" size={18} color={A} /> : null}
+                  </View>
+                </PressScale>
+              );
+            })}
+          </View>
+          </View> },
+                    { id: 'place', title: 'Where you train', body: <View style={{ gap: 12 }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             {PLACES.map((p) => (
               <Chip key={p.value} active={place === p.value} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setPlace(p.value)}>
@@ -227,22 +275,24 @@ export default function WorkoutSetup() {
               </Chip>
             ))}
           </View>
-
-            </>
-          )}
-
-          <SectionHeader>How long have you trained?</SectionHeader>
+          </View> },
+                  ]),
+              { id: 'experience', title: 'How long have you trained?', body: <View style={{ gap: 12 }}>
           <Segmented
             options={EXPERIENCE.map((e) => ({ value: e.value, label: e.label }))}
             value={experienceOf(months)}
             onChange={(v) => setMonths(EXPERIENCE.find((e) => e.value === v)!.months)}
             accessibilityLabel="How long you have trained"
           />
-
-          <SectionHeader>Time per session</SectionHeader>
+          </View> },
+              { id: 'minutes', title: 'Time per session', body: <View style={{ gap: 12 }}>
           <Segmented options={MINUTES} value={minutes} onChange={setMinutes} accessibilityLabel="Time per session" />
-
-          <SectionHeader>Anything that hurts?</SectionHeader>
+          </View> },
+              { id: 'hard', title: 'How hard should it feel?', body: <View style={{ gap: 12 }}>
+          <Segmented options={INTENSITY_OPTIONS.map((o) => ({ value: o.value, label: o.label }))} value={intensity} onChange={setIntensity} accessibilityLabel="How hard the sessions feel" />
+          <Text style={{ color: COLORS.textMuted, fontSize: 13, lineHeight: 17, fontFamily: BG[400] }}>{INTENSITY_OPTIONS.find((o) => o.value === intensity)!.note}</Text>
+          </View> },
+              { id: 'hurts', title: 'Anything that hurts?', body: <View style={{ gap: 12 }}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
             <Chip active={injuries.length === 0} accent={A} accentDeep={COLORS.blueDeep} onPress={() => setInjuries([])}>
               Nothing
@@ -261,6 +311,78 @@ export default function WorkoutSetup() {
               Your plan leaves out movements that load these areas. This isn't medical advice: see a doctor or physiotherapist for anything serious.
             </Text>
           ) : null}
+          </View> },
+            ];
+            const n = questions.length;
+            const idx = Math.min(qIdx, n - 1);
+            if (qView === 'list') {
+              return (
+                <>
+                  <PressScale onPress={() => setQView('cards')} accessibilityRole="button" accessibilityLabel="Show the questions as cards" style={{ alignSelf: 'flex-end' }}>
+                    <View style={{ minHeight: 36, justifyContent: 'center' }}>
+                      <Text style={{ color: A, fontSize: 13, fontFamily: BG[700] }}>Show as cards</Text>
+                    </View>
+                  </PressScale>
+                  {questions.map((q) => (
+                    <React.Fragment key={q.id}>
+                      <SectionHeader>{q.title}</SectionHeader>
+                      {q.body}
+                    </React.Fragment>
+                  ))}
+                </>
+              );
+            }
+            return (
+              <View style={{ gap: 12 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <View style={{ flex: 1, flexDirection: 'row', gap: 4 }} accessibilityLabel={`Question ${idx + 1} of ${n}`}>
+                    {questions.map((q, i) => (
+                      <View key={q.id} style={{ flex: 1, height: 4, borderRadius: 2, backgroundColor: i <= idx ? A : 'rgba(255,255,255,0.12)' }} />
+                    ))}
+                  </View>
+                  <PressScale onPress={() => setQView('list')} accessibilityRole="button" accessibilityLabel="Show all the questions as a list">
+                    <View style={{ minHeight: 36, justifyContent: 'center' }}>
+                      <Text style={{ color: COLORS.textMuted, fontSize: 13, fontFamily: BG[600] }}>List</Text>
+                    </View>
+                  </PressScale>
+                </View>
+                <CardCarousel
+                  items={questions}
+                  keyOf={(q) => q.id}
+                  index={idx}
+                  onIndexChange={setQIdx}
+                  onTouching={setQTouched}
+                  renderCard={(q, i) => (
+                    <Surface radius={24} padding={18}>
+                      <View style={{ gap: 14 }}>
+                        <Text style={{ color: COLORS.textMuted, fontSize: 12, letterSpacing: 0.8, fontFamily: BG[700] }}>{`QUESTION ${i + 1} OF ${n}`}</Text>
+                        <Text style={{ color: COLORS.fg, fontSize: 24, letterSpacing: -0.4, fontFamily: BG[800] }}>{q.title}</Text>
+                        {q.body}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 4 }}>
+                          {i > 0 ? (
+                            <PressScale onPress={() => setQIdx(i - 1)} accessibilityRole="button" accessibilityLabel="Previous question">
+                              <View style={{ minHeight: 44, paddingHorizontal: 4, flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <Icon name="chevron-up" size={14} color={COLORS.textMuted} />
+                                <Text style={{ color: COLORS.textMuted, fontSize: 14, fontFamily: BG[700] }}>Back</Text>
+                              </View>
+                            </PressScale>
+                          ) : <View />}
+                          {i < n - 1 ? (
+                            <PressScale onPress={() => setQIdx(i + 1)} accessibilityRole="button" accessibilityLabel="Next question">
+                              <View style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(59,130,246,0.22)', borderWidth: 1, borderColor: A }}>
+                                <Text style={{ color: '#fff', fontSize: 14, fontFamily: BG[800] }}>Next</Text>
+                                <Icon name="chevron-down" size={14} color="#fff" />
+                              </View>
+                            </PressScale>
+                          ) : null}
+                        </View>
+                      </View>
+                    </Surface>
+                  )}
+                />
+              </View>
+            );
+          })()}
 
           <PlanTile
             title={card.title}

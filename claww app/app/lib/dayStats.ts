@@ -1,3 +1,4 @@
+import { KCAL_PER_STEP_PER_KG } from './stepsConstants';
 // One definition of a day's numbers, so Home's tiles and the Tracker's cards can never disagree for the same day.
 // Pure; the screens feed it the same inputs.
 
@@ -18,9 +19,9 @@ export interface Burned {
   source: BurnedSource;
 }
 
-/** Calories per step, the same 0.0005 x body weight as lib/steps (a rough walking figure). */
+/** Active calories from steps: the same constant as lib/steps (net walking cost, 0.00035 kcal per step per kg). */
 export function stepsKcal(steps: number, weightKg: number | null): number {
-  return Math.round(steps * (weightKg ?? 70) * 0.0005);
+  return Math.round(steps * (weightKg ?? 70) * KCAL_PER_STEP_PER_KG);
 }
 
 /**

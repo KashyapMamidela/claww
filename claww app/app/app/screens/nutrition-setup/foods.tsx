@@ -4,10 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { COLORS, FONT, BG, bg } from '../../../lib/theme';
 import { track } from '../../../lib/analytics';
-import { FOOD_ROWS, countAvailability, dietLabel, proteinVerdict, visibleFoods, cookLabel, sourcesLabel, type FoodKey, type Availability } from '../../../lib/resourceDefaults';
+import { FOOD_ROWS, GROUP_TITLES, countAvailability, dietLabel, proteinVerdict, visibleFoods, cookLabel, sourcesLabel, type FoodKey, type FoodGroup, type Availability } from '../../../lib/resourceDefaults';
 import { draftAvailability, getDraft, patchDraft, setFood, type MealSetupDraft } from '../../../lib/mealSetupDraft';
 import { MealSetupHeader } from '../../../components/MealSetupHeader';
 import { TriState } from '../../../components/TriState';
+import { FoodDeck } from '../../../components/nutrition/FoodDeck';
+import { FoodSearchSheet } from '../../../components/nutrition/FoodSearchSheet';
+import { addCustom, removeCustom, MAX_CUSTOM_FOODS } from '../../../lib/customFoods';
 import { Button } from '../../../components/ui/Button';
 import { Icon } from '../../../components/ui/Icon';
 import { PressScale } from '../../../components/ui/PressScale';
@@ -21,6 +24,10 @@ const G = COLORS.green;
 export default function MealSetupFoods() {
   const router = useRouter();
   const [draft, setDraft] = useState<MealSetupDraft>(getDraft());
+  // Cards first (swipe up yes, down no, tap sometimes); the full list stays one tap away.
+  const [view, setView] = useState<'deck' | 'list'>('deck');
+  const [searchOpen, setSearchOpen] = useState(false);
+  const customFoods = draft.customFoods ?? [];
   const availability = useMemo(() => draftAvailability(draft), [draft]);
   const visible = useMemo(() => new Set(visibleFoods(draft.diet)), [draft.diet]);
 
@@ -29,7 +36,7 @@ export default function MealSetupFoods() {
   }, []);
 
   const set = (key: FoodKey, value: Availability) => setDraft(patchDraft(setFood(getDraft(), key, value)));
-  const allYes = (group: 'protein' | 'everyday') => {
+  const allYes = (group: FoodGroup) => {
     let d = getDraft();
     for (const r of FOOD_ROWS) if (r.group === group && visible.has(r.key)) d = setFood(d, r.key, 'yes');
     setDraft(patchDraft(d));
@@ -39,7 +46,7 @@ export default function MealSetupFoods() {
   const counts = countAvailability(availability, shown.map((r) => r.key));
   const because = `${sourcesLabel(draft.sources).toLowerCase().replace(/ \+ eating out$/, '')} + ${cookLabel(draft.cookWith).toLowerCase()}`;
 
-  const group = (g: 'protein' | 'everyday', title: string) => {
+  const group = (g: FoodGroup, title: string) => {
     const rows = shown.filter((r) => r.group === g);
     if (rows.length === 0) return null;
     return (
@@ -75,8 +82,49 @@ export default function MealSetupFoods() {
           {draft.diet ? ` (${dietLabel(draft.diet)})` : ''}
         </Text>
 
-        {group('protein', 'PROTEIN')}
-        {group('everyday', 'EVERYDAY')}
+        <View style={{ flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.45)', borderRadius: 14, padding: 3, borderWidth: 1, borderColor: COLORS.border, overflow: 'hidden' }} accessibilityRole="radiogroup">
+          {(['deck', 'list'] as const).map((v) => (
+            <PressScale key={v} onPress={() => setView(v)} accessibilityRole="radio" accessibilityState={{ selected: view === v }} accessibilityLabel={v === 'deck' ? 'Cards' : 'List'} style={{ flex: 1 }}>
+              <View style={{ minHeight: 40, borderRadius: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: view === v ? 'rgba(34,197,94,0.22)' : 'transparent' }}>
+                <Text style={{ color: view === v ? G : COLORS.textMuted, fontSize: 14, fontFamily: BG[800] }}>{v === 'deck' ? 'Cards' : 'List'}</Text>
+              </View>
+            </PressScale>
+          ))}
+        </View>
+
+        {view === 'deck' ? (
+          <FoodDeck rows={shown} availability={availability} onAnswer={(key, value) => setDraft(patchDraft(setFood(getDraft(), key, value)))} groupTitle={(r) => GROUP_TITLES[r.group]} />
+        ) : (
+          <>
+            {(['protein', 'everyday', 'staple', 'fresh'] as FoodGroup[]).map((g) => (
+              <React.Fragment key={g}>{group(g, GROUP_TITLES[g])}</React.Fragment>
+            ))}
+          </>
+        )}
+
+        <Surface padding={16}>
+          <SectionLabel color={G}>NOT ON THE LIST?</SectionLabel>
+          <Text style={{ color: COLORS.textMuted, fontSize: 14, lineHeight: 20, marginTop: 4, fontFamily: BG[400] }}>
+            Add any food you can get, such as rajma, ragi malt or sattu. The plan uses it to top up protein.
+          </Text>
+          {customFoods.length > 0 ? (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
+              {customFoods.map((name) => (
+                <PressScale key={name} onPress={() => setDraft(patchDraft({ customFoods: removeCustom(getDraft().customFoods ?? [], name) }))} accessibilityRole="button" accessibilityLabel={`Remove ${name}`}>
+                  <View style={{ minHeight: 40, paddingHorizontal: 12, borderRadius: 20, flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: 'rgba(34,197,94,0.18)', borderWidth: 1, borderColor: COLORS.greenBorderMd }}>
+                    <Text style={{ color: '#86EFAC', fontSize: 14, fontFamily: BG[700] }}>{name}</Text>
+                    <Icon name="x" size={13} color="#86EFAC" />
+                  </View>
+                </PressScale>
+              ))}
+            </View>
+          ) : null}
+          <View style={{ marginTop: 12 }}>
+            <Button variant="secondary" size="md" fullWidth disabled={customFoods.length >= MAX_CUSTOM_FOODS} onPress={() => setSearchOpen(true)} icon={<Icon name="plus" size={16} color={COLORS.fg} />}>
+              Add a food I get
+            </Button>
+          </View>
+        </Surface>
 
         <Surface padding={14}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -91,6 +139,18 @@ export default function MealSetupFoods() {
           See what you have
         </Button>
       </ScrollView>
+      <FoodSearchSheet
+        visible={searchOpen}
+        mealType="Snack"
+        recent={[]}
+        pickImmediately
+        onPickFood={(food) => {
+          setDraft(patchDraft({ customFoods: addCustom(getDraft().customFoods ?? [], food.name) }));
+          setSearchOpen(false);
+        }}
+        onClose={() => setSearchOpen(false)}
+        onLogged={() => setSearchOpen(false)}
+      />
     </SafeAreaView>
   );
 }

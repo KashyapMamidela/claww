@@ -76,7 +76,8 @@ export interface TrackerChartScreenProps {
  * already loaded; only steps ask the phone for the range's counts.
  */
 export function TrackerChartScreen({ kind, data, stepsGoal, onClose }: TrackerChartScreenProps) {
-  const [range, setRange] = useState<Range>('month');
+  // Steps open on the week, matching the card they came from; the other charts open on the month.
+  const [range, setRange] = useState<Range>(kind === 'steps' ? 'week' : 'month');
   const [steps, setSteps] = useState<number[] | null | undefined>(undefined);
   const now = useMemo(() => new Date(), []);
   const buckets = useMemo(() => bucketsForRange(range, now), [range, now]);

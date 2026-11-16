@@ -9,6 +9,7 @@ import { useProfile } from '../../../lib/profile';
 import { track } from '../../../lib/analytics';
 import { computeNutritionSample, saveNutritionTargets, type ActivityLevel, type Goal, type NutritionDefaults } from '../../../lib/data';
 import { saveUserResources } from '../../../lib/userResources';
+import { customToAvailability } from '../../../lib/customFoods';
 import { replanToday, resetMealPlans } from '../../../lib/mealPlanData';
 import { freshTargets, targetsChange } from '../../../lib/mealPlanReset';
 import { getTodaysMealLogs } from '../../../lib/data';
@@ -138,7 +139,7 @@ export default function MealSetupSummary() {
       diet: draft.diet,
       budgetInrDay: budget,
       planStyle: draft.planStyle,
-      availability,
+      availability: { ...availability, ...customToAvailability(draft.customFoods ?? []) } as typeof availability,
       avoid: [] as string[],
     };
 
@@ -227,6 +228,12 @@ export default function MealSetupSummary() {
                   {r.title}
                   {availability[r.key] === 'sometimes' ? ' sometimes' : ''}
                 </Text>
+              </View>
+            ))}
+            {/* Foods the person added themselves ("Add a food I get"): the plan uses them to top up protein. */}
+            {(draft.customFoods ?? []).map((name) => (
+              <View key={`custom-${name}`} style={{ borderRadius: 10, paddingHorizontal: 10, paddingVertical: 7, backgroundColor: 'rgba(34,197,94,0.28)' }}>
+                <Text style={{ color: COLORS.fg, fontSize: 13, fontFamily: BG[700] }}>+ {name}</Text>
               </View>
             ))}
           </View>

@@ -229,7 +229,8 @@ export function cheapestFix(proteinGapG: number, input: Pick<PlanInput, 'resourc
   const allowed = (a: AddOn) => {
     if (r.availability[a.key] === 'no') return false;
     if (a.key === 'eggs') return diet === 'egg' || diet === 'nonveg';
-    if (['curd', 'milk', 'whey'].includes(a.key)) return diet !== 'vegan';
+    if (['fish', 'mutton', 'chicken'].includes(a.key)) return diet === 'nonveg';
+    if (['curd', 'milk', 'whey', 'paneer', 'buttermilk'].includes(a.key)) return diet !== 'vegan';
     if (r.avoid.some((x) => x && (a.label.toLowerCase().includes(x) || a.food.toLowerCase().includes(x)))) return false;
     return true;
   };

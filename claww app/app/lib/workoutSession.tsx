@@ -10,6 +10,7 @@ import { useAppState } from './appState';
 import { newClientId, useSetQueueFlusher } from './setQueueRuntime';
 import { getLastWeights, getModalities, saveSessionOutcomes, saveSwap } from './adaptiveData';
 import { catalogKey, type CatalogEntry } from './muscleRecovery';
+import { clearLiveSession, loadLiveSession, markResumed, saveLiveSession } from './liveSessionStore';
 import { commandPill, localDateKey, prescribeDay, reasonLine, sessionOutcomes, type PrescribedExercise } from './sessionPrescription';
 import { refreshReminders } from './reminderSync';
 import {
@@ -683,6 +684,73 @@ export function WorkoutSessionProvider({ children }: { children: React.ReactNode
     });
     return () => sub.remove();
   }, []);
+
+  // A workout in progress survives the app being closed or killed (lib/liveSessionStore.ts). Written as the session
+  // changes, read back once at launch, and cleared when the session ends or finishes.
+  const hydrated = useRef(false);
+  useEffect(() => {
+    if (!userId) return;
+    let cancelled = false;
+    loadLiveSession(userId).then((snap) => {
+      hydrated.current = true;
+      if (cancelled || !snap || sessionIdRef.current) return;
+      const key = ++sessionKey.current;
+      const w = snap.workout as WorkoutRow;
+      const dayExercises = w.plan.days[snap.dayIndex]?.exercises ?? [];
+      touched.current = new Set();
+      sessionIdRef.current = snap.sessionId;
+      setSessionId(snap.sessionId);
+      prescribedRef.current = snap.prescribed as PrescribedExercise[];
+      setPrescribed(prescribedRef.current);
+      setWorkout(w);
+      setDayIndex(snap.dayIndex);
+      setExerciseIndex(snap.exerciseIndex);
+      setPlan(snap.plan as ExerciseState[]);
+      setModalities(snap.modalities);
+      // A rest that ran out while the app was closed is over.
+      const c = snap.clock as unknown as ClockState;
+      const over = restIsOver(c, Date.now());
+      setClock(over ? endRest(c) : c);
+      setStatus(c.restEndsAt !== null && !over ? 'resting' : 'active');
+      markResumed();
+      getLastTimeSets(userId, dayExercises.map((ex) => ex.name)).then((map) => {
+        if (sessionKey.current !== key) return;
+        setLastTime(map);
+        setLastTimeLoaded(true);
+      });
+      getExerciseForms(dayExercises.map((ex) => ex.name)).then((f) => {
+        if (sessionKey.current === key) setForms(f);
+      });
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userId]);
+
+  useEffect(() => {
+    if (!hydrated.current) return;
+    if ((status !== 'active' && status !== 'resting') || !workout || !clock || !userId) {
+      if (status === 'idle' || status === 'completed') clearLiveSession();
+      return;
+    }
+    const id = setTimeout(() => {
+      saveLiveSession({
+        v: 1,
+        userId,
+        savedAt: Date.now(),
+        sessionId: sessionIdRef.current,
+        workout,
+        dayIndex,
+        exerciseIndex,
+        plan: planRef.current,
+        clock: clock as unknown as { startedAt: number },
+        prescribed: prescribedRef.current,
+        modalities,
+      });
+    }, 300);
+    return () => clearTimeout(id);
+  }, [status, workout, dayIndex, exerciseIndex, plan, clock, modalities, userId]);
 
   const value = useMemo<WorkoutSessionState>(
     () => ({
