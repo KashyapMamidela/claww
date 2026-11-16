@@ -15,7 +15,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white)
 ![Tests](https://img.shields.io/badge/tests-1%2C034_passing-22C55E)
-![License](https://img.shields.io/badge/license-source--available-lightgrey)
+[![Copyright](https://img.shields.io/badge/%C2%A9_2026_CLAWW-all_rights_reserved-lightgrey)](LICENSE)
 
 <br />
 
@@ -158,26 +158,6 @@ The code is in [`claww app/website`](claww%20app/website) (design notes in [`DES
 
 <br />
 
-## Run it locally
-
-You need Node 18+, an Android phone or emulator, and your own Supabase project.
-
-```bash
-cd "claww app/app"
-cp .env.example .env        # add your Supabase URL and anon key
-npm install
-npx expo start --dev-client # needs an EAS development build for the native modules
-```
-
-```bash
-npm test                    # 96 files, 1,034 tests
-npx tsc --noEmit            # strict typecheck
-```
-
-Backend: apply `claww app/database/schema.sql` (safe to re-run), then deploy functions with `npx supabase functions deploy <name>`. Full steps are in [`claww app/docs/setup.md`](claww%20app/docs/setup.md). The app will not run end to end without your own Supabase project and model keys.
-
-<br />
-
 ## Roadmap
 
 - [x] Adaptive plans, player, Coach's Pen, meal planner, plate scanner, barcode, widgets, offline queue
@@ -203,9 +183,11 @@ CLAWW is built by three co-founders.
 
 <br />
 
-## License
+## Copyright and license
 
-CLAWW is **source-available, not open source**. You are welcome to read the code and review the work; you may not use, copy or redistribute it without permission. See [`LICENSE`](LICENSE). To ask for permission, write to **crew@claww.me**.
+**© 2026 CLAWW. All rights reserved.**
+
+This code is published to show the product and how it is built. **Nobody may use, copy, modify or redistribute it.** The full terms are in [`LICENSE`](LICENSE). For permission or business enquiries, write to **crew@claww.me**.
 
 ## Credits and data sources
 
