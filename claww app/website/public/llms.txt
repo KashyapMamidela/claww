@@ -1,0 +1,34 @@
+# CLAWW
+
+> CLAWW is a fitness app made in India that plans your workouts, food, steps and sleep in one place, and adapts your plan after every session. It is coming to Android first, then iOS. Website: https://claww.me
+
+## What CLAWW does
+
+- Adaptive workout plans: strength, cardio, mobility and yoga. After every session CLAWW decides the next one: it adds weight or reps when you have earned it, holds steady when you struggle, and goes easier on sore muscles.
+- Recovery check: before a session it asks how each muscle feels and adjusts today's numbers.
+- Fast logging: weights and reps are prefilled; one tap logs a set and starts the rest timer.
+- Food: calories, protein, carbs and fat estimated from a photo of your meal or a typed description, editable before saving. Daily calorie and macro targets for fat loss, muscle gain or eating better.
+- Indian meal suggestions (for example dal, paneer, eggs, dosa) that fit the protein and calories you still need today.
+- Daily activity: step counting on the phone (Health Connect on Android), plus sleep and water logging.
+- Form guides: step-by-step cues and target muscles for over 180 exercises.
+- The CLAWW Tracker: estimated 1-rep max trends, personal records, a 12-week consistency grid, weekly sets per muscle, and steps, sleep and protein trends.
+- Works with a full gym, home equipment or bodyweight only, for beginners to advanced.
+
+## How it is different
+
+Most fitness apps record what you did. CLAWW decides what you should do next and keeps workouts, food, steps, sleep and water in one app. Plans are built with deterministic training rules (rep ranges, progression, recovery scores), not guesses.
+
+## Status
+
+- Not launched yet. Join the waitlist at https://claww.me to get one email on launch day.
+- Pricing has not been announced.
+- CLAWW gives general fitness and nutrition guidance, not medical advice.
+
+## Links
+
+- Website and waitlist: https://claww.me
+- Instagram: https://www.instagram.com/clawwcrew
+- Support: support@claww.me
+- Privacy: privacy@claww.me
+- Privacy policy: https://claww.me/privacy
+- Terms of use: https://claww.me/terms
