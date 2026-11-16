@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>States</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+*{box-sizing:border-box}
+a{color:inherit;text-decoration:none}
+button{font-family:Inter,system-ui,sans-serif}
+.scr{position:relative;overflow:hidden;color:#FFFFFF;font-family:Inter,system-ui,sans-serif;
+  background:radial-gradient(120% 34% at 50% -4%,var(--glow),transparent 72%),radial-gradient(90% 26% at 0% 100%,rgba(255,255,255,0.025),transparent 70%),#050505}
+.scr::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.05;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;display:flex;flex-direction:column;gap:14px;padding:58px 16px 112px 16px}
+.card{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(180deg,#1A1A1D 0%,#131315 100%);border:1px solid rgba(255,255,255,0.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.07),inset 0 -1px 0 rgba(0,0,0,0.55),0 22px 34px -22px rgba(0,0,0,0.95),0 2px 6px rgba(0,0,0,0.35)}
+.card::after,.hero::after,.tint::after{content:"";position:absolute;inset:0;border-radius:inherit;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url%28%23n%29'/%3E%3C/svg%3E");opacity:.10;mix-blend-mode:overlay;pointer-events:none}
+.tint{position:relative;overflow:hidden;border-radius:18px;
+  background:radial-gradient(130% 95% at 100% 0%,color-mix(in srgb,var(--t) 24%,transparent),transparent 60%),linear-gradient(180deg,#1A1A1D,#121214);
+  border:1px solid color-mix(in srgb,var(--t) 24%,rgba(255,255,255,0.05));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),inset 0 -1px 0 rgba(0,0,0,0.5),0 22px 28px -22px color-mix(in srgb,var(--t) 75%,transparent),0 2px 6px rgba(0,0,0,0.4)}
+.dots::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:radial-gradient(rgba(255,255,255,0.08) 1px,transparent 1.3px);background-size:9px 9px;
+  -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 52%);mask-image:linear-gradient(205deg,#000 0%,transparent 52%);pointer-events:none}
+.lines::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.06) 0 1px,transparent 1px 8px);
+  -webkit-mask-image:linear-gradient(160deg,#000 0%,transparent 60%);mask-image:linear-gradient(160deg,#000 0%,transparent 60%);pointer-events:none}
+.hero{position:relative;overflow:hidden;border-radius:22px;border:1px solid rgba(255,255,255,0.14);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.20),inset 0 -1px 0 rgba(0,0,0,0.35),0 26px 40px -24px var(--sh,rgba(29,78,216,0.9)),0 2px 6px rgba(0,0,0,0.4)}
+.sheen{position:absolute;top:0;bottom:0;left:-60%;width:46%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.13),transparent);transform:skewX(-18deg);animation:sheen 1.8s ease-out 0.6s 1 both;pointer-events:none}
+.orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(2px)}
+.wm{position:absolute;right:-12px;bottom:-16px;opacity:.09;pointer-events:none}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 18px;border-radius:14px;border:0;font-size:14px;font-weight:800;letter-spacing:.15px;color:#FFFFFF;cursor:pointer;white-space:nowrap}
+.btn-lg{height:54px;border-radius:16px;font-size:15px}
+.btn-sm{height:38px;border-radius:10px;font-size:12.5px;padding:0 14px}
+.btn-p{background:linear-gradient(135deg,var(--deep),var(--acc));box-shadow:0 4px 10px color-mix(in srgb,var(--acc) 25%,transparent),inset 0 1px 0 rgba(255,255,255,0.22)}
+.btn-s{background:color-mix(in srgb,var(--acc) 9%,transparent);border:1px solid color-mix(in srgb,var(--acc) 26%,transparent);color:var(--acc)}
+.btn-g{background:transparent;border:1px solid rgba(255,255,255,0.14);color:#A1A1AA}
+.btn-i{background:#FFFFFF;color:#000000;box-shadow:0 6px 16px rgba(0,0,0,0.35)}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:22px;background:linear-gradient(180deg,#19191C,#131315);border:1px solid rgba(255,255,255,0.09);box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);color:#C4C4CC;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.chip-on{background:linear-gradient(135deg,var(--deep),var(--acc));border:1px solid color-mix(in srgb,var(--acc) 47%,transparent);color:#FFFFFF;font-weight:700;box-shadow:0 2px 6px color-mix(in srgb,var(--acc) 25%,transparent)}
+.lbl{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.9px;color:var(--c,#A1A1AA)}
+.lbl i{display:block;width:6px;height:6px;border-radius:3px;background:currentColor;box-shadow:0 0 5px currentColor}
+.disp{margin:0;font-size:28px;line-height:31px;font-weight:900;letter-spacing:-.6px;white-space:pre-line}
+.h2{margin:0;font-size:21px;font-weight:800;letter-spacing:-.3px}
+.t{font-size:14px;font-weight:700}
+.b{font-size:13px;line-height:19px;color:#A1A1AA}
+.s{font-size:12px;color:#9A9AA3}
+.num{font-variant-numeric:tabular-nums}
+.pen{font-family:Caveat,cursive;font-weight:700;color:var(--pen);letter-spacing:.2px;text-shadow:0 0 14px rgba(255,255,255,0.35),0 1px 0 rgba(0,0,0,0.6)}
+.pen-word{display:inline-block;animation:penIn .5s ease-out .25s both}
+.pen-val{display:inline-block;font-family:Inter,system-ui,sans-serif;font-weight:800;color:#FFFFFF;letter-spacing:-.2px;padding-bottom:6px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 8' preserveAspectRatio='none'%3E%3Cpath d='M2 5.5 C 22 2%2C 48 7%2C 70 3.5 S 92 4%2C 98 2.5' fill='none' stroke='white' stroke-width='2.2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") left bottom/100% 7px no-repeat;text-shadow:0 0 14px rgba(255,255,255,0.28);animation:valIn .45s cubic-bezier(.2,.8,.2,1) .2s both}
+.pen-line{stroke:var(--pen);stroke-dasharray:170;animation:penDraw .9s ease-out .35s both;filter:drop-shadow(0 0 4px rgba(255,255,255,0.55))}
+.ring{animation:ringIn 1.2s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .55s cubic-bezier(.2,.8,.2,1) both}
+.pulse{animation:pulse 2s ease-in-out infinite}
+.bar{height:4px;border-radius:2px;background:rgba(255,255,255,0.06);overflow:hidden}
+.bar>b{display:block;height:100%;border-radius:2px;background:var(--c)}
+.hr{height:1px;background:rgba(255,255,255,0.07)}
+.ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:12px;background:color-mix(in srgb,var(--t,#FFFFFF) 12%,transparent);border:1px solid color-mix(in srgb,var(--t,#FFFFFF) 22%,transparent);color:var(--t,#FFFFFF)}
+.seg{display:flex;padding:3px;border-radius:12px;background:#0B0B0C;border:1px solid rgba(255,255,255,0.08);box-shadow:inset 0 1px 3px rgba(0,0,0,0.6)}
+.seg>button{flex:1;height:38px;min-height:38px;border:0;border-radius:10px;background:transparent;color:#9A9AA3;font-size:12.5px;font-weight:700;cursor:pointer}
+@keyframes penDraw{from{stroke-dashoffset:170}to{stroke-dashoffset:0}}
+@keyframes penIn{from{opacity:0;transform:translateY(4px) rotate(-3deg)}to{opacity:1;transform:translateY(0) rotate(-2deg)}}
+@keyframes ringIn{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}}
+@keyframes sheen{0%{left:-60%}100%{left:140%}}
+@keyframes valIn{from{opacity:0;transform:translateY(4px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+.tap{min-width:44px;min-height:44px}
+.sk{background:linear-gradient(90deg,#151517 0%,#1F1F23 50%,#151517 100%);background-size:200% 100%;animation:skel 1.4s linear infinite;border-radius:10px}
+@keyframes skel{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+</style>
+</helmet>
+<div class="scr" style="width: 860px; height: 1010px; --glow: rgba(255,255,255,0.05); --acc: #3B82F6; --deep: #1D4ED8; --pen: #FFFFFF">
+
+<div style="position: relative; z-index: 1; padding: 36px 40px">
+  <span class="lbl" style="--c: #A1A1AA"><i></i>STATES · EVERY SCREEN NEEDS THESE</span>
+  <h1 style="margin: 6px 0 0 0; font-size: 30px; font-weight: 900; letter-spacing: -.8px">When things aren’t perfect</h1>
+  <p class="b" style="margin: 6px 0 22px 0; max-width: 620px">Basement gyms lose signal, photos are blurry, and day one has no data. These rules apply app-wide.</p>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 20px"><div style="display: flex; flex-direction: column; gap: 10px"><div><span class="t" style="display: block">First day</span><span class="s" style="display: block; margin-top: 2px; line-height: 17px">One thing to do, not ten. The plan shows tomorrow’s first session.</span></div><div style="position: relative; overflow: hidden; height: 300px; padding: 14px; border-radius: 26px; background: radial-gradient(120% 40% at 50% -5%, rgba(34,197,94,0.12), transparent 70%), #050505; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 10px"><span class="lbl" style="--c: #22C55E"><i></i>DAY 0</span><span class="h2" style="font-size: 19px">Hi Kashyap. Your plan starts tomorrow.</span>
+      <div class="hero lines" style="padding: 14px; background: linear-gradient(135deg, #0F172A, #1E3A5F 55%, #1D4ED8)"><span class="sheen"></span><span style="position: relative; display: block; font-size: 11px; font-weight: 700; letter-spacing: .8px; color: rgba(255,255,255,0.7)">TOMORROW · 6:00 PM</span><span style="position: relative; display: block; margin-top: 4px; font-size: 16px; font-weight: 900">Upper body · 45 min</span></div>
+      <div class="card" style="padding: 12px"><span style="position: relative; display: block; font-size: 13px; font-weight: 700">Today, just one thing</span><span class="s" style="position: relative">Log dinner so tomorrow’s meals fit you.</span></div>
+      <span class="btn btn-p" style="--acc: #22C55E; --deep: #166534">Log tonight’s dinner</span></div></div><div style="display: flex; flex-direction: column; gap: 10px"><div><span class="t" style="display: block">Loading</span><span class="s" style="display: block; margin-top: 2px; line-height: 17px">Skeletons in the real layout, never a spinner on a blank page.</span></div><div style="position: relative; overflow: hidden; height: 300px; padding: 14px; border-radius: 26px; background: radial-gradient(120% 40% at 50% -5%, rgba(255,255,255,0.05), transparent 70%), #050505; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 10px"><span class="sk" style="width: 40%; height: 12px"></span><span class="sk" style="width: 75%; height: 26px"></span>
+      <span class="sk" style="height: 110px; border-radius: 20px"></span><span class="sk" style="height: 64px; border-radius: 18px"></span><span class="sk" style="height: 64px; border-radius: 18px"></span></div></div><div style="display: flex; flex-direction: column; gap: 10px"><div><span class="t" style="display: block">Offline in the gym</span><span class="s" style="display: block; margin-top: 2px; line-height: 17px">The player never waits for the network.</span></div><div style="position: relative; overflow: hidden; height: 300px; padding: 14px; border-radius: 26px; background: radial-gradient(120% 40% at 50% -5%, rgba(59,130,246,0.14), transparent 70%), #050505; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 10px"><div style="display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: rgba(245,158,11,0.10); border: 1px solid rgba(245,158,11,0.3)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h.01"/><path d="M8.5 16.429a5 5 0 0 1 7 0"/><path d="M5 12.859a10 10 0 0 1 5.17-2.69"/><path d="M19 12.859a10 10 0 0 0-2.007-1.523"/><path d="M2 8.82a15 15 0 0 1 4.177-2.643"/><path d="M22 8.82a15 15 0 0 0-11.288-3.764"/><path d="m2 2 20 20"/></svg><span style="font-size: 12px; line-height: 16px; color: #FDE68A">No signal. Every set is saved on your phone and syncs when you’re back.</span></div>
+      <div style="display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 12px; border-radius: 16px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25)"><span style="font-size: 13px; font-weight: 700">Set 1</span><span class="num" style="flex: 1; font-size: 14px; font-weight: 800">60 kg × 8</span><span style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #1D4ED8, #3B82F6); display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+      <div style="display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 12px; border-radius: 16px; background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25)"><span style="font-size: 13px; font-weight: 700">Set 2</span><span class="num" style="flex: 1; font-size: 14px; font-weight: 800">60 kg × 8</span><span style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #1D4ED8, #3B82F6); display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span></div>
+      <span style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: #9A9AA3"><span style="width: 8px; height: 8px; border-radius: 4px; background: #F59E0B"></span>2 sets waiting to sync</span></div></div><div style="display: flex; flex-direction: column; gap: 10px"><div><span class="t" style="display: block">Scanner not sure</span><span class="s" style="display: block; margin-top: 2px; line-height: 17px">Ask one question instead of guessing wrong.</span></div><div style="position: relative; overflow: hidden; height: 300px; padding: 14px; border-radius: 26px; background: radial-gradient(120% 40% at 50% -5%, rgba(34,197,94,0.12), transparent 70%), #050505; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 10px"><div style="display: flex; gap: 10px; align-items: center"><span aria-hidden="true" style="width: 52px; height: 52px; border-radius: 14px; background: radial-gradient(circle, #C9862E 0 30%, #8A4B12 46%, #2A2A2E 48%, #3F3F46 56%, #1C1C1F 60%)"></span><div><span style="display: block; font-size: 14px; font-weight: 800">Not sure about this one</span><span class="s">Which is it?</span></div></div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; --acc: #22C55E; --deep: #166534"><span class="chip chip-on">Sambar</span><span class="chip">Dal tadka</span><span class="chip">Rasam</span><span class="chip">Something else</span></div>
+      <span class="s" style="line-height: 17px">Your answer teaches the scanner. Next time it asks less.</span>
+      <span class="btn btn-s" style="--acc: #22C55E">Log by name instead</span></div></div><div style="display: flex; flex-direction: column; gap: 10px"><div><span class="t" style="display: block">Error</span><span class="s" style="display: block; margin-top: 2px; line-height: 17px">Say what still works and what was saved.</span></div><div style="position: relative; overflow: hidden; height: 300px; padding: 14px; border-radius: 26px; background: radial-gradient(120% 40% at 50% -5%, rgba(255,255,255,0.05), transparent 70%), #050505; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 10px"><div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 18px; text-align: center"><span class="ico" style="--t: #A1A1AA; width: 52px; height: 52px; border-radius: 16px"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span><span style="font-size: 16px; font-weight: 800">Couldn’t refresh today’s plan</span><span class="s" style="line-height: 17px">You’re seeing the plan saved at 7:40 AM. Nothing is lost.</span></div>
+      <span class="btn btn-p" style="margin-top: 8px">Try again</span><span class="btn btn-g">Keep using saved plan</span></div></div><div style="display: flex; flex-direction: column; gap: 10px"><div><span class="t" style="display: block">Empty diary</span><span class="s" style="display: block; margin-top: 2px; line-height: 17px">An empty screen offers the one-tap answer.</span></div><div style="position: relative; overflow: hidden; height: 300px; padding: 14px; border-radius: 26px; background: radial-gradient(120% 40% at 50% -5%, rgba(34,197,94,0.12), transparent 70%), #050505; border: 1px solid rgba(255,255,255,0.10); display: flex; flex-direction: column; gap: 10px"><span class="lbl" style="--c: #22C55E"><i></i>FOOD DIARY · TODAY</span>
+      <div class="card" style="padding: 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center"><span style="position: relative; font-size: 15px; font-weight: 800">Nothing logged yet</span><span class="s" style="position: relative; line-height: 17px">Breakfast on your plan was poha + 2 eggs. Did you have it?</span></div>
+      <span class="btn btn-p" style="--acc: #22C55E; --deep: #166534"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Yes, as planned</span>
+      <div style="display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px"><span class="btn btn-g" style="padding: 0 8px">Something else</span><span class="btn btn-g" style="padding: 0 8px">Skipped</span></div></div></div></div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview": {"width": 860, "height": 1010}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
